@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id             String             @id @default(uuid())
+  name           String
+  logo           String?
+  primaryColor   String?            @default("#3b82f6")
+  secondaryColor String?            @default("#0f172a")
+  contactEmail   String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  users            User[]
+  courses          Course[]
+  courseSections   CourseSection[]
+  courseContents   CourseContent[]
+  enrollments      Enrollment[]
+  liveClasses      LiveClass[]
+  mainsAssignments MainsAssignment[]
+  mainsSubmissions MainsSubmission[]
+  evaluations      Evaluation[]
+}
+
+model User {
+  id             String       @id @default(uuid())
+  email          String       @unique
+  password       String
+  name           String
+  role           String       @default("STUDENT") // STUDENT, ADMIN, EVALUATOR
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  enrollments      Enrollment[]
+  mainsSubmissions MainsSubmission[]
+  evaluations      Evaluation[]       @relation("EvaluatedBy")
+}
+
+model Course {
+  id             String       @id @default(uuid())
+  title          String
+  description    String?
+  thumbnail      String?
+  instructor     String?
+  published      Boolean      @default(false)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  sections         CourseSection[]
+  enrollments      Enrollment[]
+  liveClasses      LiveClass[]
+  mainsAssignments MainsAssignment[]
+}
+
+model CourseSection {
+  id             String       @id @default(uuid())
+  title          String
+  order          Int          @default(0)
+  courseId       String
+  course         Course       @relation(fields: [courseId], references: [id])
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+
+  contents CourseContent[]
+}
+
+model CourseContent {
+  id             String        @id @default(uuid())
+  title          String
+  type           String        // PDF, MP4, IMAGE, TEXT
+  url            String?
+  textBody       String?
+  sectionId      String
+  section        CourseSection @relation(fields: [sectionId], references: [id])
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime      @default(now())
+}
+
+model Enrollment {
+  id             String       @id @default(uuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  courseId       String
+  course         Course       @relation(fields: [courseId], references: [id])
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+
+  @@unique([userId, courseId])
+}
+
+model LiveClass {
+  id             String       @id @default(uuid())
+  title          String
+  description    String?
+  date           DateTime
+  startTime      String
+  duration       Int          // in minutes
+  meetingUrl     String
+  status         String       @default("SCHEDULED") // SCHEDULED, CANCELLED, COMPLETED
+  courseId       String
+  course         Course       @relation(fields: [courseId], references: [id])
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+}
+
+model MainsAssignment {
+  id             String       @id @default(uuid())
+  title          String
+  instructions   String?
+  deadline       DateTime?
+  courseId       String
+  course         Course       @relation(fields: [courseId], references: [id])
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+
+  submissions MainsSubmission[]
+}
+
+model MainsSubmission {
+  id           String          @id @default(uuid())
+  fileUrl      String
+  status       String          @default("SUBMITTED") // SUBMITTED, UNDER_EVALUATION, EVALUATED
+  assignmentId String
+  assignment   MainsAssignment @relation(fields: [assignmentId], references: [id])
+  studentId    String
+  student      User            @relation(fields: [studentId], references: [id])
+  organizationId String
+  organization Organization    @relation(fields: [organizationId], references: [id])
+  createdAt    DateTime        @default(now())
+
+  evaluation Evaluation?
+}
+
+model Evaluation {
+  id             String          @id @default(uuid())
+  marks          Float
+  feedback       String?
+  submissionId   String          @unique
+  submission     MainsSubmission @relation(fields: [submissionId], references: [id])
+  evaluatorId    String
+  evaluator      User            @relation("EvaluatedBy", fields: [evaluatorId], references: [id])
+  organizationId String
+  organization   Organization    @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime        @default(now())
+}
