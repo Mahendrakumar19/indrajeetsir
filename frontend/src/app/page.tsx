@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import './home.css';
 
 export default function Home() {
@@ -32,7 +34,7 @@ export default function Home() {
           <a href="#contact">Contact</a>
         </nav>
         <div className="nav-actions">
-          <a href="/login" className="btn-outline">Student Login</a>
+          <Link href="/login" className="btn-outline">Student Login</Link>
           <button className="btn-primary" onClick={() => setShowBookModal(true)}>Book Free Call</button>
         </div>
       </header>
@@ -59,10 +61,13 @@ export default function Home() {
         </div>
         <div className="hero-img-wrap">
           <div className="mentor-card">
-            <img
+            <Image
               src="/indrajeet-sir.png"
               alt="Indrajeet Sir"
+              width={350}
+              height={350}
               className="mentor-img"
+              priority
             />
             <div className="mentor-card-body">
               <strong>Indrajeet Sir</strong>
@@ -79,7 +84,7 @@ export default function Home() {
           <span className="pill">About Indrajeet Sir</span>
           <h2>Your Dedicated UPSC & State PCS Mentor</h2>
           <blockquote className="quote-box">
-            "UPSC is not about reading 100 books. It's about reading the right books with the right strategy — guided personally."
+            &quot;UPSC is not about reading 100 books. It&apos;s about reading the right books with the right strategy — guided personally.&quot;
           </blockquote>
           <p>
             With a decade of guiding UPSC aspirants, Indrajeet Sir blends experience and insight to help you navigate your path to success.
@@ -137,7 +142,7 @@ export default function Home() {
             <ul>
               <li><a href="#about">About</a></li>
               <li><a href="#mentorship">Mentorship</a></li>
-              <li><a href="/login">Student Login</a></li>
+              <li><Link href="/login">Student Login</Link></li>
             </ul>
           </div>
           <div>
@@ -156,7 +161,7 @@ export default function Home() {
           <div className="modal-card" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setShowBookModal(false)}>✕</button>
             <h3>Book Free 1:1 Strategy Call</h3>
-            <p>We'll contact you within 24 hours to confirm your slot with Indrajeet Sir.</p>
+            <p>We&apos;ll contact you within 24 hours to confirm your slot with Indrajeet Sir.</p>
             <form onSubmit={handleSubmit}>
               <div className="field">
                 <label>Your Full Name</label>

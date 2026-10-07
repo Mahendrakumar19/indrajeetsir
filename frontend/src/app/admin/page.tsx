@@ -1,34 +1,55 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { API_URL, getAdminSession, setAdminSession, clearAdminSession } from '@/lib/api';
 import './admin.css';
 
+interface LiveClassItem {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  meetLink: string;
+  assignedStudent?: string;
+  status?: string;
+}
+
+interface StudentItem {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  attempt: string;
+  joinedDate: string;
+}
+
+interface MessageItem {
+  id: string;
+  studentName: string;
+  text: string;
+  sender: 'student' | 'admin';
+  timestamp: string;
+}
+
 export default function AdminPanel() {
-  const [auth, setAuth] = useState(false);
+  const [auth, setAuth] = useState<boolean>(() => getAdminSession());
   const [passcode, setPasscode] = useState('');
   const [showPasscode, setShowPasscode] = useState(false);
   const [authError, setAuthError] = useState('');
   const [tab, setTab] = useState<'classes' | 'students' | 'chat'>('classes');
 
   // Live Classes
-  const [classes, setClasses] = useState<any[]>([]);
+  const [classes, setClasses] = useState<LiveClassItem[]>([]);
   const [form, setForm] = useState({ title: '', date: '', time: '', meetLink: '', assignedStudent: 'All Students' });
   const [saving, setSaving] = useState(false);
 
   // Students
-  const [students, setStudents] = useState<any[]>([]);
+  const [students, setStudents] = useState<StudentItem[]>([]);
 
   // Chat
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<MessageItem[]>([]);
   const [reply, setReply] = useState('');
-
-  // Check persistent admin session on mount
-  useEffect(() => {
-    if (getAdminSession()) {
-      setAuth(true);
-    }
-  }, []);
 
   // Load data after auth
   useEffect(() => {
@@ -101,7 +122,7 @@ export default function AdminPanel() {
         setForm({ title: '', date: '', time: '', meetLink: '', assignedStudent: 'All Students' });
       }
     } catch {
-      const demo = { id: `lc-${Date.now()}`, ...form, status: 'UPCOMING' };
+      const demo: LiveClassItem = { id: `lc-${Date.now()}`, ...form, status: 'UPCOMING' };
       setClasses(prev => [...prev, demo]);
       setForm({ title: '', date: '', time: '', meetLink: '', assignedStudent: 'All Students' });
     }
@@ -127,7 +148,7 @@ export default function AdminPanel() {
       const data = await res.json();
       if (data.success) { setMessages(prev => [...prev, data.message]); }
     } catch {
-      const demo = { id: `m-${Date.now()}`, studentName: 'Indrajeet Sir', text: reply, sender: 'admin', timestamp: 'Just now' };
+      const demo: MessageItem = { id: `m-${Date.now()}`, studentName: 'Indrajeet Sir', text: reply, sender: 'admin', timestamp: 'Just now' };
       setMessages(prev => [...prev, demo]);
     }
     setReply('');
@@ -162,7 +183,7 @@ export default function AdminPanel() {
             {authError && <div className="lock-error">{authError}</div>}
             <button type="submit">Unlock Panel →</button>
           </form>
-          <a href="/" className="lock-back">← Back to Website</a>
+          <Link href="/" className="lock-back">← Back to Website</Link>
         </div>
       </div>
     );
@@ -202,7 +223,7 @@ export default function AdminPanel() {
           <div>
             <div className="admin-page-header">
               <h1>Live Classes</h1>
-              <p>Schedule a class — students will see the Google Meet link on their dashboard.</p>
+              <p>Schedule a class — students will see the link on their dashboard.</p>
             </div>
 
             {/* Add class form */}

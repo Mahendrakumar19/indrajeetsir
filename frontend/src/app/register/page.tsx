@@ -1,10 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { API_URL, setStudentSession } from '@/lib/api';
 import '../auth.css';
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,7 +30,7 @@ export default function RegisterPage() {
       const data = await res.json();
       if (data.success && data.student) {
         setStudentSession(data.student);
-        window.location.href = '/dashboard';
+        router.push('/dashboard');
       } else {
         setError(data.message || 'Registration failed. Try again.');
       }
@@ -39,7 +42,7 @@ export default function RegisterPage() {
         attempt,
       };
       setStudentSession(fallbackUser);
-      window.location.href = '/dashboard';
+      router.push('/dashboard');
     } finally {
       setLoading(false);
     }
@@ -48,7 +51,7 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <a href="/" className="auth-back">← Back to Home</a>
+        <Link href="/" className="auth-back">← Back to Home</Link>
         <div className="auth-logo">
           <span>🇮🇳</span>
           <div>
@@ -130,7 +133,7 @@ export default function RegisterPage() {
         </form>
 
         <p className="auth-footer-text">
-          Already registered? <a href="/login">Sign In here</a>.
+          Already registered? <Link href="/login">Sign In here</Link>.
         </p>
       </div>
     </div>

@@ -1,10 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { API_URL, setStudentSession, getStudentSession } from '@/lib/api';
 import '../auth.css';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -14,9 +17,9 @@ export default function LoginPage() {
   useEffect(() => {
     const existing = getStudentSession();
     if (existing) {
-      window.location.href = '/dashboard';
+      router.push('/dashboard');
     }
-  }, []);
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +35,7 @@ export default function LoginPage() {
       const data = await res.json();
       if (data.success && data.student) {
         setStudentSession(data.student);
-        window.location.href = '/dashboard';
+        router.push('/dashboard');
       } else {
         setError(data.message || 'Invalid credentials. Please try again.');
       }
@@ -45,7 +48,7 @@ export default function LoginPage() {
         attempt: '2027',
       };
       setStudentSession(fallbackUser);
-      window.location.href = '/dashboard';
+      router.push('/dashboard');
     } finally {
       setLoading(false);
     }
@@ -54,7 +57,7 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <a href="/" className="auth-back">← Back to Home</a>
+        <Link href="/" className="auth-back">← Back to Home</Link>
         <div className="auth-logo">
           <span>🇮🇳</span>
           <div>
@@ -107,7 +110,7 @@ export default function LoginPage() {
         </form>
 
         <p className="auth-footer-text">
-          New student? <a href="/register">Register your account</a> or <a href="/#contact">Book a call</a>.
+          New student? <Link href="/register">Register your account</Link> or <Link href="/#contact">Book a call</Link>.
         </p>
       </div>
     </div>

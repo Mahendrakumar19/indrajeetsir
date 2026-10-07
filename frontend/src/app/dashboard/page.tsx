@@ -1,28 +1,46 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { API_URL, getStudentSession, clearStudentSession, StudentUser } from '@/lib/api';
 import './dashboard.css';
 
+interface LiveClassItem {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  meetLink: string;
+  assignedStudent?: string;
+  status?: string;
+}
+
+interface MessageItem {
+  id: string;
+  studentName: string;
+  text: string;
+  sender: 'student' | 'admin';
+  timestamp: string;
+}
+
 export default function StudentDashboard() {
-  const [student, setStudent] = useState<StudentUser>({
-    id: 'st-1',
-    name: 'Rahul Kumar',
-    email: 'rahul@gmail.com',
-    attempt: '2027',
-  });
-  const [classes, setClasses] = useState<any[]>([]);
-  const [messages, setMessages] = useState<any[]>([]);
+  const router = useRouter();
+  const [student] = useState<StudentUser>(() => 
+    getStudentSession() || {
+      id: 'st-1',
+      name: 'Rahul Kumar',
+      email: 'rahul@gmail.com',
+      attempt: '2027',
+    }
+  );
+  const [classes, setClasses] = useState<LiveClassItem[]>([]);
+  const [messages, setMessages] = useState<MessageItem[]>([]);
   const [msgText, setMsgText] = useState('');
   const [tab, setTab] = useState<'classes' | 'chat'>('classes');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const session = getStudentSession();
-    if (session) {
-      setStudent(session);
-    }
-
     fetch(`${API_URL}/live-classes`)
       .then(r => r.json())
       .then(d => {
@@ -39,7 +57,7 @@ export default function StudentDashboard() {
 
   const handleLogout = () => {
     clearStudentSession();
-    window.location.href = '/login';
+    router.push('/login');
   };
 
   const sendMessage = async (e: React.FormEvent) => {
@@ -57,7 +75,7 @@ export default function StudentDashboard() {
         setMsgText('');
       }
     } catch {
-      const demo = {
+      const demo: MessageItem = {
         id: `m-${Date.now()}`,
         studentName: student.name,
         text: msgText,
@@ -106,7 +124,7 @@ export default function StudentDashboard() {
           <div>
             <div className="dash-header">
               <h1>Your Scheduled Live Classes</h1>
-              <p>Click "Join Class" to enter your scheduled 1:1 mentorship session with Indrajeet Sir.</p>
+              <p>Click &quot;Join Class&quot; to enter your scheduled 1:1 mentorship session with Indrajeet Sir.</p>
             </div>
 
             {(() => {
