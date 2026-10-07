@@ -1,37 +1,46 @@
 import { Controller, Get, Post, Delete, Body, Param } from '@nestjs/common';
+import { PrismaService } from './prisma.service.js';
 
-// ─── In-Memory Data Store ─────────────────────────────────────────────────────
-let students: any[] = [
+// ─── In-Memory Resilient Fallback Store ───────────────────────────────────────
+let fallbackStudents: any[] = [
   { id: 'st-1', name: 'Rahul Kumar', email: 'rahul@gmail.com', phone: '+91 98765 43210', attempt: '2027', joinedDate: '2026-08-15' },
   { id: 'st-2', name: 'Priya Sharma', email: 'priya@outlook.com', phone: '+91 98123 45678', attempt: '2026', joinedDate: '2026-06-01' },
 ];
 
-let liveClasses: any[] = [
+let fallbackLiveClasses: any[] = [
   {
     id: 'lc-1',
     title: 'GS-3: Economy & Inflation Strategy',
     date: '2026-10-15',
     time: '19:00',
     meetLink: 'https://meet.google.com/abc-defg-hij',
+    assignedStudent: 'All Students',
     status: 'UPCOMING',
   },
 ];
 
-let messages: any[] = [
+let fallbackMessages: any[] = [
   { id: 'm-1', studentName: 'Rahul Kumar', text: 'Sir, what time is the class today?', sender: 'student', timestamp: '10:00 AM' },
   { id: 'm-2', studentName: 'Rahul Kumar', text: '7:00 PM on Google Meet. Link is on your dashboard.', sender: 'admin', timestamp: '10:05 AM' },
 ];
 
-// ─── Controller ───────────────────────────────────────────────────────────────
 @Controller()
 export class AppController {
+  constructor(private readonly prisma: PrismaService) {}
 
-  // Health check
+  // Health check with DB status
   @Get()
-  health() {
+  async health() {
+    let dbOk = false;
+    try {
+      await this.prisma.$queryRaw`SELECT 1`;
+      dbOk = true;
+    } catch {}
+
     return {
       status: 'ok',
       app: 'Indrajeet Sir UPSC & State PCS Mentorship API',
+      database: dbOk ? 'MySQL Connected' : 'In-Memory Fallback Active',
       timestamp: new Date().toISOString(),
       env: process.env.NODE_ENV || 'development',
     };
@@ -39,63 +48,117 @@ export class AppController {
 
   // ── Auth Endpoints ──────────────────────────────────────────────────────────
   @Post('auth/student-login')
-  studentLogin(@Body() body: { email: string; password?: string }) {
+  async studentLogin(@Body() body: { email: string; password?: string }) {
     const emailClean = (body.email || '').trim().toLowerCase();
-    const existing = students.find(s => s.email.toLowerCase() === emailClean);
 
-    if (existing) {
+    try {
+      let user = await this.prisma.user.findUnique({ where: { email: emailClean } });
+      if (!user) {
+        // Ensure default organization exists
+        let org = await this.prisma.organization.findFirst();
+        if (!org) {
+          org = await this.prisma.organization.create({
+            data: { name: 'Indrajeet Sir Mentorship', contactEmail: 'info@indrajeetsir.com' },
+          });
+        }
+        user = await this.prisma.user.create({
+          data: {
+            email: emailClean,
+            password: body.password || 'default_pass',
+            name: body.email ? body.email.split('@')[0] : 'Student',
+            role: 'STUDENT',
+            organizationId: org.id,
+          },
+        });
+      }
+
+      const studentObj = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: '+91 98765 43210',
+        attempt: '2027',
+        joinedDate: user.createdAt.toISOString().slice(0, 10),
+      };
+
       return {
         success: true,
-        token: `student_token_${existing.id}_${Date.now()}`,
-        student: existing,
+        token: `student_token_${user.id}_${Date.now()}`,
+        student: studentObj,
       };
+    } catch {
+      // In-memory fallback
+      const existing = fallbackStudents.find(s => s.email.toLowerCase() === emailClean);
+      if (existing) {
+        return { success: true, token: `student_token_${existing.id}_${Date.now()}`, student: existing };
+      }
+      const newSt = {
+        id: `st-${Date.now()}`,
+        name: body.email ? body.email.split('@')[0] : 'Student',
+        email: body.email || 'student@indrajeetsir.com',
+        phone: '+91 98765 43210',
+        attempt: '2027',
+        joinedDate: new Date().toISOString().slice(0, 10),
+      };
+      fallbackStudents.push(newSt);
+      return { success: true, token: `student_token_${newSt.id}_${Date.now()}`, student: newSt };
     }
-
-    const newStudent = {
-      id: `st-${Date.now()}`,
-      name: body.email ? body.email.split('@')[0] : 'Student',
-      email: body.email || 'student@indrajeetsir.com',
-      phone: '+91 98765 43210',
-      attempt: '2027',
-      joinedDate: new Date().toISOString().slice(0, 10),
-    };
-    students.push(newStudent);
-
-    return {
-      success: true,
-      token: `student_token_${newStudent.id}_${Date.now()}`,
-      student: newStudent,
-    };
   }
 
   @Post('auth/register')
-  registerStudent(@Body() body: { name: string; email: string; phone?: string; attempt?: string }) {
+  async registerStudent(@Body() body: { name: string; email: string; phone?: string; attempt?: string; password?: string }) {
     const emailClean = (body.email || '').trim().toLowerCase();
-    const existing = students.find(s => s.email.toLowerCase() === emailClean);
 
-    if (existing) {
+    try {
+      let user = await this.prisma.user.findUnique({ where: { email: emailClean } });
+      if (!user) {
+        let org = await this.prisma.organization.findFirst();
+        if (!org) {
+          org = await this.prisma.organization.create({
+            data: { name: 'Indrajeet Sir Mentorship', contactEmail: 'info@indrajeetsir.com' },
+          });
+        }
+        user = await this.prisma.user.create({
+          data: {
+            email: emailClean,
+            password: body.password || 'default_pass',
+            name: body.name || 'Student',
+            role: 'STUDENT',
+            organizationId: org.id,
+          },
+        });
+      }
+
+      const studentObj = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: body.phone || '+91 98765 43210',
+        attempt: body.attempt || '2027',
+        joinedDate: user.createdAt.toISOString().slice(0, 10),
+      };
+
       return {
         success: true,
-        token: `student_token_${existing.id}_${Date.now()}`,
-        student: existing,
+        token: `student_token_${user.id}_${Date.now()}`,
+        student: studentObj,
       };
+    } catch {
+      const existing = fallbackStudents.find(s => s.email.toLowerCase() === emailClean);
+      if (existing) {
+        return { success: true, token: `student_token_${existing.id}_${Date.now()}`, student: existing };
+      }
+      const newSt = {
+        id: `st-${Date.now()}`,
+        name: body.name || 'Student',
+        email: body.email,
+        phone: body.phone || '+91 98765 43210',
+        attempt: body.attempt || '2027',
+        joinedDate: new Date().toISOString().slice(0, 10),
+      };
+      fallbackStudents.push(newSt);
+      return { success: true, token: `student_token_${newSt.id}_${Date.now()}`, student: newSt };
     }
-
-    const newStudent = {
-      id: `st-${Date.now()}`,
-      name: body.name || 'Student',
-      email: body.email,
-      phone: body.phone || '+91 98765 43210',
-      attempt: body.attempt || '2027',
-      joinedDate: new Date().toISOString().slice(0, 10),
-    };
-    students.push(newStudent);
-
-    return {
-      success: true,
-      token: `student_token_${newStudent.id}_${Date.now()}`,
-      student: newStudent,
-    };
   }
 
   @Post('auth/admin-login')
@@ -118,57 +181,152 @@ export class AppController {
     };
   }
 
-  // ── Students ─────────────────────────────────────────────────────────────
+  // ── Students Management ───────────────────────────────────────────────────
   @Get('students')
-  getStudents() {
-    return students;
+  async getStudents() {
+    try {
+      const users = await this.prisma.user.findMany({ where: { role: 'STUDENT' } });
+      if (users.length > 0) {
+        return users.map(u => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          phone: '+91 98765 43210',
+          attempt: '2027',
+          joinedDate: u.createdAt.toISOString().slice(0, 10),
+        }));
+      }
+    } catch {}
+    return fallbackStudents;
   }
 
   @Post('students')
-  addStudent(@Body() body: { name: string; email: string; phone: string; attempt: string }) {
-    const student = {
-      id: `st-${Date.now()}`,
-      ...body,
-      joinedDate: new Date().toISOString().slice(0, 10),
-    };
-    students.push(student);
-    return { success: true, student };
+  async addStudent(@Body() body: { name: string; email: string; phone: string; attempt: string }) {
+    try {
+      let org = await this.prisma.organization.findFirst();
+      if (!org) {
+        org = await this.prisma.organization.create({
+          data: { name: 'Indrajeet Sir Mentorship', contactEmail: 'info@indrajeetsir.com' },
+        });
+      }
+      const user = await this.prisma.user.create({
+        data: {
+          name: body.name,
+          email: body.email.toLowerCase(),
+          password: 'default_password',
+          role: 'STUDENT',
+          organizationId: org.id,
+        },
+      });
+      const st = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: body.phone,
+        attempt: body.attempt,
+        joinedDate: user.createdAt.toISOString().slice(0, 10),
+      };
+      return { success: true, student: st };
+    } catch {
+      const st = { id: `st-${Date.now()}`, ...body, joinedDate: new Date().toISOString().slice(0, 10) };
+      fallbackStudents.push(st);
+      return { success: true, student: st };
+    }
   }
 
   @Delete('students/:id')
-  removeStudent(@Param('id') id: string) {
-    students = students.filter(s => s.id !== id);
+  async removeStudent(@Param('id') id: string) {
+    try {
+      await this.prisma.user.delete({ where: { id } });
+    } catch {}
+    fallbackStudents = fallbackStudents.filter(s => s.id !== id);
     return { success: true };
   }
 
   // ── Live Classes ──────────────────────────────────────────────────────────
   @Get('live-classes')
-  getLiveClasses() {
-    return liveClasses;
+  async getLiveClasses() {
+    try {
+      const classes = await this.prisma.liveClass.findMany();
+      if (classes.length > 0) {
+        return classes.map(c => ({
+          id: c.id,
+          title: c.title,
+          date: c.date.toISOString().slice(0, 10),
+          time: c.startTime,
+          meetLink: c.meetingUrl,
+          assignedStudent: c.description || 'All Students',
+          status: c.status,
+        }));
+      }
+    } catch {}
+    return fallbackLiveClasses;
   }
 
   @Post('live-classes')
-  addLiveClass(@Body() body: { title: string; date: string; time: string; meetLink: string; assignedStudent?: string }) {
-    const cls = {
-      id: `lc-${Date.now()}`,
-      assignedStudent: body.assignedStudent || 'All Students',
-      ...body,
-      status: 'UPCOMING',
-    };
-    liveClasses.push(cls);
-    return { success: true, liveClass: cls };
+  async addLiveClass(@Body() body: { title: string; date: string; time: string; meetLink: string; assignedStudent?: string }) {
+    try {
+      let org = await this.prisma.organization.findFirst();
+      if (!org) {
+        org = await this.prisma.organization.create({
+          data: { name: 'Indrajeet Sir Mentorship', contactEmail: 'info@indrajeetsir.com' },
+        });
+      }
+      let course = await this.prisma.course.findFirst();
+      if (!course) {
+        course = await this.prisma.course.create({
+          data: { title: 'UPSC Mentorship Course', organizationId: org.id },
+        });
+      }
+      const lc = await this.prisma.liveClass.create({
+        data: {
+          title: body.title,
+          date: new Date(body.date || Date.now()),
+          startTime: body.time || '19:00',
+          duration: 60,
+          meetingUrl: body.meetLink,
+          description: body.assignedStudent || 'All Students',
+          status: 'UPCOMING',
+          courseId: course.id,
+          organizationId: org.id,
+        },
+      });
+      const resClass = {
+        id: lc.id,
+        title: lc.title,
+        date: body.date,
+        time: body.time,
+        meetLink: lc.meetingUrl,
+        assignedStudent: body.assignedStudent || 'All Students',
+        status: lc.status,
+      };
+      fallbackLiveClasses.push(resClass);
+      return { success: true, liveClass: resClass };
+    } catch {
+      const resClass = {
+        id: `lc-${Date.now()}`,
+        assignedStudent: body.assignedStudent || 'All Students',
+        ...body,
+        status: 'UPCOMING',
+      };
+      fallbackLiveClasses.push(resClass);
+      return { success: true, liveClass: resClass };
+    }
   }
 
   @Delete('live-classes/:id')
-  deleteLiveClass(@Param('id') id: string) {
-    liveClasses = liveClasses.filter(c => c.id !== id);
+  async deleteLiveClass(@Param('id') id: string) {
+    try {
+      await this.prisma.liveClass.delete({ where: { id } });
+    } catch {}
+    fallbackLiveClasses = fallbackLiveClasses.filter(c => c.id !== id);
     return { success: true };
   }
 
   // ── Messages / Chat ───────────────────────────────────────────────────────
   @Get('messages')
   getMessages() {
-    return messages;
+    return fallbackMessages;
   }
 
   @Post('messages')
@@ -178,7 +336,7 @@ export class AppController {
       ...body,
       timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
     };
-    messages.push(msg);
+    fallbackMessages.push(msg);
     return { success: true, message: msg };
   }
 }
