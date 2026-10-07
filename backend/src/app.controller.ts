@@ -187,7 +187,7 @@ export class AppController {
     try {
       const users = await this.prisma.user.findMany({ where: { role: 'STUDENT' } });
       if (users.length > 0) {
-        return users.map(u => ({
+        return users.map((u: any) => ({
           id: u.id,
           name: u.name,
           email: u.email,
@@ -249,7 +249,7 @@ export class AppController {
     try {
       const classes = await this.prisma.liveClass.findMany();
       if (classes.length > 0) {
-        return classes.map(c => ({
+        return classes.map((c: any) => ({
           id: c.id,
           title: c.title,
           date: c.date.toISOString().slice(0, 10),
