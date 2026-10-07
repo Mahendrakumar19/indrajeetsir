@@ -6,6 +6,138 @@ void main() {
   runApp(const EduApp());
 }
 
+// ============================================================================
+// STUDENT PROFILE MODEL
+// ============================================================================
+class StudentProfile {
+  String name;
+  String email;
+  String phone;
+  String attemptYear;
+  String optionalSubject;
+  String bio;
+  String avatarKey;
+  String? customAvatarUrl;
+
+  StudentProfile({
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.attemptYear,
+    required this.optionalSubject,
+    required this.bio,
+    this.avatarKey = 'ias_officer',
+    this.customAvatarUrl,
+  });
+
+  String get avatarDisplayEmoji {
+    switch (avatarKey) {
+      case 'ias_officer':
+        return '👮‍♂️';
+      case 'aspirant_male':
+        return '👨‍🎓';
+      case 'aspirant_female':
+        return '👩‍🎓';
+      case 'scholar':
+        return '🧑‍🏫';
+      case 'bookworm':
+        return '📚';
+      case 'top_ranker':
+        return '🌟';
+      default:
+        return '🎓';
+    }
+  }
+}
+
+// ============================================================================
+// REUSABLE LIQUID GLASS WRAPPER (Inspired by glass.samasante.com)
+// ============================================================================
+class LiquidGlassBox extends StatelessWidget {
+  final Widget child;
+  final double borderRadius;
+  final double blurSigma;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
+  final Color? tintColor;
+  final double tintOpacity;
+  final Border? border;
+  final List<BoxShadow>? shadows;
+
+  const LiquidGlassBox({
+    super.key,
+    required this.child,
+    this.borderRadius = 24.0,
+    this.blurSigma = 24.0,
+    this.padding,
+    this.margin,
+    this.tintColor,
+    this.tintOpacity = 0.65,
+    this.border,
+    this.shadows,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+
+    return Container(
+      margin: margin,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(borderRadius),
+        boxShadow: shadows ??
+            [
+              BoxShadow(
+                color: isDark
+                    ? Colors.black.withValues(alpha: 0.35)
+                    : primaryColor.withValues(alpha: 0.08),
+                blurRadius: 28,
+                spreadRadius: 0,
+                offset: const Offset(0, 8),
+              ),
+            ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
+          child: Container(
+            padding: padding,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isDark
+                    ? [
+                        (tintColor ?? const Color(0xFF1E293B)).withValues(alpha: tintOpacity),
+                        (tintColor ?? const Color(0xFF0F172A)).withValues(alpha: tintOpacity * 0.85),
+                      ]
+                    : [
+                        (tintColor ?? Colors.white).withValues(alpha: tintOpacity),
+                        (tintColor ?? Colors.white).withValues(alpha: tintOpacity * 0.6),
+                      ],
+              ),
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: border ??
+                  Border.all(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.16)
+                        : Colors.white.withValues(alpha: 0.85),
+                    width: 1.5,
+                  ),
+            ),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// MAIN APPLICATION ROOT
+// ============================================================================
 class EduApp extends StatefulWidget {
   const EduApp({super.key});
 
@@ -16,9 +148,33 @@ class EduApp extends StatefulWidget {
 class _EduAppState extends State<EduApp> {
   ThemeMode _themeMode = ThemeMode.system;
 
+  // Shared active student state
+  final StudentProfile _currentProfile = StudentProfile(
+    name: 'Rahul Kumar',
+    email: 'rahul.kumar@indrajeetsir.com',
+    phone: '+91 98765 43210',
+    attemptYear: '2027',
+    optionalSubject: 'PSIR (Political Science)',
+    bio: 'Dedicated UPSC CSE 2027 Aspirant • Targeting Top 50 Rank under Indrajeet Sir Mentorship',
+    avatarKey: 'ias_officer',
+  );
+
   void toggleTheme() {
     setState(() {
       _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    });
+  }
+
+  void updateProfile(StudentProfile updated) {
+    setState(() {
+      _currentProfile.name = updated.name;
+      _currentProfile.email = updated.email;
+      _currentProfile.phone = updated.phone;
+      _currentProfile.attemptYear = updated.attemptYear;
+      _currentProfile.optionalSubject = updated.optionalSubject;
+      _currentProfile.bio = updated.bio;
+      _currentProfile.avatarKey = updated.avatarKey;
+      _currentProfile.customAvatarUrl = updated.customAvatarUrl;
     });
   }
 
@@ -31,7 +187,7 @@ class _EduAppState extends State<EduApp> {
       theme: ThemeData(
         brightness: Brightness.light,
         primaryColor: const Color(0xFF2563EB),
-        scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+        scaffoldBackgroundColor: const Color(0xFFF1F5F9),
         colorScheme: const ColorScheme.light(
           primary: Color(0xFF2563EB),
           secondary: Color(0xFF0284C7),
@@ -48,7 +204,7 @@ class _EduAppState extends State<EduApp> {
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         primaryColor: const Color(0xFF3B82F6),
-        scaffoldBackgroundColor: const Color(0xFF0F172A), // Navy blue
+        scaffoldBackgroundColor: const Color(0xFF090D16),
         colorScheme: const ColorScheme.dark(
           primary: Color(0xFF3B82F6),
           secondary: Color(0xFF38BDF8),
@@ -62,136 +218,270 @@ class _EduAppState extends State<EduApp> {
         ),
         useMaterial3: true,
       ),
-      home: LoginScreen(onThemeToggle: toggleTheme),
+      home: LoginScreen(
+        onThemeToggle: toggleTheme,
+        profile: _currentProfile,
+        onProfileUpdate: updateProfile,
+      ),
     );
   }
 }
 
-// ==========================================
-// 1. AUTHENTICATION SCREEN
-// ==========================================
+// ============================================================================
+// 1. AUTHENTICATION SCREEN WITH LIQUID GLASS
+// ============================================================================
 class LoginScreen extends StatefulWidget {
   final VoidCallback onThemeToggle;
-  const LoginScreen({super.key, required this.onThemeToggle});
+  final StudentProfile profile;
+  final Function(StudentProfile) onProfileUpdate;
+
+  const LoginScreen({
+    super.key,
+    required this.onThemeToggle,
+    required this.profile,
+    required this.onProfileUpdate,
+  });
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController(text: 'student@indrajeetsirupsc.in');
+  final _emailController = TextEditingController(text: 'rahul.kumar@indrajeetsir.com');
   final _passwordController = TextEditingController(text: '123456');
 
   void _login() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => MainNavigation(onThemeToggle: widget.onThemeToggle)),
+      MaterialPageRoute(
+        builder: (context) => MainNavigation(
+          onThemeToggle: widget.onThemeToggle,
+          profile: widget.profile,
+          onProfileUpdate: widget.onProfileUpdate,
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    icon: Icon(isDark ? CupertinoIcons.sun_max : CupertinoIcons.moon_fill),
-                    onPressed: widget.onThemeToggle,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.school_rounded, size: 64, color: Theme.of(context).primaryColor),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Indrajeet Sir UPSC',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: isDark ? Colors.white : const Color(0xFF0F172A)),
-                ),
-                const SizedBox(height: 6),
-                const Text('Personalized 1:1 Live UPSC Mentorship App', style: TextStyle(color: Colors.grey)),
-                const SizedBox(height: 36),
-
-                // Form Container
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 8)),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Text('Student Sign In', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: 'Email Address',
-                          prefixIcon: const Icon(CupertinoIcons.mail),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          prefixIcon: const Icon(CupertinoIcons.lock),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _login,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        ),
-                        child: const Text('ENTER PORTAL', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextButton(
-                  onPressed: _login,
-                  child: const Text('Continue as Guest Student →'),
-                ),
-              ],
+      body: Stack(
+        children: [
+          // Ambient blurred fluid background orbs
+          Positioned(
+            top: -60,
+            right: -60,
+            child: Container(
+              width: 240,
+              height: 240,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: primaryColor.withValues(alpha: isDark ? 0.25 : 0.2),
+              ),
             ),
           ),
-        ),
+          Positioned(
+            bottom: 40,
+            left: -50,
+            child: Container(
+              width: 220,
+              height: 220,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF0284C7).withValues(alpha: isDark ? 0.2 : 0.15),
+              ),
+            ),
+          ),
+
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: LiquidGlassBox(
+                        borderRadius: 16,
+                        padding: const EdgeInsets.all(4),
+                        child: IconButton(
+                          icon: Icon(isDark ? CupertinoIcons.sun_max_fill : CupertinoIcons.moon_stars_fill),
+                          onPressed: widget.onThemeToggle,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Brand Icon in Glass Lens
+                    LiquidGlassBox(
+                      borderRadius: 36,
+                      blurSigma: 32,
+                      padding: const EdgeInsets.all(20),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: primaryColor.withValues(alpha: 0.15),
+                        ),
+                        child: Icon(Icons.school_rounded, size: 54, color: primaryColor),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      'Indrajeet Sir UPSC',
+                      style: TextStyle(
+                        fontSize: 27,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.5,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Personalized 1:1 Live UPSC Mentorship Portal',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Liquid Glass Login Card
+                    LiquidGlassBox(
+                      borderRadius: 28,
+                      blurSigma: 30,
+                      padding: const EdgeInsets.all(26),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 4,
+                                height: 18,
+                                decoration: BoxDecoration(
+                                  color: primaryColor,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Student Portal Access',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          TextField(
+                            controller: _emailController,
+                            decoration: InputDecoration(
+                              labelText: 'Registered Email',
+                              prefixIcon: const Icon(CupertinoIcons.mail),
+                              filled: true,
+                              fillColor: isDark
+                                  ? Colors.black.withValues(alpha: 0.25)
+                                  : Colors.white.withValues(alpha: 0.7),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                  color: isDark ? Colors.white12 : Colors.black12,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                  color: isDark ? Colors.white12 : Colors.black12,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          TextField(
+                            controller: _passwordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: 'Password',
+                              prefixIcon: const Icon(CupertinoIcons.lock),
+                              filled: true,
+                              fillColor: isDark
+                                  ? Colors.black.withValues(alpha: 0.25)
+                                  : Colors.white.withValues(alpha: 0.7),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                  color: isDark ? Colors.white12 : Colors.black12,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide(
+                                  color: isDark ? Colors.white12 : Colors.black12,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: _login,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              elevation: 4,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('ENTER STUDENT PORTAL', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                                SizedBox(width: 8),
+                                Icon(CupertinoIcons.arrow_right, size: 16),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextButton(
+                      onPressed: _login,
+                      child: Text(
+                        'Continue as Enrolled Aspirant →',
+                        style: TextStyle(color: primaryColor, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-// ==========================================
-// 2. MAIN APP NAVIGATION WITH FLUID iOS DOCK
-// ==========================================
+// ============================================================================
+// 2. MAIN APP NAVIGATION WITH REDESIGNED LIQUID GLASS DOCK
+// ============================================================================
 class MainNavigation extends StatefulWidget {
   final VoidCallback onThemeToggle;
-  const MainNavigation({super.key, required this.onThemeToggle});
+  final StudentProfile profile;
+  final Function(StudentProfile) onProfileUpdate;
+
+  const MainNavigation({
+    super.key,
+    required this.onThemeToggle,
+    required this.profile,
+    required this.onProfileUpdate,
+  });
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
@@ -203,13 +493,24 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      HomeScreen(onNavigateTab: (index) => setState(() => _selectedIndex = index)),
+      HomeScreen(
+        profile: widget.profile,
+        onNavigateTab: (index) => setState(() => _selectedIndex = index),
+      ),
       const LiveSessionsScreen(),
-      const ChatScreen(),
-      ProfileScreen(onThemeToggle: widget.onThemeToggle),
+      ChatScreen(profile: widget.profile),
+      ProfileScreen(
+        onThemeToggle: widget.onThemeToggle,
+        profile: widget.profile,
+        onProfileUpdate: (updated) {
+          widget.onProfileUpdate(updated);
+          setState(() {});
+        },
+      ),
     ];
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
       extendBody: true,
@@ -217,48 +518,67 @@ class _MainNavigationState extends State<MainNavigation> {
         index: _selectedIndex,
         children: screens,
       ),
-      // AUTHENTIC FLUID iOS GLASS DOCK
+
+      // ── ULTRA FLUID LIQUID GLASS DOCK (glass.samasante.com concept) ────────
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(left: 24, right: 24, bottom: 16),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
           child: Container(
-            height: 64,
+            height: 68,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(32),
+              borderRadius: BorderRadius.circular(34),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.12),
-                  blurRadius: 30,
+                  color: isDark
+                      ? Colors.black.withValues(alpha: 0.5)
+                      : primaryColor.withValues(alpha: 0.16),
+                  blurRadius: 32,
                   spreadRadius: 0,
                   offset: const Offset(0, 10),
+                ),
+                BoxShadow(
+                  color: primaryColor.withValues(alpha: isDark ? 0.12 : 0.08),
+                  blurRadius: 16,
+                  spreadRadius: -4,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(32),
+              borderRadius: BorderRadius.circular(34),
               child: BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                filter: ui.ImageFilter.blur(sigmaX: 28, sigmaY: 28),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF1E293B).withValues(alpha: 0.70)
-                        : Colors.white.withValues(alpha: 0.65),
-                    borderRadius: BorderRadius.circular(32),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: isDark
+                          ? [
+                              const Color(0xFF1E293B).withValues(alpha: 0.82),
+                              const Color(0xFF0F172A).withValues(alpha: 0.70),
+                            ]
+                          : [
+                              Colors.white.withValues(alpha: 0.82),
+                              Colors.white.withValues(alpha: 0.52),
+                            ],
+                    ),
+                    borderRadius: BorderRadius.circular(34),
                     border: Border.all(
                       color: isDark
-                          ? Colors.white.withValues(alpha: 0.15)
-                          : Colors.white.withValues(alpha: 0.8),
+                          ? Colors.white.withValues(alpha: 0.18)
+                          : Colors.white.withValues(alpha: 0.90),
                       width: 1.5,
                     ),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildFluidDockTab(0, CupertinoIcons.house_fill, CupertinoIcons.house, 'Home'),
-                      _buildFluidDockTab(1, CupertinoIcons.tv_fill, CupertinoIcons.tv, '1:1 Live'),
-                      _buildFluidDockTab(2, CupertinoIcons.chat_bubble_2_fill, CupertinoIcons.chat_bubble_2, 'Chat'),
-                      _buildFluidDockTab(3, CupertinoIcons.person_fill, CupertinoIcons.person, 'Profile'),
+                      _buildLiquidDockItem(0, CupertinoIcons.house_fill, CupertinoIcons.house, 'Home'),
+                      _buildLiquidDockItem(1, CupertinoIcons.videocam_fill, CupertinoIcons.videocam, '1:1 Live'),
+                      _buildLiquidDockItem(2, CupertinoIcons.chat_bubble_2_fill, CupertinoIcons.chat_bubble_2, 'Mentorship'),
+                      _buildLiquidDockItem(3, CupertinoIcons.person_crop_circle_fill, CupertinoIcons.person_crop_circle, 'Profile'),
                     ],
                   ),
                 ),
@@ -270,150 +590,210 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 
-  Widget _buildFluidDockTab(int index, IconData activeIcon, IconData inactiveIcon, String label) {
+  Widget _buildLiquidDockItem(int index, IconData activeIcon, IconData inactiveIcon, String label) {
     final isSelected = _selectedIndex == index;
     final primaryColor = Theme.of(context).primaryColor;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return GestureDetector(
-      onTap: () => setState(() => _selectedIndex = index),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.fastOutSlowIn,
-        padding: EdgeInsets.symmetric(
-          horizontal: isSelected ? 16 : 12,
-          vertical: 8,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? primaryColor.withValues(alpha: isDark ? 0.25 : 0.15)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedScale(
-              scale: isSelected ? 1.15 : 1.0,
-              duration: const Duration(milliseconds: 200),
-              child: Icon(
-                isSelected ? activeIcon : inactiveIcon,
-                size: 22,
-                color: isSelected ? primaryColor : (isDark ? Colors.white60 : const Color(0xFF64748B)),
-              ),
-            ),
-            if (isSelected) ...[
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(
-                  color: primaryColor,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.2,
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedIndex = index),
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 280),
+          curve: Curves.fastOutSlowIn,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            gradient: isSelected
+                ? LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      primaryColor.withValues(alpha: isDark ? 0.35 : 0.18),
+                      primaryColor.withValues(alpha: isDark ? 0.15 : 0.08),
+                    ],
+                  )
+                : null,
+            borderRadius: BorderRadius.circular(26),
+            border: isSelected
+                ? Border.all(
+                    color: primaryColor.withValues(alpha: isDark ? 0.35 : 0.3),
+                    width: 1,
+                  )
+                : null,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedScale(
+                scale: isSelected ? 1.15 : 1.0,
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutBack,
+                child: Icon(
+                  isSelected ? activeIcon : inactiveIcon,
+                  size: 22,
+                  color: isSelected
+                      ? primaryColor
+                      : (isDark ? Colors.white60 : const Color(0xFF64748B)),
                 ),
               ),
+              const SizedBox(height: 3),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: TextStyle(
+                  color: isSelected
+                      ? primaryColor
+                      : (isDark ? Colors.white54 : const Color(0xFF64748B)),
+                  fontSize: 10.5,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                  letterSpacing: -0.2,
+                ),
+                child: Text(label),
+              ),
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-// ==========================================
+// ============================================================================
 // 3. HOME SCREEN
-// ==========================================
+// ============================================================================
 class HomeScreen extends StatelessWidget {
+  final StudentProfile profile;
   final Function(int) onNavigateTab;
-  const HomeScreen({super.key, required this.onNavigateTab});
+
+  const HomeScreen({
+    super.key,
+    required this.profile,
+    required this.onNavigateTab,
+  });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
-            Icon(Icons.school_rounded, color: Theme.of(context).primaryColor),
-            const SizedBox(width: 8),
-            const Text('Indrajeet Sir UPSC', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            LiquidGlassBox(
+              borderRadius: 12,
+              padding: const EdgeInsets.all(6),
+              child: Icon(Icons.school_rounded, color: primaryColor, size: 20),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'Indrajeet Sir UPSC',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, letterSpacing: -0.3),
+            ),
           ],
         ),
         actions: [
-          IconButton(icon: const Icon(CupertinoIcons.bell), onPressed: () {}),
+          LiquidGlassBox(
+            borderRadius: 14,
+            margin: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.all(2),
+            child: IconButton(
+              icon: const Icon(CupertinoIcons.bell_fill, size: 18),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('No new notifications. You are all caught up!')),
+                );
+              },
+            ),
+          ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 110),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome Header Card
-            Container(
+            // Welcome Liquid Card
+            LiquidGlassBox(
+              borderRadius: 24,
+              blurSigma: 28,
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: isDark
-                      ? [const Color(0xFF1E3A8A), const Color(0xFF0F172A)]
-                      : [const Color(0xFF2563EB), const Color(0xFF1D4ED8)],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(color: const Color(0xFF2563EB).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6)),
-                ],
-              ),
               child: Row(
                 children: [
+                  CircleAvatar(
+                    radius: 26,
+                    backgroundColor: primaryColor.withValues(alpha: 0.15),
+                    child: Text(profile.avatarDisplayEmoji, style: const TextStyle(fontSize: 26)),
+                  ),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('Welcome back, Rahul! 👋', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 6),
-                        Text('Assigned Mentor: Indrajeet Sir', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                      children: [
+                        Text(
+                          'Welcome, ${profile.name.split(' ').first}! 👋',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: primaryColor.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                'Target CSE ${profile.attemptYear}',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: primaryColor,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Text('• Indrajeet Sir Mentee', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                          ],
+                        ),
                       ],
                     ),
                   ),
-                  ElevatedButton.icon(
-                    onPressed: () => onNavigateTab(2),
-                    icon: const Icon(CupertinoIcons.chat_bubble_text, size: 16),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    ),
-                    label: const Text('Ask Sir'),
-                  )
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 18),
 
-            // Live 1:1 Session Card
-            Container(
+            // Live 1:1 Session Alert Banner
+            LiquidGlassBox(
+              borderRadius: 22,
+              tintColor: Colors.red,
+              tintOpacity: isDark ? 0.2 : 0.08,
+              border: Border.all(color: Colors.red.withValues(alpha: isDark ? 0.35 : 0.25)),
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.08),
-                border: Border.all(color: Colors.red.withValues(alpha: 0.25)),
-                borderRadius: BorderRadius.circular(18),
-              ),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(6)),
-                    child: const Text('LIVE 1:1 NOW', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text('🔴 LIVE NOW', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        Text('1:1 Strategy Session', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                        Text('With Indrajeet Sir • Google Meet', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                        Text('1:1 Strategy Review', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5)),
+                        SizedBox(height: 2),
+                        Text('With Indrajeet Sir • Live Session', style: TextStyle(fontSize: 11, color: Colors.grey)),
                       ],
                     ),
                   ),
@@ -422,29 +802,97 @@ class HomeScreen extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     ),
-                    child: const Text('Join Live'),
-                  )
+                    child: const Text('Join Class', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
-            // Direct Chat Card
-            Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.blueAccent,
-                  child: Icon(Icons.support_agent_rounded, color: Colors.white),
+            // Mentorship Action Quick Matrix
+            const Text(
+              'Mentorship Hub',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, letterSpacing: -0.3),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => onNavigateTab(1),
+                    child: LiquidGlassBox(
+                      borderRadius: 20,
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(CupertinoIcons.videocam_circle_fill, size: 36, color: primaryColor),
+                          const SizedBox(height: 10),
+                          const Text('1:1 Live Classes', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+                          const SizedBox(height: 2),
+                          const Text('Google Meet direct slots', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-                title: const Text('Direct Chat with Indrajeet Sir'),
-                subtitle: const Text('Ask doubts directly regarding your UPSC strategy'),
-                trailing: const Icon(CupertinoIcons.chevron_right, size: 16),
-                onTap: () => onNavigateTab(2),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => onNavigateTab(2),
+                    child: LiquidGlassBox(
+                      borderRadius: 20,
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(CupertinoIcons.chat_bubble_2_fill, size: 36, color: Color(0xFF10B981)),
+                          const SizedBox(height: 10),
+                          const Text('Ask Doubts', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+                          const SizedBox(height: 2),
+                          const Text('Direct mentor chat', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 18),
+
+            // Study Roadmap Progress
+            LiquidGlassBox(
+              borderRadius: 22,
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('GS-3 & Optional Syllabus Track', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      Text('68% Done', style: TextStyle(color: primaryColor, fontWeight: FontWeight.w800, fontSize: 13)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      value: 0.68,
+                      minHeight: 8,
+                      backgroundColor: isDark ? Colors.white12 : Colors.black12,
+                      valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text('Next up: Inflation & Monetary Policy Mains Answer writing evaluation.', style: TextStyle(fontSize: 11.5, color: Colors.grey)),
+                ],
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -452,53 +900,86 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// ==========================================
+// ============================================================================
 // 4. 1:1 LIVE SESSIONS SCREEN
-// ==========================================
+// ============================================================================
 class LiveSessionsScreen extends StatelessWidget {
   const LiveSessionsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My 1:1 Sessions')),
+      appBar: AppBar(
+        title: const Text('My Scheduled 1:1 Classes', style: TextStyle(fontWeight: FontWeight.w800)),
+      ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 110),
         children: [
-          Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-            color: Colors.red.withValues(alpha: 0.05),
-            child: ListTile(
-              leading: const CircleAvatar(backgroundColor: Colors.red, child: Icon(CupertinoIcons.videocam_fill, color: Colors.white)),
-              title: const Text('1:1 GS-3 Strategy Session', style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: const Text('Today at 7:00 PM • Indrajeet Sir (Google Meet)'),
-              trailing: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          LiquidGlassBox(
+            borderRadius: 22,
+            tintColor: Colors.red,
+            tintOpacity: 0.1,
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(6)),
+                      child: const Text('🔴 LIVE TODAY', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                    ),
+                    const Text('Google Meet', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  ],
                 ),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Launching 1:1 Google Meet link: https://meet.google.com/abc-defg-hij')),
-                  );
-                },
-                child: const Text('Join 1:1'),
-              ),
+                const SizedBox(height: 12),
+                const Text('GS-3: Indian Economy & Inflation Strategy', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+                const SizedBox(height: 4),
+                const Text('Personalized 1:1 Mentorship Session with Indrajeet Sir', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                const SizedBox(height: 14),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Opening Google Meet session: https://meet.google.com/abc-defg-hij')),
+                    );
+                  },
+                  icon: const Icon(CupertinoIcons.videocam_fill, size: 18),
+                  label: const Text('Enter Live Session Now'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size.fromHeight(44),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 12),
-          Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-            child: ListTile(
-              leading: const CircleAvatar(backgroundColor: Colors.blue, child: Icon(CupertinoIcons.calendar, color: Colors.white)),
-              title: const Text('1:1 Answer Writing Review'),
-              subtitle: const Text('Tomorrow at 5:00 PM • Indrajeet Sir (Zoom)'),
-              trailing: OutlinedButton(
-                style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))),
-                onPressed: () {},
-                child: const Text('Scheduled'),
-              ),
+          const SizedBox(height: 14),
+          LiquidGlassBox(
+            borderRadius: 22,
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(color: const Color(0xFF2563EB), borderRadius: BorderRadius.circular(6)),
+                      child: const Text('📅 TOMORROW', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                    ),
+                    const Text('5:00 PM IST', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Text('Mains Answer Writing Review & Feedback', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
+                const SizedBox(height: 4),
+                const Text('1:1 Evaluation of 5 GS-2 Questions submitted yesterday', style: TextStyle(fontSize: 12, color: Colors.grey)),
+              ],
             ),
           ),
         ],
@@ -507,11 +988,12 @@ class LiveSessionsScreen extends StatelessWidget {
   }
 }
 
-// ==========================================
-// 5. STUDENT TO INDRAJEET SIR CHAT
-// ==========================================
+// ============================================================================
+// 5. CHAT SCREEN
+// ============================================================================
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final StudentProfile profile;
+  const ChatScreen({super.key, required this.profile});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -530,7 +1012,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (_textController.text.trim().isEmpty) return;
     setState(() {
       _messages.add({
-        'sender': 'Rahul Kumar',
+        'sender': widget.profile.name,
         'text': _textController.text.trim(),
         'time': 'Just now',
       });
@@ -540,17 +1022,26 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).primaryColor;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
             CircleAvatar(
-              backgroundColor: Colors.blue,
+              backgroundColor: primaryColor,
               radius: 16,
-              child: Icon(Icons.person_rounded, size: 18, color: Colors.white),
+              child: const Icon(Icons.person_rounded, size: 18, color: Colors.white),
             ),
             const SizedBox(width: 10),
-            const Text('Chat with Indrajeet Sir'),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Indrajeet Sir', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
+                Text('Active Mentor • 1:1 Support', style: TextStyle(fontSize: 11, color: Colors.grey)),
+              ],
+            ),
           ],
         ),
       ),
@@ -562,48 +1053,46 @@ class _ChatScreenState extends State<ChatScreen> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final msg = _messages[index];
-                final isMe = msg['sender'] == 'Rahul Kumar';
+                final isMe = msg['sender'] == widget.profile.name || msg['sender'] == 'Rahul Kumar';
                 return Align(
                   alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: isMe
-                          ? Theme.of(context).primaryColor
-                          : Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(18),
-                        topRight: const Radius.circular(18),
-                        bottomLeft: Radius.circular(isMe ? 18 : 4),
-                        bottomRight: Radius.circular(isMe ? 4 : 18),
-                      ),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 2)),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          msg['sender']!,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: isMe ? Colors.white70 : Theme.of(context).primaryColor,
+                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
+                    child: LiquidGlassBox(
+                      borderRadius: 18,
+                      tintColor: isMe ? primaryColor : null,
+                      tintOpacity: isMe ? (isDark ? 0.9 : 0.95) : (isDark ? 0.75 : 0.8),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: Column(
+                        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            msg['sender']!,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: isMe ? Colors.white70 : primaryColor,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          msg['text']!,
-                          style: TextStyle(color: isMe ? Colors.white : null, fontSize: 14),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          msg['time']!,
-                          style: TextStyle(fontSize: 9, color: isMe ? Colors.white60 : Colors.grey),
-                        ),
-                      ],
+                          const SizedBox(height: 4),
+                          Text(
+                            msg['text']!,
+                            style: TextStyle(
+                              color: isMe ? Colors.white : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                              fontSize: 13.5,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            msg['time']!,
+                            style: TextStyle(
+                              fontSize: 9,
+                              color: isMe ? Colors.white60 : Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -611,29 +1100,24 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 95),
-            child: Container(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+            child: LiquidGlassBox(
+              borderRadius: 30,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 4)),
-                ],
-              ),
               child: Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _textController,
                       decoration: const InputDecoration(
-                        hintText: 'Ask Indrajeet Sir a question...',
+                        hintText: 'Ask Indrajeet Sir a doubt...',
+                        hintStyle: TextStyle(fontSize: 13.5),
                         border: InputBorder.none,
                       ),
                     ),
                   ),
                   IconButton(
-                    icon: Icon(CupertinoIcons.paperplane_fill, color: Theme.of(context).primaryColor),
+                    icon: Icon(CupertinoIcons.paperplane_fill, color: primaryColor),
                     onPressed: _sendMessage,
                   ),
                 ],
@@ -646,44 +1130,493 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-// ==========================================
-// 6. PROFILE & SETTINGS
-// ==========================================
+// ============================================================================
+// 6. REDESIGNED PROFILE & POLICIES WITH LIQUID GLASS (Requested by User)
+// ============================================================================
 class ProfileScreen extends StatelessWidget {
   final VoidCallback onThemeToggle;
-  const ProfileScreen({super.key, required this.onThemeToggle});
+  final StudentProfile profile;
+  final Function(StudentProfile) onProfileUpdate;
+
+  const ProfileScreen({
+    super.key,
+    required this.onThemeToggle,
+    required this.profile,
+    required this.onProfileUpdate,
+  });
+
+  // ── Show Edit Profile Details Sheet ──
+  void _openEditProfileDialog(BuildContext context) {
+    final nameCtrl = TextEditingController(text: profile.name);
+    final emailCtrl = TextEditingController(text: profile.email);
+    final phoneCtrl = TextEditingController(text: profile.phone);
+    final optionalCtrl = TextEditingController(text: profile.optionalSubject);
+    final bioCtrl = TextEditingController(text: profile.bio);
+    String selectedYear = profile.attemptYear;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: LiquidGlassBox(
+                borderRadius: 28,
+                blurSigma: 30,
+                padding: const EdgeInsets.all(24),
+                margin: const EdgeInsets.all(16),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('✏️ Edit Student Profile', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                          IconButton(
+                            icon: const Icon(CupertinoIcons.xmark_circle_fill, size: 22),
+                            onPressed: () => Navigator.pop(ctx),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: nameCtrl,
+                        decoration: InputDecoration(
+                          labelText: 'Full Name',
+                          prefixIcon: const Icon(CupertinoIcons.person),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      TextField(
+                        controller: emailCtrl,
+                        decoration: InputDecoration(
+                          labelText: 'Email Address',
+                          prefixIcon: const Icon(CupertinoIcons.mail),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      TextField(
+                        controller: phoneCtrl,
+                        decoration: InputDecoration(
+                          labelText: 'WhatsApp Phone',
+                          prefixIcon: const Icon(CupertinoIcons.phone),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      DropdownButtonFormField<String>(
+                        initialValue: selectedYear,
+                        decoration: InputDecoration(
+                          labelText: 'Target UPSC Attempt',
+                          prefixIcon: const Icon(CupertinoIcons.calendar),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: '2026', child: Text('UPSC CSE 2026')),
+                          DropdownMenuItem(value: '2027', child: Text('UPSC CSE 2027')),
+                          DropdownMenuItem(value: '2028', child: Text('UPSC CSE 2028')),
+                          DropdownMenuItem(value: 'State PCS', child: Text('State PCS Exam')),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) setModalState(() => selectedYear = val);
+                        },
+                      ),
+                      const SizedBox(height: 14),
+                      TextField(
+                        controller: optionalCtrl,
+                        decoration: InputDecoration(
+                          labelText: 'Optional Subject',
+                          prefixIcon: const Icon(CupertinoIcons.book),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      TextField(
+                        controller: bioCtrl,
+                        maxLines: 2,
+                        decoration: InputDecoration(
+                          labelText: 'Personal Bio & Target Goal',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        ),
+                        onPressed: () {
+                          profile.name = nameCtrl.text.trim();
+                          profile.email = emailCtrl.text.trim();
+                          profile.phone = phoneCtrl.text.trim();
+                          profile.attemptYear = selectedYear;
+                          profile.optionalSubject = optionalCtrl.text.trim();
+                          profile.bio = bioCtrl.text.trim();
+                          onProfileUpdate(profile);
+                          Navigator.pop(ctx);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('✅ Profile details updated successfully!')),
+                          );
+                        },
+                        child: const Text('SAVE CHANGES', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // ── Show Avatar Picker Sheet ──
+  void _openAvatarPicker(BuildContext context) {
+    final avatars = [
+      {'key': 'ias_officer', 'emoji': '👮‍♂️', 'title': 'IAS Officer'},
+      {'key': 'aspirant_male', 'emoji': '👨‍🎓', 'title': 'Aspirant (M)'},
+      {'key': 'aspirant_female', 'emoji': '👩‍🎓', 'title': 'Aspirant (F)'},
+      {'key': 'scholar', 'emoji': '🧑‍🏫', 'title': 'Scholar'},
+      {'key': 'bookworm', 'emoji': '📚', 'title': 'Bookworm'},
+      {'key': 'top_ranker', 'emoji': '🌟', 'title': 'Top Ranker'},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return LiquidGlassBox(
+          borderRadius: 28,
+          blurSigma: 32,
+          padding: const EdgeInsets.all(22),
+          margin: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('📸 Choose Profile Avatar', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                  IconButton(icon: const Icon(CupertinoIcons.xmark_circle_fill), onPressed: () => Navigator.pop(ctx)),
+                ],
+              ),
+              const SizedBox(height: 16),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1.1,
+                ),
+                itemCount: avatars.length,
+                itemBuilder: (c, i) {
+                  final a = avatars[i];
+                  final isCurrent = profile.avatarKey == a['key'];
+                  return GestureDetector(
+                    onTap: () {
+                      profile.avatarKey = a['key']!;
+                      onProfileUpdate(profile);
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Avatar changed to ${a['title']}!')),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isCurrent
+                            ? Theme.of(context).primaryColor.withValues(alpha: 0.2)
+                            : Colors.black.withValues(alpha: 0.05),
+                        border: Border.all(
+                          color: isCurrent ? Theme.of(context).primaryColor : Colors.transparent,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(a['emoji']!, style: const TextStyle(fontSize: 32)),
+                          const SizedBox(height: 4),
+                          Text(a['title']!, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // ── Show Policy Sheets ──
+  void _showPolicySheet(BuildContext context, String title, String emoji, String content) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          maxChildSize: 0.92,
+          minChildSize: 0.45,
+          builder: (_, scrollCtrl) {
+            return LiquidGlassBox(
+              borderRadius: 30,
+              blurSigma: 32,
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Column(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 5,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Text(emoji, style: const TextStyle(fontSize: 22)),
+                          const SizedBox(width: 8),
+                          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(CupertinoIcons.xmark_circle_fill),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 20),
+                  Expanded(
+                    child: ListView(
+                      controller: scrollCtrl,
+                      children: [
+                        Text(
+                          content,
+                          style: const TextStyle(fontSize: 13.5, height: 1.6, color: Colors.grey),
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).primaryColor,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          ),
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text('I Understand & Agree'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Student Profile & Settings')),
+      appBar: AppBar(
+        title: const Text('Student Profile & Settings', style: TextStyle(fontWeight: FontWeight.w800)),
+      ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
         children: [
-          Center(
+          // ── Hero Glass Profile Card with Avatar & Quick Actions ──
+          LiquidGlassBox(
+            borderRadius: 28,
+            blurSigma: 30,
+            padding: const EdgeInsets.all(22),
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Theme.of(context).primaryColor,
-                  child: const Text('RK', style: TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold)),
+                Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    GestureDetector(
+                      onTap: () => _openAvatarPicker(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: primaryColor, width: 2.5),
+                          boxShadow: [
+                            BoxShadow(color: primaryColor.withValues(alpha: 0.25), blurRadius: 16),
+                          ],
+                        ),
+                        child: CircleAvatar(
+                          radius: 44,
+                          backgroundColor: primaryColor.withValues(alpha: 0.15),
+                          child: Text(profile.avatarDisplayEmoji, style: const TextStyle(fontSize: 44)),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => _openAvatarPicker(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(7),
+                        decoration: BoxDecoration(
+                          color: primaryColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: const Icon(CupertinoIcons.camera_fill, size: 14, color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 14),
+                Text(
+                  profile.name,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(profile.email, style: const TextStyle(fontSize: 12.5, color: Colors.grey)),
+                const SizedBox(height: 10),
+
+                // Badges Row
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: primaryColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text('🎯 UPSC CSE ${profile.attemptYear}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: primaryColor)),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text('📖 ${profile.optionalSubject}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF10B981))),
+                    ),
+                  ],
+                ),
+
                 const SizedBox(height: 12),
-                const Text('Rahul Kumar', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const Text('student@indrajeetsirupsc.in', style: TextStyle(color: Colors.grey)),
+                Text(
+                  profile.bio,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: isDark ? Colors.white70 : Colors.black87, fontStyle: FontStyle.italic),
+                ),
+                const SizedBox(height: 16),
+
+                // Edit Button
+                ElevatedButton.icon(
+                  onPressed: () => _openEditProfileDialog(context),
+                  icon: const Icon(CupertinoIcons.pencil, size: 16),
+                  label: const Text('Edit Personal Details'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          const SizedBox(height: 18),
+
+          // ── Mentorship Stats Matrix ──
+          Row(
+            children: [
+              Expanded(
+                child: LiquidGlassBox(
+                  borderRadius: 20,
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    children: [
+                      Text('14', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: primaryColor)),
+                      const SizedBox(height: 2),
+                      const Text('1:1 Sessions Attended', textAlign: TextAlign.center, style: TextStyle(fontSize: 10.5, color: Colors.grey)),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: LiquidGlassBox(
+                  borderRadius: 20,
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    children: const [
+                      Text('98%', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF10B981))),
+                      SizedBox(height: 2),
+                      Text('Session Attendance', textAlign: TextAlign.center, style: TextStyle(fontSize: 10.5, color: Colors.grey)),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: LiquidGlassBox(
+                  borderRadius: 20,
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    children: const [
+                      Text('28', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFFF59E0B))),
+                      SizedBox(height: 2),
+                      Text('Mains Evaluated', textAlign: TextAlign.center, style: TextStyle(fontSize: 10.5, color: Colors.grey)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 22),
+
+          // ── App Preferences Section ──
+          const Padding(
+            padding: EdgeInsets.only(left: 4, bottom: 8),
+            child: Text('APP SETTINGS & APPEARANCE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey, letterSpacing: 0.5)),
+          ),
+          LiquidGlassBox(
+            borderRadius: 22,
+            padding: EdgeInsets.zero,
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(CupertinoIcons.moon),
-                  title: const Text('Dark Mode (Navy Blue)'),
+                  leading: const Icon(CupertinoIcons.moon_stars_fill, color: Color(0xFF6366F1)),
+                  title: const Text('Liquid Glass Dark Mode', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Apple visionOS deep navy glass theme', style: TextStyle(fontSize: 11, color: Colors.grey)),
                   trailing: Switch(
                     value: isDark,
                     onChanged: (val) => onThemeToggle(),
@@ -691,24 +1624,158 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(CupertinoIcons.building_2_fill),
-                  title: const Text('Institute Branding'),
-                  subtitle: const Text('Indrajeet Sir UPSC'),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(CupertinoIcons.square_arrow_right, color: Colors.red),
-                  title: const Text('Logout'),
+                  leading: const Icon(CupertinoIcons.bell_fill, color: Color(0xFF0EA5E9)),
+                  title: const Text('Notification Reminders', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Live class alerts & Mentor replies', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: Colors.grey),
                   onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen(onThemeToggle: onThemeToggle)),
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Notifications are enabled for all scheduled 1:1 sessions!')),
                     );
                   },
                 ),
               ],
             ),
-          )
+          ),
+          const SizedBox(height: 22),
+
+          // ── Policies & Legal Section (Requested by user) ──
+          const Padding(
+            padding: EdgeInsets.only(left: 4, bottom: 8),
+            child: Text('POLICIES & APPLICATION DETAILS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey, letterSpacing: 0.5)),
+          ),
+          LiquidGlassBox(
+            borderRadius: 22,
+            padding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                // Privacy Policy
+                ListTile(
+                  leading: const Icon(CupertinoIcons.shield_fill, color: Color(0xFF10B981)),
+                  title: const Text('Privacy Policy', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Confidentiality of 1:1 sessions & notes', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: Colors.grey),
+                  onTap: () {
+                    _showPolicySheet(
+                      context,
+                      'Privacy Policy',
+                      '🛡️',
+                      '1. DATA CONFIDENTIALITY:\nIndrajeet Sir UPSC Mentorship adheres to strict privacy standards. Your personal registration details, contact numbers, and mock tests are confidential.\n\n'
+                      '2. 1:1 SESSION PRIVACY:\nVideo recordings and personal mentorship audio are solely stored for your personalized revisions and are never shared publicly or commercially.\n\n'
+                      '3. DATA SECURITY & ENCRYPTION:\nAll transmissions with our API (https://backend.indrajeetsir.com) use SSL/TLS encryption. Passwords and credentials are encrypted securely.\n\n'
+                      '4. STUDENT RIGHTS:\nYou have the right to request deletion or modification of your profile data at any time by contacting our academic administration.',
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+
+                // Terms of Service
+                ListTile(
+                  leading: const Icon(CupertinoIcons.doc_text_fill, color: Color(0xFFF59E0B)),
+                  title: const Text('Terms & Conditions Policy', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Platform guidelines & code of conduct', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: Colors.grey),
+                  onTap: () {
+                    _showPolicySheet(
+                      context,
+                      'Terms & Conditions',
+                      '📜',
+                      '1. ENROLLMENT & CODE OF CONDUCT:\nEvery student enrolled with Indrajeet Sir agrees to maintain dignity, punctuality, and mutual respect during live 1:1 mentorship sessions.\n\n'
+                      '2. INTELLECTUAL PROPERTY:\nAll proprietary strategy sheets, model answers, and handouts provided by Indrajeet Sir are for the personal use of the enrolled student only.\n\n'
+                      '3. SESSION SCHEDULING:\nSession links will be provided on your dashboard. Rescheduling requests must be sent at least 6 hours in advance via the direct chat feature.\n\n'
+                      '4. ZERO TOLERANCE POLICY:\nAny redistribution of copyrighted notes or misconduct during sessions will lead to immediate cancellation of mentorship access.',
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+
+                // Application Details
+                ListTile(
+                  leading: const Icon(CupertinoIcons.info_circle_fill, color: Color(0xFF8B5CF6)),
+                  title: const Text('Application Details', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Version, Backend status & Build details', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: Colors.grey),
+                  onTap: () {
+                    _showPolicySheet(
+                      context,
+                      'Application Details',
+                      'ℹ️',
+                      '• App Name: Indrajeet Sir UPSC & State PCS Mentorship App\n'
+                      '• Version: 2.4.0 (Liquid Glass Edition)\n'
+                      '• Build: 2026.10-release\n'
+                      '• Design Framework: VisionOS Liquid Glass UI\n'
+                      '• Backend API: https://backend.indrajeetsir.com\n'
+                      '• Database Engine: Prisma ORM with Live Sync\n'
+                      '• Chief Mentor: Indrajeet Sir (10+ Years Teaching Experience)\n'
+                      '• Supported Exams: UPSC Civil Services Examination (Prelims, Mains, Interview) & State PCS\n'
+                      '• Developed with precision for serious Civil Services aspirants.',
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+
+                // Direct Support / Helpline
+                ListTile(
+                  leading: const Icon(CupertinoIcons.phone_fill, color: Color(0xFF2563EB)),
+                  title: const Text('Helpline & WhatsApp Support', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('+91 98765 43210 (Mon-Sat 9AM-8PM)', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: Colors.grey),
+                  onTap: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Helpline connected: Contact support at +91 98765 43210')),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 22),
+
+          // ── Logout Button ──
+          LiquidGlassBox(
+            borderRadius: 20,
+            padding: EdgeInsets.zero,
+            child: ListTile(
+              leading: const Icon(CupertinoIcons.square_arrow_right, color: Colors.red),
+              title: const Text('Sign Out from Student Portal', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14)),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Sign Out?'),
+                    content: const Text('Are you sure you want to log out from Indrajeet Sir Mentorship App?'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoginScreen(
+                                onThemeToggle: onThemeToggle,
+                                profile: profile,
+                                onProfileUpdate: onProfileUpdate,
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text('Log Out'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Center(
+            child: Text(
+              'Indrajeet Sir UPSC Mentorship • v2.4.0 Liquid Glass',
+              style: TextStyle(fontSize: 11, color: Colors.grey),
+            ),
+          ),
         ],
       ),
     );
