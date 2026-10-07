@@ -76,8 +76,11 @@ export class AppController {
         id: user.id,
         name: user.name,
         email: user.email,
-        phone: '+91 98765 43210',
-        attempt: '2027',
+        phone: user.phone || '+91 98765 43210',
+        bio: user.bio || 'Dedicated UPSC Aspirant targeting top rank in CSE',
+        attempt: user.attempt || '2027',
+        optionalSubject: user.optionalSubject || 'Public Administration',
+        avatarKey: user.avatarKey || 'ias_officer',
         joinedDate: user.createdAt.toISOString().slice(0, 10),
       };
 
@@ -97,7 +100,10 @@ export class AppController {
         name: body.email ? body.email.split('@')[0] : 'Student',
         email: body.email || 'student@indrajeetsir.com',
         phone: '+91 98765 43210',
+        bio: 'Dedicated UPSC Aspirant targeting top rank in CSE',
         attempt: '2027',
+        optionalSubject: 'Public Administration',
+        avatarKey: 'ias_officer',
         joinedDate: new Date().toISOString().slice(0, 10),
       };
       fallbackStudents.push(newSt);
@@ -106,7 +112,7 @@ export class AppController {
   }
 
   @Post('auth/register')
-  async registerStudent(@Body() body: { name: string; email: string; phone?: string; attempt?: string; password?: string }) {
+  async registerStudent(@Body() body: { name: string; email: string; phone?: string; attempt?: string; bio?: string; optionalSubject?: string; avatarKey?: string; password?: string }) {
     const emailClean = (body.email || '').trim().toLowerCase();
 
     try {
@@ -124,6 +130,11 @@ export class AppController {
             password: body.password || 'default_pass',
             name: body.name || 'Student',
             role: 'STUDENT',
+            phone: body.phone,
+            bio: body.bio,
+            attempt: body.attempt,
+            optionalSubject: body.optionalSubject,
+            avatarKey: body.avatarKey,
             organizationId: org.id,
           },
         });
@@ -133,8 +144,11 @@ export class AppController {
         id: user.id,
         name: user.name,
         email: user.email,
-        phone: body.phone || '+91 98765 43210',
-        attempt: body.attempt || '2027',
+        phone: user.phone || body.phone || '+91 98765 43210',
+        bio: user.bio || body.bio || 'Dedicated UPSC Aspirant targeting top rank in CSE',
+        attempt: user.attempt || body.attempt || '2027',
+        optionalSubject: user.optionalSubject || body.optionalSubject || 'Public Administration',
+        avatarKey: user.avatarKey || body.avatarKey || 'ias_officer',
         joinedDate: user.createdAt.toISOString().slice(0, 10),
       };
 
@@ -153,7 +167,10 @@ export class AppController {
         name: body.name || 'Student',
         email: body.email,
         phone: body.phone || '+91 98765 43210',
+        bio: body.bio || 'Dedicated UPSC Aspirant targeting top rank in CSE',
         attempt: body.attempt || '2027',
+        optionalSubject: body.optionalSubject || 'Public Administration',
+        avatarKey: body.avatarKey || 'ias_officer',
         joinedDate: new Date().toISOString().slice(0, 10),
       };
       fallbackStudents.push(newSt);
@@ -191,8 +208,11 @@ export class AppController {
           id: u.id,
           name: u.name,
           email: u.email,
-          phone: '+91 98765 43210',
-          attempt: '2027',
+          phone: u.phone || '+91 98765 43210',
+          bio: u.bio || 'Dedicated UPSC Aspirant targeting top rank in CSE',
+          attempt: u.attempt || '2027',
+          optionalSubject: u.optionalSubject || 'Public Administration',
+          avatarKey: u.avatarKey || 'ias_officer',
           joinedDate: u.createdAt.toISOString().slice(0, 10),
         }));
       }
@@ -201,7 +221,16 @@ export class AppController {
   }
 
   @Post('students')
-  async addStudent(@Body() body: { name: string; email: string; phone: string; attempt: string }) {
+  async addOrUpdateStudent(@Body() body: {
+    name?: string;
+    email: string;
+    phone?: string;
+    attempt?: string;
+    bio?: string;
+    optionalSubject?: string;
+    avatarKey?: string;
+  }) {
+    const emailClean = (body.email || '').trim().toLowerCase();
     try {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
@@ -209,25 +238,50 @@ export class AppController {
           data: { name: 'Indrajeet Sir Mentorship', contactEmail: 'info@indrajeetsir.com' },
         });
       }
-      const user = await this.prisma.user.create({
-        data: {
-          name: body.name,
-          email: body.email.toLowerCase(),
+
+      const user = await this.prisma.user.upsert({
+        where: { email: emailClean },
+        update: {
+          name: body.name ?? undefined,
+          phone: body.phone ?? undefined,
+          bio: body.bio ?? undefined,
+          attempt: body.attempt ?? undefined,
+          optionalSubject: body.optionalSubject ?? undefined,
+          avatarKey: body.avatarKey ?? undefined,
+        },
+        create: {
+          name: body.name || emailClean.split('@')[0],
+          email: emailClean,
           password: 'default_password',
           role: 'STUDENT',
+          phone: body.phone || '+91 98765 43210',
+          bio: body.bio || 'Dedicated UPSC Aspirant targeting top rank in CSE',
+          attempt: body.attempt || '2027',
+          optionalSubject: body.optionalSubject || 'Public Administration',
+          avatarKey: body.avatarKey || 'ias_officer',
           organizationId: org.id,
         },
       });
+
       const st = {
         id: user.id,
         name: user.name,
         email: user.email,
-        phone: body.phone,
-        attempt: body.attempt,
+        phone: user.phone || body.phone,
+        bio: user.bio || body.bio,
+        attempt: user.attempt || body.attempt,
+        optionalSubject: user.optionalSubject || body.optionalSubject,
+        avatarKey: user.avatarKey || body.avatarKey,
         joinedDate: user.createdAt.toISOString().slice(0, 10),
       };
       return { success: true, student: st };
-    } catch {
+    } catch (err: any) {
+      console.error('Error in upsert student to DB:', err);
+      let existing = fallbackStudents.find(s => s.email.toLowerCase() === emailClean);
+      if (existing) {
+        Object.assign(existing, body);
+        return { success: true, student: existing };
+      }
       const st = { id: `st-${Date.now()}`, ...body, joinedDate: new Date().toISOString().slice(0, 10) };
       fallbackStudents.push(st);
       return { success: true, student: st };

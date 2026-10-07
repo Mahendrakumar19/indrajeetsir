@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
@@ -12,10 +13,8 @@ void main() {
 // CENTRAL BACKEND API SERVICE (Connected to https://backend.indrajeetsir.com)
 // ============================================================================
 class ApiService {
-  // Live Production Backend URL
   static const String baseUrl = 'https://backend.indrajeetsir.com';
 
-  // 1. Health check
   static Future<bool> checkHealth() async {
     try {
       final res = await http.get(Uri.parse('$baseUrl/')).timeout(const Duration(seconds: 5));
@@ -25,7 +24,6 @@ class ApiService {
     }
   }
 
-  // 2. Student Authentication
   static Future<Map<String, dynamic>?> studentLogin(String email, String password) async {
     try {
       final res = await http.post(
@@ -44,7 +42,6 @@ class ApiService {
     return null;
   }
 
-  // 3. Fetch Scheduled Live Classes
   static Future<List<Map<String, dynamic>>> fetchLiveClasses() async {
     try {
       final res = await http.get(
@@ -61,7 +58,6 @@ class ApiService {
     return [];
   }
 
-  // 4. Fetch Chat Messages with Mentor
   static Future<List<Map<String, String>>> fetchMessages() async {
     try {
       final res = await http.get(
@@ -85,7 +81,6 @@ class ApiService {
     return [];
   }
 
-  // 5. Send Message to Indrajeet Sir
   static Future<bool> sendMessage(String studentName, String text) async {
     try {
       final res = await http.post(
@@ -104,7 +99,6 @@ class ApiService {
     }
   }
 
-  // 6. Sync Student Profile with MySQL Database
   static Future<bool> syncProfile(StudentProfile profile) async {
     try {
       final res = await http.post(
@@ -115,6 +109,9 @@ class ApiService {
           'email': profile.email,
           'phone': profile.phone,
           'attempt': profile.attemptYear,
+          'bio': profile.bio,
+          'optionalSubject': profile.optionalSubject,
+          'avatarKey': profile.avatarKey,
         }),
       ).timeout(const Duration(seconds: 7));
 
@@ -170,7 +167,7 @@ class StudentProfile {
 }
 
 // ============================================================================
-// REUSABLE LIQUID GLASS WRAPPER (Inspired by glass.samasante.com)
+// REUSABLE LIQUID GLASS WRAPPER
 // ============================================================================
 class LiquidGlassBox extends StatelessWidget {
   final Widget child;
@@ -346,7 +343,7 @@ class _EduAppState extends State<EduApp> {
 }
 
 // ============================================================================
-// 1. AUTHENTICATION SCREEN (Fetching from https://backend.indrajeetsir.com)
+// 1. AUTHENTICATION SCREEN
 // ============================================================================
 class LoginScreen extends StatefulWidget {
   final VoidCallback onThemeToggle;
@@ -374,8 +371,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text.trim();
 
     setState(() => _isLoading = true);
-
-    // Call live backend API
     final data = await ApiService.studentLogin(email, password);
 
     if (mounted) {
@@ -385,18 +380,21 @@ class _LoginScreenState extends State<LoginScreen> {
         widget.profile.email = st['email'] ?? widget.profile.email;
         widget.profile.phone = st['phone'] ?? widget.profile.phone;
         widget.profile.attemptYear = st['attempt'] ?? widget.profile.attemptYear;
+        if (st['bio'] != null && (st['bio'] as String).isNotEmpty) {
+          widget.profile.bio = st['bio'];
+        }
+        if (st['optionalSubject'] != null && (st['optionalSubject'] as String).isNotEmpty) {
+          widget.profile.optionalSubject = st['optionalSubject'];
+        }
+        if (st['avatarKey'] != null && (st['avatarKey'] as String).isNotEmpty) {
+          widget.profile.avatarKey = st['avatarKey'];
+        }
         widget.onProfileUpdate(widget.profile);
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('✅ Authenticated with https://backend.indrajeetsir.com'),
+            content: Text('✅ Connected to https://backend.indrajeetsir.com'),
             backgroundColor: Color(0xFF10B981),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Offline session active • Connected to local cache'),
           ),
         );
       }
@@ -603,7 +601,7 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 // ============================================================================
-// 2. MAIN APP NAVIGATION WITH LIQUID GLASS DOCK
+// 2. MAIN APP NAVIGATION WITH LIQUID GLASS DOCK & 10-MIN CLASS REMINDER
 // ============================================================================
 class MainNavigation extends StatefulWidget {
   final VoidCallback onThemeToggle;
@@ -624,18 +622,273 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
+  // ── 10-Minute Notification Reminder State ──
+  Timer? _reminderTimer;
+  bool _reminderEnabled = true;
+  bool _showAlertBanner = false;
+  DateTime? _snoozedUntil;
+  Map<String, dynamic>? _upcomingAlertClass;
+  int _minutesRemaining = 10;
+
+  @override
+  void initState() {
+    super.initState();
+    _startReminderService();
+  }
+
+  @override
+  void dispose() {
+    _reminderTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startReminderService() {
+    _checkUpcomingClasses();
+    _reminderTimer = Timer.periodic(const Duration(seconds: 25), (_) {
+      if (_reminderEnabled) {
+        _checkUpcomingClasses();
+      }
+    });
+  }
+
+  Future<void> _checkUpcomingClasses() async {
+    if (_snoozedUntil != null && DateTime.now().isBefore(_snoozedUntil!)) {
+      return;
+    }
+    final classes = await ApiService.fetchLiveClasses();
+    if (classes.isEmpty) return;
+
+    final now = DateTime.now();
+
+    for (final cls in classes) {
+      final assigned = (cls['assignedStudent'] ?? 'All Students').toString();
+      final isAllotted = assigned == 'All Students' ||
+          assigned.toLowerCase().contains(widget.profile.name.toLowerCase());
+
+      if (!isAllotted) continue;
+
+      DateTime? classTime;
+      try {
+        final dateStr = cls['date']?.toString() ?? '';
+        final timeStr = cls['time']?.toString() ?? '19:00';
+        final parts = timeStr.split(':');
+        final hour = parts.isNotEmpty ? int.tryParse(parts[0]) ?? 19 : 19;
+        final minute = parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0;
+        final parsedDate = DateTime.tryParse(dateStr) ?? now;
+        classTime = DateTime(parsedDate.year, parsedDate.month, parsedDate.day, hour, minute);
+      } catch (_) {
+        classTime = now.add(const Duration(minutes: 9));
+      }
+
+      final diffInMinutes = classTime.difference(now).inMinutes;
+
+      // When 10 minutes or less remain until the class starts
+      if (diffInMinutes >= 0 && diffInMinutes <= 10) {
+        if (mounted) {
+          setState(() {
+            _upcomingAlertClass = cls;
+            _minutesRemaining = diffInMinutes == 0 ? 1 : diffInMinutes;
+            _showAlertBanner = true;
+          });
+        }
+        break;
+      }
+    }
+  }
+
+  void triggerTestReminder() {
+    setState(() {
+      _snoozedUntil = null;
+      _upcomingAlertClass = {
+        'title': '1:1 GS-3 Strategy Review Session',
+        'time': 'Starting in 10 Minutes',
+        'meetLink': 'https://meet.google.com/abc-defg-hij',
+        'assignedStudent': widget.profile.name,
+        'status': 'STARTING_SOON',
+      };
+      _minutesRemaining = 10;
+      _showAlertBanner = true;
+    });
+  }
+
+  Widget _buildTenMinReminderBanner(BuildContext context) {
+    final primaryColor = Theme.of(context).primaryColor;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cls = _upcomingAlertClass!;
+    final meetUrl = cls['meetLink'] ?? cls['meetingUrl'] ?? 'https://meet.google.com/abc-defg-hij';
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.red.withValues(alpha: 0.35),
+            blurRadius: 28,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 28, sigmaY: 28),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isDark
+                    ? [
+                        const Color(0xFF1E293B).withValues(alpha: 0.95),
+                        const Color(0xFF0F172A).withValues(alpha: 0.90),
+                      ]
+                    : [
+                        Colors.white.withValues(alpha: 0.96),
+                        Colors.white.withValues(alpha: 0.90),
+                      ],
+              ),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: Colors.red.withValues(alpha: 0.7),
+                width: 1.8,
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(CupertinoIcons.alarm_fill, size: 13, color: Colors.white),
+                              const SizedBox(width: 4),
+                              Text(
+                                '⏰ $_minutesRemaining MIN LEFT!',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Class Starting Soon',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(CupertinoIcons.xmark_circle_fill, size: 20),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () {
+                        setState(() {
+                          _showAlertBanner = false;
+                          _snoozedUntil = DateTime.now().add(const Duration(minutes: 10));
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  cls['title'] ?? '1:1 Allotted Mentorship Session',
+                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Allotted for ${widget.profile.name} • Indrajeet Sir is joining',
+                  style: const TextStyle(fontSize: 11.5, color: Colors.grey),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                        ),
+                        icon: const Icon(CupertinoIcons.videocam_fill, size: 16),
+                        label: const Text('Join Live Class Now ↗', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5)),
+                        onPressed: () {
+                          setState(() => _showAlertBanner = false);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Launching alloted live class: $meetUrl')),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showAlertBanner = false;
+                          _snoozedUntil = DateTime.now().add(const Duration(minutes: 5));
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('⏰ Reminder snoozed for 5 minutes'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      child: const Text('Snooze', style: TextStyle(fontSize: 12)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screens = [
       HomeScreen(
         profile: widget.profile,
+        upcomingClass: _upcomingAlertClass,
+        minutesRemaining: _minutesRemaining,
         onNavigateTab: (index) => setState(() => _selectedIndex = index),
+        onTestReminder: triggerTestReminder,
       ),
       LiveSessionsScreen(profile: widget.profile),
       ChatScreen(profile: widget.profile),
       ProfileScreen(
         onThemeToggle: widget.onThemeToggle,
         profile: widget.profile,
+        reminderEnabled: _reminderEnabled,
+        onReminderToggle: (val) => setState(() => _reminderEnabled = val),
+        onTestReminder: triggerTestReminder,
         onProfileUpdate: (updated) {
           widget.onProfileUpdate(updated);
           setState(() {});
@@ -648,9 +901,24 @@ class _MainNavigationState extends State<MainNavigation> {
 
     return Scaffold(
       extendBody: true,
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: screens,
+      body: Stack(
+        children: [
+          IndexedStack(
+            index: _selectedIndex,
+            children: screens,
+          ),
+
+          // ── FLOATING 10-MINUTE ALERT LIQUID GLASS BANNER ──
+          if (_showAlertBanner && _upcomingAlertClass != null)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                child: _buildTenMinReminderBanner(context),
+              ),
+            ),
+        ],
       ),
 
       // ── ULTRA FLUID LIQUID GLASS DOCK ──────────────────────────────────────
@@ -658,9 +926,9 @@ class _MainNavigationState extends State<MainNavigation> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
           child: Container(
-            height: 68,
+            height: 72,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(34),
+              borderRadius: BorderRadius.circular(36),
               boxShadow: [
                 BoxShadow(
                   color: isDark
@@ -679,11 +947,11 @@ class _MainNavigationState extends State<MainNavigation> {
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(34),
+              borderRadius: BorderRadius.circular(36),
               child: BackdropFilter(
                 filter: ui.ImageFilter.blur(sigmaX: 28, sigmaY: 28),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
@@ -698,7 +966,7 @@ class _MainNavigationState extends State<MainNavigation> {
                               Colors.white.withValues(alpha: 0.52),
                             ],
                     ),
-                    borderRadius: BorderRadius.circular(34),
+                    borderRadius: BorderRadius.circular(36),
                     border: Border.all(
                       color: isDark
                           ? Colors.white.withValues(alpha: 0.18)
@@ -736,7 +1004,7 @@ class _MainNavigationState extends State<MainNavigation> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 280),
           curve: Curves.fastOutSlowIn,
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 4),
           decoration: BoxDecoration(
             gradient: isSelected
                 ? LinearGradient(
@@ -756,36 +1024,39 @@ class _MainNavigationState extends State<MainNavigation> {
                   )
                 : null,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedScale(
-                scale: isSelected ? 1.15 : 1.0,
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOutBack,
-                child: Icon(
-                  isSelected ? activeIcon : inactiveIcon,
-                  size: 22,
-                  color: isSelected
-                      ? primaryColor
-                      : (isDark ? Colors.white60 : const Color(0xFF64748B)),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedScale(
+                  scale: isSelected ? 1.12 : 1.0,
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutBack,
+                  child: Icon(
+                    isSelected ? activeIcon : inactiveIcon,
+                    size: 21,
+                    color: isSelected
+                        ? primaryColor
+                        : (isDark ? Colors.white60 : const Color(0xFF64748B)),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 3),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 200),
-                style: TextStyle(
-                  color: isSelected
-                      ? primaryColor
-                      : (isDark ? Colors.white54 : const Color(0xFF64748B)),
-                  fontSize: 10.5,
-                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-                  letterSpacing: -0.2,
+                const SizedBox(height: 2),
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 200),
+                  style: TextStyle(
+                    color: isSelected
+                        ? primaryColor
+                        : (isDark ? Colors.white54 : const Color(0xFF64748B)),
+                    fontSize: 10.0,
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                    letterSpacing: -0.2,
+                  ),
+                  child: Text(label),
                 ),
-                child: Text(label),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -794,17 +1065,170 @@ class _MainNavigationState extends State<MainNavigation> {
 }
 
 // ============================================================================
-// 3. HOME SCREEN
+// 3. HOME SCREEN WITH 10-MINUTE ALERT COUNTER
 // ============================================================================
 class HomeScreen extends StatelessWidget {
   final StudentProfile profile;
+  final Map<String, dynamic>? upcomingClass;
+  final int minutesRemaining;
   final Function(int) onNavigateTab;
+  final VoidCallback? onTestReminder;
 
   const HomeScreen({
     super.key,
     required this.profile,
+    this.upcomingClass,
+    this.minutesRemaining = 10,
     required this.onNavigateTab,
+    this.onTestReminder,
   });
+
+  void _openNotificationsSheet(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = Theme.of(context).primaryColor;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return LiquidGlassBox(
+          borderRadius: 28,
+          blurSigma: 32,
+          padding: const EdgeInsets.all(22),
+          margin: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: primaryColor.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(CupertinoIcons.bell_fill, color: primaryColor, size: 20),
+                      ),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Notification Center',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(CupertinoIcons.xmark_circle_fill),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (upcomingClass != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.red.withValues(alpha: 0.5), width: 1.5),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '⏰ $minutesRemaining MIN LEFT',
+                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Allotted Live Class Imminent',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        upcomingClass!['title'] ?? '1:1 Allotted Mentorship Session',
+                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Allotted for ${profile.name} • Indrajeet Sir Live',
+                        style: const TextStyle(fontSize: 11.5, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          onNavigateTab(1);
+                        },
+                        child: const Text('Open & Join Live Session', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(CupertinoIcons.alarm_fill, color: Color(0xFFF59E0B), size: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text('10-Min Live Reminder Active', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                          SizedBox(height: 2),
+                          Text('You will automatically receive a heads-up alert 10 minutes before your allotted session.', style: TextStyle(fontSize: 11.5, color: Colors.grey)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                icon: const Icon(CupertinoIcons.play_circle_fill, size: 18),
+                label: const Text('Test 10-Min Alert Banner Preview'),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  onTestReminder?.call();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -833,12 +1257,26 @@ class HomeScreen extends StatelessWidget {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.all(2),
             child: IconButton(
-              icon: const Icon(CupertinoIcons.bell_fill, size: 18),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Synced with https://backend.indrajeetsir.com')),
-                );
-              },
+              icon: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(CupertinoIcons.bell_fill, size: 18),
+                  if (upcomingClass != null)
+                    Positioned(
+                      right: -1,
+                      top: -1,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              onPressed: () => _openNotificationsSheet(context),
             ),
           ),
         ],
@@ -848,6 +1286,58 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ── 10-Minute Reminder Highlight Banner ──
+            if (upcomingClass != null) ...[
+              LiquidGlassBox(
+                borderRadius: 22,
+                tintColor: Colors.amber,
+                tintOpacity: isDark ? 0.25 : 0.14,
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.6), width: 1.5),
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: Colors.amber,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(CupertinoIcons.alarm_fill, color: Colors.black, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '⏰ $minutesRemaining MINS LEFT: Class Starting!',
+                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.amber),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            upcomingClass!['title'] ?? '1:1 Allotted Mentorship Session',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
+                          ),
+                          const Text('Get your notes ready for Indrajeet Sir', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.amber,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      onPressed: () => onNavigateTab(1),
+                      child: const Text('Join', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+
             // Welcome Liquid Card
             LiquidGlassBox(
               borderRadius: 24,
@@ -968,7 +1458,7 @@ class HomeScreen extends StatelessWidget {
                           const SizedBox(height: 10),
                           const Text('1:1 Live Classes', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
                           const SizedBox(height: 2),
-                          const Text('Fetch live sessions from backend', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                          const Text('10-min alerts & Meet slots', style: TextStyle(fontSize: 11, color: Colors.grey)),
                         ],
                       ),
                     ),
@@ -1035,7 +1525,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 // ============================================================================
-// 4. 1:1 LIVE SESSIONS SCREEN (Fetching from https://backend.indrajeetsir.com/live-classes)
+// 4. 1:1 LIVE SESSIONS SCREEN
 // ============================================================================
 class LiveSessionsScreen extends StatefulWidget {
   final StudentProfile? profile;
@@ -1064,7 +1554,6 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
         if (remote.isNotEmpty) {
           _classes = remote;
         } else {
-          // Fallback scheduled classes
           _classes = [
             {
               'id': 'lc-1',
@@ -1136,7 +1625,7 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  isLive ? '🔴 LIVE SESSION' : '📅 SCHEDULED',
+                                  isLive ? '🔴 10-MIN REMINDER ACTIVE' : '📅 SCHEDULED',
                                   style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -1184,7 +1673,7 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
 }
 
 // ============================================================================
-// 5. CHAT SCREEN (Fetching from https://backend.indrajeetsir.com/messages)
+// 5. CHAT SCREEN
 // ============================================================================
 class ChatScreen extends StatefulWidget {
   final StudentProfile profile;
@@ -1236,7 +1725,6 @@ class _ChatScreenState extends State<ChatScreen> {
       _textController.clear();
     });
 
-    // POST to backend API
     await ApiService.sendMessage(widget.profile.name, text);
 
     if (mounted) {
@@ -1367,21 +1855,26 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 // ============================================================================
-// 6. REDESIGNED PROFILE & POLICIES (Syncing with https://backend.indrajeetsir.com)
+// 6. REDESIGNED PROFILE & POLICIES WITH 10-MIN REMINDER TOGGLE
 // ============================================================================
 class ProfileScreen extends StatelessWidget {
   final VoidCallback onThemeToggle;
   final StudentProfile profile;
+  final bool reminderEnabled;
+  final ValueChanged<bool> onReminderToggle;
+  final VoidCallback onTestReminder;
   final Function(StudentProfile) onProfileUpdate;
 
   const ProfileScreen({
     super.key,
     required this.onThemeToggle,
     required this.profile,
+    required this.reminderEnabled,
+    required this.onReminderToggle,
+    required this.onTestReminder,
     required this.onProfileUpdate,
   });
 
-  // ── Show Edit Profile Details Sheet ──
   void _openEditProfileDialog(BuildContext context) {
     final nameCtrl = TextEditingController(text: profile.name);
     final emailCtrl = TextEditingController(text: profile.email);
@@ -1499,7 +1992,6 @@ class ProfileScreen extends StatelessWidget {
                           profile.bio = bioCtrl.text.trim();
                           onProfileUpdate(profile);
 
-                          // Sync to backend database
                           await ApiService.syncProfile(profile);
 
                           if (context.mounted) {
@@ -1525,7 +2017,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // ── Show Avatar Picker Sheet ──
   void _openAvatarPicker(BuildContext context) {
     final avatars = [
       {'key': 'ias_officer', 'emoji': '👮‍♂️', 'title': 'IAS Officer'},
@@ -1573,9 +2064,10 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () {
                       profile.avatarKey = a['key']!;
                       onProfileUpdate(profile);
+                      ApiService.syncProfile(profile);
                       Navigator.pop(ctx);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Avatar changed to ${a['title']}!')),
+                        SnackBar(content: Text('Avatar changed to ${a['title']}! Synced with database.')),
                       );
                     },
                     child: Container(
@@ -1608,7 +2100,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // ── Show Policy Sheets ──
   void _showPolicySheet(BuildContext context, String title, String emoji, String content) {
     showModalBottomSheet(
       context: context,
@@ -1851,13 +2342,41 @@ class ProfileScreen extends StatelessWidget {
           // ── App Preferences Section ──
           const Padding(
             padding: EdgeInsets.only(left: 4, bottom: 8),
-            child: Text('APP SETTINGS & APPEARANCE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey, letterSpacing: 0.5)),
+            child: Text('APP SETTINGS & NOTIFICATIONS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey, letterSpacing: 0.5)),
           ),
           LiquidGlassBox(
             borderRadius: 22,
             padding: EdgeInsets.zero,
             child: Column(
               children: [
+                // 10-Minute Class Reminder Toggle
+                ListTile(
+                  leading: const Icon(CupertinoIcons.alarm_fill, color: Color(0xFFF59E0B)),
+                  title: const Text('10-Min Live Class Reminder', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Heads-up alert when your allotted class starts in 10 mins', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  trailing: Switch(
+                    value: reminderEnabled,
+                    onChanged: onReminderToggle,
+                  ),
+                ),
+                const Divider(height: 1),
+
+                // Test Reminder Banner Button
+                ListTile(
+                  leading: const Icon(CupertinoIcons.bell_fill, color: Color(0xFFEC4899)),
+                  title: const Text('Test 10-Min Alert Banner', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                  subtitle: const Text('Tap to preview the in-app notification popup', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: Colors.grey),
+                  onTap: () {
+                    onTestReminder();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('🔔 10-Minute Reminder Alert triggered at top of screen!')),
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+
+                // Dark Mode Switch
                 ListTile(
                   leading: const Icon(CupertinoIcons.moon_stars_fill, color: Color(0xFF6366F1)),
                   title: const Text('Liquid Glass Dark Mode', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
@@ -1866,18 +2385,6 @@ class ProfileScreen extends StatelessWidget {
                     value: isDark,
                     onChanged: (val) => onThemeToggle(),
                   ),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(CupertinoIcons.bell_fill, color: Color(0xFF0EA5E9)),
-                  title: const Text('Notification Reminders', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Live class alerts & Mentor replies', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                  trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: Colors.grey),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Notifications are enabled for all scheduled 1:1 sessions!')),
-                    );
-                  },
                 ),
               ],
             ),
@@ -1948,7 +2455,7 @@ class ProfileScreen extends StatelessWidget {
                       '• Live Backend API: https://backend.indrajeetsir.com\n'
                       '• Database Host: MySQL (38.242.244.225:3306 - indrajeetsir)\n'
                       '• Database Engine: Prisma ORM with Live Sync\n'
-                      '• API Endpoints: /auth/student-login, /live-classes, /messages, /students\n'
+                      '• 10-Minute Reminder Service: Active Background Polling\n'
                       '• Chief Mentor: Indrajeet Sir (10+ Years Teaching Experience)\n'
                       '• Supported Exams: UPSC Civil Services Examination & State PCS\n'
                       '• Developed with precision for serious Civil Services aspirants.',
