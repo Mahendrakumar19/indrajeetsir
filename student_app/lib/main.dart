@@ -10,10 +10,13 @@ void main() {
 }
 
 // ============================================================================
-// CENTRAL BACKEND SERVICE (Connects to Indrajeet Sir Mentorship Cloud API)
+// CENTRAL API SERVICE
 // ============================================================================
 class ApiService {
-  static const String baseUrl = 'https://backend.indrajeetsir.com';
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'https://backend.indrajeetsir.com',
+  );
 
   static Future<bool> checkHealth() async {
     try {
