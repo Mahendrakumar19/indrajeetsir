@@ -849,6 +849,7 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     final screens = [
       HomeScreen(
+        onThemeToggle: widget.onThemeToggle,
         profile: widget.profile,
         upcomingClass: _upcomingAlertClass,
         minutesRemaining: _minutesRemaining,
@@ -981,6 +982,7 @@ class _MainNavigationState extends State<MainNavigation> {
 // 3. HOME SCREEN (OVERVIEW) — CLEAN iOS HIG DESIGN
 // ============================================================================
 class HomeScreen extends StatelessWidget {
+  final VoidCallback onThemeToggle;
   final StudentProfile profile;
   final Map<String, dynamic>? upcomingClass;
   final int minutesRemaining;
@@ -988,6 +990,7 @@ class HomeScreen extends StatelessWidget {
 
   const HomeScreen({
     super.key,
+    required this.onThemeToggle,
     required this.profile,
     this.upcomingClass,
     this.minutesRemaining = 10,
@@ -1033,20 +1036,53 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    GestureDetector(
-                      onTap: () => onNavigateTab(3),
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: IosTheme.primaryBlue, width: 2),
+                    Row(
+                      children: [
+                        CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          onPressed: onThemeToggle,
+                          child: Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.06),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              isDark ? CupertinoIcons.sun_max_fill : CupertinoIcons.moon_fill,
+                              size: 18,
+                              color: isDark ? const Color(0xFFFFCC00) : IosTheme.systemIndigo,
+                            ),
+                          ),
                         ),
-                        child: CircleAvatar(
-                          radius: 20,
-                          backgroundColor: IosTheme.primaryBlue.withValues(alpha: 0.12),
-                          child: Text(profile.avatarDisplayEmoji, style: const TextStyle(fontSize: 20)),
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          onTap: () => onNavigateTab(3),
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: IosTheme.primaryBlue, width: 2),
+                            ),
+                            child: CircleAvatar(
+                              radius: 19,
+                              backgroundColor: IosTheme.primaryBlue.withValues(alpha: 0.12),
+                              child: Text(profile.avatarDisplayEmoji, style: const TextStyle(fontSize: 19)),
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
@@ -1863,7 +1899,14 @@ class ProfileScreen extends StatelessWidget {
                       child: const Text('Cancel'),
                       onPressed: () => Navigator.pop(ctx),
                     ),
-                    const Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                    Text(
+                      'Edit Profile',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
                     CupertinoButton(
                       padding: EdgeInsets.zero,
                       child: const Text('Done', style: TextStyle(fontWeight: FontWeight.w700)),
@@ -1898,34 +1941,49 @@ class ProfileScreen extends StatelessWidget {
                       CupertinoTextField(
                         controller: nameCtrl,
                         placeholder: 'Full Name',
-                        prefix: const Padding(padding: EdgeInsets.only(left: 8), child: Icon(CupertinoIcons.person, size: 18)),
+                        placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
+                        decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
+                        prefix: Padding(padding: const EdgeInsets.only(left: 10), child: Icon(CupertinoIcons.person, size: 18, color: isDark ? Colors.white70 : CupertinoColors.systemGrey)),
                         padding: const EdgeInsets.all(12),
                       ),
                       const SizedBox(height: 12),
                       CupertinoTextField(
                         controller: emailCtrl,
                         placeholder: 'Email',
-                        prefix: const Padding(padding: EdgeInsets.only(left: 8), child: Icon(CupertinoIcons.mail, size: 18)),
+                        placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
+                        decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
+                        prefix: Padding(padding: const EdgeInsets.only(left: 10), child: Icon(CupertinoIcons.mail, size: 18, color: isDark ? Colors.white70 : CupertinoColors.systemGrey)),
                         padding: const EdgeInsets.all(12),
                       ),
                       const SizedBox(height: 12),
                       CupertinoTextField(
                         controller: phoneCtrl,
                         placeholder: 'Phone / WhatsApp',
-                        prefix: const Padding(padding: EdgeInsets.only(left: 8), child: Icon(CupertinoIcons.phone, size: 18)),
+                        placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
+                        decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
+                        prefix: Padding(padding: const EdgeInsets.only(left: 10), child: Icon(CupertinoIcons.phone, size: 18, color: isDark ? Colors.white70 : CupertinoColors.systemGrey)),
                         padding: const EdgeInsets.all(12),
                       ),
                       const SizedBox(height: 12),
                       CupertinoTextField(
                         controller: optionalCtrl,
                         placeholder: 'Optional Subject',
-                        prefix: const Padding(padding: EdgeInsets.only(left: 8), child: Icon(CupertinoIcons.book, size: 18)),
+                        placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
+                        decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
+                        prefix: Padding(padding: const EdgeInsets.only(left: 10), child: Icon(CupertinoIcons.book, size: 18, color: isDark ? Colors.white70 : CupertinoColors.systemGrey)),
                         padding: const EdgeInsets.all(12),
                       ),
                       const SizedBox(height: 12),
                       CupertinoTextField(
                         controller: bioCtrl,
                         placeholder: 'Personal Directive / Bio',
+                        placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
+                        decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
                         maxLines: 2,
                         padding: const EdgeInsets.all(12),
                       ),
@@ -1992,7 +2050,14 @@ class ProfileScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 17,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
+                  ),
                   CupertinoButton(
                     padding: EdgeInsets.zero,
                     child: const Text('Done', style: TextStyle(fontWeight: FontWeight.w700)),
