@@ -286,7 +286,7 @@ class _EduAppState extends State<EduApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Indrajeet Sir IAS Mentorship',
+      title: 'Indrajeet Sir UPSC',
       debugShowCheckedModeBanner: false,
       themeMode: _themeMode,
       theme: ThemeData(
