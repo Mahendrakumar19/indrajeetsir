@@ -238,7 +238,7 @@ export default function Home() {
           <a href="#contact">Contact</a>
         </nav>
         <div className="nav-actions">
-          <Link href="/login" className="btn-outline">Student Login</Link>
+          <button className="btn-outline" onClick={() => setShowBookModal(true)}>Book Free Call</button>
           <a href="#courses" className="btn-primary">Enroll in Course</a>
         </div>
       </header>
@@ -465,7 +465,6 @@ export default function Home() {
             <ul>
               <li><a href="#courses">Courses & Fees</a></li>
               <li><a href="#about">About</a></li>
-              <li><Link href="/login">Student Login</Link></li>
               <li><Link href="/admin">Admin Portal</Link></li>
             </ul>
           </div>
@@ -560,9 +559,13 @@ export default function Home() {
               >
                 📲 Download Android App (.apk)
               </a>
-              <Link href="/login" className="btn-outline full">
-                Open Web Student Portal →
-              </Link>
+              <button
+                type="button"
+                onClick={() => setShowSuccessModal(false)}
+                className="btn-outline full"
+              >
+                Done
+              </button>
             </div>
           </div>
         </div>
