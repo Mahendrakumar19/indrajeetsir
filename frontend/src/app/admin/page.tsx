@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { API_URL, getAdminSession, setAdminSession, clearAdminSession } from '@/lib/api';
 import './admin.css';
 
@@ -406,7 +407,13 @@ export default function AdminPanel() {
       {/* Sidebar */}
       <aside className="admin-sidebar">
         <div className="admin-brand">
-          <span>🇮🇳</span>
+          <Image
+            src="/logo.png"
+            alt="Indrajeet Sir Logo"
+            width={38}
+            height={38}
+            style={{ borderRadius: '50%' }}
+          />
           <div>
             <div className="brand-name">Indrajeet Sir</div>
             <div className="brand-sub">Admin Portal</div>

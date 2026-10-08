@@ -416,27 +416,34 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Academy Emblem
+                // Academy Official Logo
                 Container(
-                  width: 84,
-                  height: 84,
+                  width: 90,
+                  height: 90,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(24),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFF2563EB), width: 2.5),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF2563EB).withValues(alpha: 0.3),
+                        color: const Color(0xFF2563EB).withValues(alpha: 0.35),
                         blurRadius: 24,
                         offset: const Offset(0, 8),
                       ),
                     ],
                   ),
-                  child: const Center(
-                    child: Icon(CupertinoIcons.book_fill, size: 40, color: Colors.white),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      width: 90,
+                      height: 90,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: const Color(0xFF2563EB),
+                        child: const Center(
+                          child: Icon(CupertinoIcons.person_fill, size: 42, color: Colors.white),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -1115,13 +1122,25 @@ class HomeScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         Container(
-                          width: 42,
-                          height: 42,
+                          width: 44,
+                          height: 44,
                           decoration: BoxDecoration(
-                            color: IosTheme.primaryBlue.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: IosTheme.primaryBlue.withValues(alpha: 0.35), width: 1.5),
                           ),
-                          child: const Icon(CupertinoIcons.book_fill, color: IosTheme.primaryBlue, size: 20),
+                          child: ClipOval(
+                            child: Image.asset(
+                              'assets/images/logo.png',
+                              width: 44,
+                              height: 44,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => const Icon(
+                                CupertinoIcons.book_fill,
+                                color: IosTheme.primaryBlue,
+                                size: 20,
+                              ),
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(

@@ -224,7 +224,14 @@ export default function Home() {
       {/* ── Navbar ── */}
       <header className="navbar">
         <div className="nav-brand">
-          <span className="nav-flag">🇮🇳</span>
+          <Image
+            src="/logo.png"
+            alt="Indrajeet Sir Official Logo"
+            width={44}
+            height={44}
+            className="nav-brand-logo"
+            priority
+          />
           <div>
             <div className="nav-title">Indrajeet Sir</div>
             <div className="nav-sub">UPSC & State PCS Mentorship</div>
@@ -457,7 +464,16 @@ export default function Home() {
       <footer id="contact" className="footer">
         <div className="footer-grid">
           <div>
-            <div className="nav-title">Indrajeet Sir</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.5rem' }}>
+              <Image
+                src="/logo.png"
+                alt="Indrajeet Sir Official Logo"
+                width={36}
+                height={36}
+                className="nav-brand-logo"
+              />
+              <div className="nav-title">Indrajeet Sir</div>
+            </div>
             <p className="footer-desc">Expert UPSC & State PCS Mentorship with 10 years of dedicated teaching experience.</p>
           </div>
           <div>
