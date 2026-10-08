@@ -140,7 +140,13 @@ body {
   transform: translateY(-4px);
   box-shadow: 0 24px 48px -12px rgba(37, 99, 235, 0.18), 0 4px 12px rgba(0,0,0,0.06);
 }
-.mentor-img { width: 100%; height: 350px; object-fit: cover; object-position: center top; display: block; }
+.mentor-img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  object-position: 53% 18%;
+  display: block;
+}
 .mentor-card-body {
   padding: 1.25rem 1.4rem;
   display: flex;
@@ -148,7 +154,7 @@ body {
   gap: 0.25rem;
   background: #ffffff;
 }
-.mentor-card-body strong { font-size: 1.1rem; color: #111827; }
+.mentor-card-body strong { font-size: 1.15rem; color: #111827; }
 .mentor-card-body span { font-size: 0.82rem; color: #4b5563; }
 .live-dot {
   display: flex;
@@ -170,7 +176,7 @@ body {
 }
 
 /* ── Sections ────────────────────────────────────────────── */
-.section-inner { max-width: 720px; margin: 0 auto; }
+.section-inner { max-width: 980px; margin: 0 auto; }
 .text-center { text-align: center; }
 
 .pill {
@@ -185,26 +191,141 @@ body {
   margin-bottom: 0.9rem;
 }
 .section-inner h2 {
-  font-size: 2rem;
+  font-size: 2.1rem;
   font-weight: 800;
   color: #111827;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.25;
 }
 .section-inner blockquote {
   border-left: 4px solid #2563eb;
-  padding-left: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: #ffffff;
+  border-radius: 0 12px 12px 0;
   font-style: italic;
   color: #1f2937;
   font-size: 1.05rem;
-  margin-bottom: 1.25rem;
+  margin: 1.5rem 0;
   line-height: 1.6;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+.quote-author {
+  display: block;
+  font-style: normal;
+  font-weight: 700;
+  color: #2563eb;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
 }
 .section-inner p { color: #4b5563; font-size: 1rem; line-height: 1.65; margin-bottom: 1.75rem; }
+
+/* Three Core Pillars */
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin: 2.5rem 0;
+  text-align: left;
+}
+.pillar-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  transition: transform 0.2s, border-color 0.2s;
+}
+.pillar-card:hover {
+  transform: translateY(-3px);
+  border-color: #93c5fd;
+}
+.pillar-badge {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+.pillar-badge.prelims { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.pillar-badge.mains { background: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8; }
+.pillar-badge.interview { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.pillar-card h3 { font-size: 1.05rem; font-weight: 700; color: #111827; margin-bottom: 0.4rem; }
+.pillar-card p { font-size: 0.85rem; color: #64748b; line-height: 1.5; margin-bottom: 0; }
+
+/* Roadmap Timeline */
+.roadmap-section {
+  padding: 5rem 4rem;
+  background: #f8fafc;
+  border-top: 1px solid #e5e7eb;
+}
+.roadmap-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+.roadmap-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.4rem 1.2rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+.phase-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #2563eb;
+  margin-bottom: 0.25rem;
+}
+.phase-month {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+.roadmap-card h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.35rem;
+}
+.roadmap-card p {
+  font-size: 0.82rem;
+  color: #64748b;
+  line-height: 1.45;
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.tests-summary-bar {
+  background: #1e293b;
+  color: #ffffff;
+  border-radius: 14px;
+  padding: 1.1rem 1.5rem;
+  margin-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.tests-summary-bar strong { font-size: 1rem; color: #60a5fa; }
+.tests-breakdown {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.88rem;
+  color: #e2e8f0;
+}
 
 /* About */
 .about-section {
   padding: 5rem 4rem;
-  background: #f9fafb;
+  background: #ffffff;
   border-top: 1px solid #e5e7eb;
   border-bottom: 1px solid #e5e7eb;
 }

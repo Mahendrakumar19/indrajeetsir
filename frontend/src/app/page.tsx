@@ -246,37 +246,121 @@ export default function Home() {
       {/* ── Hero ── */}
       <section className="hero">
         <div className="hero-content">
-          <span className="hero-badge">10+ Years Dedicated Teaching Experience</span>
+          <span className="hero-badge">1:1 Mentorship Program • UPSC 2027</span>
           <h1>Start Your UPSC<br />Journey with <span className="hero-accent">Indrajeet Sir</span></h1>
           <p className="hero-desc">
-            Benefit from 10 years of expert UPSC mentorship tailored for your success. Direct 1:1 live sessions on Google Meet, mobile app with 10-minute prior class alerts, and personal strategy guidance.
+            Complete personalized 1:1 guidance covering Prelims foundation, Mains answer writing edge (600+ short notes topics, 16 tests), and Personality Test interview preparation with live Google Meet sessions and 10-minute prior mobile alerts.
           </p>
           <div className="hero-btns">
-            <a href="#courses" className="btn-primary lg">Explore Courses & Enroll →</a>
+            <a href="#courses" className="btn-primary lg">Explore Program & Enroll →</a>
             <button className="btn-outline lg" onClick={() => setShowBookModal(true)}>Book Strategy Call</button>
           </div>
           <div className="hero-stats">
-            <div className="stat"><strong>1,200+</strong><span>Students Mentored</span></div>
+            <div className="stat"><strong>600+</strong><span>Short Notes Topics</span></div>
             <div className="stat-divider" />
-            <div className="stat"><strong>10+ Yrs</strong><span>Teaching Experience</span></div>
+            <div className="stat"><strong>16 Tests</strong><span>4 Mini • 8 Half • 4 Full</span></div>
             <div className="stat-divider" />
-            <div className="stat"><strong>100%</strong><span>Live Interactive Format</span></div>
+            <div className="stat"><strong>100%</strong><span>Direct 1:1 Mentorship</span></div>
           </div>
         </div>
         <div className="hero-img-wrap">
           <div className="mentor-card">
             <Image
-              src="/indrajeet-sir.png"
-              alt="Indrajeet Sir"
-              width={350}
+              src="/indrajeet-sir.jpg"
+              alt="Indrajeet Sir - Chief UPSC Mentor"
+              width={400}
               height={350}
               className="mentor-img"
               priority
             />
             <div className="mentor-card-body">
               <strong>Indrajeet Sir</strong>
-              <span>Founder & Chief UPSC Mentor</span>
-              <span className="live-dot"><span className="dot" />1:1 Google Meet Live Sessions</span>
+              <span>Chief UPSC & State PCS Mentor</span>
+              <span className="live-dot"><span className="dot" />Direct 1:1 Google Meet Live Sessions</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Three Core Pillars ── */}
+      <section className="about-section">
+        <div className="section-inner text-center">
+          <span className="pill">Mentorship Methodology</span>
+          <h2>Three Pillars of Your Preparation</h2>
+          <p>
+            A cohesive three-stage strategic framework engineered to take you from core basics to the final merit list.
+          </p>
+
+          <div className="pillars-grid">
+            <div className="pillar-card">
+              <span className="pillar-badge prelims">STAGE 1 • PRELIMS</span>
+              <h3>Strong Foundation</h3>
+              <p>Five months of structured, repeated revision across both static core and high-yield contemporary topics to clear GS-1 & CSAT with confidence.</p>
+            </div>
+            <div className="pillar-card">
+              <span className="pillar-badge mains">STAGE 2 • MAINS</span>
+              <h3>Answer Writing Edge</h3>
+              <p>600+ topic-wise short notes, alternate-day answer writing, deep PYQ analysis, and 16 comprehensive evaluated tests to achieve top score.</p>
+            </div>
+            <div className="pillar-card">
+              <span className="pillar-badge interview">STAGE 3 • INTERVIEW</span>
+              <h3>Personality Test Ready</h3>
+              <p>DAF-specific one-on-one sessions, articulation polish, contemporary issue perspective building, and direct mock reviews with Indrajeet Sir.</p>
+            </div>
+          </div>
+
+          <blockquote>
+            &ldquo;The process is more important than the results. And if you take care of the process, you will get the results.&rdquo;
+            <span className="quote-author">— MS Dhoni (Indrajeet Sir&apos;s Guiding Mentorship Philosophy)</span>
+          </blockquote>
+        </div>
+      </section>
+
+      {/* ── Course Roadmap & Timeline ── */}
+      <section className="roadmap-section">
+        <div className="section-inner text-center">
+          <span className="pill">Course Roadmap</span>
+          <h2>Your Journey to UPSC Mains</h2>
+          <p>
+            Month by month: from short notes and PYQs to full-length test practice and final simulation.
+          </p>
+
+          <div className="roadmap-grid">
+            <div className="roadmap-card">
+              <span className="phase-tag">PHASE 1</span>
+              <div className="phase-month">OCT</div>
+              <h4>Mains Short Notes</h4>
+              <p>Diverse, exam-ready notes covering the entire Mains syllabus topic-by-topic across 600+ topics.</p>
+            </div>
+            <div className="roadmap-card">
+              <span className="phase-tag">PHASE 2</span>
+              <div className="phase-month">NOV</div>
+              <h4>PYQ Deep Analysis</h4>
+              <p>Dissecting last 10 years of Mains questions to decode exam demand, question patterns, and winning approach.</p>
+            </div>
+            <div className="roadmap-card">
+              <span className="phase-tag">PHASE 3</span>
+              <div className="phase-month">DEC</div>
+              <h4>Mains Value Addition</h4>
+              <p>Case studies, committee reports, diagrams, and supreme court judgements to lift a good answer into a top scorer.</p>
+            </div>
+            <div className="roadmap-card">
+              <span className="phase-tag">PHASE 4</span>
+              <div className="phase-month">JAN – MAY</div>
+              <h4>5-Month Revision</h4>
+              <p>Structured, cyclical revision across both Prelims & Mains notes to lock conceptual clarity before the exam.</p>
+            </div>
+          </div>
+
+          {/* 16 Tests Summary Bar */}
+          <div className="tests-summary-bar">
+            <div>
+              <strong>16 Tests in Total</strong> — Systematic evaluation from habit to peak endurance
+            </div>
+            <div className="tests-breakdown">
+              <span>📝 4 Mini Tests</span>
+              <span>⚡ 8 Half-Length Tests</span>
+              <span>🎯 4 Full-Length Tests</span>
             </div>
           </div>
         </div>
@@ -294,7 +378,7 @@ export default function Home() {
           <div className="courses-grid">
             {courses.map((course, idx) => (
               <div key={course.id} className={`pricing-card ${idx === 0 ? 'featured' : ''}`}>
-                {idx === 0 && <span className="featured-badge">Most Enrolled</span>}
+                {idx === 0 && <span className="featured-badge">Featured Batch</span>}
                 <div>
                   <div className="pricing-header">
                     <h3>{course.title}</h3>
@@ -308,11 +392,11 @@ export default function Home() {
                     <span className="price-period">/ complete course</span>
                   </div>
                   <ul className="pricing-features">
-                    <li><span className="feature-check">✓</span> Direct 1:1 Live Interactive Sessions with Indrajeet Sir</li>
-                    <li><span className="feature-check">✓</span> Google Meet Timetable directly in your student portal</li>
-                    <li><span className="feature-check">✓</span> Dedicated iOS/Android App with 10-minute prior class alerts</li>
-                    <li><span className="feature-check">✓</span> Regular Mains Answer Writing & Personal Evaluation</li>
-                    <li><span className="feature-check">✓</span> Personalized Daily Routine & GS Syllabus Strategy</li>
+                    <li><span className="feature-check">✓</span> Direct 1:1 Live Interactive Sessions on Google Meet</li>
+                    <li><span className="feature-check">✓</span> 600+ Topic-wise Short Notes & Mains Syllabus Coverage</li>
+                    <li><span className="feature-check">✓</span> 16 Comprehensive Evaluated Tests (Mini, Half & Full-Length)</li>
+                    <li><span className="feature-check">✓</span> Dedicated iOS/Android Student App with 10-Min Live Class Alerts</li>
+                    <li><span className="feature-check">✓</span> Alternate-Day Answer Writing & Personal Review by Indrajeet Sir</li>
                   </ul>
                 </div>
                 <button
@@ -324,22 +408,6 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ── About Indrajeet ── */}
-      <section id="about" className="about-section">
-        <div className="section-inner">
-          <span className="pill">About Indrajeet Sir</span>
-          <h2>Your Dedicated UPSC & State PCS Mentor</h2>
-          <blockquote className="quote-box">
-            &quot;UPSC is not about reading 100 books. It&apos;s about reading the right books with the right strategy — guided personally.&quot;
-          </blockquote>
-          <p>
-            With a decade of guiding UPSC aspirants, Indrajeet Sir blends experience and insight to help you navigate your path to success.
-            Every student receives custom strategic roadmaps, doubt resolution, and direct 1:1 live guidance.
-          </p>
-          <button className="btn-primary" onClick={() => setShowBookModal(true)}>Book Strategy Call →</button>
         </div>
       </section>
 

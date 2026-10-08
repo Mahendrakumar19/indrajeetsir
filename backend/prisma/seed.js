@@ -52,12 +52,23 @@ async function main() {
     },
   });
 
-  console.log('Admin user seeded successfully:');
-  console.log('  ID:      ', adminUser.id);
-  console.log('  Name:    ', adminUser.name);
-  console.log('  Email:   ', adminUser.email);
-  console.log('  Role:    ', adminUser.role);
-  console.log('  Password: [PROTECTED BCRYPT HASH]');
+  // 4. Ensure Official Course from Brochure
+  let officialCourse = await prisma.course.findFirst({
+    where: { title: '1:1 Mentorship Program — UPSC 2027 Complete Guidance' },
+  });
+  if (!officialCourse) {
+    officialCourse = await prisma.course.create({
+      data: {
+        title: '1:1 Mentorship Program — UPSC 2027 Complete Guidance',
+        description: 'Complete 1:1 guidance by Indrajeet Sir covering Prelims foundation, Mains answer writing edge (600+ short notes topics, 16 tests), and Personality Test interview preparation with live Google Meet sessions.',
+        price: 4999,
+        instructor: 'Indrajeet Sir',
+        published: true,
+        organizationId: org.id,
+      },
+    });
+    console.log('Seeded official course:', officialCourse.title);
+  }
 }
 
 main()

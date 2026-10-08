@@ -1,0 +1,7 @@
+# Confidential internal documents
+*.pdf
+Course_Brochure_Indrajeet_Sir.pdf
+node_modules/
+.env
+.env.local
+.DS_Store
