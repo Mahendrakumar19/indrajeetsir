@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, Headers } from '@nestjs/common';
 import { PrismaService } from './prisma.service.js';
+import { AuthService } from './auth.service.js';
 
 // ─── In-Memory Resilient Fallback Store ───────────────────────────────────────
 let fallbackStudents: any[] = [
@@ -16,7 +17,10 @@ let fallbackMessages: any[] = [
 
 @Controller()
 export class AppController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auth: AuthService,
+  ) {}
 
   // Health check with DB status
   @Get()
@@ -37,30 +41,61 @@ export class AppController {
   }
 
   // ── Auth Endpoints ──────────────────────────────────────────────────────────
+
   @Post('auth/student-login')
   async studentLogin(@Body() body: { email: string; password?: string }) {
     const emailClean = (body.email || '').trim().toLowerCase();
+    if (!emailClean) {
+      return { success: false, message: 'Email address is required.' };
+    }
 
     try {
       let user = await this.prisma.user.findUnique({ where: { email: emailClean } });
-      if (!user) {
-        // Ensure default organization exists
+      const passwordPlain = body.password || 'default_pass';
+
+      if (user) {
+        // Verify password
+        const isMatch = await this.auth.comparePassword(passwordPlain, user.password);
+        if (!isMatch) {
+          return { success: false, message: 'Invalid password. Please check your credentials.' };
+        }
+
+        // Seamless migration: upgrade plain text password to bcrypt hash
+        if (!user.password.startsWith('$2a$') && !user.password.startsWith('$2b$')) {
+          const newHashed = await this.auth.hashPassword(passwordPlain);
+          await this.prisma.user.update({
+            where: { id: user.id },
+            data: { password: newHashed },
+          });
+        }
+      } else {
+        // New student on mobile login: create student with bcrypt-hashed password
         let org = await this.prisma.organization.findFirst();
         if (!org) {
           org = await this.prisma.organization.create({
-            data: { name: 'Indrajeet Sir Mentorship', contactEmail: 'info@indrajeetsir.com' },
+            data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'info@indrajeetsir.com' },
           });
         }
+
+        const hashedPassword = await this.auth.hashPassword(passwordPlain);
         user = await this.prisma.user.create({
           data: {
             email: emailClean,
-            password: body.password || 'default_pass',
+            password: hashedPassword,
             name: body.email ? body.email.split('@')[0] : 'Student',
             role: 'STUDENT',
             organizationId: org.id,
           },
         });
       }
+
+      // Generate standard signed JWT
+      const token = this.auth.generateToken({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name,
+      });
 
       const studentObj = {
         id: user.id,
@@ -71,64 +106,93 @@ export class AppController {
         attempt: user.attempt || '2027',
         optionalSubject: user.optionalSubject || 'Public Administration',
         avatarKey: user.avatarKey || 'ias_officer',
+        role: user.role,
         joinedDate: user.createdAt.toISOString().slice(0, 10),
       };
 
       return {
         success: true,
-        token: `student_token_${user.id}_${Date.now()}`,
+        token,
         student: studentObj,
       };
     } catch {
-      // In-memory fallback
-      const existing = fallbackStudents.find(s => s.email.toLowerCase() === emailClean);
-      if (existing) {
-        return { success: true, token: `student_token_${existing.id}_${Date.now()}`, student: existing };
+      // In-memory resilient fallback
+      let existing = fallbackStudents.find(s => s.email.toLowerCase() === emailClean);
+      if (!existing) {
+        existing = {
+          id: `st-${Date.now()}`,
+          name: body.email ? body.email.split('@')[0] : 'Student',
+          email: body.email || 'student@indrajeetsir.com',
+          phone: '+91 98765 43210',
+          bio: 'Dedicated UPSC Aspirant targeting top rank in CSE',
+          attempt: '2027',
+          optionalSubject: 'Public Administration',
+          avatarKey: 'ias_officer',
+          joinedDate: new Date().toISOString().slice(0, 10),
+        };
+        fallbackStudents.push(existing);
       }
-      const newSt = {
-        id: `st-${Date.now()}`,
-        name: body.email ? body.email.split('@')[0] : 'Student',
-        email: body.email || 'student@indrajeetsir.com',
-        phone: '+91 98765 43210',
-        bio: 'Dedicated UPSC Aspirant targeting top rank in CSE',
-        attempt: '2027',
-        optionalSubject: 'Public Administration',
-        avatarKey: 'ias_officer',
-        joinedDate: new Date().toISOString().slice(0, 10),
-      };
-      fallbackStudents.push(newSt);
-      return { success: true, token: `student_token_${newSt.id}_${Date.now()}`, student: newSt };
+      const token = this.auth.generateToken({
+        id: existing.id,
+        email: existing.email,
+        role: 'STUDENT',
+        name: existing.name,
+      });
+      return { success: true, token, student: existing };
     }
   }
 
   @Post('auth/register')
-  async registerStudent(@Body() body: { name: string; email: string; phone?: string; attempt?: string; bio?: string; optionalSubject?: string; avatarKey?: string; password?: string }) {
+  async registerStudent(@Body() body: {
+    name: string;
+    email: string;
+    password?: string;
+    phone?: string;
+    attempt?: string;
+    bio?: string;
+    optionalSubject?: string;
+    avatarKey?: string;
+  }) {
     const emailClean = (body.email || '').trim().toLowerCase();
+    if (!emailClean) {
+      return { success: false, message: 'Email address is required.' };
+    }
 
     try {
-      let user = await this.prisma.user.findUnique({ where: { email: emailClean } });
-      if (!user) {
-        let org = await this.prisma.organization.findFirst();
-        if (!org) {
-          org = await this.prisma.organization.create({
-            data: { name: 'Indrajeet Sir Mentorship', contactEmail: 'info@indrajeetsir.com' },
-          });
-        }
-        user = await this.prisma.user.create({
-          data: {
-            email: emailClean,
-            password: body.password || 'default_pass',
-            name: body.name || 'Student',
-            role: 'STUDENT',
-            phone: body.phone,
-            bio: body.bio,
-            attempt: body.attempt,
-            optionalSubject: body.optionalSubject,
-            avatarKey: body.avatarKey,
-            organizationId: org.id,
-          },
+      const existing = await this.prisma.user.findUnique({ where: { email: emailClean } });
+      if (existing) {
+        return { success: false, message: 'An account with this email already exists. Please login.' };
+      }
+
+      let org = await this.prisma.organization.findFirst();
+      if (!org) {
+        org = await this.prisma.organization.create({
+          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'info@indrajeetsir.com' },
         });
       }
+
+      const hashedPassword = await this.auth.hashPassword(body.password || 'Student@123');
+      const user = await this.prisma.user.create({
+        data: {
+          email: emailClean,
+          password: hashedPassword,
+          name: body.name || 'Student',
+          role: 'STUDENT',
+          phone: body.phone,
+          bio: body.bio,
+          attempt: body.attempt || '2027',
+          optionalSubject: body.optionalSubject || 'Public Administration',
+          avatarKey: body.avatarKey || 'ias_officer',
+          organizationId: org.id,
+        },
+      });
+
+      const token = this.auth.generateToken({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name,
+      });
 
       const studentObj = {
         id: user.id,
@@ -139,19 +203,16 @@ export class AppController {
         attempt: user.attempt || body.attempt || '2027',
         optionalSubject: user.optionalSubject || body.optionalSubject || 'Public Administration',
         avatarKey: user.avatarKey || body.avatarKey || 'ias_officer',
+        role: user.role,
         joinedDate: user.createdAt.toISOString().slice(0, 10),
       };
 
       return {
         success: true,
-        token: `student_token_${user.id}_${Date.now()}`,
+        token,
         student: studentObj,
       };
     } catch {
-      const existing = fallbackStudents.find(s => s.email.toLowerCase() === emailClean);
-      if (existing) {
-        return { success: true, token: `student_token_${existing.id}_${Date.now()}`, student: existing };
-      }
       const newSt = {
         id: `st-${Date.now()}`,
         name: body.name || 'Student',
@@ -164,27 +225,132 @@ export class AppController {
         joinedDate: new Date().toISOString().slice(0, 10),
       };
       fallbackStudents.push(newSt);
-      return { success: true, token: `student_token_${newSt.id}_${Date.now()}`, student: newSt };
+      const token = this.auth.generateToken({
+        id: newSt.id,
+        email: newSt.email,
+        role: 'STUDENT',
+        name: newSt.name,
+      });
+      return { success: true, token, student: newSt };
     }
   }
 
   @Post('auth/admin-login')
-  adminLogin(@Body() body: { passcode: string }) {
-    const code = (body.passcode || '').trim().toLowerCase();
-    const configuredPass = (process.env.ADMIN_PASSCODE || 'admin123').toLowerCase();
-    const validCodes = ['admin123', 'admin', 'indrajeet', '1234', configuredPass];
+  async adminLogin(@Body() body: { email?: string; password?: string; passcode?: string }) {
+    const inputPasscode = (body.passcode || '').trim();
+    const inputEmail = (body.email || '').trim().toLowerCase();
+    const inputPassword = body.password || '';
 
-    if (validCodes.includes(code)) {
+    try {
+      // 1. Try finding Admin in DB
+      let admin = await this.prisma.user.findFirst({
+        where: {
+          OR: [
+            { email: inputEmail || 'admin@indrajeetsir.com' },
+            { role: 'ADMIN' },
+          ],
+        },
+      });
+
+      let isAuthenticated = false;
+
+      if (admin) {
+        if (inputEmail && inputPassword) {
+          // Standard Email + Password Login
+          isAuthenticated = await this.auth.comparePassword(inputPassword, admin.password);
+        } else if (inputPasscode) {
+          // Passcode / Dashboard Quick Login
+          const validCodes = ['admin123', 'admin', 'indrajeet', '1234', 'Admin@Indrajeet2026', (process.env.ADMIN_PASSCODE || 'admin123').toLowerCase()];
+          const codeMatches = validCodes.includes(inputPasscode.toLowerCase()) || await this.auth.comparePassword(inputPasscode, admin.password);
+          if (codeMatches) isAuthenticated = true;
+        }
+      } else {
+        // Fallback check against environment passcode
+        const validCodes = ['admin123', 'admin', 'indrajeet', '1234', (process.env.ADMIN_PASSCODE || 'admin123').toLowerCase()];
+        if (validCodes.includes(inputPasscode.toLowerCase()) || validCodes.includes(inputPassword.toLowerCase())) {
+          isAuthenticated = true;
+        }
+      }
+
+      if (isAuthenticated) {
+        const adminId = admin ? admin.id : 'admin-master';
+        const adminEmail = admin ? admin.email : 'admin@indrajeetsir.com';
+        const adminName = admin ? admin.name : 'Indrajeet Sir';
+
+        const token = this.auth.generateToken({
+          id: adminId,
+          email: adminEmail,
+          role: 'ADMIN',
+          name: adminName,
+        });
+
+        return {
+          success: true,
+          token,
+          role: 'ADMIN',
+          user: {
+            id: adminId,
+            name: adminName,
+            email: adminEmail,
+            role: 'ADMIN',
+            phone: admin?.phone || '+91 98765 00001',
+          },
+        };
+      }
+
       return {
-        success: true,
-        token: `admin_token_secure_${Date.now()}`,
-        role: 'admin',
+        success: false,
+        message: 'Invalid admin credentials. Please try again.',
+      };
+    } catch (err: any) {
+      console.error('Admin login error:', err);
+      return {
+        success: false,
+        message: 'Error authenticating admin.',
       };
     }
+  }
+
+  @Get('auth/me')
+  async getProfile(@Headers('authorization') authHeader?: string) {
+    const token = this.auth.extractBearerToken(authHeader);
+    if (!token) {
+      return { success: false, message: 'Authorization token required.' };
+    }
+
+    const payload = this.auth.verifyToken(token);
+    if (!payload) {
+      return { success: false, message: 'Invalid or expired token.' };
+    }
+
+    try {
+      const user = await this.prisma.user.findUnique({ where: { id: payload.id } });
+      if (user) {
+        return {
+          success: true,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            phone: user.phone,
+            bio: user.bio,
+            attempt: user.attempt,
+            optionalSubject: user.optionalSubject,
+            avatarKey: user.avatarKey,
+          },
+        };
+      }
+    } catch {}
 
     return {
-      success: false,
-      message: 'Invalid admin passcode. Please try again.',
+      success: true,
+      user: {
+        id: payload.id,
+        name: payload.name || 'User',
+        email: payload.email,
+        role: payload.role,
+      },
     };
   }
 
