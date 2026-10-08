@@ -2034,117 +2034,121 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (ctx) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
-        return Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.78,
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      child: const Text('Cancel'),
-                      onPressed: () => Navigator.pop(ctx),
-                    ),
-                    Text(
-                      'Edit Profile',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                        color: isDark ? Colors.white : Colors.black,
-                      ),
-                    ),
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      child: const Text('Done', style: TextStyle(fontWeight: FontWeight.w700)),
-                      onPressed: () async {
-                        profile.name = nameCtrl.text.trim();
-                        profile.email = emailCtrl.text.trim();
-                        profile.phone = phoneCtrl.text.trim();
-                        profile.attemptYear = selectedYear;
-                        profile.optionalSubject = optionalCtrl.text.trim();
-                        profile.bio = bioCtrl.text.trim();
-                        onProfileUpdate(profile);
-
-                        await ApiService.syncProfile(profile);
-
-                        if (context.mounted) {
-                          Navigator.pop(ctx);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Profile changes saved successfully.'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: ListView(
+        return Material(
+          color: Colors.transparent,
+          child: Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.78,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      CupertinoTextField(
-                        controller: nameCtrl,
-                        placeholder: 'Full Name',
-                        placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
-                        style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
-                        decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
-                        prefix: Padding(padding: const EdgeInsets.only(left: 10), child: Icon(CupertinoIcons.person, size: 18, color: isDark ? Colors.white70 : CupertinoColors.systemGrey)),
-                        padding: const EdgeInsets.all(12),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: const Text('Cancel'),
+                        onPressed: () => Navigator.pop(ctx),
                       ),
-                      const SizedBox(height: 12),
-                      CupertinoTextField(
-                        controller: emailCtrl,
-                        placeholder: 'Email',
-                        placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
-                        style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
-                        decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
-                        prefix: Padding(padding: const EdgeInsets.only(left: 10), child: Icon(CupertinoIcons.mail, size: 18, color: isDark ? Colors.white70 : CupertinoColors.systemGrey)),
-                        padding: const EdgeInsets.all(12),
+                      Text(
+                        'Edit Profile',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          decoration: TextDecoration.none,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
                       ),
-                      const SizedBox(height: 12),
-                      CupertinoTextField(
-                        controller: phoneCtrl,
-                        placeholder: 'Phone / WhatsApp',
-                        placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
-                        style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
-                        decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
-                        prefix: Padding(padding: const EdgeInsets.only(left: 10), child: Icon(CupertinoIcons.phone, size: 18, color: isDark ? Colors.white70 : CupertinoColors.systemGrey)),
-                        padding: const EdgeInsets.all(12),
-                      ),
-                      const SizedBox(height: 12),
-                      CupertinoTextField(
-                        controller: optionalCtrl,
-                        placeholder: 'Optional Subject',
-                        placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
-                        style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
-                        decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
-                        prefix: Padding(padding: const EdgeInsets.only(left: 10), child: Icon(CupertinoIcons.book, size: 18, color: isDark ? Colors.white70 : CupertinoColors.systemGrey)),
-                        padding: const EdgeInsets.all(12),
-                      ),
-                      const SizedBox(height: 12),
-                      CupertinoTextField(
-                        controller: bioCtrl,
-                        placeholder: 'Personal Directive / Bio',
-                        placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
-                        style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
-                        decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
-                        maxLines: 2,
-                        padding: const EdgeInsets.all(12),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: const Text('Done', style: TextStyle(fontWeight: FontWeight.w700)),
+                        onPressed: () async {
+                          profile.name = nameCtrl.text.trim();
+                          profile.email = emailCtrl.text.trim();
+                          profile.phone = phoneCtrl.text.trim();
+                          profile.attemptYear = selectedYear;
+                          profile.optionalSubject = optionalCtrl.text.trim();
+                          profile.bio = bioCtrl.text.trim();
+                          onProfileUpdate(profile);
+
+                          await ApiService.syncProfile(profile);
+
+                          if (context.mounted) {
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Profile changes saved successfully.'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          }
+                        },
                       ),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        CupertinoTextField(
+                          controller: nameCtrl,
+                          placeholder: 'Full Name',
+                          placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
+                          style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
+                          decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
+                          prefix: Padding(padding: const EdgeInsets.only(left: 10), child: Icon(CupertinoIcons.person, size: 18, color: isDark ? Colors.white70 : CupertinoColors.systemGrey)),
+                          padding: const EdgeInsets.all(12),
+                        ),
+                        const SizedBox(height: 12),
+                        CupertinoTextField(
+                          controller: emailCtrl,
+                          placeholder: 'Email',
+                          placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
+                          style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
+                          decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
+                          prefix: Padding(padding: const EdgeInsets.only(left: 10), child: Icon(CupertinoIcons.mail, size: 18, color: isDark ? Colors.white70 : CupertinoColors.systemGrey)),
+                          padding: const EdgeInsets.all(12),
+                        ),
+                        const SizedBox(height: 12),
+                        CupertinoTextField(
+                          controller: phoneCtrl,
+                          placeholder: 'Phone / WhatsApp',
+                          placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
+                          style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
+                          decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
+                          prefix: Padding(padding: const EdgeInsets.only(left: 10), child: Icon(CupertinoIcons.phone, size: 18, color: isDark ? Colors.white70 : CupertinoColors.systemGrey)),
+                          padding: const EdgeInsets.all(12),
+                        ),
+                        const SizedBox(height: 12),
+                        CupertinoTextField(
+                          controller: optionalCtrl,
+                          placeholder: 'Optional Subject',
+                          placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
+                          style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
+                          decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
+                          prefix: Padding(padding: const EdgeInsets.only(left: 10), child: Icon(CupertinoIcons.book, size: 18, color: isDark ? Colors.white70 : CupertinoColors.systemGrey)),
+                          padding: const EdgeInsets.all(12),
+                        ),
+                        const SizedBox(height: 12),
+                        CupertinoTextField(
+                          controller: bioCtrl,
+                          placeholder: 'Personal Directive / Bio',
+                          placeholderStyle: TextStyle(color: isDark ? Colors.white38 : CupertinoColors.placeholderText, fontSize: 14),
+                          style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 14.5),
+                          decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
+                          maxLines: 2,
+                          padding: const EdgeInsets.all(12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -2192,50 +2196,55 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (ctx) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.75,
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 17,
-                      color: isDark ? Colors.white : Colors.black,
-                    ),
-                  ),
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    child: const Text('Done', style: TextStyle(fontWeight: FontWeight.w700)),
-                    onPressed: () => Navigator.pop(ctx),
-                  ),
-                ],
-              ),
-              const Divider(height: 20),
-              Expanded(
-                child: ListView(
-                  physics: const BouncingScrollPhysics(),
+        return Material(
+          color: Colors.transparent,
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.75,
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      content,
+                      title,
                       style: TextStyle(
-                        fontSize: 14,
-                        height: 1.55,
-                        color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 17,
+                        decoration: TextDecoration.none,
+                        color: isDark ? Colors.white : Colors.black,
                       ),
+                    ),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      child: const Text('Done', style: TextStyle(fontWeight: FontWeight.w700)),
+                      onPressed: () => Navigator.pop(ctx),
                     ),
                   ],
                 ),
-              ),
-            ],
+                const Divider(height: 20),
+                Expanded(
+                  child: ListView(
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      Text(
+                        content,
+                        style: TextStyle(
+                          fontSize: 14,
+                          height: 1.55,
+                          decoration: TextDecoration.none,
+                          color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
