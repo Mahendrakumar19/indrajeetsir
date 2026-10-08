@@ -2223,26 +2223,34 @@ class ProfileScreen extends StatelessWidget {
             ),
             IosGlassCard(
               padding: EdgeInsets.zero,
-              child: Column(
-                children: [
-                  _buildToggleRow(
-                    icon: CupertinoIcons.alarm_fill,
-                    iconColor: IosTheme.systemOrange,
-                    title: '10-Min Live Reminder',
-                    subtitle: 'Alert before your allotted session begins',
-                    value: reminderEnabled,
-                    onChanged: onReminderToggle,
-                  ),
-                  Divider(height: 1, indent: 52, color: IosTheme.separator(isDark)),
-                  _buildToggleRow(
-                    icon: CupertinoIcons.moon_fill,
-                    iconColor: IosTheme.systemIndigo,
-                    title: 'iOS Dark Mode',
-                    subtitle: 'Deep OLED black appearance',
-                    value: isDark,
-                    onChanged: (val) => onThemeToggle(),
-                  ),
-                ],
+              child: _buildToggleRow(
+                icon: CupertinoIcons.alarm_fill,
+                iconColor: IosTheme.systemOrange,
+                title: '10-Minute Live Reminder',
+                subtitle: 'Alert before your scheduled session begins',
+                value: reminderEnabled,
+                onChanged: onReminderToggle,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Section 2: Appearance
+            const Padding(
+              padding: EdgeInsets.only(left: 4, bottom: 8),
+              child: Text(
+                'APPEARANCE',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: CupertinoColors.systemGrey, letterSpacing: 0.5),
+              ),
+            ),
+            IosGlassCard(
+              padding: EdgeInsets.zero,
+              child: _buildToggleRow(
+                icon: CupertinoIcons.moon_fill,
+                iconColor: IosTheme.systemIndigo,
+                title: 'Dark Theme',
+                subtitle: 'Enable dark theme for comfortable viewing',
+                value: isDark,
+                onChanged: (val) => onThemeToggle(),
               ),
             ),
             const SizedBox(height: 24),
