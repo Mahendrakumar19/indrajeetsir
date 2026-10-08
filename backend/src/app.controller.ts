@@ -2,6 +2,9 @@ import { Controller, Get, Post, Delete, Body, Param, Headers } from '@nestjs/com
 import { PrismaService } from './prisma.service.js';
 import { AuthService } from './auth.service.js';
 
+import { MailService } from './mail.service.js';
+import { RazorpayService } from './razorpay.service.js';
+
 // ─── In-Memory Resilient Fallback Store ───────────────────────────────────────
 let fallbackStudents: any[] = [
   { id: 'st-1', name: 'Rahul Kumar', email: 'rahul@gmail.com', phone: '+91 98765 43210', attempt: '2027', joinedDate: '2026-08-15' },
@@ -9,6 +12,25 @@ let fallbackStudents: any[] = [
 ];
 
 let fallbackLiveClasses: any[] = [];
+
+let fallbackCourses: any[] = [
+  {
+    id: 'c-1',
+    title: '1:1 Comprehensive UPSC Mentorship 2026-27',
+    description: 'Personalized 1:1 guidance with Indrajeet Sir, Mains answer evaluation, and dedicated live sessions.',
+    price: 4999,
+    instructor: 'Indrajeet Sir',
+    published: true,
+  },
+  {
+    id: 'c-2',
+    title: 'GS Paper 3 & Ethics Special Masterclass Batch',
+    description: 'Targeted preparation for Economy, Science & Tech, Environment, and Ethics Case Studies.',
+    price: 2999,
+    instructor: 'Indrajeet Sir',
+    published: true,
+  },
+];
 
 let fallbackMessages: any[] = [
   { id: 'm-1', studentName: 'Rahul Kumar', text: 'Sir, what time is the class today?', sender: 'student', timestamp: '10:00 AM' },
@@ -20,6 +42,8 @@ export class AppController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auth: AuthService,
+    private readonly mail: MailService,
+    private readonly razorpay: RazorpayService,
   ) {}
 
   // Health check with DB status
@@ -50,7 +74,14 @@ export class AppController {
     }
 
     try {
-      let user = await this.prisma.user.findUnique({ where: { email: emailClean } });
+      let user = await this.prisma.user.findUnique({
+        where: { email: emailClean },
+        include: {
+          enrollments: {
+            include: { course: true },
+          },
+        },
+      });
       const passwordPlain = body.password || 'default_pass';
 
       if (user) {
@@ -86,6 +117,11 @@ export class AppController {
             role: 'STUDENT',
             organizationId: org.id,
           },
+          include: {
+            enrollments: {
+              include: { course: true },
+            },
+          },
         });
       }
 
@@ -97,6 +133,9 @@ export class AppController {
         name: user.name,
       });
 
+      const enrolledCourses = (user.enrollments || []).map((e: any) => e.course?.title).filter(Boolean);
+      const primaryCourse = enrolledCourses[0] || '1:1 Comprehensive UPSC Mentorship 2026-27';
+
       const studentObj = {
         id: user.id,
         name: user.name,
@@ -107,6 +146,9 @@ export class AppController {
         optionalSubject: user.optionalSubject || 'Public Administration',
         avatarKey: user.avatarKey || 'ias_officer',
         role: user.role,
+        course: primaryCourse,
+        enrolledCourse: primaryCourse,
+        courses: enrolledCourses,
         joinedDate: user.createdAt.toISOString().slice(0, 10),
       };
 
@@ -358,19 +400,32 @@ export class AppController {
   @Get('students')
   async getStudents() {
     try {
-      const users = await this.prisma.user.findMany({ where: { role: 'STUDENT' } });
+      const users = await this.prisma.user.findMany({
+        where: { role: 'STUDENT' },
+        include: {
+          enrollments: {
+            include: { course: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
       if (users.length > 0) {
-        return users.map((u: any) => ({
-          id: u.id,
-          name: u.name,
-          email: u.email,
-          phone: u.phone || '+91 98765 43210',
-          bio: u.bio || 'Dedicated UPSC Aspirant targeting top rank in CSE',
-          attempt: u.attempt || '2027',
-          optionalSubject: u.optionalSubject || 'Public Administration',
-          avatarKey: u.avatarKey || 'ias_officer',
-          joinedDate: u.createdAt.toISOString().slice(0, 10),
-        }));
+        return users.map((u: any) => {
+          const courseNames = (u.enrollments || []).map((e: any) => e.course?.title).filter(Boolean);
+          return {
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            phone: u.phone || '+91 98765 43210',
+            bio: u.bio || 'Dedicated UPSC Aspirant targeting top rank in CSE',
+            attempt: u.attempt || '2027',
+            optionalSubject: u.optionalSubject || 'Public Administration',
+            avatarKey: u.avatarKey || 'ias_officer',
+            course: courseNames[0] || '1:1 Comprehensive UPSC Mentorship',
+            courses: courseNames,
+            joinedDate: u.createdAt.toISOString().slice(0, 10),
+          };
+        });
       }
     } catch {}
     return fallbackStudents;
@@ -453,11 +508,319 @@ export class AppController {
     return { success: true };
   }
 
+  // ── Courses Management ────────────────────────────────────────────────────
+  @Get('courses')
+  async getCourses() {
+    try {
+      const courses = await this.prisma.course.findMany({
+        include: {
+          _count: {
+            select: { liveClasses: true, enrollments: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+      if (courses.length > 0) {
+        return courses.map((c: any) => ({
+          id: c.id,
+          title: c.title,
+          description: c.description,
+          price: c.price || 0,
+          instructor: c.instructor || 'Indrajeet Sir',
+          published: c.published,
+          liveClassesCount: c._count?.liveClasses || 0,
+          enrollmentsCount: c._count?.enrollments || 0,
+        }));
+      }
+    } catch {}
+    return fallbackCourses;
+  }
+
+  @Post('courses')
+  async createCourse(@Body() body: { title: string; description?: string; price?: number; instructor?: string }) {
+    try {
+      let org = await this.prisma.organization.findFirst();
+      if (!org) {
+        org = await this.prisma.organization.create({
+          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'info@indrajeetsir.com' },
+        });
+      }
+      const course = await this.prisma.course.create({
+        data: {
+          title: body.title,
+          description: body.description,
+          price: Number(body.price) || 0,
+          instructor: body.instructor || 'Indrajeet Sir',
+          published: true,
+          organizationId: org.id,
+        },
+      });
+      return { success: true, course };
+    } catch {
+      const c = { id: `c-${Date.now()}`, ...body, published: true };
+      fallbackCourses.unshift(c);
+      return { success: true, course: c };
+    }
+  }
+
+  @Delete('courses/:id')
+  async deleteCourse(@Param('id') id: string) {
+    try {
+      await this.prisma.course.delete({ where: { id } });
+    } catch {}
+    fallbackCourses = fallbackCourses.filter(c => c.id !== id);
+    return { success: true };
+  }
+
+  // ── Razorpay Payment & Automated Student Onboarding ─────────────────────────
+  @Post('payments/create-order')
+  async createPaymentOrder(@Body() body: { courseId: string; studentEmail: string; studentName?: string; studentPhone?: string }) {
+    const emailClean = (body.studentEmail || '').trim().toLowerCase();
+    let coursePrice = 4999;
+    let courseTitle = 'UPSC Mentorship Course';
+
+    try {
+      const course = await this.prisma.course.findUnique({ where: { id: body.courseId } });
+      if (course) {
+        coursePrice = course.price > 0 ? course.price : 4999;
+        courseTitle = course.title;
+      }
+    } catch {}
+
+    const orderData = await this.razorpay.createOrder({
+      amountInRupees: coursePrice,
+      courseId: body.courseId,
+      studentEmail: emailClean,
+    });
+
+    try {
+      await this.prisma.payment.create({
+        data: {
+          orderId: orderData.orderId,
+          amount: coursePrice,
+          currency: 'INR',
+          status: 'CREATED',
+          userEmail: emailClean,
+          userName: body.studentName || 'Student',
+          userPhone: body.studentPhone || '',
+          courseId: body.courseId,
+        },
+      });
+    } catch {}
+
+    return {
+      success: true,
+      orderId: orderData.orderId,
+      amount: orderData.amount,
+      currency: orderData.currency,
+      keyId: orderData.keyId,
+      courseTitle,
+    };
+  }
+
+  @Post('payments/verify')
+  async verifyPayment(@Body() body: {
+    orderId: string;
+    paymentId: string;
+    signature?: string;
+    courseId: string;
+    studentName: string;
+    studentEmail: string;
+    studentPhone?: string;
+  }) {
+    const isValid = this.razorpay.verifySignature({
+      orderId: body.orderId,
+      paymentId: body.paymentId,
+      signature: body.signature,
+    });
+
+    if (!isValid) {
+      return { success: false, message: 'Invalid payment signature. Payment verification failed.' };
+    }
+
+    const emailClean = (body.studentEmail || '').trim().toLowerCase();
+    const tempPassword = `UPSC@${Math.floor(1000 + Math.random() * 9000)}`;
+
+    try {
+      // 1. Mark payment as SUCCESS
+      await this.prisma.payment.upsert({
+        where: { orderId: body.orderId },
+        update: {
+          paymentId: body.paymentId,
+          signature: body.signature,
+          status: 'SUCCESS',
+        },
+        create: {
+          orderId: body.orderId,
+          paymentId: body.paymentId,
+          signature: body.signature,
+          status: 'SUCCESS',
+          amount: 4999,
+          userEmail: emailClean,
+          userName: body.studentName,
+          userPhone: body.studentPhone,
+          courseId: body.courseId,
+        },
+      });
+
+      // 2. Ensure Organization
+      let org = await this.prisma.organization.findFirst();
+      if (!org) {
+        org = await this.prisma.organization.create({
+          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'info@indrajeetsir.com' },
+        });
+      }
+
+      // 3. Find or Create Student User
+      let user = await this.prisma.user.findUnique({ where: { email: emailClean } });
+      const passwordHash = await this.auth.hashPassword(tempPassword);
+
+      if (!user) {
+        user = await this.prisma.user.create({
+          data: {
+            email: emailClean,
+            name: body.studentName || 'Student',
+            password: passwordHash,
+            role: 'STUDENT',
+            phone: body.studentPhone || '',
+            organizationId: org.id,
+          },
+        });
+      }
+
+      // 4. Enroll Student in Course
+      let courseTitle = 'UPSC 1:1 Mentorship';
+      try {
+        const course = await this.prisma.course.findUnique({ where: { id: body.courseId } });
+        if (course) courseTitle = course.title;
+
+        await this.prisma.enrollment.upsert({
+          where: {
+            userId_courseId: {
+              userId: user.id,
+              courseId: body.courseId,
+            },
+          },
+          update: {},
+          create: {
+            userId: user.id,
+            courseId: body.courseId,
+            organizationId: org.id,
+          },
+        });
+      } catch {}
+
+      // 5. Send automated onboarding email with login credentials and download link
+      await this.mail.sendStudentOnboardingEmail({
+        email: emailClean,
+        name: body.studentName || user.name,
+        passwordPlain: tempPassword,
+        courseTitle,
+      });
+
+      return {
+        success: true,
+        message: 'Payment verified and mentorship enrollment activated.',
+        student: {
+          email: user.email,
+          name: user.name,
+        },
+      };
+    } catch (err: any) {
+      console.error('Payment verification error:', err);
+      return { success: false, message: 'Internal processing error after payment.' };
+    }
+  }
+
+  // ── Admin Direct Student Enrollment ───────────────────────────────────────
+  @Post('admin/enroll-student')
+  async adminEnrollStudent(@Body() body: {
+    studentName: string;
+    studentEmail: string;
+    studentPhone?: string;
+    courseId?: string;
+    sendEmail?: boolean;
+  }) {
+    const emailClean = (body.studentEmail || '').trim().toLowerCase();
+    const tempPassword = `UPSC@${Math.floor(1000 + Math.random() * 9000)}`;
+
+    try {
+      let org = await this.prisma.organization.findFirst();
+      if (!org) {
+        org = await this.prisma.organization.create({
+          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'info@indrajeetsir.com' },
+        });
+      }
+
+      const passwordHash = await this.auth.hashPassword(tempPassword);
+      const user = await this.prisma.user.upsert({
+        where: { email: emailClean },
+        update: {
+          name: body.studentName || undefined,
+          phone: body.studentPhone || undefined,
+        },
+        create: {
+          email: emailClean,
+          name: body.studentName || 'Student',
+          password: passwordHash,
+          role: 'STUDENT',
+          phone: body.studentPhone || '',
+          organizationId: org.id,
+        },
+      });
+
+      let courseTitle = '1:1 UPSC Mentorship Program';
+      if (body.courseId) {
+        const course = await this.prisma.course.findUnique({ where: { id: body.courseId } });
+        if (course) {
+          courseTitle = course.title;
+          await this.prisma.enrollment.upsert({
+            where: {
+              userId_courseId: {
+                userId: user.id,
+                courseId: body.courseId,
+              },
+            },
+            update: {},
+            create: {
+              userId: user.id,
+              courseId: body.courseId,
+              organizationId: org.id,
+            },
+          });
+        }
+      }
+
+      if (body.sendEmail !== false) {
+        await this.mail.sendStudentOnboardingEmail({
+          email: emailClean,
+          name: body.studentName || user.name,
+          passwordPlain: tempPassword,
+          courseTitle,
+        });
+      }
+
+      return {
+        success: true,
+        student: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        },
+        temporaryPassword: tempPassword,
+      };
+    } catch (err: any) {
+      console.error('Admin enroll error:', err);
+      return { success: false, message: 'Failed to enroll student.' };
+    }
+  }
+
   // ── Live Classes ──────────────────────────────────────────────────────────
   @Get('live-classes')
   async getLiveClasses() {
     try {
       const classes = await this.prisma.liveClass.findMany({
+        include: { course: true },
         orderBy: { date: 'asc' },
       });
       return classes.map((c: any) => ({
@@ -466,6 +829,8 @@ export class AppController {
         date: c.date.toISOString().slice(0, 10),
         time: c.startTime,
         meetLink: c.meetingUrl,
+        courseId: c.courseId,
+        courseTitle: c.course?.title || 'Mentorship Program',
         assignedStudent: c.description || 'All Students',
         status: c.status,
       }));
@@ -475,20 +840,33 @@ export class AppController {
   }
 
   @Post('live-classes')
-  async addLiveClass(@Body() body: { title: string; date: string; time: string; meetLink: string; assignedStudent?: string }) {
+  async addLiveClass(@Body() body: {
+    title: string;
+    date: string;
+    time: string;
+    meetLink: string;
+    courseId?: string;
+    assignedStudent?: string;
+  }) {
     try {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
         org = await this.prisma.organization.create({
-          data: { name: 'Indrajeet Sir Mentorship', contactEmail: 'info@indrajeetsir.com' },
+          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'info@indrajeetsir.com' },
         });
       }
-      let course = await this.prisma.course.findFirst();
-      if (!course) {
-        course = await this.prisma.course.create({
-          data: { title: 'UPSC Mentorship Course', organizationId: org.id },
-        });
+
+      let courseId = body.courseId;
+      if (!courseId) {
+        let course = await this.prisma.course.findFirst();
+        if (!course) {
+          course = await this.prisma.course.create({
+            data: { title: 'UPSC Mentorship Course', organizationId: org.id },
+          });
+        }
+        courseId = course.id;
       }
+
       const lc = await this.prisma.liveClass.create({
         data: {
           title: body.title,
@@ -498,30 +876,27 @@ export class AppController {
           meetingUrl: body.meetLink,
           description: body.assignedStudent || 'All Students',
           status: 'UPCOMING',
-          courseId: course.id,
+          courseId: courseId,
           organizationId: org.id,
         },
+        include: { course: true },
       });
+
       const resClass = {
         id: lc.id,
         title: lc.title,
         date: body.date,
         time: body.time,
         meetLink: lc.meetingUrl,
-        assignedStudent: body.assignedStudent || 'All Students',
+        courseId: lc.courseId,
+        courseTitle: lc.course?.title || 'Mentorship Program',
+        assignedStudent: lc.description,
         status: lc.status,
       };
-      fallbackLiveClasses.push(resClass);
       return { success: true, liveClass: resClass };
-    } catch {
-      const resClass = {
-        id: `lc-${Date.now()}`,
-        assignedStudent: body.assignedStudent || 'All Students',
-        ...body,
-        status: 'UPCOMING',
-      };
-      fallbackLiveClasses.push(resClass);
-      return { success: true, liveClass: resClass };
+    } catch (err: any) {
+      console.error('Add live class error:', err);
+      return { success: false, message: 'Failed to schedule live class.' };
     }
   }
 

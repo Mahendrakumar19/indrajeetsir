@@ -136,6 +136,7 @@ class StudentProfile {
   String optionalSubject;
   String bio;
   String avatarKey;
+  String enrolledCourse;
 
   StudentProfile({
     required this.name,
@@ -145,6 +146,7 @@ class StudentProfile {
     required this.optionalSubject,
     required this.bio,
     this.avatarKey = 'ias_officer',
+    this.enrolledCourse = '1:1 Comprehensive UPSC Mentorship 2026-27',
   });
 
   String get avatarDisplayEmoji {
@@ -378,6 +380,11 @@ class _LoginScreenState extends State<LoginScreen> {
         }
         if (st['avatarKey'] != null && (st['avatarKey'] as String).isNotEmpty) {
           widget.profile.avatarKey = st['avatarKey'];
+        }
+        if (st['course'] != null && (st['course'] as String).isNotEmpty) {
+          widget.profile.enrolledCourse = st['course'];
+        } else if (st['enrolledCourse'] != null && (st['enrolledCourse'] as String).isNotEmpty) {
+          widget.profile.enrolledCourse = st['enrolledCourse'];
         }
         widget.onProfileUpdate(widget.profile);
       }
@@ -1102,6 +1109,69 @@ class HomeScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
+                  // Enrolled Course Status Banner
+                  IosGlassCard(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            color: IosTheme.primaryBlue.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(CupertinoIcons.book_fill, color: IosTheme.primaryBlue, size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Text(
+                                      'ENROLLED COURSE',
+                                      style: TextStyle(
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: Color(0xFF059669),
+                                        letterSpacing: 0.4,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Text(
+                                    '• 10m Alerts Active',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: CupertinoColors.systemGrey,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                profile.enrolledCourse,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
                   // Upcoming Live Session Hero Card
                   IosGlassCard(
                     padding: const EdgeInsets.all(20),
