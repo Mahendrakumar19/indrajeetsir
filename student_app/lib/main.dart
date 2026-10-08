@@ -1874,6 +1874,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             // iOS Chat Nav Bar
@@ -1882,14 +1883,25 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Row(
                 children: [
                   Container(
-                    width: 40,
-                    height: 40,
-                    decoration: const BoxDecoration(
-                      color: IosTheme.primaryBlue,
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
+                      border: Border.all(color: IosTheme.primaryBlue.withValues(alpha: 0.35), width: 1.5),
                     ),
-                    child: const Center(
-                      child: Text('IS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        width: 42,
+                        height: 42,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: IosTheme.primaryBlue,
+                          child: const Center(
+                            child: Text('IS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -1978,7 +1990,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
             // iOS Frosted Input Bar
             Container(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
                 border: Border(top: BorderSide(color: IosTheme.separator(isDark))),
