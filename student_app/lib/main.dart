@@ -1013,30 +1013,38 @@ class HomeScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'UPSC CSE ${profile.attemptYear.toUpperCase()}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.8,
-                            color: IosTheme.primaryBlue,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'UPSC CSE ${profile.attemptYear.toUpperCase()}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.8,
+                              color: IosTheme.primaryBlue,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Welcome, ${profile.name.split(' ')[0]}',
-                          style: const TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.6,
+                          const SizedBox(height: 2),
+                          Text(
+                            'Welcome, ${profile.name.split(' ')[0]}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.6,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         CupertinoButton(
                           padding: EdgeInsets.zero,
@@ -1094,7 +1102,7 @@ class HomeScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  // Upcoming Live Session Hero
+                  // Upcoming Live Session Hero Card
                   IosGlassCard(
                     padding: const EdgeInsets.all(20),
                     backgroundColor: isDark
@@ -1121,7 +1129,7 @@ class HomeScreen extends StatelessWidget {
                                   Icon(CupertinoIcons.circle_fill, size: 8, color: Colors.white),
                                   SizedBox(width: 5),
                                   Text(
-                                    'UPCOMING SESSION',
+                                    'NEXT LIVE SESSION',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 10.5,
@@ -1139,13 +1147,13 @@ class HomeScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 14),
-                        const Text(
-                          'GS Paper 3: Economic Strategy & Budgeting',
-                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.3),
+                        Text(
+                          upcomingClass != null ? (upcomingClass!['title'] ?? '1:1 Mentorship Session') : '1:1 Live GS Strategy & Mentorship Review',
+                          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.3),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '1:1 Session with Indrajeet Sir • Mentorship Review',
+                          'Direct 1:1 Live Class with Indrajeet Sir',
                           style: TextStyle(
                             fontSize: 13,
                             color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
@@ -1165,7 +1173,7 @@ class HomeScreen extends StatelessWidget {
                                   children: [
                                     Icon(CupertinoIcons.videocam_fill, size: 16, color: Colors.white),
                                     SizedBox(width: 6),
-                                    Text('Open Classroom', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white)),
+                                    Text('Join Live Classroom', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white)),
                                   ],
                                 ),
                               ),
@@ -1175,43 +1183,18 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
-                  // Section Title: Daily Focus
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4, bottom: 10),
-                    child: Text(
-                      'DAILY TARGETS',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.6,
-                        color: CupertinoColors.systemGrey,
-                      ),
-                    ),
-                  ),
-
-                  // Three Activity Stat Cards (Apple Health Style)
+                  // Live Session Quick Info Cards (2 cards, no horizontal overflow)
                   Row(
                     children: [
                       Expanded(
                         child: _buildMetricTile(
                           context,
-                          title: 'Mains Practice',
-                          value: '2 of 2',
-                          subtitle: 'Submitted',
-                          icon: CupertinoIcons.doc_text_fill,
-                          color: IosTheme.systemGreen,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildMetricTile(
-                          context,
-                          title: 'Live Watch',
-                          value: '2.5 hrs',
-                          subtitle: 'Today',
-                          icon: CupertinoIcons.time_solid,
+                          title: 'NEXT LIVE CLASS',
+                          value: '7:00 PM',
+                          subtitle: 'Tonight with Sir',
+                          icon: CupertinoIcons.videocam_circle_fill,
                           color: IosTheme.primaryBlue,
                         ),
                       ),
@@ -1219,75 +1202,22 @@ class HomeScreen extends StatelessWidget {
                       Expanded(
                         child: _buildMetricTile(
                           context,
-                          title: 'Syllabus',
-                          value: '74%',
-                          subtitle: 'GS Complete',
-                          icon: CupertinoIcons.chart_pie_fill,
-                          color: IosTheme.systemIndigo,
+                          title: 'SESSION FORMAT',
+                          value: '1:1 Private',
+                          subtitle: 'Allotted Mentee',
+                          icon: CupertinoIcons.person_2_fill,
+                          color: IosTheme.systemOrange,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 24),
 
-                  // Section Title: Mentor's Note
+                  // Section Title: Live Class Agenda
                   const Padding(
                     padding: EdgeInsets.only(left: 4, bottom: 10),
                     child: Text(
-                      'MENTOR DIRECTIVE',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.6,
-                        color: CupertinoColors.systemGrey,
-                      ),
-                    ),
-                  ),
-
-                  IosGlassCard(
-                    padding: const EdgeInsets.all(18),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: IosTheme.systemOrange.withValues(alpha: 0.14),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: const Icon(CupertinoIcons.quote_bubble_fill, color: IosTheme.systemOrange, size: 22),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Indrajeet Sir\'s Daily Advice',
-                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '"Focus on crisp structure and contextual examples in GS Paper 3 today. Revise previous year questions before joining tonight\'s review."',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  height: 1.45,
-                                  color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Core Modules List (iOS Inset Grouped)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4, bottom: 10),
-                    child: Text(
-                      'STUDY MODULES',
+                      'TODAY\'S LIVE CLASSROOM SCHEDULE',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -1301,31 +1231,77 @@ class HomeScreen extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     child: Column(
                       children: [
-                        _buildSettingsRow(
+                        _buildScheduleRow(
                           context,
-                          icon: CupertinoIcons.globe,
-                          iconColor: const Color(0xFF0284C7),
-                          title: 'Current Affairs & Editorials',
-                          subtitle: 'Daily curated analysis',
-                          onTap: () {},
+                          time: '7:00 PM',
+                          title: '1:1 GS-3 Strategy & Answer Review',
+                          type: '1:1 ALLOTTED MENTEE',
+                          isAssigned: true,
+                          onTap: () => onNavigateTab(1),
                         ),
-                        Divider(height: 1, indent: 56, color: IosTheme.separator(isDark)),
-                        _buildSettingsRow(
+                        Divider(height: 1, indent: 76, color: IosTheme.separator(isDark)),
+                        _buildScheduleRow(
                           context,
-                          icon: CupertinoIcons.pencil_ellipsis_rectangle,
-                          iconColor: const Color(0xFF7C3AED),
-                          title: 'Mains Answer Evaluation',
-                          subtitle: 'Indrajeet Sir checked copies',
-                          onTap: () {},
+                          time: '8:30 PM',
+                          title: 'Mains Ethics Structure Masterclass',
+                          type: 'BATCH LIVE CLASS',
+                          isAssigned: false,
+                          onTap: () => onNavigateTab(1),
                         ),
-                        Divider(height: 1, indent: 56, color: IosTheme.separator(isDark)),
-                        _buildSettingsRow(
+                        Divider(height: 1, indent: 76, color: IosTheme.separator(isDark)),
+                        _buildScheduleRow(
                           context,
-                          icon: CupertinoIcons.book_fill,
-                          iconColor: const Color(0xFF059669),
-                          title: 'GS Optional Archives',
-                          subtitle: profile.optionalSubject,
-                          onTap: () {},
+                          time: 'Tomorrow',
+                          title: 'GS Optional Analytical Doubt Clearing',
+                          type: 'OPTIONAL LIVE SESSION',
+                          isAssigned: false,
+                          onTap: () => onNavigateTab(1),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Section Title: Live Class Readiness
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4, bottom: 10),
+                    child: Text(
+                      'LIVE CLASS GUIDELINES',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.6,
+                        color: CupertinoColors.systemGrey,
+                      ),
+                    ),
+                  ),
+
+                  IosGlassCard(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _buildGuidelineItem(
+                          context,
+                          icon: CupertinoIcons.headphones,
+                          color: IosTheme.primaryBlue,
+                          title: 'Audio & Microphone Ready',
+                          subtitle: 'Connect headphones with mic for smooth two-way live interaction with Indrajeet Sir.',
+                        ),
+                        Divider(height: 24, indent: 44, color: IosTheme.separator(isDark)),
+                        _buildGuidelineItem(
+                          context,
+                          icon: CupertinoIcons.wifi,
+                          color: IosTheme.systemGreen,
+                          title: 'Stable Connection Required',
+                          subtitle: 'Ensure high-speed Wi-Fi or 4G/5G connectivity for uninterrupted HD video stream.',
+                        ),
+                        Divider(height: 24, indent: 44, color: IosTheme.separator(isDark)),
+                        _buildGuidelineItem(
+                          context,
+                          icon: CupertinoIcons.pencil,
+                          color: IosTheme.systemOrange,
+                          title: 'Keep Notebooks Ready',
+                          subtitle: 'Keep your notes and questions handy during the live classroom interaction.',
                         ),
                       ],
                     ),
@@ -1348,48 +1324,72 @@ class HomeScreen extends StatelessWidget {
     required Color color,
   }) {
     return IosGlassCard(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: color),
+          Row(
+            children: [
+              Icon(icon, size: 20, color: color),
+              const Spacer(),
+            ],
+          ),
           const SizedBox(height: 10),
           Text(
             value,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.4),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.4),
           ),
           const SizedBox(height: 2),
           Text(
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: CupertinoColors.systemGrey),
+            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: CupertinoColors.systemGrey, letterSpacing: 0.4),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 11, color: CupertinoColors.systemGrey),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSettingsRow(
+  Widget _buildScheduleRow(
     BuildContext context, {
-    required IconData icon,
-    required Color iconColor,
+    required String time,
     required String title,
-    required String subtitle,
+    required String type,
+    required bool isAssigned,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return CupertinoButton(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       onPressed: onTap,
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(7),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
-              color: iconColor,
-              borderRadius: BorderRadius.circular(10),
+              color: isAssigned
+                  ? IosTheme.systemOrange.withValues(alpha: 0.15)
+                  : IosTheme.primaryBlue.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, size: 18, color: Colors.white),
+            child: Text(
+              time,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w800,
+                color: isAssigned ? IosTheme.systemOrange : IosTheme.primaryBlue,
+              ),
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -1398,22 +1398,81 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? Colors.white : Colors.black,
                   ),
                 ),
+                const SizedBox(height: 2),
                 Text(
-                  subtitle,
-                  style: const TextStyle(fontSize: 11.5, color: CupertinoColors.systemGrey),
+                  type,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.3,
+                    color: isAssigned ? IosTheme.systemOrange : CupertinoColors.systemGrey,
+                  ),
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
           const Icon(CupertinoIcons.chevron_right, size: 14, color: CupertinoColors.systemGrey3),
         ],
       ),
+    );
+  }
+
+  Widget _buildGuidelineItem(
+    BuildContext context, {
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String subtitle,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(7),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 18, color: color),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.35,
+                  color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -2166,26 +2225,22 @@ class ProfileScreen extends StatelessWidget {
               padding: EdgeInsets.zero,
               child: Column(
                 children: [
-                  ListTile(
-                    leading: const Icon(CupertinoIcons.alarm_fill, color: IosTheme.systemOrange),
-                    title: const Text('10-Min Live Reminder', style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600)),
-                    subtitle: const Text('Alert before your allotted session begins', style: TextStyle(fontSize: 11.5, color: CupertinoColors.systemGrey)),
-                    trailing: CupertinoSwitch(
-                      value: reminderEnabled,
-                      activeTrackColor: IosTheme.primaryBlue,
-                      onChanged: onReminderToggle,
-                    ),
+                  _buildToggleRow(
+                    icon: CupertinoIcons.alarm_fill,
+                    iconColor: IosTheme.systemOrange,
+                    title: '10-Min Live Reminder',
+                    subtitle: 'Alert before your allotted session begins',
+                    value: reminderEnabled,
+                    onChanged: onReminderToggle,
                   ),
-                  Divider(height: 1, indent: 56, color: IosTheme.separator(isDark)),
-                  ListTile(
-                    leading: const Icon(CupertinoIcons.moon_fill, color: IosTheme.systemIndigo),
-                    title: const Text('iOS Dark Mode', style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600)),
-                    subtitle: const Text('Deep OLED black appearance', style: TextStyle(fontSize: 11.5, color: CupertinoColors.systemGrey)),
-                    trailing: CupertinoSwitch(
-                      value: isDark,
-                      activeTrackColor: IosTheme.primaryBlue,
-                      onChanged: (val) => onThemeToggle(),
-                    ),
+                  Divider(height: 1, indent: 52, color: IosTheme.separator(isDark)),
+                  _buildToggleRow(
+                    icon: CupertinoIcons.moon_fill,
+                    iconColor: IosTheme.systemIndigo,
+                    title: 'iOS Dark Mode',
+                    subtitle: 'Deep OLED black appearance',
+                    value: isDark,
+                    onChanged: (val) => onThemeToggle(),
                   ),
                 ],
               ),
@@ -2272,21 +2327,66 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildToggleRow({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Icon(icon, color: iconColor, size: 22),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 2),
+                Text(subtitle, style: const TextStyle(fontSize: 11.5, color: CupertinoColors.systemGrey)),
+              ],
+            ),
+          ),
+          CupertinoSwitch(
+            value: value,
+            activeTrackColor: IosTheme.primaryBlue,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSettingsTile({
     required IconData icon,
     required Color color,
     required String title,
     required VoidCallback onTap,
   }) {
-    return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
-        child: Icon(icon, size: 16, color: Colors.white),
+    return CupertinoButton(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      onPressed: onTap,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
+            child: Icon(icon, size: 16, color: Colors.white),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600),
+            ),
+          ),
+          const Icon(CupertinoIcons.chevron_right, size: 14, color: CupertinoColors.systemGrey3),
+        ],
       ),
-      title: Text(title, style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600)),
-      trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: CupertinoColors.systemGrey3),
-      onTap: onTap,
     );
   }
 }
