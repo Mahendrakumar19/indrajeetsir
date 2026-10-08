@@ -1121,16 +1121,16 @@ class HomeScreen extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: IosTheme.primaryBlue,
+                                color: upcomingClass != null ? IosTheme.primaryBlue : CupertinoColors.systemGrey,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Row(
+                              child: Row(
                                 children: [
                                   Icon(CupertinoIcons.circle_fill, size: 8, color: Colors.white),
-                                  SizedBox(width: 5),
+                                  const SizedBox(width: 5),
                                   Text(
-                                    'NEXT LIVE SESSION',
-                                    style: TextStyle(
+                                    upcomingClass != null ? 'UPCOMING LIVE SESSION' : 'LIVE STATUS',
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w800,
@@ -1140,20 +1140,26 @@ class HomeScreen extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            const Text(
-                              'Tonight • 7:00 PM',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: CupertinoColors.systemGrey),
+                            Text(
+                              upcomingClass != null
+                                  ? '${upcomingClass!['date'] ?? 'Today'} • ${upcomingClass!['time'] ?? '7:00 PM'}'
+                                  : 'Awaiting Schedule',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: CupertinoColors.systemGrey),
                             ),
                           ],
                         ),
                         const SizedBox(height: 14),
                         Text(
-                          upcomingClass != null ? (upcomingClass!['title'] ?? '1:1 Mentorship Session') : '1:1 Live GS Strategy & Mentorship Review',
+                          upcomingClass != null
+                              ? (upcomingClass!['title'] ?? '1:1 Mentorship Session')
+                              : 'No Live Sessions Scheduled Right Now',
                           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.3),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Direct 1:1 Live Class with Indrajeet Sir',
+                          upcomingClass != null
+                              ? 'Direct 1:1 Live Class with Indrajeet Sir'
+                              : 'Live sessions will appear here automatically once scheduled by Indrajeet Sir.',
                           style: TextStyle(
                             fontSize: 13,
                             color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
@@ -1168,12 +1174,15 @@ class HomeScreen extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(vertical: 12),
                                 borderRadius: BorderRadius.circular(14),
                                 onPressed: () => onNavigateTab(1),
-                                child: const Row(
+                                child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(CupertinoIcons.videocam_fill, size: 16, color: Colors.white),
-                                    SizedBox(width: 6),
-                                    Text('Join Live Classroom', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white)),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      upcomingClass != null ? 'Join Live Classroom' : 'Open Classroom Schedule',
+                                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -1192,8 +1201,8 @@ class HomeScreen extends StatelessWidget {
                         child: _buildMetricTile(
                           context,
                           title: 'NEXT LIVE CLASS',
-                          value: '7:00 PM',
-                          subtitle: 'Tonight with Sir',
+                          value: upcomingClass != null ? (upcomingClass!['time'] ?? 'Today') : 'None',
+                          subtitle: upcomingClass != null ? 'With Indrajeet Sir' : 'Awaiting Schedule',
                           icon: CupertinoIcons.videocam_circle_fill,
                           color: IosTheme.primaryBlue,
                         ),
@@ -1203,7 +1212,7 @@ class HomeScreen extends StatelessWidget {
                         child: _buildMetricTile(
                           context,
                           title: 'SESSION FORMAT',
-                          value: '1:1 Private',
+                          value: '1:1 Ready',
                           subtitle: 'Allotted Mentee',
                           icon: CupertinoIcons.person_2_fill,
                           color: IosTheme.systemOrange,
@@ -1228,37 +1237,50 @@ class HomeScreen extends StatelessWidget {
                   ),
 
                   IosGlassCard(
-                    padding: EdgeInsets.zero,
-                    child: Column(
-                      children: [
-                        _buildScheduleRow(
-                          context,
-                          time: '7:00 PM',
-                          title: '1:1 GS-3 Strategy & Answer Review',
-                          type: '1:1 ALLOTTED MENTEE',
-                          isAssigned: true,
-                          onTap: () => onNavigateTab(1),
-                        ),
-                        Divider(height: 1, indent: 76, color: IosTheme.separator(isDark)),
-                        _buildScheduleRow(
-                          context,
-                          time: '8:30 PM',
-                          title: 'Mains Ethics Structure Masterclass',
-                          type: 'BATCH LIVE CLASS',
-                          isAssigned: false,
-                          onTap: () => onNavigateTab(1),
-                        ),
-                        Divider(height: 1, indent: 76, color: IosTheme.separator(isDark)),
-                        _buildScheduleRow(
-                          context,
-                          time: 'Tomorrow',
-                          title: 'GS Optional Analytical Doubt Clearing',
-                          type: 'OPTIONAL LIVE SESSION',
-                          isAssigned: false,
-                          onTap: () => onNavigateTab(1),
-                        ),
-                      ],
-                    ),
+                    padding: upcomingClass != null ? EdgeInsets.zero : const EdgeInsets.all(20),
+                    child: upcomingClass != null
+                        ? Column(
+                            children: [
+                              _buildScheduleRow(
+                                context,
+                                time: upcomingClass!['time'] ?? 'Live',
+                                title: upcomingClass!['title'] ?? 'Mentorship Session',
+                                type: (upcomingClass!['assignedStudent'] ?? 'All Students').toString().toLowerCase().contains(profile.name.toLowerCase())
+                                    ? '1:1 ALLOTTED MENTEE'
+                                    : 'BATCH LIVE CLASS',
+                                isAssigned: true,
+                                onTap: () => onNavigateTab(1),
+                              ),
+                            ],
+                          )
+                        : Center(
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: IosTheme.primaryBlue.withValues(alpha: 0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(CupertinoIcons.calendar, size: 28, color: IosTheme.primaryBlue),
+                                ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  'No Sessions Scheduled for Today',
+                                  style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'You will receive an alert 10 minutes before your allotted class starts.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                   ),
                   const SizedBox(height: 24),
 
@@ -1515,37 +1537,7 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final defaultClasses = [
-      {
-        'title': '1:1 GS-3 Strategy Review Session',
-        'instructor': 'Indrajeet Sir',
-        'date': 'Today',
-        'time': '7:00 PM',
-        'assignedStudent': widget.profile.name,
-        'meetLink': 'https://meet.google.com/abc-defg-hij',
-        'status': 'SCHEDULED',
-      },
-      {
-        'title': 'Mains Answer Writing Structure Masterclass',
-        'instructor': 'Indrajeet Sir',
-        'date': 'Tomorrow',
-        'time': '6:30 PM',
-        'assignedStudent': 'All Students',
-        'meetLink': 'https://meet.google.com/xyz-uvw-rst',
-        'status': 'SCHEDULED',
-      },
-      {
-        'title': 'Ethics & Integrity Case Study Workshop',
-        'instructor': 'Indrajeet Sir',
-        'date': 'Saturday',
-        'time': '5:00 PM',
-        'assignedStudent': 'All Students',
-        'meetLink': 'https://meet.google.com/klm-nop-qrs',
-        'status': 'UPCOMING',
-      },
-    ];
-
-    final displayList = _classes.isNotEmpty ? _classes : defaultClasses;
+    final displayList = _classes;
 
     return Scaffold(
       body: SafeArea(
@@ -1601,10 +1593,43 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
             Expanded(
               child: _isLoading
                   ? const Center(child: CupertinoActivityIndicator())
-                  : ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
-                      itemCount: displayList.length,
+                  : displayList.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(32),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(18),
+                                  decoration: BoxDecoration(
+                                    color: IosTheme.primaryBlue.withValues(alpha: 0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(CupertinoIcons.calendar, size: 38, color: IosTheme.primaryBlue),
+                                ),
+                                const SizedBox(height: 16),
+                                const Text(
+                                  'No Live Sessions Scheduled',
+                                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Live classes and 1:1 sessions will appear here as soon as scheduled by Indrajeet Sir.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+                          itemCount: displayList.length,
                       itemBuilder: (context, index) {
                         final cls = displayList[index];
                         final isAllottedToStudent = (cls['assignedStudent'] ?? '').toString().toLowerCase().contains(widget.profile.name.toLowerCase()) ||

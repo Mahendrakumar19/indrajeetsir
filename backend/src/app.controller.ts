@@ -7,17 +7,7 @@ let fallbackStudents: any[] = [
   { id: 'st-2', name: 'Priya Sharma', email: 'priya@outlook.com', phone: '+91 98123 45678', attempt: '2026', joinedDate: '2026-06-01' },
 ];
 
-let fallbackLiveClasses: any[] = [
-  {
-    id: 'lc-1',
-    title: 'GS-3: Economy & Inflation Strategy',
-    date: '2026-10-15',
-    time: '19:00',
-    meetLink: 'https://meet.google.com/abc-defg-hij',
-    assignedStudent: 'All Students',
-    status: 'UPCOMING',
-  },
-];
+let fallbackLiveClasses: any[] = [];
 
 let fallbackMessages: any[] = [
   { id: 'm-1', studentName: 'Rahul Kumar', text: 'Sir, what time is the class today?', sender: 'student', timestamp: '10:00 AM' },
@@ -301,20 +291,21 @@ export class AppController {
   @Get('live-classes')
   async getLiveClasses() {
     try {
-      const classes = await this.prisma.liveClass.findMany();
-      if (classes.length > 0) {
-        return classes.map((c: any) => ({
-          id: c.id,
-          title: c.title,
-          date: c.date.toISOString().slice(0, 10),
-          time: c.startTime,
-          meetLink: c.meetingUrl,
-          assignedStudent: c.description || 'All Students',
-          status: c.status,
-        }));
-      }
-    } catch {}
-    return fallbackLiveClasses;
+      const classes = await this.prisma.liveClass.findMany({
+        orderBy: { date: 'asc' },
+      });
+      return classes.map((c: any) => ({
+        id: c.id,
+        title: c.title,
+        date: c.date.toISOString().slice(0, 10),
+        time: c.startTime,
+        meetLink: c.meetingUrl,
+        assignedStudent: c.description || 'All Students',
+        status: c.status,
+      }));
+    } catch {
+      return fallbackLiveClasses;
+    }
   }
 
   @Post('live-classes')
