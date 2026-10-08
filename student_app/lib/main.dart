@@ -10,7 +10,7 @@ void main() {
 }
 
 // ============================================================================
-// CENTRAL BACKEND API SERVICE (Connected to https://backend.indrajeetsir.com)
+// CENTRAL BACKEND SERVICE (Connects to Indrajeet Sir Mentorship Cloud API)
 // ============================================================================
 class ApiService {
   static const String baseUrl = 'https://backend.indrajeetsir.com';
@@ -133,7 +133,6 @@ class StudentProfile {
   String optionalSubject;
   String bio;
   String avatarKey;
-  String? customAvatarUrl;
 
   StudentProfile({
     required this.name,
@@ -143,7 +142,6 @@ class StudentProfile {
     required this.optionalSubject,
     required this.bio,
     this.avatarKey = 'ias_officer',
-    this.customAvatarUrl,
   });
 
   String get avatarDisplayEmoji {
@@ -161,98 +159,98 @@ class StudentProfile {
       case 'top_ranker':
         return '🌟';
       default:
-        return '🎓';
+        return '👮‍♂️';
     }
   }
 }
 
 // ============================================================================
-// REUSABLE LIQUID GLASS WRAPPER
+// APPLE iOS DESIGN SYSTEM & FROSTED GLASS COMPONENTS
 // ============================================================================
-class LiquidGlassBox extends StatelessWidget {
+class IosTheme {
+  static const Color primaryBlue = Color(0xFF007AFF);
+  static const Color systemIndigo = Color(0xFF5856D6);
+  static const Color systemGreen = Color(0xFF34C759);
+  static const Color systemOrange = Color(0xFFFF9500);
+  static const Color systemRed = Color(0xFFFF3B30);
+
+  // Backgrounds
+  static const Color lightBg = Color(0xFFF2F2F7);
+  static const Color lightCard = Color(0xFFFFFFFF);
+  static const Color darkBg = Color(0xFF000000);
+  static const Color darkCard = Color(0xFF1C1C1E);
+  static const Color darkCardSecondary = Color(0xFF2C2C2E);
+
+  // Borders & Dividers
+  static Color separator(bool isDark) =>
+      isDark ? const Color(0x38545458) : const Color(0x333C3C43);
+}
+
+class IosGlassCard extends StatelessWidget {
   final Widget child;
-  final double borderRadius;
-  final double blurSigma;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
-  final Color? tintColor;
-  final double tintOpacity;
+  final double borderRadius;
+  final Color? backgroundColor;
   final Border? border;
-  final List<BoxShadow>? shadows;
+  final VoidCallback? onTap;
 
-  const LiquidGlassBox({
+  const IosGlassCard({
     super.key,
     required this.child,
-    this.borderRadius = 24.0,
-    this.blurSigma = 24.0,
     this.padding,
     this.margin,
-    this.tintColor,
-    this.tintOpacity = 0.65,
+    this.borderRadius = 18.0,
+    this.backgroundColor,
     this.border,
-    this.shadows,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = Theme.of(context).primaryColor;
+    final defaultBg = isDark ? IosTheme.darkCard : IosTheme.lightCard;
 
-    return Container(
+    Widget card = Container(
       margin: margin,
       decoration: BoxDecoration(
+        color: backgroundColor ?? defaultBg,
         borderRadius: BorderRadius.circular(borderRadius),
-        boxShadow: shadows ??
-            [
-              BoxShadow(
-                color: isDark
-                    ? Colors.black.withValues(alpha: 0.35)
-                    : primaryColor.withValues(alpha: 0.08),
-                blurRadius: 28,
-                spreadRadius: 0,
-                offset: const Offset(0, 8),
-              ),
-            ],
+        border: border ??
+            Border.all(
+              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04),
+              width: 1.0,
+            ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.04),
+            blurRadius: 18,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-          child: Container(
-            padding: padding,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: isDark
-                    ? [
-                        (tintColor ?? const Color(0xFF1E293B)).withValues(alpha: tintOpacity),
-                        (tintColor ?? const Color(0xFF0F172A)).withValues(alpha: tintOpacity * 0.85),
-                      ]
-                    : [
-                        (tintColor ?? Colors.white).withValues(alpha: tintOpacity),
-                        (tintColor ?? Colors.white).withValues(alpha: tintOpacity * 0.6),
-                      ],
-              ),
-              borderRadius: BorderRadius.circular(borderRadius),
-              border: border ??
-                  Border.all(
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.16)
-                        : Colors.white.withValues(alpha: 0.85),
-                    width: 1.5,
-                  ),
-            ),
-            child: child,
-          ),
+        child: Padding(
+          padding: padding ?? const EdgeInsets.all(16),
+          child: child,
         ),
       ),
     );
+
+    if (onTap != null) {
+      return CupertinoButton(
+        padding: EdgeInsets.zero,
+        onPressed: onTap,
+        child: card,
+      );
+    }
+    return card;
   }
 }
 
 // ============================================================================
-// MAIN APPLICATION ROOT
+// ROOT APP
 // ============================================================================
 class EduApp extends StatefulWidget {
   const EduApp({super.key});
@@ -262,88 +260,77 @@ class EduApp extends StatefulWidget {
 }
 
 class _EduAppState extends State<EduApp> {
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = ThemeMode.light;
 
-  final StudentProfile _currentProfile = StudentProfile(
+  final StudentProfile _profile = StudentProfile(
     name: 'Rahul Kumar',
     email: 'rahul.kumar@indrajeetsir.com',
     phone: '+91 98765 43210',
     attemptYear: '2027',
-    optionalSubject: 'PSIR (Political Science)',
-    bio: 'Dedicated UPSC CSE 2027 Aspirant • Targeting Top 50 Rank under Indrajeet Sir Mentorship',
+    optionalSubject: 'Public Administration',
+    bio: 'Targeting UPSC CSE 2027 • Mentored by Indrajeet Sir',
     avatarKey: 'ias_officer',
   );
 
-  void toggleTheme() {
+  void _toggleTheme() {
     setState(() {
-      _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
-    });
-  }
-
-  void updateProfile(StudentProfile updated) {
-    setState(() {
-      _currentProfile.name = updated.name;
-      _currentProfile.email = updated.email;
-      _currentProfile.phone = updated.phone;
-      _currentProfile.attemptYear = updated.attemptYear;
-      _currentProfile.optionalSubject = updated.optionalSubject;
-      _currentProfile.bio = updated.bio;
-      _currentProfile.avatarKey = updated.avatarKey;
-      _currentProfile.customAvatarUrl = updated.customAvatarUrl;
+      _themeMode = _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Indrajeet Sir UPSC',
+      title: 'Indrajeet Sir IAS Mentorship',
       debugShowCheckedModeBanner: false,
       themeMode: _themeMode,
       theme: ThemeData(
         brightness: Brightness.light,
-        primaryColor: const Color(0xFF2563EB),
-        scaffoldBackgroundColor: const Color(0xFFF1F5F9),
-        colorScheme: const ColorScheme.light(
-          primary: Color(0xFF2563EB),
-          secondary: Color(0xFF0284C7),
-          surface: Colors.white,
-        ),
-        cardColor: Colors.white,
+        scaffoldBackgroundColor: IosTheme.lightBg,
+        primaryColor: IosTheme.primaryBlue,
+        fontFamily: '.SF Pro Text',
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          foregroundColor: Color(0xFF0F172A),
+          backgroundColor: IosTheme.lightBg,
           elevation: 0,
+          scrolledUnderElevation: 0,
+          iconTheme: IconThemeData(color: Colors.black),
+          titleTextStyle: TextStyle(
+            color: Colors.black,
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.3,
+          ),
         ),
-        useMaterial3: true,
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
-        primaryColor: const Color(0xFF3B82F6),
-        scaffoldBackgroundColor: const Color(0xFF090D16),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF3B82F6),
-          secondary: Color(0xFF38BDF8),
-          surface: Color(0xFF1E293B),
-        ),
-        cardColor: const Color(0xFF1E293B),
+        scaffoldBackgroundColor: IosTheme.darkBg,
+        primaryColor: IosTheme.primaryBlue,
+        fontFamily: '.SF Pro Text',
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          foregroundColor: Colors.white,
+          backgroundColor: IosTheme.darkBg,
           elevation: 0,
+          scrolledUnderElevation: 0,
+          iconTheme: IconThemeData(color: Colors.white),
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.3,
+          ),
         ),
-        useMaterial3: true,
       ),
       home: LoginScreen(
-        onThemeToggle: toggleTheme,
-        profile: _currentProfile,
-        onProfileUpdate: updateProfile,
+        onThemeToggle: _toggleTheme,
+        profile: _profile,
+        onProfileUpdate: (updated) => setState(() {}),
       ),
     );
   }
 }
 
 // ============================================================================
-// 1. AUTHENTICATION SCREEN
+// 1. APPLE iOS LOGIN SCREEN
 // ============================================================================
 class LoginScreen extends StatefulWidget {
   final VoidCallback onThemeToggle;
@@ -390,20 +377,13 @@ class _LoginScreenState extends State<LoginScreen> {
           widget.profile.avatarKey = st['avatarKey'];
         }
         widget.onProfileUpdate(widget.profile);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Connected to https://backend.indrajeetsir.com'),
-            backgroundColor: Color(0xFF10B981),
-          ),
-        );
       }
 
       setState(() => _isLoading = false);
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
+        CupertinoPageRoute(
           builder: (context) => MainNavigation(
             onThemeToggle: widget.onThemeToggle,
             profile: widget.profile,
@@ -417,191 +397,130 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned(
-            top: -60,
-            right: -60,
-            child: Container(
-              width: 240,
-              height: 240,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: primaryColor.withValues(alpha: isDark ? 0.25 : 0.2),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 40,
-            left: -50,
-            child: Container(
-              width: 220,
-              height: 220,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF0284C7).withValues(alpha: isDark ? 0.2 : 0.15),
-              ),
-            ),
-          ),
-
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: LiquidGlassBox(
-                        borderRadius: 16,
-                        padding: const EdgeInsets.all(4),
-                        child: IconButton(
-                          icon: Icon(isDark ? CupertinoIcons.sun_max_fill : CupertinoIcons.moon_stars_fill),
-                          onPressed: widget.onThemeToggle,
-                        ),
-                      ),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Academy Emblem
+                Container(
+                  width: 84,
+                  height: 84,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF2563EB), Color(0xFF1D4ED8)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    const SizedBox(height: 12),
-
-                    LiquidGlassBox(
-                      borderRadius: 36,
-                      blurSigma: 32,
-                      padding: const EdgeInsets.all(20),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: primaryColor.withValues(alpha: 0.15),
-                        ),
-                        child: Icon(Icons.school_rounded, size: 54, color: primaryColor),
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF2563EB).withValues(alpha: 0.3),
+                        blurRadius: 24,
+                        offset: const Offset(0, 8),
                       ),
-                    ),
-                    const SizedBox(height: 18),
-                    Text(
-                      'Indrajeet Sir UPSC',
-                      style: TextStyle(
-                        fontSize: 27,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
-                        color: isDark ? Colors.white : const Color(0xFF0F172A),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Connected to https://backend.indrajeetsir.com',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? Colors.white60 : const Color(0xFF64748B),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-
-                    LiquidGlassBox(
-                      borderRadius: 28,
-                      blurSigma: 30,
-                      padding: const EdgeInsets.all(26),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                width: 4,
-                                height: 18,
-                                decoration: BoxDecoration(
-                                  color: primaryColor,
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                'Student Portal Access',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          TextField(
-                            controller: _emailController,
-                            decoration: InputDecoration(
-                              labelText: 'Registered Email',
-                              prefixIcon: const Icon(CupertinoIcons.mail),
-                              filled: true,
-                              fillColor: isDark
-                                  ? Colors.black.withValues(alpha: 0.25)
-                                  : Colors.white.withValues(alpha: 0.7),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          TextField(
-                            controller: _passwordController,
-                            obscureText: true,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              prefixIcon: const Icon(CupertinoIcons.lock),
-                              filled: true,
-                              fillColor: isDark
-                                  ? Colors.black.withValues(alpha: 0.25)
-                                  : Colors.white.withValues(alpha: 0.7),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          ElevatedButton(
-                            onPressed: _isLoading ? null : _login,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryColor,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              elevation: 4,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                                  )
-                                : const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text('ENTER STUDENT PORTAL', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
-                                      SizedBox(width: 8),
-                                      Icon(CupertinoIcons.arrow_right, size: 16),
-                                    ],
-                                  ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TextButton(
-                      onPressed: _login,
-                      child: Text(
-                        'Continue as Enrolled Aspirant →',
-                        style: TextStyle(color: primaryColor, fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  child: const Center(
+                    child: Icon(CupertinoIcons.book_fill, size: 40, color: Colors.white),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 24),
+
+                const Text(
+                  'Indrajeet Sir IAS',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.6,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Mentorship & Live Classroom Portal',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 36),
+
+                // iOS Inset Grouped Credentials Box
+                IosGlassCard(
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                  borderRadius: 18,
+                  child: Column(
+                    children: [
+                      CupertinoTextField(
+                        controller: _emailController,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        placeholder: 'Student Email or Roll Number',
+                        prefix: const Padding(
+                          padding: EdgeInsets.only(right: 8),
+                          child: Icon(CupertinoIcons.mail, size: 18, color: CupertinoColors.systemGrey),
+                        ),
+                        decoration: const BoxDecoration(),
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black),
+                      ),
+                      Divider(height: 1, color: IosTheme.separator(isDark)),
+                      CupertinoTextField(
+                        controller: _passwordController,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        placeholder: 'Access Passcode',
+                        obscureText: true,
+                        prefix: const Padding(
+                          padding: EdgeInsets.only(right: 8),
+                          child: Icon(CupertinoIcons.lock, size: 18, color: CupertinoColors.systemGrey),
+                        ),
+                        decoration: const BoxDecoration(),
+                        style: TextStyle(color: isDark ? Colors.white : Colors.black),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Apple Primary Continue Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: CupertinoButton.filled(
+                    borderRadius: BorderRadius.circular(16),
+                    onPressed: _isLoading ? null : _login,
+                    child: _isLoading
+                        ? const CupertinoActivityIndicator(color: Colors.white)
+                        : const Text(
+                            'Sign In to Mentorship',
+                            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Help line
+                Text(
+                  'Authorized enrolled aspirants only',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? CupertinoColors.tertiaryLabel.darkColor : CupertinoColors.tertiaryLabel.color,
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
 // ============================================================================
-// 2. MAIN APP NAVIGATION WITH LIQUID GLASS DOCK & 10-MIN CLASS REMINDER
+// 2. MAIN APP NAVIGATION WITH iOS DYNAMIC ISLAND NOTIFICATION & GLASS DOCK
 // ============================================================================
 class MainNavigation extends StatefulWidget {
   final VoidCallback onThemeToggle;
@@ -622,10 +541,11 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
-  // ── 10-Minute Notification Reminder State ──
+  // 10-Minute Reminder System
   Timer? _reminderTimer;
   bool _reminderEnabled = true;
-  bool _showAlertBanner = false;
+  bool _showAlertIsland = false;
+  bool _isIslandExpanded = false;
   DateTime? _snoozedUntil;
   Map<String, dynamic>? _upcomingAlertClass;
   int _minutesRemaining = 10;
@@ -655,6 +575,7 @@ class _MainNavigationState extends State<MainNavigation> {
     if (_snoozedUntil != null && DateTime.now().isBefore(_snoozedUntil!)) {
       return;
     }
+
     final classes = await ApiService.fetchLiveClasses();
     if (classes.isEmpty) return;
 
@@ -682,13 +603,13 @@ class _MainNavigationState extends State<MainNavigation> {
 
       final diffInMinutes = classTime.difference(now).inMinutes;
 
-      // When 10 minutes or less remain until the class starts
+      // Class is starting within 10 minutes
       if (diffInMinutes >= 0 && diffInMinutes <= 10) {
         if (mounted) {
           setState(() {
             _upcomingAlertClass = cls;
             _minutesRemaining = diffInMinutes == 0 ? 1 : diffInMinutes;
-            _showAlertBanner = true;
+            _showAlertIsland = true;
           });
         }
         break;
@@ -696,176 +617,226 @@ class _MainNavigationState extends State<MainNavigation> {
     }
   }
 
-  void triggerTestReminder() {
-    setState(() {
-      _snoozedUntil = null;
-      _upcomingAlertClass = {
-        'title': '1:1 GS-3 Strategy Review Session',
-        'time': 'Starting in 10 Minutes',
-        'meetLink': 'https://meet.google.com/abc-defg-hij',
-        'assignedStudent': widget.profile.name,
-        'status': 'STARTING_SOON',
-      };
-      _minutesRemaining = 10;
-      _showAlertBanner = true;
-    });
-  }
-
-  Widget _buildTenMinReminderBanner(BuildContext context) {
-    final primaryColor = Theme.of(context).primaryColor;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cls = _upcomingAlertClass!;
+  // ── iOS DYNAMIC ISLAND HEADS-UP NOTIFICATION PILL ──
+  Widget _buildDynamicIslandPill(BuildContext context) {
+    final cls = _upcomingAlertClass ?? {
+      'title': '1:1 GS-3 Strategy Session',
+      'meetLink': 'https://meet.google.com/abc-defg-hij',
+    };
     final meetUrl = cls['meetLink'] ?? cls['meetingUrl'] ?? 'https://meet.google.com/abc-defg-hij';
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.red.withValues(alpha: 0.35),
-            blurRadius: 28,
-            offset: const Offset(0, 10),
+    return GestureDetector(
+      onTap: () {
+        setState(() => _isIslandExpanded = !_isIslandExpanded);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 320),
+        curve: Curves.easeOutBack,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(
+          horizontal: _isIslandExpanded ? 18 : 14,
+          vertical: _isIslandExpanded ? 16 : 10,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.92),
+          borderRadius: BorderRadius.circular(_isIslandExpanded ? 24 : 32),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.18),
+            width: 1.0,
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: isDark
-                    ? [
-                        const Color(0xFF1E293B).withValues(alpha: 0.95),
-                        const Color(0xFF0F172A).withValues(alpha: 0.90),
-                      ]
-                    : [
-                        Colors.white.withValues(alpha: 0.96),
-                        Colors.white.withValues(alpha: 0.90),
-                      ],
-              ),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: Colors.red.withValues(alpha: 0.7),
-                width: 1.8,
-              ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.4),
+              blurRadius: 28,
+              offset: const Offset(0, 10),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(_isIslandExpanded ? 24 : 32),
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: _isIslandExpanded
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
                             children: [
-                              const Icon(CupertinoIcons.alarm_fill, size: 13, color: Colors.white),
-                              const SizedBox(width: 4),
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: IosTheme.systemOrange,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
                               Text(
-                                '⏰ $_minutesRemaining MIN LEFT!',
+                                'LIVE IN $_minutesRemaining MINS',
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: IosTheme.systemOrange,
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w900,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.5,
                                 ),
                               ),
                             ],
                           ),
+                          CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            child: const Icon(CupertinoIcons.xmark, size: 16, color: Colors.white70),
+                            onPressed: () {
+                              setState(() {
+                                _showAlertIsland = false;
+                                _isIslandExpanded = false;
+                                _snoozedUntil = DateTime.now().add(const Duration(minutes: 5));
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        cls['title'] ?? '1:1 Mentorship Session',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Class Starting Soon',
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Indrajeet Sir is joining your classroom',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.65),
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CupertinoButton(
+                              color: IosTheme.primaryBlue,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              borderRadius: BorderRadius.circular(12),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(CupertinoIcons.videocam_fill, size: 16, color: Colors.white),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Join Classroom',
+                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white),
+                                  ),
+                                ],
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _showAlertIsland = false;
+                                  _isIslandExpanded = false;
+                                });
+                                _showJoinSheet(context, cls['title'] ?? 'Live Classroom', meetUrl);
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          CupertinoButton(
+                            color: Colors.white.withValues(alpha: 0.12),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            borderRadius: BorderRadius.circular(12),
+                            child: const Text(
+                              'Snooze',
+                              style: TextStyle(fontSize: 13, color: Colors.white70),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _showAlertIsland = false;
+                                _isIslandExpanded = false;
+                                _snoozedUntil = DateTime.now().add(const Duration(minutes: 5));
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: IosTheme.systemOrange.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(CupertinoIcons.alarm_fill, size: 14, color: IosTheme.systemOrange),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          '${cls['title'] ?? 'Classroom'} • ${_minutesRemaining}m left',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: IosTheme.primaryBlue,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          'Join',
                           style: TextStyle(
+                            color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: primaryColor,
                           ),
                         ),
-                      ],
-                    ),
-                    IconButton(
-                      icon: const Icon(CupertinoIcons.xmark_circle_fill, size: 20),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      onPressed: () {
-                        setState(() {
-                          _showAlertBanner = false;
-                          _snoozedUntil = DateTime.now().add(const Duration(minutes: 10));
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  cls['title'] ?? '1:1 Allotted Mentorship Session',
-                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Allotted for ${widget.profile.name} • Indrajeet Sir is joining',
-                  style: const TextStyle(fontSize: 11.5, color: Colors.grey),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                        ),
-                        icon: const Icon(CupertinoIcons.videocam_fill, size: 16),
-                        label: const Text('Join Live Class Now ↗', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5)),
-                        onPressed: () {
-                          setState(() => _showAlertBanner = false);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Launching alloted live class: $meetUrl')),
-                          );
-                        },
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _showAlertBanner = false;
-                          _snoozedUntil = DateTime.now().add(const Duration(minutes: 5));
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('⏰ Reminder snoozed for 5 minutes'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                      child: const Text('Snooze', style: TextStyle(fontSize: 12)),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                    ],
+                  ),
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showJoinSheet(BuildContext context, String title, String url) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (ctx) => CupertinoActionSheet(
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
+        message: const Text('Connecting to Indrajeet Sir\'s secure classroom session.'),
+        actions: [
+          CupertinoActionSheetAction(
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Launching live classroom meeting session...'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+            child: const Text('Launch Video Session'),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.pop(ctx),
+          child: const Text('Cancel'),
         ),
       ),
     );
@@ -879,7 +850,6 @@ class _MainNavigationState extends State<MainNavigation> {
         upcomingClass: _upcomingAlertClass,
         minutesRemaining: _minutesRemaining,
         onNavigateTab: (index) => setState(() => _selectedIndex = index),
-        onTestReminder: triggerTestReminder,
       ),
       LiveSessionsScreen(profile: widget.profile),
       ChatScreen(profile: widget.profile),
@@ -888,7 +858,6 @@ class _MainNavigationState extends State<MainNavigation> {
         profile: widget.profile,
         reminderEnabled: _reminderEnabled,
         onReminderToggle: (val) => setState(() => _reminderEnabled = val),
-        onTestReminder: triggerTestReminder,
         onProfileUpdate: (updated) {
           widget.onProfileUpdate(updated);
           setState(() {});
@@ -897,10 +866,8 @@ class _MainNavigationState extends State<MainNavigation> {
     ];
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
-      extendBody: true,
       body: Stack(
         children: [
           IndexedStack(
@@ -908,81 +875,54 @@ class _MainNavigationState extends State<MainNavigation> {
             children: screens,
           ),
 
-          // ── FLOATING 10-MINUTE ALERT LIQUID GLASS BANNER ──
-          if (_showAlertBanner && _upcomingAlertClass != null)
+          // ── FLOATING iOS DYNAMIC ISLAND HEADS-UP REMINDER ──
+          if (_showAlertIsland)
             Positioned(
               top: 0,
               left: 0,
               right: 0,
               child: SafeArea(
-                child: _buildTenMinReminderBanner(context),
+                child: _buildDynamicIslandPill(context),
               ),
             ),
         ],
       ),
 
-      // ── ULTRA FLUID LIQUID GLASS DOCK ──────────────────────────────────────
+      // ── ULTRA REFINED iOS FROSTED FLOATING TAB DOCK ──
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
           child: Container(
-            height: 72,
+            height: 64,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(36),
+              color: isDark
+                  ? const Color(0xFF1C1C1E).withValues(alpha: 0.85)
+                  : Colors.white.withValues(alpha: 0.88),
+              borderRadius: BorderRadius.circular(32),
+              border: Border.all(
+                color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.06),
+                width: 1.0,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: isDark
-                      ? Colors.black.withValues(alpha: 0.5)
-                      : primaryColor.withValues(alpha: 0.16),
-                  blurRadius: 32,
-                  spreadRadius: 0,
-                  offset: const Offset(0, 10),
-                ),
-                BoxShadow(
-                  color: primaryColor.withValues(alpha: isDark ? 0.12 : 0.08),
-                  blurRadius: 16,
-                  spreadRadius: -4,
-                  offset: const Offset(0, 4),
+                  color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(36),
+              borderRadius: BorderRadius.circular(32),
               child: BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: isDark
-                          ? [
-                              const Color(0xFF1E293B).withValues(alpha: 0.82),
-                              const Color(0xFF0F172A).withValues(alpha: 0.70),
-                            ]
-                          : [
-                              Colors.white.withValues(alpha: 0.82),
-                              Colors.white.withValues(alpha: 0.52),
-                            ],
-                    ),
-                    borderRadius: BorderRadius.circular(36),
-                    border: Border.all(
-                      color: isDark
-                          ? Colors.white.withValues(alpha: 0.18)
-                          : Colors.white.withValues(alpha: 0.90),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildLiquidDockItem(0, CupertinoIcons.house_fill, CupertinoIcons.house, 'Home'),
-                      _buildLiquidDockItem(1, CupertinoIcons.videocam_fill, CupertinoIcons.videocam, '1:1 Live'),
-                      _buildLiquidDockItem(2, CupertinoIcons.chat_bubble_2_fill, CupertinoIcons.chat_bubble_2, 'Mentorship'),
-                      _buildLiquidDockItem(3, CupertinoIcons.person_crop_circle_fill, CupertinoIcons.person_crop_circle, 'Profile'),
-                    ],
-                  ),
+                filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildDockItem(0, CupertinoIcons.house_fill, 'Overview'),
+                    _buildDockItem(1, CupertinoIcons.tv_fill, 'Classroom'),
+                    _buildDockItem(2, CupertinoIcons.chat_bubble_2_fill, 'Mentorship'),
+                    _buildDockItem(3, CupertinoIcons.person_crop_circle_fill, 'Settings'),
+                  ],
                 ),
               ),
             ),
@@ -992,72 +932,42 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 
-  Widget _buildLiquidDockItem(int index, IconData activeIcon, IconData inactiveIcon, String label) {
+  Widget _buildDockItem(int index, IconData icon, String label) {
     final isSelected = _selectedIndex == index;
-    final primaryColor = Theme.of(context).primaryColor;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final activeColor = IosTheme.primaryBlue;
+    final inactiveColor = isDark ? CupertinoColors.systemGrey : CupertinoColors.systemGrey2;
 
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _selectedIndex = index),
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 280),
-          curve: Curves.fastOutSlowIn,
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          decoration: BoxDecoration(
-            gradient: isSelected
-                ? LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      primaryColor.withValues(alpha: isDark ? 0.35 : 0.18),
-                      primaryColor.withValues(alpha: isDark ? 0.15 : 0.08),
-                    ],
-                  )
-                : null,
-            borderRadius: BorderRadius.circular(26),
-            border: isSelected
-                ? Border.all(
-                    color: primaryColor.withValues(alpha: isDark ? 0.35 : 0.3),
-                    width: 1,
-                  )
-                : null,
-          ),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AnimatedScale(
-                  scale: isSelected ? 1.12 : 1.0,
-                  duration: const Duration(milliseconds: 220),
-                  curve: Curves.easeOutBack,
-                  child: Icon(
-                    isSelected ? activeIcon : inactiveIcon,
-                    size: 21,
-                    color: isSelected
-                        ? primaryColor
-                        : (isDark ? Colors.white60 : const Color(0xFF64748B)),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 200),
-                  style: TextStyle(
-                    color: isSelected
-                        ? primaryColor
-                        : (isDark ? Colors.white54 : const Color(0xFF64748B)),
-                    fontSize: 10.0,
-                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-                    letterSpacing: -0.2,
-                  ),
-                  child: Text(label),
-                ),
-              ],
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => setState(() => _selectedIndex = index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? (isDark ? activeColor.withValues(alpha: 0.18) : activeColor.withValues(alpha: 0.10))
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 22,
+              color: isSelected ? activeColor : inactiveColor,
             ),
-          ),
+            const SizedBox(height: 3),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? activeColor : inactiveColor,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -1065,14 +975,13 @@ class _MainNavigationState extends State<MainNavigation> {
 }
 
 // ============================================================================
-// 3. HOME SCREEN WITH 10-MINUTE ALERT COUNTER
+// 3. HOME SCREEN (OVERVIEW) — CLEAN iOS HIG DESIGN
 // ============================================================================
 class HomeScreen extends StatelessWidget {
   final StudentProfile profile;
   final Map<String, dynamic>? upcomingClass;
   final int minutesRemaining;
   final Function(int) onNavigateTab;
-  final VoidCallback? onTestReminder;
 
   const HomeScreen({
     super.key,
@@ -1080,585 +989,771 @@ class HomeScreen extends StatelessWidget {
     this.upcomingClass,
     this.minutesRemaining = 10,
     required this.onNavigateTab,
-    this.onTestReminder,
   });
-
-  void _openNotificationsSheet(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = Theme.of(context).primaryColor;
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        return LiquidGlassBox(
-          borderRadius: 28,
-          blurSigma: 32,
-          padding: const EdgeInsets.all(22),
-          margin: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: primaryColor.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(CupertinoIcons.bell_fill, color: primaryColor, size: 20),
-                      ),
-                      const SizedBox(width: 10),
-                      const Text(
-                        'Notification Center',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-                      ),
-                    ],
-                  ),
-                  IconButton(
-                    icon: const Icon(CupertinoIcons.xmark_circle_fill),
-                    onPressed: () => Navigator.pop(ctx),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              if (upcomingClass != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.red.withValues(alpha: 0.5), width: 1.5),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              '⏰ $minutesRemaining MIN LEFT',
-                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Allotted Live Class Imminent',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        upcomingClass!['title'] ?? '1:1 Allotted Mentorship Session',
-                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Allotted for ${profile.name} • Indrajeet Sir Live',
-                        style: const TextStyle(fontSize: 11.5, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          onNavigateTab(1);
-                        },
-                        child: const Text('Open & Join Live Session', style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 14),
-              ],
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(CupertinoIcons.alarm_fill, color: Color(0xFFF59E0B), size: 24),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text('10-Min Live Reminder Active', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                          SizedBox(height: 2),
-                          Text('You will automatically receive a heads-up alert 10 minutes before your allotted session.', style: TextStyle(fontSize: 11.5, color: Colors.grey)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                icon: const Icon(CupertinoIcons.play_circle_fill, size: 18),
-                label: const Text('Test 10-Min Alert Banner Preview'),
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  onTestReminder?.call();
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            LiquidGlassBox(
-              borderRadius: 12,
-              padding: const EdgeInsets.all(6),
-              child: Icon(Icons.school_rounded, color: primaryColor, size: 20),
-            ),
-            const SizedBox(width: 10),
-            const Text(
-              'Indrajeet Sir UPSC',
-              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, letterSpacing: -0.3),
-            ),
-          ],
-        ),
-        actions: [
-          LiquidGlassBox(
-            borderRadius: 14,
-            margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.all(2),
-            child: IconButton(
-              icon: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  const Icon(CupertinoIcons.bell_fill, size: 18),
-                  if (upcomingClass != null)
-                    Positioned(
-                      right: -1,
-                      top: -1,
+      body: SafeArea(
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // iOS Large Title Header
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'UPSC CSE ${profile.attemptYear.toUpperCase()}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.8,
+                            color: IosTheme.primaryBlue,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Welcome, ${profile.name.split(' ')[0]}',
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.6,
+                          ),
+                        ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () => onNavigateTab(3),
                       child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
+                          border: Border.all(color: IosTheme.primaryBlue, width: 2),
+                        ),
+                        child: CircleAvatar(
+                          radius: 20,
+                          backgroundColor: IosTheme.primaryBlue.withValues(alpha: 0.12),
+                          child: Text(profile.avatarDisplayEmoji, style: const TextStyle(fontSize: 20)),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              onPressed: () => _openNotificationsSheet(context),
-            ),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 110),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── 10-Minute Reminder Highlight Banner ──
-            if (upcomingClass != null) ...[
-              LiquidGlassBox(
-                borderRadius: 22,
-                tintColor: Colors.amber,
-                tintOpacity: isDark ? 0.25 : 0.14,
-                border: Border.all(color: Colors.amber.withValues(alpha: 0.6), width: 1.5),
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Colors.amber,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(CupertinoIcons.alarm_fill, color: Colors.black, size: 20),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '⏰ $minutesRemaining MINS LEFT: Class Starting!',
-                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Colors.amber),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            upcomingClass!['title'] ?? '1:1 Allotted Mentorship Session',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
-                          ),
-                          const Text('Get your notes ready for Indrajeet Sir', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                        ],
-                      ),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.amber,
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      ),
-                      onPressed: () => onNavigateTab(1),
-                      child: const Text('Join', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-            ],
+            ),
 
-            // Welcome Liquid Card
-            LiquidGlassBox(
-              borderRadius: 24,
-              blurSigma: 28,
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 26,
-                    backgroundColor: primaryColor.withValues(alpha: 0.15),
-                    child: Text(profile.avatarDisplayEmoji, style: const TextStyle(fontSize: 26)),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
+            // Content List
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  // Upcoming Live Session Hero
+                  IosGlassCard(
+                    padding: const EdgeInsets.all(20),
+                    backgroundColor: isDark
+                        ? const Color(0xFF1E293B).withValues(alpha: 0.7)
+                        : const Color(0xFFEFF6FF),
+                    border: Border.all(
+                      color: IosTheme.primaryBlue.withValues(alpha: isDark ? 0.3 : 0.2),
+                      width: 1.2,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Welcome, ${profile.name.split(' ').first}! 👋',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w800,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: primaryColor.withValues(alpha: 0.15),
+                                color: IosTheme.primaryBlue,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Text(
-                                'Target CSE ${profile.attemptYear}',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: primaryColor,
+                              child: const Row(
+                                children: [
+                                  Icon(CupertinoIcons.circle_fill, size: 8, color: Colors.white),
+                                  SizedBox(width: 5),
+                                  Text(
+                                    'UPCOMING SESSION',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Text(
+                              'Tonight • 7:00 PM',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: CupertinoColors.systemGrey),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        const Text(
+                          'GS Paper 3: Economic Strategy & Budgeting',
+                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.3),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '1:1 Session with Indrajeet Sir • Mentorship Review',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CupertinoButton(
+                                color: IosTheme.primaryBlue,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                borderRadius: BorderRadius.circular(14),
+                                onPressed: () => onNavigateTab(1),
+                                child: const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(CupertinoIcons.videocam_fill, size: 16, color: Colors.white),
+                                    SizedBox(width: 6),
+                                    Text('Open Classroom', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white)),
+                                  ],
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 6),
-                            const Text('• Indrajeet Sir Mentee', style: TextStyle(fontSize: 11, color: Colors.grey)),
                           ],
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 18),
+                  const SizedBox(height: 24),
 
-            // Live 1:1 Session Alert Banner
-            LiquidGlassBox(
-              borderRadius: 22,
-              tintColor: Colors.red,
-              tintOpacity: isDark ? 0.2 : 0.08,
-              border: Border.all(color: Colors.red.withValues(alpha: isDark ? 0.35 : 0.25)),
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(8),
+                  // Section Title: Daily Focus
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4, bottom: 10),
+                    child: Text(
+                      'DAILY TARGETS',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.6,
+                        color: CupertinoColors.systemGrey,
+                      ),
                     ),
-                    child: const Text('🔴 LIVE NOW', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900)),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
+
+                  // Three Activity Stat Cards (Apple Health Style)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildMetricTile(
+                          context,
+                          title: 'Mains Practice',
+                          value: '2 of 2',
+                          subtitle: 'Submitted',
+                          icon: CupertinoIcons.doc_text_fill,
+                          color: IosTheme.systemGreen,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildMetricTile(
+                          context,
+                          title: 'Live Watch',
+                          value: '2.5 hrs',
+                          subtitle: 'Today',
+                          icon: CupertinoIcons.time_solid,
+                          color: IosTheme.primaryBlue,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildMetricTile(
+                          context,
+                          title: 'Syllabus',
+                          value: '74%',
+                          subtitle: 'GS Complete',
+                          icon: CupertinoIcons.chart_pie_fill,
+                          color: IosTheme.systemIndigo,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Section Title: Mentor's Note
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4, bottom: 10),
+                    child: Text(
+                      'MENTOR DIRECTIVE',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.6,
+                        color: CupertinoColors.systemGrey,
+                      ),
+                    ),
+                  ),
+
+                  IosGlassCard(
+                    padding: const EdgeInsets.all(18),
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('1:1 Strategy Review', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5)),
-                        SizedBox(height: 2),
-                        Text('With Indrajeet Sir • Live Session', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: IosTheme.systemOrange.withValues(alpha: 0.14),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: const Icon(CupertinoIcons.quote_bubble_fill, color: IosTheme.systemOrange, size: 22),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Indrajeet Sir\'s Daily Advice',
+                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '"Focus on crisp structure and contextual examples in GS Paper 3 today. Revise previous year questions before joining tonight\'s review."',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  height: 1.45,
+                                  color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: () => onNavigateTab(1),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    ),
-                    child: const Text('Join Class', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
+                  const SizedBox(height: 24),
 
-            // Mentorship Action Quick Matrix
-            const Text(
-              'Mentorship Hub',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, letterSpacing: -0.3),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => onNavigateTab(1),
-                    child: LiquidGlassBox(
-                      borderRadius: 20,
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(CupertinoIcons.videocam_circle_fill, size: 36, color: primaryColor),
-                          const SizedBox(height: 10),
-                          const Text('1:1 Live Classes', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
-                          const SizedBox(height: 2),
-                          const Text('10-min alerts & Meet slots', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                        ],
+                  // Core Modules List (iOS Inset Grouped)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4, bottom: 10),
+                    child: Text(
+                      'STUDY MODULES',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.6,
+                        color: CupertinoColors.systemGrey,
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => onNavigateTab(2),
-                    child: LiquidGlassBox(
-                      borderRadius: 20,
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(CupertinoIcons.chat_bubble_2_fill, size: 36, color: Color(0xFF10B981)),
-                          const SizedBox(height: 10),
-                          const Text('Ask Doubts', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
-                          const SizedBox(height: 2),
-                          const Text('Live MySQL sync chat', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 18),
 
-            // Study Roadmap Progress
-            LiquidGlassBox(
-              borderRadius: 22,
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('GS-3 & Optional Syllabus Track', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                      Text('68% Done', style: TextStyle(color: primaryColor, fontWeight: FontWeight.w800, fontSize: 13)),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: 0.68,
-                      minHeight: 8,
-                      backgroundColor: isDark ? Colors.white12 : Colors.black12,
-                      valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                  IosGlassCard(
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      children: [
+                        _buildSettingsRow(
+                          context,
+                          icon: CupertinoIcons.globe,
+                          iconColor: const Color(0xFF0284C7),
+                          title: 'Current Affairs & Editorials',
+                          subtitle: 'Daily curated analysis',
+                          onTap: () {},
+                        ),
+                        Divider(height: 1, indent: 56, color: IosTheme.separator(isDark)),
+                        _buildSettingsRow(
+                          context,
+                          icon: CupertinoIcons.pencil_ellipsis_rectangle,
+                          iconColor: const Color(0xFF7C3AED),
+                          title: 'Mains Answer Evaluation',
+                          subtitle: 'Indrajeet Sir checked copies',
+                          onTap: () {},
+                        ),
+                        Divider(height: 1, indent: 56, color: IosTheme.separator(isDark)),
+                        _buildSettingsRow(
+                          context,
+                          icon: CupertinoIcons.book_fill,
+                          iconColor: const Color(0xFF059669),
+                          title: 'GS Optional Archives',
+                          subtitle: profile.optionalSubject,
+                          onTap: () {},
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  const Text('Next up: Inflation & Monetary Policy Mains Answer writing evaluation.', style: TextStyle(fontSize: 11.5, color: Colors.grey)),
-                ],
+                ]),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildMetricTile(
+    BuildContext context, {
+    required String title,
+    required String value,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+  }) {
+    return IosGlassCard(
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(height: 10),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, letterSpacing: -0.4),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: CupertinoColors.systemGrey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsRow(
+    BuildContext context, {
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return CupertinoButton(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      onPressed: onTap,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: iconColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 18, color: Colors.white),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(fontSize: 11.5, color: CupertinoColors.systemGrey),
+                ),
+              ],
+            ),
+          ),
+          const Icon(CupertinoIcons.chevron_right, size: 14, color: CupertinoColors.systemGrey3),
+        ],
       ),
     );
   }
 }
 
 // ============================================================================
-// 4. 1:1 LIVE SESSIONS SCREEN
+// 4. LIVE CLASSROOM SCREEN (iOS HIG DESIGN)
 // ============================================================================
 class LiveSessionsScreen extends StatefulWidget {
-  final StudentProfile? profile;
-  const LiveSessionsScreen({super.key, this.profile});
+  final StudentProfile profile;
+
+  const LiveSessionsScreen({super.key, required this.profile});
 
   @override
   State<LiveSessionsScreen> createState() => _LiveSessionsScreenState();
 }
 
 class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
+  int _selectedSegment = 0; // 0: Allotted, 1: Masterclasses
+  bool _isLoading = false;
   List<Map<String, dynamic>> _classes = [];
-  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadLiveClasses();
+    _loadClasses();
   }
 
-  Future<void> _loadLiveClasses() async {
-    setState(() => _loading = true);
+  Future<void> _loadClasses() async {
+    setState(() => _isLoading = true);
     final remote = await ApiService.fetchLiveClasses();
-
     if (mounted) {
       setState(() {
-        if (remote.isNotEmpty) {
-          _classes = remote;
-        } else {
-          _classes = [
-            {
-              'id': 'lc-1',
-              'title': 'GS-3: Indian Economy & Inflation Strategy',
-              'date': '2026-10-15',
-              'time': '19:00',
-              'meetLink': 'https://meet.google.com/abc-defg-hij',
-              'assignedStudent': 'All Students',
-              'status': 'LIVE',
-            },
-            {
-              'id': 'lc-2',
-              'title': 'Mains Answer Writing Review & Feedback',
-              'date': '2026-10-16',
-              'time': '17:00',
-              'meetLink': 'https://meet.google.com/xyz-uvwx-rst',
-              'assignedStudent': 'All Students',
-              'status': 'UPCOMING',
-            },
-          ];
-        }
-        _loading = false;
+        _classes = remote;
+        _isLoading = false;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Scheduled 1:1 Classes', style: TextStyle(fontWeight: FontWeight.w800)),
-        actions: [
-          IconButton(
-            icon: const Icon(CupertinoIcons.arrow_clockwise),
-            onPressed: _loadLiveClasses,
-            tooltip: 'Refresh from Server',
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _loadLiveClasses,
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : ListView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 110),
-                itemCount: _classes.length,
-                itemBuilder: (context, index) {
-                  final cls = _classes[index];
-                  final isLive = cls['status'] == 'LIVE' || index == 0;
-                  final meetUrl = cls['meetLink'] ?? cls['meetingUrl'] ?? 'https://meet.google.com/abc-defg-hij';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 14),
-                    child: LiquidGlassBox(
-                      borderRadius: 22,
-                      tintColor: isLive ? Colors.red : null,
-                      tintOpacity: isLive ? 0.1 : 0.65,
-                      padding: const EdgeInsets.all(18),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final defaultClasses = [
+      {
+        'title': '1:1 GS-3 Strategy Review Session',
+        'instructor': 'Indrajeet Sir',
+        'date': 'Today',
+        'time': '7:00 PM',
+        'assignedStudent': widget.profile.name,
+        'meetLink': 'https://meet.google.com/abc-defg-hij',
+        'status': 'SCHEDULED',
+      },
+      {
+        'title': 'Mains Answer Writing Structure Masterclass',
+        'instructor': 'Indrajeet Sir',
+        'date': 'Tomorrow',
+        'time': '6:30 PM',
+        'assignedStudent': 'All Students',
+        'meetLink': 'https://meet.google.com/xyz-uvw-rst',
+        'status': 'SCHEDULED',
+      },
+      {
+        'title': 'Ethics & Integrity Case Study Workshop',
+        'instructor': 'Indrajeet Sir',
+        'date': 'Saturday',
+        'time': '5:00 PM',
+        'assignedStudent': 'All Students',
+        'meetLink': 'https://meet.google.com/klm-nop-qrs',
+        'status': 'UPCOMING',
+      },
+    ];
+
+    final displayList = _classes.isNotEmpty ? _classes : defaultClasses;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Live Classroom',
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.6),
+                  ),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: _loadClasses,
+                    child: const Icon(CupertinoIcons.arrow_clockwise, size: 20),
+                  ),
+                ],
+              ),
+            ),
+
+            // iOS Sliding Segmented Control
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+              child: SizedBox(
+                width: double.infinity,
+                child: CupertinoSlidingSegmentedControl<int>(
+                  groupValue: _selectedSegment,
+                  backgroundColor: isDark ? const Color(0xFF1C1C1E) : const Color(0xFFE5E5EA),
+                  thumbColor: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+                  children: const {
+                    0: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Text('Allotted (1:1)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                    ),
+                    1: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: Text('All Masterclasses', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                    ),
+                  },
+                  onValueChanged: (val) {
+                    if (val != null) setState(() => _selectedSegment = val);
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // Class List
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CupertinoActivityIndicator())
+                  : ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+                      itemCount: displayList.length,
+                      itemBuilder: (context, index) {
+                        final cls = displayList[index];
+                        final isAllottedToStudent = (cls['assignedStudent'] ?? '').toString().toLowerCase().contains(widget.profile.name.toLowerCase()) ||
+                            cls['assignedStudent'] == 'Rahul Kumar';
+
+                        if (_selectedSegment == 0 && !isAllottedToStudent && cls['assignedStudent'] != 'All Students') {
+                          return const SizedBox.shrink();
+                        }
+
+                        return IosGlassCard(
+                          margin: const EdgeInsets.only(bottom: 14),
+                          padding: const EdgeInsets.all(18),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: isLive ? Colors.red : const Color(0xFF2563EB),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  isLive ? '🔴 10-MIN REMINDER ACTIVE' : '📅 SCHEDULED',
-                                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: isAllottedToStudent
+                                          ? IosTheme.systemOrange.withValues(alpha: 0.15)
+                                          : IosTheme.primaryBlue.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      isAllottedToStudent ? '1:1 ALLOTTED MENTEE' : 'BATCH MASTERCLASS',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w800,
+                                        color: isAllottedToStudent ? IosTheme.systemOrange : IosTheme.primaryBlue,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    '${cls['date']} • ${cls['time']}',
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: CupertinoColors.systemGrey),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                cls['title'] ?? 'Session',
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Mentor: ${cls['instructor'] ?? 'Indrajeet Sir'}',
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
                                 ),
                               ),
-                              Text(
-                                '${cls['date'] ?? 'Today'} • ${cls['time'] ?? '7:00 PM'}',
-                                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                              const SizedBox(height: 14),
+                              SizedBox(
+                                width: double.infinity,
+                                child: CupertinoButton.filled(
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  borderRadius: BorderRadius.circular(12),
+                                  onPressed: () {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Launching classroom video stream...')),
+                                    );
+                                  },
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(CupertinoIcons.videocam_fill, size: 16, color: Colors.white),
+                                      SizedBox(width: 6),
+                                      Text('Join Live Session', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            cls['title'] ?? '1:1 Mentorship Session',
-                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// 5. MENTORSHIP CHAT SCREEN (APPLE iMESSAGE STYLE)
+// ============================================================================
+class ChatScreen extends StatefulWidget {
+  final StudentProfile profile;
+
+  const ChatScreen({super.key, required this.profile});
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final _msgController = TextEditingController();
+  final List<Map<String, String>> _messages = [
+    {
+      'sender': 'Indrajeet Sir',
+      'text': 'Good morning Rahul. Did you finish the Case Study outline for Ethics Paper 4?',
+      'time': '10:00 AM',
+    },
+    {
+      'sender': 'Rahul Kumar',
+      'text': 'Yes sir, submitted my response sheet on the portal. Ready for your review.',
+      'time': '10:05 AM',
+    },
+    {
+      'sender': 'Indrajeet Sir',
+      'text': 'Excellent. We will evaluate your answer during tonight\'s 1:1 live strategy call at 7:00 PM.',
+      'time': '10:12 AM',
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRemote();
+  }
+
+  Future<void> _fetchRemote() async {
+    final remote = await ApiService.fetchMessages();
+    if (remote.isNotEmpty && mounted) {
+      setState(() => _messages.addAll(remote));
+    }
+  }
+
+  Future<void> _send() async {
+    final text = _msgController.text.trim();
+    if (text.isEmpty) return;
+
+    setState(() {
+      _messages.add({
+        'sender': widget.profile.name,
+        'text': text,
+        'time': 'Just now',
+      });
+      _msgController.clear();
+    });
+
+    await ApiService.sendMessage(widget.profile.name, text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            // iOS Chat Nav Bar
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: const BoxDecoration(
+                      color: IosTheme.primaryBlue,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Center(
+                      child: Text('IS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Text(
+                              'Indrajeet Sir',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                            ),
+                            SizedBox(width: 4),
+                            Icon(CupertinoIcons.checkmark_seal_fill, size: 14, color: IosTheme.primaryBlue),
+                          ],
+                        ),
+                        Text(
+                          'Direct Mentorship Desk',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
                           ),
-                          const SizedBox(height: 4),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Divider(height: 1, color: IosTheme.separator(isDark)),
+
+            // Messages List
+            Expanded(
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                itemCount: _messages.length,
+                itemBuilder: (context, index) {
+                  final msg = _messages[index];
+                  final isMe = msg['sender'] == widget.profile.name || msg['sender'] == 'Rahul Kumar';
+
+                  return Align(
+                    alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isMe
+                            ? IosTheme.primaryBlue
+                            : (isDark ? const Color(0xFF2C2C2E) : const Color(0xFFE9E9EB)),
+                        borderRadius: BorderRadius.only(
+                          topLeft: const Radius.circular(18),
+                          topRight: const Radius.circular(18),
+                          bottomLeft: Radius.circular(isMe ? 18 : 4),
+                          bottomRight: Radius.circular(isMe ? 4 : 18),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                        children: [
                           Text(
-                            'Audience: ${cls['assignedStudent'] ?? 'All Students'} • With Indrajeet Sir',
-                            style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            msg['text']!,
+                            style: TextStyle(
+                              color: isMe ? Colors.white : (isDark ? Colors.white : Colors.black),
+                              fontSize: 14.5,
+                              height: 1.35,
+                            ),
                           ),
-                          const SizedBox(height: 14),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Launching 1:1 Live URL: $meetUrl')),
-                              );
-                            },
-                            icon: const Icon(CupertinoIcons.videocam_fill, size: 18),
-                            label: Text(isLive ? 'Enter Live Session Now' : 'Join Link Scheduled'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: isLive ? Colors.red : Theme.of(context).primaryColor,
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size.fromHeight(44),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          const SizedBox(height: 3),
+                          Text(
+                            msg['time']!,
+                            style: TextStyle(
+                              color: isMe ? Colors.white70 : CupertinoColors.systemGrey,
+                              fontSize: 10,
                             ),
                           ),
                         ],
@@ -1667,202 +1762,62 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
                   );
                 },
               ),
-      ),
-    );
-  }
-}
-
-// ============================================================================
-// 5. CHAT SCREEN
-// ============================================================================
-class ChatScreen extends StatefulWidget {
-  final StudentProfile profile;
-  const ChatScreen({super.key, required this.profile});
-
-  @override
-  State<ChatScreen> createState() => _ChatScreenState();
-}
-
-class _ChatScreenState extends State<ChatScreen> {
-  List<Map<String, String>> _messages = [];
-  final TextEditingController _textController = TextEditingController();
-  bool _sending = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadMessages();
-  }
-
-  Future<void> _loadMessages() async {
-    final remote = await ApiService.fetchMessages();
-    if (mounted) {
-      setState(() {
-        if (remote.isNotEmpty) {
-          _messages = remote;
-        } else {
-          _messages = [
-            {'sender': 'Indrajeet Sir', 'text': 'Hello Rahul! How is your GS-3 revision plan progressing?', 'time': '10:00 AM'},
-            {'sender': 'Rahul Kumar', 'text': 'Hi Sir, I completed the Inflation notes. Ready for today 1:1 session!', 'time': '10:02 AM'},
-            {'sender': 'Indrajeet Sir', 'text': 'Great! See you at 7:00 PM on Google Meet.', 'time': '10:05 AM'},
-          ];
-        }
-      });
-    }
-  }
-
-  Future<void> _sendMessage() async {
-    final text = _textController.text.trim();
-    if (text.isEmpty) return;
-
-    setState(() {
-      _sending = true;
-      _messages.add({
-        'sender': widget.profile.name,
-        'text': text,
-        'time': 'Just now',
-      });
-      _textController.clear();
-    });
-
-    await ApiService.sendMessage(widget.profile.name, text);
-
-    if (mounted) {
-      setState(() => _sending = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).primaryColor;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: primaryColor,
-              radius: 16,
-              child: const Icon(Icons.person_rounded, size: 18, color: Colors.white),
             ),
-            const SizedBox(width: 10),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Indrajeet Sir', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-                Text('Active Mentor • 1:1 Support', style: TextStyle(fontSize: 11, color: Colors.grey)),
-              ],
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(CupertinoIcons.arrow_clockwise),
-            onPressed: _loadMessages,
-            tooltip: 'Sync Messages',
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final msg = _messages[index];
-                final isMe = msg['sender'] == widget.profile.name || msg['sender'] == 'Rahul Kumar';
-                return Align(
-                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
-                    child: LiquidGlassBox(
-                      borderRadius: 18,
-                      tintColor: isMe ? primaryColor : null,
-                      tintOpacity: isMe ? (isDark ? 0.9 : 0.95) : (isDark ? 0.75 : 0.8),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      child: Column(
-                        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            msg['sender']!,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: isMe ? Colors.white70 : primaryColor,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            msg['text']!,
-                            style: TextStyle(
-                              color: isMe ? Colors.white : (isDark ? Colors.white : const Color(0xFF0F172A)),
-                              fontSize: 13.5,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            msg['time']!,
-                            style: TextStyle(
-                              fontSize: 9,
-                              color: isMe ? Colors.white60 : Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-            child: LiquidGlassBox(
-              borderRadius: 30,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+
+            // iOS Frosted Input Bar
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+                border: Border(top: BorderSide(color: IosTheme.separator(isDark))),
+              ),
               child: Row(
                 children: [
                   Expanded(
-                    child: TextField(
-                      controller: _textController,
-                      decoration: const InputDecoration(
-                        hintText: 'Ask Indrajeet Sir a doubt...',
-                        hintStyle: TextStyle(fontSize: 13.5),
-                        border: InputBorder.none,
+                    child: CupertinoTextField(
+                      controller: _msgController,
+                      placeholder: 'Message Indrajeet Sir...',
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7),
+                        borderRadius: BorderRadius.circular(20),
                       ),
+                      style: TextStyle(color: isDark ? Colors.white : Colors.black),
+                      onSubmitted: (_) => _send(),
                     ),
                   ),
-                  _sending
-                      ? const Padding(
-                          padding: EdgeInsets.all(10.0),
-                          child: SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-                        )
-                      : IconButton(
-                          icon: Icon(CupertinoIcons.paperplane_fill, color: primaryColor),
-                          onPressed: _sendMessage,
-                        ),
+                  const SizedBox(width: 8),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    onPressed: _send,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: IosTheme.primaryBlue,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(CupertinoIcons.arrow_up, size: 18, color: Colors.white),
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
 // ============================================================================
-// 6. REDESIGNED PROFILE & POLICIES WITH 10-MIN REMINDER TOGGLE
+// 6. PROFILE & SETTINGS (APPLE iOS SETTINGS STYLE)
 // ============================================================================
 class ProfileScreen extends StatelessWidget {
   final VoidCallback onThemeToggle;
   final StudentProfile profile;
   final bool reminderEnabled;
   final ValueChanged<bool> onReminderToggle;
-  final VoidCallback onTestReminder;
   final Function(StudentProfile) onProfileUpdate;
 
   const ProfileScreen({
@@ -1871,7 +1826,6 @@ class ProfileScreen extends StatelessWidget {
     required this.profile,
     required this.reminderEnabled,
     required this.onReminderToggle,
-    required this.onTestReminder,
     required this.onProfileUpdate,
   });
 
@@ -1883,135 +1837,101 @@ class ProfileScreen extends StatelessWidget {
     final bioCtrl = TextEditingController(text: profile.bio);
     String selectedYear = profile.attemptYear;
 
-    showModalBottomSheet(
+    showCupertinoModalPopup(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: LiquidGlassBox(
-                borderRadius: 28,
-                blurSigma: 30,
-                padding: const EdgeInsets.all(24),
-                margin: const EdgeInsets.all(16),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.78,
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      child: const Text('Cancel'),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                    const Text('Edit Profile', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      child: const Text('Done', style: TextStyle(fontWeight: FontWeight.w700)),
+                      onPressed: () async {
+                        profile.name = nameCtrl.text.trim();
+                        profile.email = emailCtrl.text.trim();
+                        profile.phone = phoneCtrl.text.trim();
+                        profile.attemptYear = selectedYear;
+                        profile.optionalSubject = optionalCtrl.text.trim();
+                        profile.bio = bioCtrl.text.trim();
+                        onProfileUpdate(profile);
+
+                        await ApiService.syncProfile(profile);
+
+                        if (context.mounted) {
+                          Navigator.pop(ctx);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Profile changes saved successfully.'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('✏️ Edit Student Profile', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-                          IconButton(
-                            icon: const Icon(CupertinoIcons.xmark_circle_fill, size: 22),
-                            onPressed: () => Navigator.pop(ctx),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
+                      CupertinoTextField(
                         controller: nameCtrl,
-                        decoration: InputDecoration(
-                          labelText: 'Full Name',
-                          prefixIcon: const Icon(CupertinoIcons.person),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                        ),
+                        placeholder: 'Full Name',
+                        prefix: const Padding(padding: EdgeInsets.only(left: 8), child: Icon(CupertinoIcons.person, size: 18)),
+                        padding: const EdgeInsets.all(12),
                       ),
-                      const SizedBox(height: 14),
-                      TextField(
+                      const SizedBox(height: 12),
+                      CupertinoTextField(
                         controller: emailCtrl,
-                        decoration: InputDecoration(
-                          labelText: 'Email Address',
-                          prefixIcon: const Icon(CupertinoIcons.mail),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                        ),
+                        placeholder: 'Email',
+                        prefix: const Padding(padding: EdgeInsets.only(left: 8), child: Icon(CupertinoIcons.mail, size: 18)),
+                        padding: const EdgeInsets.all(12),
                       ),
-                      const SizedBox(height: 14),
-                      TextField(
+                      const SizedBox(height: 12),
+                      CupertinoTextField(
                         controller: phoneCtrl,
-                        decoration: InputDecoration(
-                          labelText: 'WhatsApp Phone',
-                          prefixIcon: const Icon(CupertinoIcons.phone),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                        ),
+                        placeholder: 'Phone / WhatsApp',
+                        prefix: const Padding(padding: EdgeInsets.only(left: 8), child: Icon(CupertinoIcons.phone, size: 18)),
+                        padding: const EdgeInsets.all(12),
                       ),
-                      const SizedBox(height: 14),
-                      DropdownButtonFormField<String>(
-                        initialValue: selectedYear,
-                        decoration: InputDecoration(
-                          labelText: 'Target UPSC Attempt',
-                          prefixIcon: const Icon(CupertinoIcons.calendar),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                        ),
-                        items: const [
-                          DropdownMenuItem(value: '2026', child: Text('UPSC CSE 2026')),
-                          DropdownMenuItem(value: '2027', child: Text('UPSC CSE 2027')),
-                          DropdownMenuItem(value: '2028', child: Text('UPSC CSE 2028')),
-                          DropdownMenuItem(value: 'State PCS', child: Text('State PCS Exam')),
-                        ],
-                        onChanged: (val) {
-                          if (val != null) setModalState(() => selectedYear = val);
-                        },
-                      ),
-                      const SizedBox(height: 14),
-                      TextField(
+                      const SizedBox(height: 12),
+                      CupertinoTextField(
                         controller: optionalCtrl,
-                        decoration: InputDecoration(
-                          labelText: 'Optional Subject',
-                          prefixIcon: const Icon(CupertinoIcons.book),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                        ),
+                        placeholder: 'Optional Subject',
+                        prefix: const Padding(padding: EdgeInsets.only(left: 8), child: Icon(CupertinoIcons.book, size: 18)),
+                        padding: const EdgeInsets.all(12),
                       ),
-                      const SizedBox(height: 14),
-                      TextField(
+                      const SizedBox(height: 12),
+                      CupertinoTextField(
                         controller: bioCtrl,
+                        placeholder: 'Personal Directive / Bio',
                         maxLines: 2,
-                        decoration: InputDecoration(
-                          labelText: 'Personal Bio & Target Goal',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).primaryColor,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        ),
-                        onPressed: () async {
-                          profile.name = nameCtrl.text.trim();
-                          profile.email = emailCtrl.text.trim();
-                          profile.phone = phoneCtrl.text.trim();
-                          profile.attemptYear = selectedYear;
-                          profile.optionalSubject = optionalCtrl.text.trim();
-                          profile.bio = bioCtrl.text.trim();
-                          onProfileUpdate(profile);
-
-                          await ApiService.syncProfile(profile);
-
-                          if (context.mounted) {
-                            Navigator.pop(ctx);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('✅ Synced with https://backend.indrajeetsir.com database!'),
-                                backgroundColor: Color(0xFF10B981),
-                              ),
-                            );
-                          }
-                        },
-                        child: const Text('SAVE & SYNC TO DATABASE', style: TextStyle(fontWeight: FontWeight.bold)),
+                        padding: const EdgeInsets.all(12),
                       ),
                     ],
                   ),
                 ),
-              ),
-            );
-          },
+              ],
+            ),
+          ),
         );
       },
     );
@@ -2027,148 +1947,74 @@ class ProfileScreen extends StatelessWidget {
       {'key': 'top_ranker', 'emoji': '🌟', 'title': 'Top Ranker'},
     ];
 
-    showModalBottomSheet(
+    showCupertinoModalPopup(
       context: context,
-      backgroundColor: Colors.transparent,
       builder: (ctx) {
-        return LiquidGlassBox(
-          borderRadius: 28,
-          blurSigma: 32,
-          padding: const EdgeInsets.all(22),
-          margin: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('📸 Choose Profile Avatar', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-                  IconButton(icon: const Icon(CupertinoIcons.xmark_circle_fill), onPressed: () => Navigator.pop(ctx)),
-                ],
-              ),
-              const SizedBox(height: 16),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 1.1,
-                ),
-                itemCount: avatars.length,
-                itemBuilder: (c, i) {
-                  final a = avatars[i];
-                  final isCurrent = profile.avatarKey == a['key'];
-                  return GestureDetector(
-                    onTap: () {
-                      profile.avatarKey = a['key']!;
-                      onProfileUpdate(profile);
-                      ApiService.syncProfile(profile);
-                      Navigator.pop(ctx);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Avatar changed to ${a['title']}! Synced with database.')),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isCurrent
-                            ? Theme.of(context).primaryColor.withValues(alpha: 0.2)
-                            : Colors.black.withValues(alpha: 0.05),
-                        border: Border.all(
-                          color: isCurrent ? Theme.of(context).primaryColor : Colors.transparent,
-                          width: 2,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(a['emoji']!, style: const TextStyle(fontSize: 32)),
-                          const SizedBox(height: 4),
-                          Text(a['title']!, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
+        return CupertinoActionSheet(
+          title: const Text('Choose Profile Avatar'),
+          actions: avatars.map((a) {
+            return CupertinoActionSheetAction(
+              onPressed: () {
+                profile.avatarKey = a['key']!;
+                onProfileUpdate(profile);
+                ApiService.syncProfile(profile);
+                Navigator.pop(ctx);
+              },
+              child: Text('${a['emoji']}  ${a['title']}'),
+            );
+          }).toList(),
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
           ),
         );
       },
     );
   }
 
-  void _showPolicySheet(BuildContext context, String title, String emoji, String content) {
-    showModalBottomSheet(
+  void _showPolicySheet(BuildContext context, String title, String content) {
+    showCupertinoModalPopup(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (ctx) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.75,
-          maxChildSize: 0.92,
-          minChildSize: 0.45,
-          builder: (_, scrollCtrl) {
-            return LiquidGlassBox(
-              borderRadius: 30,
-              blurSigma: 32,
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              child: Column(
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.75,
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    width: 44,
-                    height: 5,
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withValues(alpha: 0.4),
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(emoji, style: const TextStyle(fontSize: 22)),
-                          const SizedBox(width: 8),
-                          Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-                        ],
-                      ),
-                      IconButton(
-                        icon: const Icon(CupertinoIcons.xmark_circle_fill),
-                        onPressed: () => Navigator.pop(ctx),
-                      ),
-                    ],
-                  ),
-                  const Divider(height: 20),
-                  Expanded(
-                    child: ListView(
-                      controller: scrollCtrl,
-                      children: [
-                        Text(
-                          content,
-                          style: const TextStyle(fontSize: 13.5, height: 1.6, color: Colors.grey),
-                        ),
-                        const SizedBox(height: 24),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).primaryColor,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          ),
-                          onPressed: () => Navigator.pop(ctx),
-                          child: const Text('I Understand & Agree'),
-                        ),
-                      ],
-                    ),
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    child: const Text('Done', style: TextStyle(fontWeight: FontWeight.w700)),
+                    onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
               ),
-            );
-          },
+              const Divider(height: 20),
+              Expanded(
+                child: ListView(
+                  physics: const BouncingScrollPhysics(),
+                  children: [
+                    Text(
+                      content,
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.55,
+                        color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -2177,356 +2023,202 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Student Profile & Settings', style: TextStyle(fontWeight: FontWeight.w800)),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
-        children: [
-          // ── Hero Glass Profile Card with Avatar & Quick Actions ──
-          LiquidGlassBox(
-            borderRadius: 28,
-            blurSigma: 30,
-            padding: const EdgeInsets.all(22),
-            child: Column(
-              children: [
-                Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-                    GestureDetector(
-                      onTap: () => _openAvatarPicker(context),
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: primaryColor, width: 2.5),
-                          boxShadow: [
-                            BoxShadow(color: primaryColor.withValues(alpha: 0.25), blurRadius: 16),
-                          ],
-                        ),
-                        child: CircleAvatar(
-                          radius: 44,
-                          backgroundColor: primaryColor.withValues(alpha: 0.15),
-                          child: Text(profile.avatarDisplayEmoji, style: const TextStyle(fontSize: 44)),
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => _openAvatarPicker(context),
-                      child: Container(
-                        padding: const EdgeInsets.all(7),
-                        decoration: BoxDecoration(
-                          color: primaryColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
-                        ),
-                        child: const Icon(CupertinoIcons.camera_fill, size: 14, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  profile.name,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(profile.email, style: const TextStyle(fontSize: 12.5, color: Colors.grey)),
-                const SizedBox(height: 10),
-
-                // Badges Row
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  spacing: 8,
-                  runSpacing: 6,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: primaryColor.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Text('🎯 UPSC CSE ${profile.attemptYear}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: primaryColor)),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Text('📖 ${profile.optionalSubject}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF10B981))),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 12),
-                Text(
-                  profile.bio,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: isDark ? Colors.white70 : Colors.black87, fontStyle: FontStyle.italic),
-                ),
-                const SizedBox(height: 16),
-
-                // Edit Button
-                ElevatedButton.icon(
-                  onPressed: () => _openEditProfileDialog(context),
-                  icon: const Icon(CupertinoIcons.pencil, size: 16),
-                  label: const Text('Edit Personal Details'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  ),
-                ),
-              ],
+      body: SafeArea(
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+          children: [
+            // iOS Title
+            const Text(
+              'Settings & Profile',
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.6),
             ),
-          ),
-          const SizedBox(height: 18),
+            const SizedBox(height: 16),
 
-          // ── Mentorship Stats Matrix ──
-          Row(
-            children: [
-              Expanded(
-                child: LiquidGlassBox(
-                  borderRadius: 20,
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    children: [
-                      Text('14', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: primaryColor)),
-                      const SizedBox(height: 2),
-                      const Text('1:1 Sessions Attended', textAlign: TextAlign.center, style: TextStyle(fontSize: 10.5, color: Colors.grey)),
-                    ],
+            // Profile Card (Apple Apple-ID style)
+            IosGlassCard(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => _openAvatarPicker(context),
+                    child: CircleAvatar(
+                      radius: 32,
+                      backgroundColor: IosTheme.primaryBlue.withValues(alpha: 0.12),
+                      child: Text(profile.avatarDisplayEmoji, style: const TextStyle(fontSize: 32)),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          profile.name,
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          profile.email,
+                          style: const TextStyle(fontSize: 12.5, color: CupertinoColors.systemGrey),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'UPSC CSE ${profile.attemptYear} • ${profile.optionalSubject}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: IosTheme.primaryBlue,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: () => _openEditProfileDialog(context),
+                    child: const Icon(CupertinoIcons.pencil_circle_fill, size: 28, color: IosTheme.primaryBlue),
+                  ),
+                ],
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: LiquidGlassBox(
-                  borderRadius: 20,
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    children: const [
-                      Text('98%', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF10B981))),
-                      SizedBox(height: 2),
-                      Text('Session Attendance', textAlign: TextAlign.center, style: TextStyle(fontSize: 10.5, color: Colors.grey)),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: LiquidGlassBox(
-                  borderRadius: 20,
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    children: const [
-                      Text('28', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFFF59E0B))),
-                      SizedBox(height: 2),
-                      Text('Mains Evaluated', textAlign: TextAlign.center, style: TextStyle(fontSize: 10.5, color: Colors.grey)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 22),
-
-          // ── App Preferences Section ──
-          const Padding(
-            padding: EdgeInsets.only(left: 4, bottom: 8),
-            child: Text('APP SETTINGS & NOTIFICATIONS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey, letterSpacing: 0.5)),
-          ),
-          LiquidGlassBox(
-            borderRadius: 22,
-            padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                // 10-Minute Class Reminder Toggle
-                ListTile(
-                  leading: const Icon(CupertinoIcons.alarm_fill, color: Color(0xFFF59E0B)),
-                  title: const Text('10-Min Live Class Reminder', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Heads-up alert when your allotted class starts in 10 mins', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                  trailing: Switch(
-                    value: reminderEnabled,
-                    onChanged: onReminderToggle,
-                  ),
-                ),
-                const Divider(height: 1),
-
-                // Test Reminder Banner Button
-                ListTile(
-                  leading: const Icon(CupertinoIcons.bell_fill, color: Color(0xFFEC4899)),
-                  title: const Text('Test 10-Min Alert Banner', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Tap to preview the in-app notification popup', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                  trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: Colors.grey),
-                  onTap: () {
-                    onTestReminder();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('🔔 10-Minute Reminder Alert triggered at top of screen!')),
-                    );
-                  },
-                ),
-                const Divider(height: 1),
-
-                // Dark Mode Switch
-                ListTile(
-                  leading: const Icon(CupertinoIcons.moon_stars_fill, color: Color(0xFF6366F1)),
-                  title: const Text('Liquid Glass Dark Mode', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Apple visionOS deep navy glass theme', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                  trailing: Switch(
-                    value: isDark,
-                    onChanged: (val) => onThemeToggle(),
-                  ),
-                ),
-              ],
             ),
-          ),
-          const SizedBox(height: 22),
+            const SizedBox(height: 24),
 
-          // ── Policies & Legal Section ──
-          const Padding(
-            padding: EdgeInsets.only(left: 4, bottom: 8),
-            child: Text('POLICIES & APPLICATION DETAILS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.grey, letterSpacing: 0.5)),
-          ),
-          LiquidGlassBox(
-            borderRadius: 22,
-            padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(CupertinoIcons.shield_fill, color: Color(0xFF10B981)),
-                  title: const Text('Privacy Policy', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Confidentiality of 1:1 sessions & notes', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                  trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: Colors.grey),
-                  onTap: () {
-                    _showPolicySheet(
+            // Section 1: Notifications
+            const Padding(
+              padding: EdgeInsets.only(left: 4, bottom: 8),
+              child: Text(
+                'LIVE CLASSROOM NOTIFICATIONS',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: CupertinoColors.systemGrey, letterSpacing: 0.5),
+              ),
+            ),
+            IosGlassCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(CupertinoIcons.alarm_fill, color: IosTheme.systemOrange),
+                    title: const Text('10-Min Live Reminder', style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600)),
+                    subtitle: const Text('Alert before your allotted session begins', style: TextStyle(fontSize: 11.5, color: CupertinoColors.systemGrey)),
+                    trailing: CupertinoSwitch(
+                      value: reminderEnabled,
+                      activeTrackColor: IosTheme.primaryBlue,
+                      onChanged: onReminderToggle,
+                    ),
+                  ),
+                  Divider(height: 1, indent: 56, color: IosTheme.separator(isDark)),
+                  ListTile(
+                    leading: const Icon(CupertinoIcons.moon_fill, color: IosTheme.systemIndigo),
+                    title: const Text('iOS Dark Mode', style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600)),
+                    subtitle: const Text('Deep OLED black appearance', style: TextStyle(fontSize: 11.5, color: CupertinoColors.systemGrey)),
+                    trailing: CupertinoSwitch(
+                      value: isDark,
+                      activeTrackColor: IosTheme.primaryBlue,
+                      onChanged: (val) => onThemeToggle(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Section 2: Policies & Academy Info
+            const Padding(
+              padding: EdgeInsets.only(left: 4, bottom: 8),
+              child: Text(
+                'ACADEMY INFORMATION & POLICIES',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: CupertinoColors.systemGrey, letterSpacing: 0.5),
+              ),
+            ),
+            IosGlassCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  _buildSettingsTile(
+                    icon: CupertinoIcons.shield_fill,
+                    color: const Color(0xFF10B981),
+                    title: 'Privacy & Data Protection',
+                    onTap: () => _showPolicySheet(
                       context,
                       'Privacy Policy',
-                      '🛡️',
-                      '1. DATA CONFIDENTIALITY:\nIndrajeet Sir UPSC Mentorship adheres to strict privacy standards. Your personal registration details, contact numbers, and mock tests are confidential.\n\n'
-                      '2. 1:1 SESSION PRIVACY:\nVideo recordings and personal mentorship audio are solely stored for your personalized revisions and are never shared publicly or commercially.\n\n'
-                      '3. DATA SECURITY & ENCRYPTION:\nAll transmissions with our API (https://backend.indrajeetsir.com) use SSL/TLS encryption. Passwords and credentials are encrypted securely.\n\n'
-                      '4. STUDENT RIGHTS:\nYou have the right to request deletion or modification of your profile data at any time by contacting our academic administration.',
-                    );
-                  },
-                ),
-                const Divider(height: 1),
-
-                ListTile(
-                  leading: const Icon(CupertinoIcons.doc_text_fill, color: Color(0xFFF59E0B)),
-                  title: const Text('Terms & Conditions Policy', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Platform guidelines & code of conduct', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                  trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: Colors.grey),
-                  onTap: () {
-                    _showPolicySheet(
-                      context,
-                      'Terms & Conditions',
-                      '📜',
-                      '1. ENROLLMENT & CODE OF CONDUCT:\nEvery student enrolled with Indrajeet Sir agrees to maintain dignity, punctuality, and mutual respect during live 1:1 mentorship sessions.\n\n'
-                      '2. INTELLECTUAL PROPERTY:\nAll proprietary strategy sheets, model answers, and handouts provided by Indrajeet Sir are for the personal use of the enrolled student only.\n\n'
-                      '3. SESSION SCHEDULING:\nSession links will be provided on your dashboard. Rescheduling requests must be sent at least 6 hours in advance via the direct chat feature.\n\n'
-                      '4. ZERO TOLERANCE POLICY:\nAny redistribution of copyrighted notes or misconduct during sessions will lead to immediate cancellation of mentorship access.',
-                    );
-                  },
-                ),
-                const Divider(height: 1),
-
-                ListTile(
-                  leading: const Icon(CupertinoIcons.info_circle_fill, color: Color(0xFF8B5CF6)),
-                  title: const Text('Application Details', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('Version, Backend status & Build details', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                  trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: Colors.grey),
-                  onTap: () {
-                    _showPolicySheet(
-                      context,
-                      'Application Details',
-                      'ℹ️',
-                      '• App Name: Indrajeet Sir UPSC & State PCS Mentorship App\n'
-                      '• Version: 2.4.0 (Liquid Glass Edition)\n'
-                      '• Build: 2026.10-release\n'
-                      '• Live Backend API: https://backend.indrajeetsir.com\n'
-                      '• Database Host: MySQL (38.242.244.225:3306 - indrajeetsir)\n'
-                      '• Database Engine: Prisma ORM with Live Sync\n'
-                      '• 10-Minute Reminder Service: Active Background Polling\n'
-                      '• Chief Mentor: Indrajeet Sir (10+ Years Teaching Experience)\n'
-                      '• Supported Exams: UPSC Civil Services Examination & State PCS\n'
-                      '• Developed with precision for serious Civil Services aspirants.',
-                    );
-                  },
-                ),
-                const Divider(height: 1),
-
-                ListTile(
-                  leading: const Icon(CupertinoIcons.phone_fill, color: Color(0xFF2563EB)),
-                  title: const Text('Helpline & WhatsApp Support', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: const Text('+91 98765 43210 (Mon-Sat 9AM-8PM)', style: TextStyle(fontSize: 11, color: Colors.grey)),
-                  trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: Colors.grey),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Helpline connected: Contact support at +91 98765 43210')),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 22),
-
-          // ── Logout Button ──
-          LiquidGlassBox(
-            borderRadius: 20,
-            padding: EdgeInsets.zero,
-            child: ListTile(
-              leading: const Icon(CupertinoIcons.square_arrow_right, color: Colors.red),
-              title: const Text('Sign Out from Student Portal', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14)),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Sign Out?'),
-                    content: const Text('Are you sure you want to log out from Indrajeet Sir Mentorship App?'),
-                    actions: [
-                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LoginScreen(
-                                onThemeToggle: onThemeToggle,
-                                profile: profile,
-                                onProfileUpdate: onProfileUpdate,
-                              ),
-                            ),
-                          );
-                        },
-                        child: const Text('Log Out'),
-                      ),
-                    ],
+                      'Indrajeet Sir IAS Mentorship Portal safeguards aspirant confidentiality.\n\nAll student performance evaluations, Mains answer scripts, and personal mentorship interactions are strictly confidential and encrypted under industry standard SSL/TLS protocols.\n\nWe do not share student contacts with third-party advertising partners.',
+                    ),
                   ),
-                );
-              },
+                  Divider(height: 1, indent: 56, color: IosTheme.separator(isDark)),
+                  _buildSettingsTile(
+                    icon: CupertinoIcons.doc_plaintext,
+                    color: const Color(0xFF6366F1),
+                    title: 'Academic Code of Conduct',
+                    onTap: () => _showPolicySheet(
+                      context,
+                      'Code of Conduct',
+                      'Students enrolled under Indrajeet Sir\'s Mentorship agree to adhere to strict academic honesty, punctual attendance in 1:1 sessions, and respectful discourse across classroom interactions.\n\nClassroom video links and internal materials are licensed solely for the enrolled candidate.',
+                    ),
+                  ),
+                  Divider(height: 1, indent: 56, color: IosTheme.separator(isDark)),
+                  _buildSettingsTile(
+                    icon: CupertinoIcons.info_circle_fill,
+                    color: IosTheme.primaryBlue,
+                    title: 'About Mentorship Program',
+                    onTap: () => _showPolicySheet(
+                      context,
+                      'About Indrajeet Sir Academy',
+                      'Founded by Indrajeet Sir, this program is dedicated to rigorous UPSC Civil Services & State PCS mentorship.\n\nFocused on analytical mastery, answer writing precision, and individual guidance tailored to each aspirant\'s strengths and weaknesses.',
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          const Center(
-            child: Text(
-              'Indrajeet Sir UPSC Mentorship • v2.4.0 Liquid Glass',
-              style: TextStyle(fontSize: 11, color: Colors.grey),
+            const SizedBox(height: 24),
+
+            // Sign out
+            IosGlassCard(
+              padding: EdgeInsets.zero,
+              child: CupertinoButton(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                child: const Center(
+                  child: Text(
+                    'Sign Out',
+                    style: TextStyle(color: IosTheme.systemRed, fontWeight: FontWeight.w600, fontSize: 15),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (ctx) => LoginScreen(
+                        onThemeToggle: onThemeToggle,
+                        profile: profile,
+                        onProfileUpdate: onProfileUpdate,
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildSettingsTile({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
+        child: Icon(icon, size: 16, color: Colors.white),
+      ),
+      title: Text(title, style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600)),
+      trailing: const Icon(CupertinoIcons.chevron_right, size: 14, color: CupertinoColors.systemGrey3),
+      onTap: onTap,
     );
   }
 }
