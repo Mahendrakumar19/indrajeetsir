@@ -5,3 +5,7 @@ node_modules/
 .env
 .env.local
 .DS_Store
+.vscode/
+*.jks
+*.keystore
+key.properties
