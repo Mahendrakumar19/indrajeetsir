@@ -527,6 +527,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: isDark ? CupertinoColors.tertiaryLabel.darkColor : CupertinoColors.tertiaryLabel.color,
                   ),
                 ),
+                const SizedBox(height: 6),
+                Text(
+                  'Help Desk: +91 98734 86158 • indrajeet.visionias@gmail.com',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                  ),
+                ),
               ],
             ),
           ),
@@ -2430,7 +2439,18 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () => _showPolicySheet(
                       context,
                       'About Indrajeet Sir Academy',
-                      'Founded by Indrajeet Sir, this program is dedicated to rigorous UPSC Civil Services & State PCS mentorship.\n\nFocused on analytical mastery, answer writing precision, and individual guidance tailored to each aspirant\'s strengths and weaknesses.',
+                      'Founded by Indrajeet Sir, this program is dedicated to rigorous UPSC Civil Services & State PCS mentorship.\n\nFocused on analytical mastery, answer writing precision, and individual guidance tailored to each aspirant\'s strengths and weaknesses.\n\n• Email: indrajeet.visionias@gmail.com\n• Helpline: +91 98734 86158',
+                    ),
+                  ),
+                  Divider(height: 1, indent: 56, color: IosTheme.separator(isDark)),
+                  _buildSettingsTile(
+                    icon: CupertinoIcons.phone_fill,
+                    color: const Color(0xFF10B981),
+                    title: 'Contact & Support Desk',
+                    onTap: () => _showPolicySheet(
+                      context,
+                      'Mentorship Support Desk',
+                      'Direct Mentorship & Academic Inquiries:\n\n• Official Email: indrajeet.visionias@gmail.com\n• Call / WhatsApp: +91 98734 86158\n• Desk Availability: Mon–Sat, 9:00 AM – 8:00 PM IST\n\nFor session scheduling queries, evaluations, or test reviews, reach out directly to Sir\'s desk.',
                     ),
                   ),
                 ],

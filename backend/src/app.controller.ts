@@ -104,7 +104,7 @@ export class AppController {
         let org = await this.prisma.organization.findFirst();
         if (!org) {
           org = await this.prisma.organization.create({
-            data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'info@indrajeetsir.com' },
+            data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
           });
         }
 
@@ -209,7 +209,7 @@ export class AppController {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
         org = await this.prisma.organization.create({
-          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'info@indrajeetsir.com' },
+          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
         });
       }
 
@@ -335,7 +335,7 @@ export class AppController {
             name: adminName,
             email: adminEmail,
             role: 'ADMIN',
-            phone: admin?.phone || '+91 98765 00001',
+            phone: admin?.phone || '+91 98734 86158',
           },
         };
       }
@@ -446,7 +446,7 @@ export class AppController {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
         org = await this.prisma.organization.create({
-          data: { name: 'Indrajeet Sir Mentorship', contactEmail: 'info@indrajeetsir.com' },
+          data: { name: 'Indrajeet Sir Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
         });
       }
 
@@ -542,7 +542,7 @@ export class AppController {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
         org = await this.prisma.organization.create({
-          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'info@indrajeetsir.com' },
+          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
         });
       }
       const course = await this.prisma.course.create({
@@ -667,7 +667,7 @@ export class AppController {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
         org = await this.prisma.organization.create({
-          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'info@indrajeetsir.com' },
+          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
         });
       }
 
@@ -748,7 +748,7 @@ export class AppController {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
         org = await this.prisma.organization.create({
-          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'info@indrajeetsir.com' },
+          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
         });
       }
 
@@ -852,7 +852,7 @@ export class AppController {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
         org = await this.prisma.organization.create({
-          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'info@indrajeetsir.com' },
+          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
         });
       }
 

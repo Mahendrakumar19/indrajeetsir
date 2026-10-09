@@ -485,10 +485,10 @@ export default function Home() {
             </ul>
           </div>
           <div>
-            <h4>Contact</h4>
-            <p>email@indrajeetsir.com</p>
-            <p>+91 98765 43210</p>
-            <p>Mon–Sat, 9 AM – 8 PM IST</p>
+            <h4>Contact & Mentorship Desk</h4>
+            <p><a href="mailto:indrajeet.visionias@gmail.com" style={{ color: 'inherit', textDecoration: 'none' }}>indrajeet.visionias@gmail.com</a></p>
+            <p><a href="tel:+919873486158" style={{ color: 'inherit', textDecoration: 'none' }}>+91 98734 86158</a></p>
+            <p>Mon–Sat, 9:00 AM – 8:00 PM IST</p>
           </div>
         </div>
         <div className="footer-copy">© 2026 Indrajeet Sir Mentorship. All rights reserved.</div>

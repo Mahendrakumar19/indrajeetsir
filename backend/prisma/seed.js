@@ -12,7 +12,7 @@ async function main() {
     org = await prisma.organization.create({
       data: {
         name: 'Indrajeet Sir IAS Mentorship',
-        contactEmail: 'admin@indrajeetsir.com',
+        contactEmail: 'indrajeet.visionias@gmail.com',
         primaryColor: '#3b82f6',
         secondaryColor: '#0f172a',
       },
@@ -35,7 +35,7 @@ async function main() {
       name: 'Indrajeet Sir',
       password: hashedPassword,
       role: 'ADMIN',
-      phone: '+91 98765 00001',
+      phone: '+91 98734 86158',
       bio: 'Founder & Lead UPSC Mentor at Indrajeet Sir IAS Mentorship Academy',
       avatarKey: 'ias_officer',
       organizationId: org.id,
