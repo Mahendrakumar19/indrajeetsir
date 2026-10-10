@@ -1,0 +1,153 @@
+/* ═══════════════════════════════════════════════════════════
+   Legal & Policy Pages Styles — Indrajeet Sir UPSC
+   ═══════════════════════════════════════════════════════════ */
+
+.legal-page {
+  background: #ffffff;
+  color: #1f2937;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.legal-header {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 4rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.legal-badge {
+  display: inline-block;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.legal-header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+  margin-bottom: 0.75rem;
+}
+
+.legal-date {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.legal-container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem 5rem;
+  line-height: 1.8;
+  font-size: 1.05rem;
+  color: #334155;
+}
+
+.legal-container h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.legal-container h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.legal-container p {
+  margin-bottom: 1.25rem;
+}
+
+.legal-container ul, .legal-container ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.75rem;
+}
+
+.legal-container li {
+  margin-bottom: 0.5rem;
+}
+
+.legal-callout {
+  background: #eff6ff;
+  border-left: 4px solid #2563eb;
+  padding: 1.25rem 1.5rem;
+  border-radius: 0 10px 10px 0;
+  margin: 2rem 0;
+  font-size: 0.98rem;
+  color: #1e3a8a;
+}
+
+.legal-callout strong {
+  color: #1e40af;
+}
+
+.legal-contact-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.75rem;
+  margin-top: 3rem;
+}
+
+.legal-contact-card h3 {
+  margin-top: 0;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+}
+
+.legal-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 3rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.92rem;
+  transition: gap 0.2s;
+}
+
+.back-link:hover {
+  gap: 0.6rem;
+}
+
+@media (max-width: 768px) {
+  .legal-nav-bar {
+    padding: 1rem 1.5rem;
+  }
+  .legal-header {
+    padding: 3rem 1.25rem 2rem;
+  }
+  .legal-header h1 {
+    font-size: 1.85rem;
+  }
+  .legal-container {
+    padding: 2rem 1.25rem 4rem;
+    font-size: 0.98rem;
+  }
+}

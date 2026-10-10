@@ -549,7 +549,7 @@ export default function AdminPanel() {
           <div>
             <div className="admin-page-header">
               <h1>Schedule Live Classes & Google Meet</h1>
-              <p>Schedule a live class for a course with specific timing and Google Meet link. Enrolled students will get a 10-minute heads-up reminder on their mobile app.</p>
+              <p>Schedule a live class for a course with specific timing and Google Meet link. Enrolled students will see the schedule on their mobile app.</p>
             </div>
 
             {/* Add class form */}

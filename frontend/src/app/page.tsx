@@ -242,6 +242,7 @@ export default function Home() {
           <a href="#courses">Courses & Fees</a>
           <a href="#mentorship">Mentorship</a>
           <a href="#how">How It Works</a>
+          <Link href="/resources">Resources & Guides</Link>
           <a href="#contact">Contact</a>
         </nav>
         <div className="nav-actions">
@@ -256,7 +257,7 @@ export default function Home() {
           <span className="hero-badge">1:1 Mentorship Program • UPSC 2027</span>
           <h1>Start Your UPSC<br />Journey with <span className="hero-accent">Indrajeet Sir</span></h1>
           <p className="hero-desc">
-            Complete personalized 1:1 guidance covering Prelims foundation, Mains answer writing edge (600+ short notes topics, 16 tests), and Personality Test interview preparation with live Google Meet sessions and 10-minute prior mobile alerts.
+            Complete personalized 1:1 mentorship covering Prelims strategic foundation, Mains answer writing mastery (600+ topic-wise micro notes, 16 full-length evaluated tests), and direct one-on-one strategy sessions with Indrajeet Sir.
           </p>
           <div className="hero-btns">
             <a href="#courses" className="btn-primary lg">Explore Program & Enroll →</a>
@@ -399,11 +400,11 @@ export default function Home() {
                     <span className="price-period">/ complete course</span>
                   </div>
                   <ul className="pricing-features">
-                    <li><span className="feature-check">✓</span> Direct 1:1 Live Interactive Sessions on Google Meet</li>
-                    <li><span className="feature-check">✓</span> 600+ Topic-wise Short Notes & Mains Syllabus Coverage</li>
-                    <li><span className="feature-check">✓</span> 16 Comprehensive Evaluated Tests (Mini, Half & Full-Length)</li>
-                    <li><span className="feature-check">✓</span> Dedicated iOS/Android Student App with 10-Min Live Class Alerts</li>
-                    <li><span className="feature-check">✓</span> Alternate-Day Answer Writing & Personal Review by Indrajeet Sir</li>
+                    <li><span className="feature-check">✓</span> Direct 1:1 Live Interactive Mentorship Sessions with Indrajeet Sir</li>
+                    <li><span className="feature-check">✓</span> Alternate-Day Mains Answer Writing & Personal Line-by-Line Review</li>
+                    <li><span className="feature-check">✓</span> 600+ Topic-wise High-Yield Micro Notes & Mains Syllabus Coverage</li>
+                    <li><span className="feature-check">✓</span> 16 Evaluated Tests (Mini, Sectional & Full-Length Simulation)</li>
+                    <li><span className="feature-check">✓</span> Personalized Diagnostic Strategy & Continuous Doubt Support</li>
                   </ul>
                 </div>
                 <button
@@ -438,14 +439,14 @@ export default function Home() {
             <div className="step-arrow">→</div>
             <div className="step">
               <div className="step-num">3</div>
-              <h3>Install & Log In</h3>
-              <p>Download the student app and log in to view your enrolled course and daily class timetable.</p>
+              <h3>Access Schedule</h3>
+              <p>Log in to view your enrolled curriculum, weekly targets, and upcoming live class timetable.</p>
             </div>
             <div className="step-arrow">→</div>
             <div className="step">
               <div className="step-num">4</div>
-              <h3>10-Min Live Alert</h3>
-              <p>Get a heads-up reminder 10 minutes prior to class and join directly on Google Meet.</p>
+              <h3>1:1 Live Mentorship</h3>
+              <p>Attend live sessions directly with Indrajeet Sir, submit answer sheets, and receive diagnostic evaluation.</p>
             </div>
           </div>
         </div>
@@ -480,8 +481,18 @@ export default function Home() {
             <h4>Quick Links</h4>
             <ul>
               <li><a href="#courses">Courses & Fees</a></li>
-              <li><a href="#about">About</a></li>
+              <li><a href="#about">About Mentorship</a></li>
+              <li><Link href="/resources">Resources & Guides</Link></li>
               <li><Link href="/admin">Admin Portal</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Legal & Policies</h4>
+            <ul>
+              <li><Link href="/privacy">Privacy Policy</Link></li>
+              <li><Link href="/terms">Terms of Service</Link></li>
+              <li><Link href="/terms#refund">Refund Policy</Link></li>
+              <li><Link href="/disclaimer">Disclaimers & Cookies</Link></li>
             </ul>
           </div>
           <div>
@@ -491,7 +502,7 @@ export default function Home() {
             <p>Mon–Sat, 9:00 AM – 8:00 PM IST</p>
           </div>
         </div>
-        <div className="footer-copy">© 2026 Indrajeet Sir Mentorship. All rights reserved.</div>
+        <div className="footer-copy">© 2026 Indrajeet Sir Mentorship. All rights reserved. • Delhi, India</div>
       </footer>
 
       {/* ── Razorpay Checkout Modal ── */}
