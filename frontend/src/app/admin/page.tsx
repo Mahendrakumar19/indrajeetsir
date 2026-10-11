@@ -122,6 +122,16 @@ function IconLogOut({ size = 15 }: { size?: number }) {
   );
 }
 
+function IconGlobe({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" x2="22" y1="12" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  );
+}
+
 // ── Types ───────────────────────────────────────────────────────────────────
 
 interface AdminUser {
@@ -228,10 +238,72 @@ export default function AdminPanel() {
   const [authError, setAuthError] = useState('');
 
   // Primary navigation tabs
-  const [tab, setTab] = useState<'users' | 'content' | 'payments' | 'notifications' | 'courses' | 'classes'>('users');
+  const [tab, setTab] = useState<'users' | 'content' | 'payments' | 'notifications' | 'courses' | 'classes' | 'website'>('users');
 
   // Flash alert
   const [actionSuccess, setActionSuccess] = useState('');
+
+  // 0. Website Live Content Editor State
+  const [siteContent, setSiteContent] = useState({
+    heroHeading: 'UPSC CSE is cracked on Answer Writing & Discipline, not endless lectures.',
+    heroSubheading: 'Direct personal guidance by Indrajeet Sir. Line-by-line Mains copy checking, weekly 1:1 strategy reviews, and high-yield GS 1–4 study notes.',
+    stat1Number: '600+',
+    stat1Label: 'Mains Micro Notes',
+    stat2Number: '16 Tests',
+    stat2Label: 'Checked Personally',
+    stat3Number: '1:1 Private',
+    stat3Label: 'Strategy Sessions',
+    aboutHeading: 'No Outsourced Checking. Direct Teacher Accountability.',
+    aboutSubheading: 'In Civil Services preparation, passive listening creates an illusion of knowledge. Real improvement happens when your answers are diagnosed and corrected consistently.',
+    dhoniQuote: 'The process is more important than the results. If you take care of the process, results will follow.',
+    dhoniAuthor: 'MS Dhoni',
+    pdfSectionHeading: 'Important Study Material & Resource PDFs',
+    pdfSectionSubheading: 'Download verified syllabus blueprints, official brochures, model answer evaluations, and strategic notes prepared by Indrajeet Sir.',
+    contactDeskHeading: 'Have Questions About Preparation Strategy?',
+    contactDeskSubheading: "Talk directly with Indrajeet Sir's mentorship desk to discuss your attempt year and study plan.",
+    telegramHandle: '@Indrajeet_UPSC',
+    telegramUrl: 'https://t.me/Indrajeet_UPSC',
+    phoneDisplay: '+91 98734 86158',
+    phoneTel: '+919873486158',
+    whatsappDisplay: '+91 98734 86158',
+    whatsappUrl: 'https://wa.me/919873486158',
+    contactEmail: 'indrajeet.visionias@gmail.com',
+  });
+
+  // 0.1 PDF Study Material Resources State (Editable & Uploadable)
+  const [pdfList, setPdfList] = useState<Array<{
+    id: string;
+    title: string;
+    description: string;
+    tag: string;
+    size: string;
+    fileUrl: string;
+    fileName?: string;
+  }>>([]);
+
+  // PDF Upload Form State
+  const [pdfForm, setPdfForm] = useState({ title: '', description: '', tag: 'Mains Notes', file: null as File | null });
+  const [pdfUploading, setPdfUploading] = useState(false);
+
+  // 0.2 Legal Pages Content State (Terms, Privacy, Disclaimers)
+  const [termsContent, setTermsContent] = useState({
+    headerTitle: 'Terms of Service',
+    callout: 'Academic Excellence & Mutual Respect: Enrolling in Indrajeet Sir\'s mentorship means embarking on a focused, disciplined preparation journey. By registering or paying course fees, you agree to these Terms of Service.',
+    section4Title: '4. Refund & Cancellation Policy',
+    section4Content: 'Due to the limited-seat nature of 1:1 personal mentorship, fees are non-refundable once an aspirant has attended their initial 1:1 diagnostic call and received evaluation feedback.',
+  });
+
+  const [privacyContent, setPrivacyContent] = useState({
+    headerTitle: 'Privacy Policy',
+    callout: 'Aspirant Confidentiality Commitment: Indrajeet Sir IAS Mentorship operates on complete student privacy. We understand that Civil Services preparation requires psychological safety, candid feedback, and personal performance diagnostics. We never sell, rent, or trade your personal or academic data.',
+    section2Content: 'To provide high-touch 1:1 mentorship and live classroom access, we collect student full name, email address, contact phone/WhatsApp number, target UPSC CSE attempt year, handwritten copy submissions, and transaction metadata.',
+  });
+
+  const [disclaimerContent, setDisclaimerContent] = useState({
+    headerTitle: 'Disclaimers & Cookie Policy',
+    callout: 'Important Notice: We are NOT affiliated with, authorized by, sponsored by, or endorsed by the Union Public Service Commission (UPSC), the Government of India, or any State Public Service Commission.',
+    section2Content: 'All testimonials and success stories showcased represent genuine past student outcomes. However, final merit ranks depend entirely on individual candidate rigor, exam execution, and official commission evaluations.',
+  });
 
   // 1. User Management State (Real-Time Only)
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -323,6 +395,26 @@ export default function AdminPanel() {
           setNotifications(cleanNotifs);
         }
       }
+
+      const savedSiteContent = localStorage.getItem('indrajeet_site_content');
+      if (savedSiteContent) {
+        setSiteContent((prev) => ({ ...prev, ...JSON.parse(savedSiteContent) }));
+      }
+
+      const savedPdfs = localStorage.getItem('indrajeet_pdf_list');
+      if (savedPdfs) {
+        const parsed = JSON.parse(savedPdfs);
+        if (Array.isArray(parsed) && parsed.length > 0) setPdfList(parsed);
+      }
+
+      const savedTerms = localStorage.getItem('indrajeet_terms_content');
+      if (savedTerms) setTermsContent((prev) => ({ ...prev, ...JSON.parse(savedTerms) }));
+
+      const savedPrivacy = localStorage.getItem('indrajeet_privacy_content');
+      if (savedPrivacy) setPrivacyContent((prev) => ({ ...prev, ...JSON.parse(savedPrivacy) }));
+
+      const savedDisclaimer = localStorage.getItem('indrajeet_disclaimer_content');
+      if (savedDisclaimer) setDisclaimerContent((prev) => ({ ...prev, ...JSON.parse(savedDisclaimer) }));
     } catch {
       // ignore parse errors
     }
@@ -352,6 +444,36 @@ export default function AdminPanel() {
       localStorage.setItem('admin_notifications_data', JSON.stringify(notifications));
     }
   }, [notifications, mounted]);
+
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('indrajeet_site_content', JSON.stringify(siteContent));
+    }
+  }, [siteContent, mounted]);
+
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('indrajeet_pdf_list', JSON.stringify(pdfList));
+    }
+  }, [pdfList, mounted]);
+
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('indrajeet_terms_content', JSON.stringify(termsContent));
+    }
+  }, [termsContent, mounted]);
+
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('indrajeet_privacy_content', JSON.stringify(privacyContent));
+    }
+  }, [privacyContent, mounted]);
+
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('indrajeet_disclaimer_content', JSON.stringify(disclaimerContent));
+    }
+  }, [disclaimerContent, mounted]);
 
   // Load Real-Time Data from Backend API
   useEffect(() => {
@@ -696,6 +818,50 @@ export default function AdminPanel() {
       });
   };
 
+  // ── 7. PDF STUDY MATERIAL ACTIONS ──────────────────────────────────────────
+
+  const handleUploadPdf = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pdfForm.file || !pdfForm.title.trim()) {
+      alert('Please provide a PDF title and choose a .pdf file.');
+      return;
+    }
+
+    setPdfUploading(true);
+    try {
+      const data = new FormData();
+      data.append('file', pdfForm.file);
+      data.append('title', pdfForm.title.trim());
+      data.append('tag', pdfForm.tag);
+      data.append('description', pdfForm.description.trim());
+
+      const res = await fetch('/api/upload-pdf', {
+        method: 'POST',
+        body: data,
+      });
+
+      const json = await res.json();
+      if (json.success && json.data) {
+        setPdfList((prev) => [json.data, ...prev]);
+        setPdfForm({ title: '', description: '', tag: 'Mains Notes', file: null });
+        triggerAlert(`PDF "${json.data.title}" successfully uploaded as /uploads/${json.data.fileName}!`);
+      } else {
+        alert(json.message || 'PDF upload failed.');
+      }
+    } catch (err: any) {
+      alert('Upload error: ' + (err?.message || 'Check network connection'));
+    } finally {
+      setPdfUploading(false);
+    }
+  };
+
+  const handleDeletePdf = (id: string, title: string) => {
+    if (confirm(`Remove PDF resource "${title}" from public downloads?`)) {
+      setPdfList((prev) => prev.filter((p) => p.id !== id));
+      triggerAlert(`PDF "${title}" removed.`);
+    }
+  };
+
   // ── RENDER LOGIN SCREEN (EMAIL & PASSWORD AUTHENTICATION) ──────────────────
 
   if (!mounted || !auth) {
@@ -897,6 +1063,17 @@ export default function AdminPanel() {
               <span>Live Classes</span>
             </div>
             <span className="anav-count">{classes.length}</span>
+          </button>
+
+          <button
+            className={`anav ${tab === 'website' ? 'active' : ''}`}
+            onClick={() => setTab('website')}
+          >
+            <div className="anav-inner">
+              <IconGlobe size={16} />
+              <span>Website Live Editor</span>
+            </div>
+            <span className="anav-count" style={{ background: '#2563eb', color: '#fff' }}>Live</span>
           </button>
         </nav>
 
@@ -1794,6 +1971,499 @@ export default function AdminPanel() {
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ── 7. WEBSITE LIVE EDITOR TAB ────────────────────────────────────────── */}
+        {tab === 'website' && (
+          <section className="admin-section">
+            <div className="section-head">
+              <div>
+                <h2>Website Live Content Editor</h2>
+                <p>Edit headings, stats, copy, quotes and contact details across the public website in real time.</p>
+              </div>
+              <button
+                type="button"
+                className="btn-primary-admin"
+                onClick={() => {
+                  localStorage.setItem('indrajeet_site_content', JSON.stringify(siteContent));
+                  triggerAlert('Website content successfully saved and published live!');
+                }}
+              >
+                Save & Publish Live
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1rem' }}>
+              {/* Card 1: Hero Section */}
+              <div className="admin-card">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
+                  1. Hero Section Content
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
+                  Controls the primary landing banner headline and description.
+                </p>
+                <div className="form-group">
+                  <label>Hero Headline</label>
+                  <input
+                    type="text"
+                    value={siteContent.heroHeading}
+                    onChange={(e) => setSiteContent({ ...siteContent, heroHeading: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Hero Subtitle / Description</label>
+                  <textarea
+                    rows={3}
+                    value={siteContent.heroSubheading}
+                    onChange={(e) => setSiteContent({ ...siteContent, heroSubheading: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Card 2: 3D Metric Counters */}
+              <div className="admin-card">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
+                  2. Hero Metric Counters (3 Key Highlights)
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
+                  Highlighted stats displayed directly below the hero call to action.
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <div className="form-group" style={{ marginBottom: '0.6rem' }}>
+                      <label>Stat 1 Value</label>
+                      <input
+                        type="text"
+                        value={siteContent.stat1Number}
+                        onChange={(e) => setSiteContent({ ...siteContent, stat1Number: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Stat 1 Label</label>
+                      <input
+                        type="text"
+                        value={siteContent.stat1Label}
+                        onChange={(e) => setSiteContent({ ...siteContent, stat1Label: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <div className="form-group" style={{ marginBottom: '0.6rem' }}>
+                      <label>Stat 2 Value</label>
+                      <input
+                        type="text"
+                        value={siteContent.stat2Number}
+                        onChange={(e) => setSiteContent({ ...siteContent, stat2Number: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Stat 2 Label</label>
+                      <input
+                        type="text"
+                        value={siteContent.stat2Label}
+                        onChange={(e) => setSiteContent({ ...siteContent, stat2Label: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <div className="form-group" style={{ marginBottom: '0.6rem' }}>
+                      <label>Stat 3 Value</label>
+                      <input
+                        type="text"
+                        value={siteContent.stat3Number}
+                        onChange={(e) => setSiteContent({ ...siteContent, stat3Number: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Stat 3 Label</label>
+                      <input
+                        type="text"
+                        value={siteContent.stat3Label}
+                        onChange={(e) => setSiteContent({ ...siteContent, stat3Label: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3: About & MS Dhoni Quote */}
+              <div className="admin-card">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
+                  3. Mentorship Philosophy & Quote Section
+                </h3>
+                <div className="form-group">
+                  <label>Philosophy Section Heading</label>
+                  <input
+                    type="text"
+                    value={siteContent.aboutHeading}
+                    onChange={(e) => setSiteContent({ ...siteContent, aboutHeading: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Philosophy Subtitle</label>
+                  <textarea
+                    rows={2}
+                    value={siteContent.aboutSubheading}
+                    onChange={(e) => setSiteContent({ ...siteContent, aboutSubheading: e.target.value })}
+                  />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
+                  <div className="form-group">
+                    <label>Quote Content</label>
+                    <input
+                      type="text"
+                      value={siteContent.dhoniQuote}
+                      onChange={(e) => setSiteContent({ ...siteContent, dhoniQuote: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Quote Author</label>
+                    <input
+                      type="text"
+                      value={siteContent.dhoniAuthor}
+                      onChange={(e) => setSiteContent({ ...siteContent, dhoniAuthor: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 4: Important PDFs Section */}
+              <div className="admin-card">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
+                  4. Important PDFs & Resource Material Section
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
+                  Headline and description for the free study resources & brochure download cards.
+                </p>
+                <div className="form-group">
+                  <label>Section Heading</label>
+                  <input
+                    type="text"
+                    value={siteContent.pdfSectionHeading}
+                    onChange={(e) => setSiteContent({ ...siteContent, pdfSectionHeading: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Section Subtitle / Description</label>
+                  <textarea
+                    rows={2}
+                    value={siteContent.pdfSectionSubheading}
+                    onChange={(e) => setSiteContent({ ...siteContent, pdfSectionSubheading: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Card 5: Contact Desk & Telegram Channels */}
+              <div className="admin-card">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
+                  5. Contact Desk & Official Channels
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
+                  Updates the contact card, phone dialers, and Telegram links across the website and footer.
+                </p>
+                <div className="form-group">
+                  <label>Contact Desk Heading</label>
+                  <input
+                    type="text"
+                    value={siteContent.contactDeskHeading}
+                    onChange={(e) => setSiteContent({ ...siteContent, contactDeskHeading: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Contact Desk Subtitle</label>
+                  <input
+                    type="text"
+                    value={siteContent.contactDeskSubheading}
+                    onChange={(e) => setSiteContent({ ...siteContent, contactDeskSubheading: e.target.value })}
+                  />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+                  <div className="form-group">
+                    <label>Telegram Handle</label>
+                    <input
+                      type="text"
+                      value={siteContent.telegramHandle}
+                      onChange={(e) => setSiteContent({ ...siteContent, telegramHandle: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Telegram Link URL</label>
+                    <input
+                      type="text"
+                      value={siteContent.telegramUrl}
+                      onChange={(e) => setSiteContent({ ...siteContent, telegramUrl: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Phone Display</label>
+                    <input
+                      type="text"
+                      value={siteContent.phoneDisplay}
+                      onChange={(e) => setSiteContent({ ...siteContent, phoneDisplay: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Official Email</label>
+                    <input
+                      type="email"
+                      value={siteContent.contactEmail}
+                      onChange={(e) => setSiteContent({ ...siteContent, contactEmail: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'flex-end' }}>
+                  <button
+                    type="button"
+                    className="btn-primary-admin"
+                    onClick={() => {
+                      localStorage.setItem('indrajeet_site_content', JSON.stringify(siteContent));
+                      triggerAlert('All website changes published live successfully!');
+                    }}
+                  >
+                    Save & Publish Live
+                  </button>
+                </div>
+              </div>
+
+              {/* Card 6: PDF Study Material & Documents Manager */}
+              <div className="admin-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
+                    6. PDF Resources & Direct Upload Manager
+                  </h3>
+                  <span className="status-pill active">{pdfList.length} Active PDFs</span>
+                </div>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
+                  Upload new PDFs with auto-slug naming. PDFs are stored in <code>/public/uploads/&lt;slug&gt;.pdf</code> and open in a new tab for students.
+                </p>
+
+                {/* Upload New PDF Form */}
+                <form
+                  onSubmit={handleUploadPdf}
+                  style={{
+                    background: '#f8fafc',
+                    padding: '1.2rem',
+                    borderRadius: '12px',
+                    border: '1px solid #e2e8f0',
+                    marginBottom: '1.5rem',
+                  }}
+                >
+                  <div style={{ fontWeight: 700, fontSize: '0.92rem', marginBottom: '0.75rem', color: '#1e293b' }}>
+                    Upload New PDF Document
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.9rem', marginBottom: '0.9rem' }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Document Title *</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. GS Paper 2 Governance Notes"
+                        value={pdfForm.title}
+                        onChange={(e) => setPdfForm({ ...pdfForm, title: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Tag / Category</label>
+                      <select
+                        value={pdfForm.tag}
+                        onChange={(e) => setPdfForm({ ...pdfForm, tag: e.target.value })}
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                      >
+                        <option value="Official Brochure">Official Brochure</option>
+                        <option value="Mains Notes">Mains Notes</option>
+                        <option value="Sample Copy">Sample Copy</option>
+                        <option value="PCS Special">PCS Special</option>
+                        <option value="Strategy Guide">Strategy Guide</option>
+                      </select>
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label>Select PDF File (.pdf only) *</label>
+                      <input
+                        type="file"
+                        accept=".pdf,application/pdf"
+                        onChange={(e) => setPdfForm({ ...pdfForm, file: e.target.files ? e.target.files[0] : null })}
+                        required
+                        style={{ padding: '0.4rem', background: '#fff' }}
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group" style={{ marginBottom: '1rem' }}>
+                    <label>Description (Aspirant summary)</label>
+                    <input
+                      type="text"
+                      placeholder="Brief description shown on the website card"
+                      value={pdfForm.description}
+                      onChange={(e) => setPdfForm({ ...pdfForm, description: e.target.value })}
+                    />
+                  </div>
+                  <button type="submit" className="btn-primary-admin" disabled={pdfUploading}>
+                    {pdfUploading ? 'Uploading & Generating Slug...' : 'Upload PDF & Publish'}
+                  </button>
+                </form>
+
+                {/* Current Active PDFs List */}
+                <div style={{ fontWeight: 700, fontSize: '0.92rem', marginBottom: '0.75rem', color: '#1e293b' }}>
+                  Live PDF Library ({pdfList.length})
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {pdfList.map((item) => (
+                    <div
+                      key={item.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '0.85rem 1.1rem',
+                        background: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '10px',
+                        gap: '1rem',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      <div style={{ flex: 1, minWidth: '220px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{ fontWeight: 750, color: '#0f172a', fontSize: '0.92rem' }}>{item.title}</span>
+                          <span className="status-pill active" style={{ fontSize: '0.7rem' }}>{item.tag}</span>
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.2rem' }}>
+                          File: <span style={{ fontFamily: 'monospace', color: '#2563eb' }}>{item.fileUrl}</span> • Size: {item.size}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <a
+                          href={item.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            padding: '0.4rem 0.75rem',
+                            borderRadius: '6px',
+                            background: '#eff6ff',
+                            color: '#2563eb',
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            textDecoration: 'none',
+                          }}
+                        >
+                          Open in New Tab ↗
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleDeletePdf(item.id, item.title)}
+                          style={{
+                            padding: '0.4rem 0.75rem',
+                            borderRadius: '6px',
+                            background: '#fef2f2',
+                            color: '#dc2626',
+                            border: '1px solid #fecaca',
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Card 7: Legal Pages Live Editor (Terms, Privacy, Disclaimers) */}
+              <div className="admin-card">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
+                  7. Other Website Pages Editor (Terms, Privacy & Disclaimers)
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
+                  Edit policies, refund clauses, aspirant confidentiality commitments, and official legal disclaimers.
+                </p>
+
+                {/* Sub-block A: Terms of Service */}
+                <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '1rem' }}>
+                  <div style={{ fontWeight: 750, color: '#1e293b', marginBottom: '0.75rem' }}>Terms of Service (/terms)</div>
+                  <div className="form-group">
+                    <label>Top Callout Box</label>
+                    <textarea
+                      rows={2}
+                      value={termsContent.callout}
+                      onChange={(e) => setTermsContent({ ...termsContent, callout: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Refund Policy Clause Content</label>
+                    <textarea
+                      rows={2}
+                      value={termsContent.section4Content}
+                      onChange={(e) => setTermsContent({ ...termsContent, section4Content: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                {/* Sub-block B: Privacy Policy */}
+                <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '1rem' }}>
+                  <div style={{ fontWeight: 750, color: '#1e293b', marginBottom: '0.75rem' }}>Privacy Policy (/privacy)</div>
+                  <div className="form-group">
+                    <label>Confidentiality Callout Box</label>
+                    <textarea
+                      rows={2}
+                      value={privacyContent.callout}
+                      onChange={(e) => setPrivacyContent({ ...privacyContent, callout: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Collected Information Scope</label>
+                    <textarea
+                      rows={2}
+                      value={privacyContent.section2Content}
+                      onChange={(e) => setPrivacyContent({ ...privacyContent, section2Content: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                {/* Sub-block C: Disclaimers */}
+                <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '1rem' }}>
+                  <div style={{ fontWeight: 750, color: '#1e293b', marginBottom: '0.75rem' }}>Disclaimers & Cookie Policy (/disclaimer)</div>
+                  <div className="form-group">
+                    <label>Non-Affiliation Notice</label>
+                    <textarea
+                      rows={2}
+                      value={disclaimerContent.callout}
+                      onChange={(e) => setDisclaimerContent({ ...disclaimerContent, callout: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Examination Results Disclaimer</label>
+                    <textarea
+                      rows={2}
+                      value={disclaimerContent.section2Content}
+                      onChange={(e) => setDisclaimerContent({ ...disclaimerContent, section2Content: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                  <button
+                    type="button"
+                    className="btn-primary-admin"
+                    onClick={() => {
+                      localStorage.setItem('indrajeet_terms_content', JSON.stringify(termsContent));
+                      localStorage.setItem('indrajeet_privacy_content', JSON.stringify(privacyContent));
+                      localStorage.setItem('indrajeet_disclaimer_content', JSON.stringify(disclaimerContent));
+                      triggerAlert('Legal & other pages content saved and published live!');
+                    }}
+                  >
+                    Save All Pages Content Live
+                  </button>
+                </div>
               </div>
             </div>
           </section>

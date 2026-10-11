@@ -56,6 +56,43 @@ export default function Home() {
   // Accordion state
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
+  // Important PDFs & Study Material List (Empty by default, managed by admin)
+  const [pdfList, setPdfList] = useState<Array<{
+    id: string;
+    title: string;
+    description: string;
+    tag: string;
+    size: string;
+    fileUrl: string;
+  }>>([]);
+
+  // Dynamic Site Content (Editable via Admin Panel)
+  const [siteContent, setSiteContent] = useState({
+    heroHeading: 'UPSC CSE is cracked on Answer Writing & Discipline, not endless lectures.',
+    heroSubheading: 'Direct personal guidance by Indrajeet Sir. Line-by-line Mains copy checking, weekly 1:1 strategy reviews, and high-yield GS 1–4 study notes.',
+    stat1Number: '600+',
+    stat1Label: 'Mains Micro Notes',
+    stat2Number: '16 Tests',
+    stat2Label: 'Checked Personally',
+    stat3Number: '1:1 Private',
+    stat3Label: 'Strategy Sessions',
+    aboutHeading: 'No Outsourced Checking. Direct Teacher Accountability.',
+    aboutSubheading: 'In Civil Services preparation, passive listening creates an illusion of knowledge. Real improvement happens when your answers are diagnosed and corrected consistently.',
+    dhoniQuote: 'The process is more important than the results. If you take care of the process, results will follow.',
+    dhoniAuthor: 'MS Dhoni',
+    pdfSectionHeading: 'Important Study Material & Resource PDFs',
+    pdfSectionSubheading: 'Download verified syllabus blueprints, official brochures, model answer evaluations, and strategic notes prepared by Indrajeet Sir.',
+    contactDeskHeading: 'Have Questions About Preparation Strategy?',
+    contactDeskSubheading: "Talk directly with Indrajeet Sir's mentorship desk to discuss your attempt year and study plan.",
+    telegramHandle: '@Indrajeet_UPSC',
+    telegramUrl: 'https://t.me/Indrajeet_UPSC',
+    phoneDisplay: '+91 98734 86158',
+    phoneTel: '+919873486158',
+    whatsappDisplay: '+91 98734 86158',
+    whatsappUrl: 'https://wa.me/919873486158',
+    contactEmail: 'indrajeet.visionias@gmail.com',
+  });
+
   const faqs = [
     {
       q: 'Mains answer copies kaun check karta hai?',
@@ -75,8 +112,24 @@ export default function Home() {
     },
   ];
 
-  // Fetch courses from backend
+  // Fetch courses and live website content
   useEffect(() => {
+    try {
+      const savedContent = localStorage.getItem('indrajeet_site_content');
+      if (savedContent) {
+        setSiteContent((prev) => ({ ...prev, ...JSON.parse(savedContent) }));
+      }
+      const savedPdfs = localStorage.getItem('indrajeet_pdf_list');
+      if (savedPdfs) {
+        const parsed = JSON.parse(savedPdfs);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setPdfList(parsed);
+        }
+      }
+    } catch {
+      // ignore parse error
+    }
+
     fetch(`${API_URL}/courses`)
       .then(r => r.json())
       .then(data => {
@@ -250,30 +303,26 @@ export default function Home() {
       <Header />
 
       {/* ── 3D Hero Section ── */}
-      <section className="hero">
+      <section id="top" className="hero">
         <div className="hero-content">
-          <h1>
-            UPSC CSE is cracked on <span className="hero-gradient-text">Answer Writing & Discipline</span>, not endless lectures.
-          </h1>
-          <p className="hero-desc">
-            Direct personal guidance by Indrajeet Sir. Line-by-line Mains copy checking, weekly 1:1 strategy reviews, and high-yield GS 1–4 study notes.
-          </p>
+          <h1>{siteContent.heroHeading}</h1>
+          <p className="hero-desc">{siteContent.heroSubheading}</p>
           <div className="hero-btns">
             <a href="#courses" className="btn-primary lg">View Programs & Fees →</a>
             <button className="btn-outline lg" onClick={() => setShowBookModal(true)}>Request Callback</button>
           </div>
           <div className="hero-stats-3d">
             <div className="stat-card-3d">
-              <strong>600+</strong>
-              <span>Mains Micro Notes</span>
+              <strong>{siteContent.stat1Number}</strong>
+              <span>{siteContent.stat1Label}</span>
             </div>
             <div className="stat-card-3d">
-              <strong>16 Tests</strong>
-              <span>Checked Personally</span>
+              <strong>{siteContent.stat2Number}</strong>
+              <span>{siteContent.stat2Label}</span>
             </div>
             <div className="stat-card-3d">
-              <strong>1:1 Private</strong>
-              <span>Strategy Sessions</span>
+              <strong>{siteContent.stat3Number}</strong>
+              <span>{siteContent.stat3Label}</span>
             </div>
           </div>
         </div>
@@ -314,9 +363,9 @@ export default function Home() {
       {/* ── Authentic Mentorship Architecture ── */}
       <section id="about" className="section-wrap">
         <div className="section-inner text-center">
-          <h2 className="section-heading">No Outsourced Checking. Direct Teacher Accountability.</h2>
+          <h2 className="section-heading">{siteContent.aboutHeading}</h2>
           <p className="section-subtext">
-            In Civil Services preparation, passive listening creates an illusion of knowledge. Real improvement happens when your answers are diagnosed and corrected consistently.
+            {siteContent.aboutSubheading}
           </p>
 
           <div className="comparison-grid">
@@ -374,8 +423,8 @@ export default function Home() {
           {/* Dhoni Quote 3D Card */}
           <div className="quote-card-3d">
             <blockquote>
-              &ldquo;The process is more important than the results. If you take care of the process, results will follow.&rdquo;
-              <span className="quote-author">— MS Dhoni</span>
+              &ldquo;{siteContent.dhoniQuote}&rdquo;
+              <span className="quote-author">— {siteContent.dhoniAuthor}</span>
             </blockquote>
           </div>
         </div>
@@ -424,6 +473,89 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Important PDFs & Study Material Section (Only displays when uploaded) ── */}
+      {pdfList.length > 0 && (
+        <section id="resources" className="section-wrap">
+          <div className="section-inner text-center">
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.35rem 0.85rem', borderRadius: '999px', background: 'rgba(37, 99, 235, 0.08)', color: '#2563eb', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.85rem' }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+              <span>Verified Study Material</span>
+            </div>
+            <h2 className="section-heading">{siteContent.pdfSectionHeading}</h2>
+            <p className="section-subtext">
+              {siteContent.pdfSectionSubheading}
+            </p>
+
+            <div className="pdf-grid-3d">
+              {pdfList.map((item) => (
+                <div key={item.id} className="pdf-card-3d">
+                  <div>
+                    <div className="pdf-card-header">
+                      <div className="pdf-icon-badge">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="12" y1="18" x2="12" y2="12" />
+                          <line x1="9" y1="15" x2="15" y2="15" />
+                        </svg>
+                      </div>
+                      <span className="pdf-tag-pill">{item.tag}</span>
+                    </div>
+                    <h3>{item.title}</h3>
+                    <p className="pdf-card-desc">{item.description}</p>
+                  </div>
+
+                  <div className="pdf-card-footer">
+                    <div className="pdf-meta-info">
+                      <span className="pdf-meta-pages">PDF Document</span>
+                      <span className="pdf-meta-sub">{item.size} • Free Access</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <a
+                        href={item.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-pdf-download"
+                        style={{ background: 'transparent', color: '#2563eb', border: '1px solid #2563eb', boxShadow: 'none' }}
+                        title={`Open ${item.title} in new tab`}
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          <polyline points="15 3 21 3 21 9" />
+                          <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                        <span>Open Tab</span>
+                      </a>
+                      <a
+                        href={item.fileUrl}
+                        download
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-pdf-download"
+                        title={`Download ${item.title}`}
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        <span>Download</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ── Real Aspirant FAQs (Fluid Accordion) ── */}
       <section id="faqs" className="section-wrap">
         <div className="section-inner text-center">
@@ -460,21 +592,33 @@ export default function Home() {
       {/* ── Direct Desk CTA (3D Floating Card) ── */}
       <section id="contact" className="section-wrap" style={{ paddingTop: '1rem' }}>
         <div className="cta-desk-card">
-          <h2>Have Questions About Preparation Strategy?</h2>
-          <p>Talk directly with Indrajeet Sir&apos;s mentorship desk to discuss your attempt year and study plan.</p>
+          <h2>{siteContent.contactDeskHeading}</h2>
+          <p>{siteContent.contactDeskSubheading}</p>
           <div className="cta-desk-actions">
             <a
-              href="tel:+919873486158"
+              href={`tel:${siteContent.phoneTel}`}
               className="btn-primary lg"
               style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.55rem' }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
               </svg>
-              <span>Call: +91 98734 86158</span>
+              <span>Call: {siteContent.phoneDisplay}</span>
             </a>
             <a
-              href="https://wa.me/919873486158"
+              href={siteContent.telegramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary lg"
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.55rem', background: '#0088cc', borderColor: '#0088cc' }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/>
+              </svg>
+              <span>Telegram: {siteContent.telegramHandle}</span>
+            </a>
+            <a
+              href={siteContent.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-outline lg"

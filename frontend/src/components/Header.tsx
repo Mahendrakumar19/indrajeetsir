@@ -19,8 +19,9 @@ export default function Header() {
           <div className="nav-title">Indrajeet Sir</div>
         </Link>
         <nav className="nav-links">
-          <a href="#about">Mentorship Model</a>
-          <a href="#courses">Courses & Fees</a>
+          <a href="#top">Home</a>
+          <a href="#about">About</a>
+          <a href="#courses">Courses</a>
           <a href="#faqs">FAQs</a>
           <a href="#contact">Contact</a>
         </nav>
