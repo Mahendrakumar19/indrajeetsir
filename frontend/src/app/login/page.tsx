@@ -22,7 +22,7 @@ export default function LoginPage() {
         <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📱</div>
         <h2>Mobile App Exclusive</h2>
         <p style={{ color: '#4b5563', fontSize: '0.92rem', lineHeight: '1.6', margin: '1rem 0 1.5rem' }}>
-          Student mentorship classroom & live sessions are exclusively accessible on the official <strong>Indrajeet Sir IAS Mobile Application</strong>.
+          Student mentorship classroom & live sessions are exclusively accessible on the official <strong>Indrajeet Sir UPSC Mobile Application</strong>.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           <a

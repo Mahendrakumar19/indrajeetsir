@@ -11,7 +11,7 @@ const DEFAULT_DISCLAIMER = {
   lastUpdated: 'October 2026 • Public Educational Notice',
   callout: 'Important Notice: We are NOT affiliated with, authorized by, sponsored by, or endorsed by the Union Public Service Commission (UPSC), the Government of India, or any State Public Service Commission. The terms "UPSC", "Civil Services Examination (CSE)", "IAS", "IPS", and "State PCS" are used solely in an educational, descriptive context to identify the competitive examinations for which mentorship is provided.',
   section1Title: '1. Educational & Non-Affiliation Disclaimer',
-  section1Content: 'Indrajeet Sir IAS Mentorship is an independent academic mentorship initiative founded by Indrajeet Sir to provide authentic personal answer evaluation, test series feedback, and preparation strategies.',
+  section1Content: 'Indrajeet Sir UPSC Mentorship is an independent academic mentorship initiative founded by Indrajeet Sir to provide authentic personal answer evaluation, test series feedback, and preparation strategies.',
   section2Title: '2. Examination Success & Results Disclaimer',
   section2Content: 'The Civil Services Examination is one of the most competitive examinations globally. All testimonials and success stories showcased represent genuine past student outcomes. However, final merit ranks depend entirely on individual candidate rigor, exam execution, and official commission evaluations.',
 };
@@ -77,7 +77,7 @@ export default function DisclaimersPage() {
       </main>
 
       <footer style={{ borderTop: '1px solid #e5e7eb', padding: '2rem 1.5rem', textAlign: 'center', fontSize: '0.85rem', color: '#64748b' }}>
-        © 2026 Indrajeet Sir IAS Mentorship. All rights reserved. • <Link href="/privacy" style={{ color: '#2563eb' }}>Privacy Policy</Link> • <Link href="/terms" style={{ color: '#2563eb' }}>Terms of Service</Link>
+        © 2026 Indrajeet Sir UPSC Mentorship. All rights reserved. • <Link href="/privacy" style={{ color: '#2563eb' }}>Privacy Policy</Link> • <Link href="/terms" style={{ color: '#2563eb' }}>Terms of Service</Link>
       </footer>
     </div>
   );

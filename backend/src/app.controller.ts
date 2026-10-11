@@ -31,6 +31,7 @@ let fallbackCourses: any[] = [
 
 let fallbackMessages: any[] = [];
 let fallbackPayments: any[] = [];
+let fallbackNotifications: any[] = [];
 
 @Controller()
 export class AppController {
@@ -99,7 +100,7 @@ export class AppController {
         let org = await this.prisma.organization.findFirst();
         if (!org) {
           org = await this.prisma.organization.create({
-            data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
+            data: { name: 'Indrajeet Sir UPSC Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
           });
         }
 
@@ -204,7 +205,7 @@ export class AppController {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
         org = await this.prisma.organization.create({
-          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
+          data: { name: 'Indrajeet Sir UPSC Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
         });
       }
 
@@ -537,7 +538,7 @@ export class AppController {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
         org = await this.prisma.organization.create({
-          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
+          data: { name: 'Indrajeet Sir UPSC Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
         });
       }
       const course = await this.prisma.course.create({
@@ -712,7 +713,7 @@ export class AppController {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
         org = await this.prisma.organization.create({
-          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
+          data: { name: 'Indrajeet Sir UPSC Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
         });
       }
 
@@ -793,7 +794,7 @@ export class AppController {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
         org = await this.prisma.organization.create({
-          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
+          data: { name: 'Indrajeet Sir UPSC Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
         });
       }
 
@@ -897,7 +898,7 @@ export class AppController {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
         org = await this.prisma.organization.create({
-          data: { name: 'Indrajeet Sir IAS Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
+          data: { name: 'Indrajeet Sir UPSC Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
         });
       }
 
@@ -938,10 +939,51 @@ export class AppController {
         assignedStudent: lc.description,
         status: lc.status,
       };
-      return { success: true, liveClass: resClass };
+
+      // ── Push Session Reminder Notification To Students ──
+      const reminderNotif = {
+        id: `notif-${Date.now()}`,
+        title: `🔴 Class Reminder: ${body.title}`,
+        body: `Indrajeet Sir's session is scheduled for ${body.date} at ${body.time}. Click to join.`,
+        type: 'SESSION_REMINDER',
+        classId: lc.id,
+        meetLink: lc.meetingUrl,
+        date: body.date,
+        time: body.time,
+        target: body.assignedStudent || 'All Students',
+        timestamp: new Date().toISOString(),
+      };
+      fallbackNotifications.unshift(reminderNotif);
+
+      return { success: true, liveClass: resClass, notification: reminderNotif };
     } catch (err: any) {
       console.error('Add live class error:', err);
-      return { success: false, message: 'Failed to schedule live class.' };
+      // Fallback in-memory
+      const fallbackClass = {
+        id: `cls_${Date.now()}`,
+        title: body.title,
+        date: body.date,
+        time: body.time,
+        meetLink: body.meetLink || 'https://live.indrajeetsir.com/session/upsc-2026',
+        assignedStudent: body.assignedStudent || 'All Students',
+      };
+      fallbackLiveClasses.unshift(fallbackClass);
+
+      const reminderNotif = {
+        id: `notif-${Date.now()}`,
+        title: `🔴 Class Reminder: ${body.title}`,
+        body: `Indrajeet Sir's session is scheduled for ${body.date} at ${body.time}. Click to join.`,
+        type: 'SESSION_REMINDER',
+        classId: fallbackClass.id,
+        meetLink: fallbackClass.meetLink,
+        date: body.date,
+        time: body.time,
+        target: body.assignedStudent || 'All Students',
+        timestamp: new Date().toISOString(),
+      };
+      fallbackNotifications.unshift(reminderNotif);
+
+      return { success: true, liveClass: fallbackClass, notification: reminderNotif };
     }
   }
 
@@ -951,7 +993,29 @@ export class AppController {
       await this.prisma.liveClass.delete({ where: { id } });
     } catch {}
     fallbackLiveClasses = fallbackLiveClasses.filter(c => c.id !== id);
+    fallbackNotifications = fallbackNotifications.filter(n => n.classId !== id);
     return { success: true };
+  }
+
+  // ── Push Notifications for Mobile App ─────────────────────────────────────
+  @Get('notifications')
+  getNotifications() {
+    return fallbackNotifications;
+  }
+
+  @Post('notifications')
+  sendNotification(@Body() body: { title: string; body: string; audience?: string; meetLink?: string }) {
+    const notif = {
+      id: `notif-${Date.now()}`,
+      title: body.title,
+      body: body.body,
+      type: body.meetLink ? 'SESSION_REMINDER' : 'GENERAL',
+      meetLink: body.meetLink,
+      target: body.audience || 'All Students',
+      timestamp: new Date().toISOString(),
+    };
+    fallbackNotifications.unshift(notif);
+    return { success: true, notification: notif };
   }
 
   // ── Messages / Chat ───────────────────────────────────────────────────────

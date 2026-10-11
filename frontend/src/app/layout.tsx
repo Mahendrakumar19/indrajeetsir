@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'Indrajeet Sir', url: siteUrl }],
   creator: 'Indrajeet Sir',
-  publisher: 'Indrajeet Sir IAS Mentorship',
+  publisher: 'Indrajeet Sir UPSC Mentorship',
   alternates: {
     canonical: '/',
   },
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: 'Indrajeet Sir | 1:1 UPSC & State PCS Mentorship',
     description: 'Personalized 1:1 UPSC Mentorship by Indrajeet Sir. Comprehensive guidance for Prelims, Mains answer writing, and Personality Test interview.',
     url: siteUrl,
-    siteName: 'Indrajeet Sir IAS Mentorship',
+    siteName: 'Indrajeet Sir UPSC Mentorship',
     locale: 'en_IN',
     type: 'website',
     images: [

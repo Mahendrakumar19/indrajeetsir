@@ -1,4 +1,4 @@
-# AI Crawler Policy for Indrajeet Sir IAS Mentorship
+# AI Crawler Policy for Indrajeet Sir UPSC Mentorship
 # https://indrajeetsir.vercel.app
 
 User-agent: *

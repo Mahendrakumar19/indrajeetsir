@@ -73,7 +73,7 @@ export default function Footer() {
               rel="noopener noreferrer"
               style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}
             >
-              Nighwan Techology Pvt. Ltd. 
+              Nighwan Technology Pvt. Ltd. 
             </a>
           </div>
         </div>

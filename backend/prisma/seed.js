@@ -11,7 +11,7 @@ async function main() {
   if (!org) {
     org = await prisma.organization.create({
       data: {
-        name: 'Indrajeet Sir IAS Mentorship',
+        name: 'Indrajeet Sir UPSC Mentorship',
         contactEmail: 'indrajeet.visionias@gmail.com',
         primaryColor: '#3b82f6',
         secondaryColor: '#0f172a',
@@ -36,7 +36,7 @@ async function main() {
       password: hashedPassword,
       role: 'ADMIN',
       phone: '+91 98734 86158',
-      bio: 'Founder & Lead UPSC Mentor at Indrajeet Sir IAS Mentorship Academy',
+      bio: 'Founder & Lead UPSC Mentor at Indrajeet Sir UPSC Mentorship Academy',
       avatarKey: 'ias_officer',
       organizationId: org.id,
     },
@@ -46,7 +46,7 @@ async function main() {
       password: hashedPassword,
       role: 'ADMIN',
       phone: '+91 98765 00001',
-      bio: 'Founder & Lead UPSC Mentor at Indrajeet Sir IAS Mentorship Academy',
+      bio: 'Founder & Lead UPSC Mentor at Indrajeet Sir UPSC Mentorship Academy',
       avatarKey: 'ias_officer',
       organizationId: org.id,
     },

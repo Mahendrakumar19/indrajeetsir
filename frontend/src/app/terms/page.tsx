@@ -11,7 +11,7 @@ const DEFAULT_TERMS = {
   lastUpdated: 'October 2026 • Effective for all enrolled candidates',
   callout: 'Academic Excellence & Mutual Respect: Enrolling in Indrajeet Sir\'s mentorship means embarking on a focused, disciplined preparation journey. By registering or paying course fees, you agree to these Terms of Service.',
   section1Title: '1. Acceptance of Terms',
-  section1Content: 'These Terms of Service ("Terms") constitute a legally binding agreement between you ("Student", "Enrolled Aspirant", or "User") and Indrajeet Sir IAS Mentorship ("Academy", "We", "Us"). These terms govern your access to the web portal, live interactive sessions, curriculum notes, evaluative feedback, and the Indrajeet Sir UPSC mobile application.',
+  section1Content: 'These Terms of Service ("Terms") constitute a legally binding agreement between you ("Student", "Enrolled Aspirant", or "User") and Indrajeet Sir UPSC Mentorship ("Academy", "We", "Us"). These terms govern your access to the web portal, live interactive sessions, curriculum notes, evaluative feedback, and the Indrajeet Sir UPSC mobile application.',
   section2Title: '2. Enrollment & Student Account Integrity',
   section2Content: 'Single-User License: Each mentorship seat is strictly personal and non-transferable. You agree not to share, resell, or distribute your mobile app credentials, login tokens, or live session links to any non-enrolled person. Accurate Information: Aspirants must provide authentic contact details (email, WhatsApp number) during enrollment to ensure receipt of live class links, meeting reschedule notifications, and evaluation copies.',
   section3Title: '3. Intellectual Property & Anti-Piracy Policy',
@@ -88,7 +88,7 @@ export default function TermsOfServicePage() {
       </main>
 
       <footer style={{ borderTop: '1px solid #e5e7eb', padding: '2rem 1.5rem', textAlign: 'center', fontSize: '0.85rem', color: '#64748b' }}>
-        © 2026 Indrajeet Sir IAS Mentorship. All rights reserved. • <Link href="/privacy" style={{ color: '#2563eb' }}>Privacy Policy</Link> • <Link href="/disclaimer" style={{ color: '#2563eb' }}>Disclaimers</Link>
+        © 2026 Indrajeet Sir UPSC Mentorship. All rights reserved. • <Link href="/privacy" style={{ color: '#2563eb' }}>Privacy Policy</Link> • <Link href="/disclaimer" style={{ color: '#2563eb' }}>Disclaimers</Link>
       </footer>
     </div>
   );

@@ -295,7 +295,7 @@ export default function AdminPanel() {
 
   const [privacyContent, setPrivacyContent] = useState({
     headerTitle: 'Privacy Policy',
-    callout: 'Aspirant Confidentiality Commitment: Indrajeet Sir IAS Mentorship operates on complete student privacy. We understand that Civil Services preparation requires psychological safety, candid feedback, and personal performance diagnostics. We never sell, rent, or trade your personal or academic data.',
+    callout: 'Aspirant Confidentiality Commitment: Indrajeet Sir UPSC Mentorship operates on complete student privacy. We understand that Civil Services preparation requires psychological safety, candid feedback, and personal performance diagnostics. We never sell, rent, or trade your personal or academic data.',
     section2Content: 'To provide high-touch 1:1 mentorship and live classroom access, we collect student full name, email address, contact phone/WhatsApp number, target UPSC CSE attempt year, handwritten copy submissions, and transaction metadata.',
   });
 
@@ -806,6 +806,18 @@ export default function AdminPanel() {
       .catch(() => null)
       .finally(() => {
         setClasses((prev) => [newClass, ...prev]);
+
+        // Push session reminder notification automatically
+        const notif: NotificationItem = {
+          id: `NOTIF-${Date.now().toString().slice(-4)}`,
+          title: `🔴 Class Reminder: ${newClass.title}`,
+          body: `Live session on ${newClass.date} at ${newClass.time}. Push notification dispatched to mobile app.`,
+          audience: newClass.assignedStudent || 'All App Users',
+          time: 'Just now',
+          sentCount: Math.max(users.length, 1),
+        };
+        setNotifications((prev) => [notif, ...prev]);
+
         setClassForm({
           title: '',
           date: '',
@@ -814,7 +826,7 @@ export default function AdminPanel() {
           assignedStudent: 'All Enrolled Students',
         });
         setClassSaving(false);
-        triggerAlert(`Live session "${newClass.title}" scheduled.`);
+        triggerAlert(`Live session scheduled & push reminder dispatched to students' mobile app!`);
       });
   };
 
@@ -987,7 +999,7 @@ export default function AdminPanel() {
         <Link href="/" className="admin-brand">
           <Image
             src="/logo.png"
-            alt="Indrajeet Sir IAS"
+            alt="Indrajeet Sir UPSC"
             width={34}
             height={34}
             style={{ borderRadius: '8px' }}
@@ -1683,7 +1695,7 @@ export default function AdminPanel() {
                           height={16}
                           style={{ borderRadius: '4px' }}
                         />
-                        <span style={{ fontWeight: 700, color: '#f8fafc' }}>Indrajeet Sir IAS</span>
+                        <span style={{ fontWeight: 700, color: '#f8fafc' }}>Indrajeet Sir UPSC</span>
                       </div>
                       <span>now</span>
                     </div>

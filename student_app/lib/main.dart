@@ -61,6 +61,22 @@ class ApiService {
     return [];
   }
 
+  static Future<List<Map<String, dynamic>>> fetchNotifications() async {
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/notifications'),
+      ).timeout(const Duration(seconds: 7));
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data is List) {
+          return data.map((item) => Map<String, dynamic>.from(item)).toList();
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
+
   static Future<List<Map<String, String>>> fetchMessages() async {
     try {
       final res = await http.get(
@@ -449,7 +465,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 24),
 
                 const Text(
-                  'Indrajeet Sir IAS',
+                  'Indrajeet Sir UPSC',
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
@@ -602,6 +618,33 @@ class _MainNavigationState extends State<MainNavigation> {
       return;
     }
 
+    // 1. Check real-time push broadcast notifications from teacher/admin
+    final notifs = await ApiService.fetchNotifications();
+    if (notifs.isNotEmpty) {
+      final latest = notifs.first;
+      final target = (latest['target'] ?? latest['audience'] ?? 'All Students').toString();
+      final isMine = target == 'All Students' ||
+          target == 'All App Users' ||
+          target.toLowerCase().contains(widget.profile.name.toLowerCase());
+
+      if (isMine && latest['type'] == 'SESSION_REMINDER') {
+        if (mounted && !_showAlertIsland) {
+          setState(() {
+            _upcomingAlertClass = {
+              'title': latest['title']?.toString().replaceAll('🔴 Class Reminder: ', '') ?? 'Live Mentorship Session',
+              'meetLink': latest['meetLink'] ?? 'https://live.indrajeetsir.com/session/upsc-2026',
+              'date': latest['date'] ?? 'Today',
+              'time': latest['time'] ?? 'Now',
+            };
+            _minutesRemaining = 10;
+            _showAlertIsland = true;
+          });
+          return;
+        }
+      }
+    }
+
+    // 2. Check scheduled live classes for automatic countdown reminders
     final classes = await ApiService.fetchLiveClasses();
     if (classes.isEmpty) return;
 
@@ -629,12 +672,12 @@ class _MainNavigationState extends State<MainNavigation> {
 
       final diffInMinutes = classTime.difference(now).inMinutes;
 
-      // Class is starting within 10 minutes
-      if (diffInMinutes >= 0 && diffInMinutes <= 10) {
+      // Class is starting within 60 minutes or live right now
+      if (diffInMinutes >= -30 && diffInMinutes <= 60) {
         if (mounted) {
           setState(() {
             _upcomingAlertClass = cls;
-            _minutesRemaining = diffInMinutes == 0 ? 1 : diffInMinutes;
+            _minutesRemaining = diffInMinutes <= 0 ? 0 : diffInMinutes;
             _showAlertIsland = true;
           });
         }
@@ -946,7 +989,7 @@ class _MainNavigationState extends State<MainNavigation> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildDockItem(0, CupertinoIcons.house_fill, 'Overview'),
-                    _buildDockItem(1, CupertinoIcons.tv_fill, 'Classroom'),
+                    _buildDockItem(1, CupertinoIcons.book_fill, 'Courses'),
                     _buildDockItem(2, CupertinoIcons.chat_bubble_2_fill, 'Mentorship'),
                     _buildDockItem(3, CupertinoIcons.person_crop_circle_fill, 'Settings'),
                   ],
@@ -1648,7 +1691,7 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Live Classroom',
+                    'Courses',
                     style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: -0.6),
                   ),
                   CupertinoButton(
@@ -2417,7 +2460,7 @@ class ProfileScreen extends StatelessWidget {
                     onTap: () => _showPolicySheet(
                       context,
                       'Privacy Policy',
-                      'Indrajeet Sir IAS Mentorship Portal safeguards aspirant confidentiality.\n\nAll student performance evaluations, Mains answer scripts, and personal mentorship interactions are strictly confidential and encrypted under industry standard SSL/TLS protocols.\n\nWe do not share student contacts with third-party advertising partners.',
+                      'Indrajeet Sir UPSC Mentorship Portal safeguards aspirant confidentiality.\n\nAll student performance evaluations, Mains answer scripts, and personal mentorship interactions are strictly confidential and encrypted under industry standard SSL/TLS protocols.\n\nWe do not share student contacts with third-party advertising partners.',
                     ),
                   ),
                   Divider(height: 1, indent: 56, color: IosTheme.separator(isDark)),

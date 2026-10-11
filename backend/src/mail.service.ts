@@ -65,7 +65,7 @@ export class MailService {
       <body>
         <div class="container">
           <div class="header">
-            <h1>🇮🇳 Indrajeet Sir IAS Mentorship</h1>
+            <h1>🇮🇳 Indrajeet Sir UPSC Mentorship</h1>
             <p>1:1 Live Classroom & Mentorship Portal</p>
           </div>
           <div class="body">
@@ -102,7 +102,7 @@ export class MailService {
             <p style="font-size: 12.5px; color: #64748b; text-align: center;">Need assistance? Reply to this email (indrajeet.visionias@gmail.com) or WhatsApp +91 98734 86158.</p>
           </div>
           <div class="footer">
-            &copy; ${new Date().getFullYear()} Indrajeet Sir IAS Mentorship Academy. All rights reserved.
+            &copy; ${new Date().getFullYear()} Indrajeet Sir UPSC Mentorship Academy. All rights reserved.
           </div>
         </div>
       </body>
@@ -116,7 +116,7 @@ export class MailService {
           from: process.env.SMTP_FROM || '"Indrajeet Sir Academy" <indrajeet.visionias@gmail.com>',
           to: params.email,
           subject: `🎓 Your Login Credentials & App Link — ${params.courseTitle}`,
-          text: `Dear ${params.name},\n\nWelcome to ${params.courseTitle} with Indrajeet Sir.\n\nYour Login Credentials:\nEmail: ${params.email}\nPassword: ${params.passwordPlain}\n\nDownload Student Mobile App:\n${downloadLink}\n\nNeed assistance? Call/WhatsApp: +91 98734 86158 | Email: indrajeet.visionias@gmail.com\n\nIndrajeet Sir IAS Mentorship`,
+          text: `Dear ${params.name},\n\nWelcome to ${params.courseTitle} with Indrajeet Sir.\n\nYour Login Credentials:\nEmail: ${params.email}\nPassword: ${params.passwordPlain}\n\nDownload Student Mobile App:\n${downloadLink}\n\nNeed assistance? Call/WhatsApp: +91 98734 86158 | Email: indrajeet.visionias@gmail.com\n\nIndrajeet Sir UPSC Mentorship`,
           html: htmlContent,
         });
         console.log(`✉️ Email dispatched successfully to: ${params.email}`);
