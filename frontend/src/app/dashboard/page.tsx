@@ -26,19 +26,21 @@ interface MessageItem {
 
 export default function StudentDashboard() {
   const router = useRouter();
-  const [student] = useState<StudentUser>(() => 
-    getStudentSession() || {
-      id: 'st-1',
-      name: 'Rahul Kumar',
-      email: 'rahul@gmail.com',
-      attempt: '2027',
-    }
-  );
+  const [student, setStudent] = useState<StudentUser | null>(null);
   const [classes, setClasses] = useState<LiveClassItem[]>([]);
   const [messages, setMessages] = useState<MessageItem[]>([]);
   const [msgText, setMsgText] = useState('');
   const [tab, setTab] = useState<'classes' | 'chat'>('classes');
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const session = getStudentSession();
+    if (!session) {
+      router.push('/login');
+      return;
+    }
+    setStudent(session);
+  }, [router]);
 
   useEffect(() => {
     fetch(`${API_URL}/live-classes`)
@@ -67,7 +69,7 @@ export default function StudentDashboard() {
       const res = await fetch(`${API_URL}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentName: student.name, text: msgText, sender: 'student' }),
+        body: JSON.stringify({ studentName: student?.name || 'Student', text: msgText, sender: 'student' }),
       });
       const data = await res.json();
       if (data.success) {
@@ -77,7 +79,7 @@ export default function StudentDashboard() {
     } catch {
       const demo: MessageItem = {
         id: `m-${Date.now()}`,
-        studentName: student.name,
+        studentName: student?.name || 'Student',
         text: msgText,
         sender: 'student',
         timestamp: 'Just now',
@@ -109,8 +111,8 @@ export default function StudentDashboard() {
         </nav>
 
         <div className="dash-user">
-          <div className="dash-user-name">{student.name}</div>
-          <div className="dash-user-info">UPSC CSE {student.attempt || 'Aspirant'}</div>
+          <div className="dash-user-name">{student?.name || 'Aspirant'}</div>
+          <div className="dash-user-info">UPSC CSE {student?.attempt || 'Aspirant'}</div>
           <button onClick={handleLogout} className="dash-logout" style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0 }}>
             🚪 Sign Out
           </button>
@@ -128,10 +130,11 @@ export default function StudentDashboard() {
             </div>
 
             {(() => {
+              const studentName = (student?.name || '').toLowerCase();
               const filteredClasses = (Array.isArray(classes) ? classes : []).filter(cls =>
                 !cls.assignedStudent ||
                 cls.assignedStudent === 'All Students' ||
-                cls.assignedStudent.toLowerCase() === (student.name || '').toLowerCase()
+                (studentName && cls.assignedStudent.toLowerCase() === studentName)
               );
 
               if (loading) {
@@ -188,7 +191,7 @@ export default function StudentDashboard() {
                 )}
                 {(Array.isArray(messages) ? messages : []).map(m => (
                   <div key={m.id} className={`chat-msg ${m.sender === 'admin' ? 'msg-admin' : 'msg-student'}`}>
-                    <div className="msg-name">{m.sender === 'admin' ? 'Indrajeet Sir' : student.name}</div>
+                    <div className="msg-name">{m.sender === 'admin' ? 'Indrajeet Sir' : (student?.name || 'You')}</div>
                     <div className="msg-text">{m.text}</div>
                     <div className="msg-time">{m.timestamp}</div>
                   </div>

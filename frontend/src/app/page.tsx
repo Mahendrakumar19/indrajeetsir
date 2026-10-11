@@ -278,26 +278,33 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 3D Mentor Card */}
+        {/* 3D Mentor Card (Landscape) */}
         <div className="hero-img-wrap">
           <div className="mentor-card-3d">
             <div className="mentor-img-frame">
               <Image
-                src="/indrajeet-sir.png"
-                alt="Indrajeet Sir"
-                width={400}
-                height={380}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }}
+                src="/indrajeet-sir.jpg"
+                alt="Indrajeet Sir - 1:1 UPSC & State PCS Mentorship"
+                width={480}
+                height={270}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 25%' }}
                 className="mentor-img"
                 priority
               />
+              <div className="mentor-live-floating-badge">
+                <span className="live-green-pulse" />
+                <span>Live 1:1 Mentorship</span>
+              </div>
             </div>
             <div className="mentor-card-footer">
-              <strong>Indrajeet Sir</strong>
-              <span>Former Faculty at Top Delhi Institutes • 10+ Yrs UPSC Mentorship</span>
-              <div className="mentor-live-status">
-                <span className="live-green-pulse" />
-                Live 1:1 Interactive Sessions
+              <div className="mentor-footer-headline">
+                <strong>Indrajeet Sir</strong>
+                <span>Former Faculty at Top Delhi Institutes • 10+ Yrs UPSC Mentorship</span>
+              </div>
+              <div className="mentor-chips-row">
+                <span className="mentor-tag-chip">GS 1–4 Mains</span>
+                <span className="mentor-tag-chip">Personal Copy Checking</span>
+                <span className="mentor-tag-chip">1:1 Strategy</span>
               </div>
             </div>
           </div>

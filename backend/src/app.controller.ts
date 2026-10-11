@@ -6,10 +6,7 @@ import { MailService } from './mail.service.js';
 import { RazorpayService } from './razorpay.service.js';
 
 // ─── In-Memory Resilient Fallback Store ───────────────────────────────────────
-let fallbackStudents: any[] = [
-  { id: 'st-1', name: 'Rahul Kumar', email: 'rahul@gmail.com', phone: '+91 98765 43210', attempt: '2027', joinedDate: '2026-08-15' },
-  { id: 'st-2', name: 'Priya Sharma', email: 'priya@outlook.com', phone: '+91 98123 45678', attempt: '2026', joinedDate: '2026-06-01' },
-];
+let fallbackStudents: any[] = [];
 
 let fallbackLiveClasses: any[] = [];
 
@@ -32,10 +29,8 @@ let fallbackCourses: any[] = [
   },
 ];
 
-let fallbackMessages: any[] = [
-  { id: 'm-1', studentName: 'Rahul Kumar', text: 'Sir, what time is the class today?', sender: 'student', timestamp: '10:00 AM' },
-  { id: 'm-2', studentName: 'Rahul Kumar', text: '7:00 PM on Google Meet. Link is on your dashboard.', sender: 'admin', timestamp: '10:05 AM' },
-];
+let fallbackMessages: any[] = [];
+let fallbackPayments: any[] = [];
 
 @Controller()
 export class AppController {
@@ -573,6 +568,28 @@ export class AppController {
   }
 
   // ── Razorpay Payment & Automated Student Onboarding ─────────────────────────
+  @Get('payments')
+  async getPayments() {
+    try {
+      const payments = await this.prisma.payment.findMany({
+        orderBy: { createdAt: 'desc' },
+      });
+      if (payments.length > 0) {
+        return payments.map(p => ({
+          id: p.paymentId || p.orderId,
+          student: p.userName || 'Student',
+          email: p.userEmail,
+          course: p.courseId,
+          amount: p.amount,
+          status: p.status === 'SUCCESS' ? 'Success' : p.status === 'FAILED' ? 'Failed' : 'Pending',
+          date: p.createdAt.toISOString().slice(0, 10),
+          mode: 'Razorpay / UPI Gateway',
+        }));
+      }
+    } catch {}
+    return fallbackPayments;
+  }
+
   @Post('payments/create-order')
   async createPaymentOrder(@Body() body: { courseId: string; studentEmail: string; studentName?: string; studentPhone?: string }) {
     const emailClean = (body.studentEmail || '').trim().toLowerCase();

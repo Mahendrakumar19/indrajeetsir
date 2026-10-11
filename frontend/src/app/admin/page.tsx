@@ -180,64 +180,12 @@ interface LiveClassItem {
   assignedStudent?: string;
 }
 
-// ── Initial Datasets ────────────────────────────────────────────────────────
-
-const INITIAL_USERS: AdminUser[] = [
-  {
-    id: 'usr_1',
-    name: 'Rahul S.',
-    email: 'rahul.s@upscprep.in',
-    phone: '+91 98765 43210',
-    status: 'Verified',
-    role: 'UPSC 2026 Mentorship Batch',
-    joined: '12 Oct 2025',
-  },
-  {
-    id: 'usr_2',
-    name: 'spam_user99',
-    email: 'freebits99@botmail.com',
-    phone: '+91 91234 56789',
-    status: 'Blocked',
-    role: 'Suspicious / Flagged Activity',
-    joined: '08 Jan 2026',
-  },
-  {
-    id: 'usr_3',
-    name: 'Ananya Verma',
-    email: 'ananya.v@gmail.com',
-    phone: '+91 99887 66554',
-    status: 'Verified',
-    role: 'Daily Answer Writing Batch',
-    joined: '15 Jan 2026',
-  },
-  {
-    id: 'usr_4',
-    name: 'vikram_upsc',
-    email: 'vikram.singh92@yahoo.com',
-    phone: '+91 98112 34567',
-    status: 'Pending',
-    role: 'Awaiting KYC Verification',
-    joined: '18 Feb 2026',
-  },
-  {
-    id: 'usr_5',
-    name: 'Priya Sharma',
-    email: 'priya.sharma@outlook.com',
-    phone: '+91 97654 32109',
-    status: 'Verified',
-    role: 'State PCS Mentorship',
-    joined: '22 Feb 2026',
-  },
-  {
-    id: 'usr_6',
-    name: 'bot_proxy_44',
-    email: 'autologin@proxy.xyz',
-    phone: '+91 90000 11111',
-    status: 'Blocked',
-    role: 'Spam Rate-Limit Exceeded',
-    joined: '01 Mar 2026',
-  },
-];
+// ── Dummy ID Filter for legacy storage cleanup ──────────────────────────────
+const DUMMY_IDS = new Set([
+  'usr_1', 'usr_2', 'usr_3', 'usr_4', 'usr_5', 'usr_6',
+  'TXN 4821', 'TXN 4822', 'TXN 4823', 'TXN 4824', 'TXN 4825', 'TXN 4826',
+  'NOTIF-101', 'NOTIF-102', 'NOTIF-103',
+]);
 
 const INITIAL_BANNERS: AppBanner[] = [
   {
@@ -269,96 +217,6 @@ const INITIAL_BANNERS: AppBanner[] = [
   },
 ];
 
-const INITIAL_TRANSACTIONS: TransactionItem[] = [
-  {
-    id: 'TXN 4821',
-    student: 'Rahul S.',
-    email: 'rahul.s@upscprep.in',
-    course: 'GS Mains Mentorship Batch',
-    amount: 4999,
-    status: 'Success',
-    date: '10 Oct 2026, 02:14 PM',
-    mode: 'UPI / Direct Gateway',
-  },
-  {
-    id: 'TXN 4822',
-    student: 'Neha Kapoor',
-    email: 'neha.k@gmail.com',
-    course: 'Daily Answer Writing Module',
-    amount: 2999,
-    status: 'Refunded',
-    date: '09 Oct 2026, 11:45 AM',
-    mode: 'Card / NetBanking',
-  },
-  {
-    id: 'TXN 4823',
-    student: 'spam_user99',
-    email: 'freebits99@botmail.com',
-    course: '1:1 Strategy Mentorship',
-    amount: 4999,
-    status: 'Failed',
-    date: '09 Oct 2026, 09:12 AM',
-    mode: 'Gateway Declined',
-  },
-  {
-    id: 'TXN 4824',
-    student: 'Ananya Verma',
-    email: 'ananya.v@gmail.com',
-    course: 'GS Mains Mentorship Batch',
-    amount: 4999,
-    status: 'Success',
-    date: '08 Oct 2026, 05:30 PM',
-    mode: 'UPI AutoPay',
-  },
-  {
-    id: 'TXN 4825',
-    student: 'Priya Sharma',
-    email: 'priya.sharma@outlook.com',
-    course: 'State PCS Mentorship',
-    amount: 2999,
-    status: 'Success',
-    date: '07 Oct 2026, 08:20 PM',
-    mode: 'UPI',
-  },
-  {
-    id: 'TXN 4826',
-    student: 'Aman Patel',
-    email: 'aman.patel@gmail.com',
-    course: 'Essay Mastery Course',
-    amount: 1999,
-    status: 'Failed',
-    date: '06 Oct 2026, 04:15 PM',
-    mode: 'Bank Server Timeout',
-  },
-];
-
-const INITIAL_NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: 'NOTIF-101',
-    title: 'New Offer - Aaj raat tak 40% off',
-    body: 'Use code MENTOR40 for 40% instant off on all GS Mains programs. Valid till midnight.',
-    audience: 'All App Users',
-    time: 'Today, 02:00 PM',
-    sentCount: 1420,
-  },
-  {
-    id: 'NOTIF-102',
-    title: 'Update - New feature live hai',
-    body: 'Daily Answer Sheet upload feature ab student dashboard me available hai. Submit your answers now.',
-    audience: 'Enrolled Students',
-    time: 'Yesterday, 06:30 PM',
-    sentCount: 860,
-  },
-  {
-    id: 'NOTIF-103',
-    title: 'Tomorrow 1:1 Evaluation Session Schedule',
-    body: 'Slots have been published for GS Paper 2 evaluation. Book your timing slot inside the app.',
-    audience: 'UPSC 2026 Batch',
-    time: '08 Oct 2026',
-    sentCount: 412,
-  },
-];
-
 export default function AdminPanel() {
   const [mounted, setMounted] = useState(false);
   const [auth, setAuth] = useState(false);
@@ -375,8 +233,8 @@ export default function AdminPanel() {
   // Flash alert
   const [actionSuccess, setActionSuccess] = useState('');
 
-  // 1. User Management State
-  const [users, setUsers] = useState<AdminUser[]>(INITIAL_USERS);
+  // 1. User Management State (Real-Time Only)
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [userSearch, setUserSearch] = useState('');
   const [userFilter, setUserFilter] = useState<'ALL' | 'Verified' | 'Blocked' | 'Pending'>('ALL');
   const [newUserModal, setNewUserModal] = useState(false);
@@ -396,16 +254,16 @@ export default function AdminPanel() {
     { id: 'cat_5', name: 'State PCS Mentorship (UPPSC / BPSC)', active: true, count: 16 },
   ]);
 
-  // 3. Payments & Transactions State
-  const [transactions, setTransactions] = useState<TransactionItem[]>(INITIAL_TRANSACTIONS);
+  // 3. Payments & Transactions State (Real-Time Only)
+  const [transactions, setTransactions] = useState<TransactionItem[]>([]);
   const [txnSearch, setTxnSearch] = useState('');
   const [txnFilter, setTxnFilter] = useState<'ALL' | 'Success' | 'Refunded' | 'Failed'>('ALL');
 
-  // 4. Notifications State
-  const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
+  // 4. Notifications State (Real-Time Only)
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [notifForm, setNotifForm] = useState({
-    title: 'New Offer - Aaj raat tak 40% off',
-    body: 'Flat 40% OFF on all GS Mains mentorship packages! Use code MENTOR40 inside app.',
+    title: '',
+    body: '',
     audience: 'All App Users',
   });
   const [sendingNotif, setSendingNotif] = useState(false);
@@ -426,23 +284,43 @@ export default function AdminPanel() {
   });
   const [classSaving, setClassSaving] = useState(false);
 
-  // Mount effect to sync localStorage without SSR hydration errors
+  // Mount effect to sync localStorage without SSR hydration errors and cleanse dummy data
   useEffect(() => {
     setMounted(true);
     setAuth(getAdminSession());
 
     try {
       const savedUsers = localStorage.getItem('admin_users_data');
-      if (savedUsers) setUsers(JSON.parse(savedUsers));
+      if (savedUsers) {
+        const parsed = JSON.parse(savedUsers);
+        if (Array.isArray(parsed)) {
+          const cleanUsers = parsed.filter(
+            (u: AdminUser) => !DUMMY_IDS.has(u.id) && u.email !== 'freebits99@botmail.com'
+          );
+          setUsers(cleanUsers);
+        }
+      }
 
       const savedBanners = localStorage.getItem('admin_banners_data');
       if (savedBanners) setBanners(JSON.parse(savedBanners));
 
       const savedTxns = localStorage.getItem('admin_transactions_data');
-      if (savedTxns) setTransactions(JSON.parse(savedTxns));
+      if (savedTxns) {
+        const parsed = JSON.parse(savedTxns);
+        if (Array.isArray(parsed)) {
+          const cleanTxns = parsed.filter((t: TransactionItem) => !DUMMY_IDS.has(t.id));
+          setTransactions(cleanTxns);
+        }
+      }
 
       const savedNotifs = localStorage.getItem('admin_notifications_data');
-      if (savedNotifs) setNotifications(JSON.parse(savedNotifs));
+      if (savedNotifs) {
+        const parsed = JSON.parse(savedNotifs);
+        if (Array.isArray(parsed)) {
+          const cleanNotifs = parsed.filter((n: NotificationItem) => !DUMMY_IDS.has(n.id));
+          setNotifications(cleanNotifs);
+        }
+      }
     } catch {
       // ignore parse errors
     }
@@ -473,9 +351,49 @@ export default function AdminPanel() {
     }
   }, [notifications, mounted]);
 
-  // Load LMS courses & classes if API is available
+  // Load Real-Time Data from Backend API
   useEffect(() => {
     if (auth) {
+      // Fetch Real-Time Students
+      fetch(`${API_URL}/students`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (Array.isArray(d)) {
+            const mapped: AdminUser[] = d.map((s: any) => ({
+              id: s.id || `usr_${Date.now()}`,
+              name: s.name || 'Student',
+              email: s.email,
+              phone: s.phone || 'N/A',
+              status: 'Verified',
+              role: s.course || (s.attempt ? `UPSC Batch (${s.attempt})` : 'Mentorship Program'),
+              joined: s.joinedDate || 'Active',
+            }));
+            setUsers((prev) => {
+              const liveEmails = new Set(mapped.map((u) => u.email.toLowerCase()));
+              const localUnique = prev.filter(
+                (p) => !liveEmails.has(p.email.toLowerCase()) && !DUMMY_IDS.has(p.id)
+              );
+              return [...mapped, ...localUnique];
+            });
+          }
+        })
+        .catch(() => {});
+
+      // Fetch Real-Time Payments
+      fetch(`${API_URL}/payments`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (Array.isArray(d)) {
+            setTransactions((prev) => {
+              const liveIds = new Set(d.map((p: any) => p.id));
+              const localUnique = prev.filter((p) => !liveIds.has(p.id) && !DUMMY_IDS.has(p.id));
+              return [...d, ...localUnique];
+            });
+          }
+        })
+        .catch(() => {});
+
+      // Fetch Real-Time LMS courses & classes
       fetch(`${API_URL}/courses`)
         .then((r) => r.json())
         .then((d) => setCourses(Array.isArray(d) ? d : []))
@@ -546,7 +464,7 @@ export default function AdminPanel() {
     triggerAlert(`User "${name}" has been unblocked.`);
   };
 
-  const handleCreateUser = (e: React.FormEvent) => {
+  const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUserForm.name || !newUserForm.email) return;
     const created: AdminUser = {
@@ -556,12 +474,27 @@ export default function AdminPanel() {
       phone: newUserForm.phone || '+91 98000 00000',
       status: 'Verified',
       role: newUserForm.role,
-      joined: 'Just now',
+      joined: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
     };
     setUsers((prev) => [created, ...prev]);
     setNewUserModal(false);
     setNewUserForm({ name: '', email: '', phone: '', role: 'UPSC 2026 Mentorship' });
-    triggerAlert(`New user "${created.name}" created and verified.`);
+    triggerAlert(`New user "${created.name}" created and verified in real time.`);
+
+    try {
+      await fetch(`${API_URL}/students`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: created.name,
+          email: created.email,
+          phone: created.phone,
+          attempt: '2026',
+        }),
+      });
+    } catch {
+      // Offline fallback persisted in localStorage
+    }
   };
 
   const filteredUsers = users.filter((u) => {
@@ -633,18 +566,24 @@ export default function AdminPanel() {
 
     setSendingNotif(true);
     setTimeout(() => {
+      const recipientCount =
+        notifForm.audience === 'All App Users'
+          ? Math.max(users.length, 1)
+          : Math.max(users.filter((u) => u.status === 'Verified').length, 1);
+
       const newNotif: NotificationItem = {
-        id: `NOTIF-${Date.now().toString().slice(-3)}`,
-        title: notifForm.title,
-        body: notifForm.body,
+        id: `NOTIF-${Date.now().toString().slice(-4)}`,
+        title: notifForm.title.trim(),
+        body: notifForm.body.trim(),
         audience: notifForm.audience,
         time: 'Just now',
-        sentCount: notifForm.audience === 'All App Users' ? 1420 : 680,
+        sentCount: recipientCount,
       };
       setNotifications((prev) => [newNotif, ...prev]);
+      setNotifForm({ title: '', body: '', audience: notifForm.audience });
       setSendingNotif(false);
-      triggerAlert(`Broadcast sent to ${newNotif.sentCount} users.`);
-    }, 450);
+      triggerAlert(`Real-time broadcast dispatched to ${newNotif.sentCount} active user(s).`);
+    }, 350);
   };
 
   // ── 5. LMS COURSE ACTIONS ──────────────────────────────────────────────────
@@ -1037,8 +976,13 @@ export default function AdminPanel() {
                 <tbody>
                   {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
-                        No users matching filter criteria.
+                      <td colSpan={6} style={{ textAlign: 'center', padding: '3.5rem 1rem', color: '#64748b' }}>
+                        <div style={{ fontWeight: 700, fontSize: '1rem', color: '#334155', marginBottom: '0.35rem' }}>
+                          No Users Registered Yet
+                        </div>
+                        <div style={{ fontSize: '0.86rem' }}>
+                          Real-time student accounts will appear here automatically as users sign up or get added.
+                        </div>
                       </td>
                     </tr>
                   ) : (
@@ -1265,12 +1209,9 @@ export default function AdminPanel() {
               <div className="kpi-card">
                 <span className="kpi-card-label">Success Rate</span>
                 <span className="kpi-card-val">
-                  {(
-                    (transactions.filter((t) => t.status === 'Success').length /
-                      transactions.length) *
-                    100
-                  ).toFixed(0)}
-                  %
+                  {transactions.length > 0
+                    ? ((transactions.filter((t) => t.status === 'Success').length / transactions.length) * 100).toFixed(0)
+                    : '100'}%
                 </span>
                 <span className="kpi-card-meta">
                   {transactions.filter((t) => t.status === 'Success').length} successful txns
@@ -1354,8 +1295,13 @@ export default function AdminPanel() {
                 <tbody>
                   {filteredTransactions.length === 0 ? (
                     <tr>
-                      <td colSpan={8} style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
-                        No transactions matching search criteria.
+                      <td colSpan={8} style={{ textAlign: 'center', padding: '3.5rem 1rem', color: '#64748b' }}>
+                        <div style={{ fontWeight: 700, fontSize: '1rem', color: '#334155', marginBottom: '0.35rem' }}>
+                          No Transactions Recorded
+                        </div>
+                        <div style={{ fontSize: '0.86rem' }}>
+                          Real-time payment transactions and receipts will appear here as enrollments occur.
+                        </div>
                       </td>
                     </tr>
                   ) : (
@@ -1464,10 +1410,12 @@ export default function AdminPanel() {
                       value={notifForm.audience}
                       onChange={(e) => setNotifForm({ ...notifForm, audience: e.target.value })}
                     >
-                      <option value="All App Users">All App Users (1,420 registered)</option>
-                      <option value="Enrolled Mentorship Students">Enrolled Mentorship Students (860 active)</option>
-                      <option value="UPSC 2026 Batch">UPSC 2026 Batch (412 students)</option>
-                      <option value="State PCS Aspirants">State PCS Aspirants (148 students)</option>
+                      <option value="All App Users">All Registered Users ({users.length} total)</option>
+                      <option value="Enrolled Mentorship Students">
+                        Verified Mentorship Students ({users.filter((u) => u.status === 'Verified').length} active)
+                      </option>
+                      <option value="UPSC 2026 Batch">UPSC 2026 Batch</option>
+                      <option value="State PCS Aspirants">State PCS Aspirants</option>
                     </select>
                   </div>
 
@@ -1490,7 +1438,7 @@ export default function AdminPanel() {
                 <div className="phone-preview-card">
                   <div className="phone-notch" />
                   <div style={{ textAlign: 'center', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
-                    10:10 AM • Friday
+                    10:10 AM • Live Alert
                   </div>
 
                   <div className="phone-notif-bubble">
@@ -1527,7 +1475,7 @@ export default function AdminPanel() {
             <div className="table-card">
               <div style={{ padding: '1.25rem 1.4rem', borderBottom: '1px solid #e2e8f0' }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>
-                  Sent Notification History
+                  Sent Notification History ({notifications.length})
                 </h3>
               </div>
               <table className="admin-table">
@@ -1542,20 +1490,33 @@ export default function AdminPanel() {
                   </tr>
                 </thead>
                 <tbody>
-                  {notifications.map((notif) => (
-                    <tr key={notif.id}>
-                      <td style={{ fontWeight: 800, fontFamily: 'monospace' }}>#{notif.id}</td>
-                      <td style={{ fontWeight: 750, color: '#0f172a' }}>{notif.title}</td>
-                      <td style={{ color: '#475569', maxWidth: '320px' }}>{notif.body}</td>
-                      <td>
-                        <span className="status-pill active">{notif.audience}</span>
+                  {notifications.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ textAlign: 'center', padding: '3.5rem 1rem', color: '#64748b' }}>
+                        <div style={{ fontWeight: 700, fontSize: '1rem', color: '#334155', marginBottom: '0.35rem' }}>
+                          No Broadcast Notifications Sent Yet
+                        </div>
+                        <div style={{ fontSize: '0.86rem' }}>
+                          Compose a live announcement above to broadcast real-time updates directly to student devices.
+                        </div>
                       </td>
-                      <td style={{ fontWeight: 700, color: '#059669' }}>
-                        {notif.sentCount.toLocaleString()} devices
-                      </td>
-                      <td style={{ fontSize: '0.82rem', color: '#64748b' }}>{notif.time}</td>
                     </tr>
-                  ))}
+                  ) : (
+                    notifications.map((notif) => (
+                      <tr key={notif.id}>
+                        <td style={{ fontWeight: 800, fontFamily: 'monospace' }}>#{notif.id}</td>
+                        <td style={{ fontWeight: 750, color: '#0f172a' }}>{notif.title}</td>
+                        <td style={{ color: '#475569', maxWidth: '320px' }}>{notif.body}</td>
+                        <td>
+                          <span className="status-pill active">{notif.audience}</span>
+                        </td>
+                        <td style={{ fontWeight: 700, color: '#059669' }}>
+                          {notif.sentCount.toLocaleString()} devices
+                        </td>
+                        <td style={{ fontSize: '0.82rem', color: '#64748b' }}>{notif.time}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
