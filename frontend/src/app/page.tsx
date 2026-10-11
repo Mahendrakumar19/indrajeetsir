@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { API_URL } from '@/lib/api';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import './home.css';
 
 interface Course {
@@ -26,7 +28,7 @@ export default function Home() {
     {
       id: 'c-1',
       title: '1:1 Comprehensive UPSC Mentorship 2026-27',
-      description: 'Personalized 1:1 guidance with Indrajeet Sir, live Google Meet sessions, and dedicated answer evaluation.',
+      description: 'Personalized 1:1 guidance with Indrajeet Sir, live interactive strategy sessions, and dedicated answer evaluation.',
       price: 4999,
       instructor: 'Indrajeet Sir',
     },
@@ -50,6 +52,28 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [completedStudent, setCompletedStudent] = useState<{ email: string; name: string } | null>(null);
   const [consultForm, setConsultForm] = useState({ name: '', phone: '' });
+
+  // Accordion state
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+
+  const faqs = [
+    {
+      q: 'Mains answer copies kaun check karta hai?',
+      a: 'Har ek copy Indrajeet Sir personally evaluate karte hain. Hum koi third-party evaluator ya outsourced intern appoint nahi karte, taaki aapko direct structure improvement aur actionable feedback mile.',
+    },
+    {
+      q: '1:1 personal strategy sessions kab schedule hote hain?',
+      a: 'Enrollment ke baad aapko direct calendar booking link milta hai. Har session private 1:1 video call hota hai jisme aapka study schedule, answer analysis aur weekly preparation roadmap review hota hai.',
+    },
+    {
+      q: 'GS 1–4 ke notes kis format me milte hain?',
+      a: 'Student portal aur mobile application me 600+ point-wise, high-yield micro notes milte hain. Ye static syllabus aur contemporary value additions ko combine karke exam-oriented format me banaye gaye hain.',
+    },
+    {
+      q: 'Payment complete hone ke baad access kaise milega?',
+      a: 'Online payment complete hote hi aapke email par Student ID, password aur Indrajeet Sir UPSC Mobile App ka download link turant deliver ho jata hai.',
+    },
+  ];
 
   // Fetch courses from backend
   useEffect(() => {
@@ -93,7 +117,6 @@ export default function Home() {
     const studentPhone = checkoutForm.phone.trim();
 
     try {
-      // 1. Create order on backend
       const res = await fetch(`${API_URL}/payments/create-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -113,11 +136,9 @@ export default function Home() {
         return;
       }
 
-      // 2. Load Razorpay Checkout Script
       const scriptLoaded = await loadRazorpayScript();
 
       if (scriptLoaded && window.Razorpay && orderData.keyId && !orderData.keyId.startsWith('rzp_test_placeholder')) {
-        // Real or Test Razorpay Checkout
         const options = {
           key: orderData.keyId,
           amount: orderData.amount,
@@ -134,7 +155,6 @@ export default function Home() {
             color: '#2563eb',
           },
           handler: async (response: any) => {
-            // Verify payment
             await verifyPaymentAndFinish({
               orderId: response.razorpay_order_id || orderData.orderId,
               paymentId: response.razorpay_payment_id || `pay_${Date.now()}`,
@@ -155,7 +175,6 @@ export default function Home() {
         const rzp = new window.Razorpay(options);
         rzp.open();
       } else {
-        // Fast-track test / resilient verification
         await verifyPaymentAndFinish({
           orderId: orderData.orderId,
           paymentId: `pay_test_${Date.now()}`,
@@ -168,7 +187,6 @@ export default function Home() {
       }
     } catch (err) {
       console.error('Checkout error:', err);
-      // Fallback verification so user is never blocked
       await verifyPaymentAndFinish({
         orderId: `order_${Date.now()}`,
         paymentId: `pay_${Date.now()}`,
@@ -221,197 +239,177 @@ export default function Home() {
 
   return (
     <div className="site">
-      {/* ── Navbar ── */}
-      <header className="navbar">
-        <div className="nav-brand">
-          <Image
-            src="/logo.png"
-            alt="Indrajeet Sir Official Logo"
-            width={44}
-            height={44}
-            className="nav-brand-logo"
-            priority
-          />
-          <div>
-            <div className="nav-title">Indrajeet Sir</div>
-            <div className="nav-sub">UPSC & State PCS Mentorship</div>
-          </div>
-        </div>
-        <nav className="nav-links">
-          <a href="#about">About</a>
-          <a href="#courses">Courses & Fees</a>
-          <a href="#mentorship">Mentorship</a>
-          <a href="#how">How It Works</a>
-          <Link href="/resources">Resources & Guides</Link>
-          <a href="#contact">Contact</a>
-        </nav>
-        <div className="nav-actions">
-          <button className="btn-outline" onClick={() => setShowBookModal(true)}>Book Free Call</button>
-          <a href="#courses" className="btn-primary">Enroll in Course</a>
-        </div>
-      </header>
+      {/* ── 3D Fluid Ambient Atmosphere ── */}
+      <div className="fluid-bg-container" aria-hidden="true">
+        <div className="fluid-orb fluid-orb-1" />
+        <div className="fluid-orb fluid-orb-2" />
+        <div className="fluid-orb fluid-orb-3" />
+      </div>
 
-      {/* ── Hero ── */}
+      {/* ── Modular Header ── */}
+      <Header />
+
+      {/* ── 3D Hero Section ── */}
       <section className="hero">
         <div className="hero-content">
-          <span className="hero-badge">1:1 Mentorship Program • UPSC 2027</span>
-          <h1>Start Your UPSC<br />Journey with <span className="hero-accent">Indrajeet Sir</span></h1>
+          <h1>
+            UPSC CSE is cracked on <span className="hero-gradient-text">Answer Writing & Discipline</span>, not endless lectures.
+          </h1>
           <p className="hero-desc">
-            Complete personalized 1:1 mentorship covering Prelims strategic foundation, Mains answer writing mastery (600+ topic-wise micro notes, 16 full-length evaluated tests), and direct one-on-one strategy sessions with Indrajeet Sir.
+            Direct personal guidance by Indrajeet Sir. Line-by-line Mains copy checking, weekly 1:1 strategy reviews, and high-yield GS 1–4 study notes.
           </p>
           <div className="hero-btns">
-            <a href="#courses" className="btn-primary lg">Explore Program & Enroll →</a>
-            <button className="btn-outline lg" onClick={() => setShowBookModal(true)}>Book Strategy Call</button>
+            <a href="#courses" className="btn-primary lg">View Programs & Fees →</a>
+            <button className="btn-outline lg" onClick={() => setShowBookModal(true)}>Request Callback</button>
           </div>
-          <div className="hero-stats">
-            <div className="stat"><strong>600+</strong><span>Short Notes Topics</span></div>
-            <div className="stat-divider" />
-            <div className="stat"><strong>16 Tests</strong><span>4 Mini • 8 Half • 4 Full</span></div>
-            <div className="stat-divider" />
-            <div className="stat"><strong>100%</strong><span>Direct 1:1 Mentorship</span></div>
+          <div className="hero-stats-3d">
+            <div className="stat-card-3d">
+              <strong>600+</strong>
+              <span>Mains Micro Notes</span>
+            </div>
+            <div className="stat-card-3d">
+              <strong>16 Tests</strong>
+              <span>Checked Personally</span>
+            </div>
+            <div className="stat-card-3d">
+              <strong>1:1 Private</strong>
+              <span>Strategy Sessions</span>
+            </div>
           </div>
         </div>
+
+        {/* 3D Mentor Card */}
         <div className="hero-img-wrap">
-          <div className="mentor-card">
-            <Image
-              src="/indrajeet-sir.jpg"
-              alt="Indrajeet Sir - Chief UPSC Mentor"
-              width={400}
-              height={350}
-              className="mentor-img"
-              priority
-            />
-            <div className="mentor-card-body">
+          <div className="mentor-card-3d">
+            <div className="mentor-img-frame">
+              <Image
+                src="/indrajeet-sir.png"
+                alt="Indrajeet Sir"
+                width={400}
+                height={380}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }}
+                className="mentor-img"
+                priority
+              />
+            </div>
+            <div className="mentor-card-footer">
               <strong>Indrajeet Sir</strong>
-              <span>Chief UPSC & State PCS Mentor</span>
-              <span className="live-dot"><span className="dot" />Direct 1:1 Google Meet Live Sessions</span>
+              <span>Former Faculty at Top Delhi Institutes • 10+ Yrs UPSC Mentorship</span>
+              <div className="mentor-live-status">
+                <span className="live-green-pulse" />
+                Live 1:1 Interactive Sessions
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Three Core Pillars ── */}
-      <section className="about-section">
+      {/* ── Authentic Mentorship Architecture ── */}
+      <section id="about" className="section-wrap">
         <div className="section-inner text-center">
-          <span className="pill">Mentorship Methodology</span>
-          <h2>Three Pillars of Your Preparation</h2>
-          <p>
-            A cohesive three-stage strategic framework engineered to take you from core basics to the final merit list.
+          <h2 className="section-heading">No Outsourced Checking. Direct Teacher Accountability.</h2>
+          <p className="section-subtext">
+            In Civil Services preparation, passive listening creates an illusion of knowledge. Real improvement happens when your answers are diagnosed and corrected consistently.
           </p>
 
-          <div className="pillars-grid">
-            <div className="pillar-card">
-              <span className="pillar-badge prelims">STAGE 1 • PRELIMS</span>
-              <h3>Strong Foundation</h3>
-              <p>Five months of structured, repeated revision across both static core and high-yield contemporary topics to clear GS-1 & CSAT with confidence.</p>
+          <div className="comparison-grid">
+            {/* The Bulk Coaching Dilemma */}
+            <div className="problem-card">
+              <h3>
+                <span>⚠️</span> The Bulk Coaching Problem
+              </h3>
+              <ul className="problem-list">
+                <li>
+                  <span className="cross-icon">✕</span>
+                  <span>400+ students packed into a single batch with zero individual attention or strategy diagnosis.</span>
+                </li>
+                <li>
+                  <span className="cross-icon">✕</span>
+                  <span>Answer copies checked after 3–4 weeks by junior interns or outsourced evaluation contractors.</span>
+                </li>
+                <li>
+                  <span className="cross-icon">✕</span>
+                  <span>Generic scorecards with no actionable remarks on how to improve introduction, arguments, or conclusion.</span>
+                </li>
+                <li>
+                  <span className="cross-icon">✕</span>
+                  <span>Students spend months watching lectures without ever building real 3-hour answer writing stamina.</span>
+                </li>
+              </ul>
             </div>
-            <div className="pillar-card">
-              <span className="pillar-badge mains">STAGE 2 • MAINS</span>
-              <h3>Answer Writing Edge</h3>
-              <p>600+ topic-wise short notes, alternate-day answer writing, deep PYQ analysis, and 16 comprehensive evaluated tests to achieve top score.</p>
-            </div>
-            <div className="pillar-card">
-              <span className="pillar-badge interview">STAGE 3 • INTERVIEW</span>
-              <h3>Personality Test Ready</h3>
-              <p>DAF-specific one-on-one sessions, articulation polish, contemporary issue perspective building, and direct mock reviews with Indrajeet Sir.</p>
+
+            {/* Indrajeet Sir's Direct 1:1 Approach */}
+            <div className="solution-card">
+              <h3>
+                <span>🛡️</span> Indrajeet Sir&apos;s 1:1 Accountability
+              </h3>
+              <ul className="solution-list">
+                <li>
+                  <span className="check-icon">✓</span>
+                  <span><strong>Personal Copy Checking:</strong> Every Mains answer is evaluated directly by Indrajeet Sir with actionable remarks.</span>
+                </li>
+                <li>
+                  <span className="check-icon">✓</span>
+                  <span><strong>Weekly 1:1 Strategy Calls:</strong> Private video sessions to review your weekly study timetable and fix preparation gaps.</span>
+                </li>
+                <li>
+                  <span className="check-icon">✓</span>
+                  <span><strong>600+ Topic Micro Notes:</strong> Concise, high-yield revision material across GS-1, GS-2, GS-3, and GS-4.</span>
+                </li>
+                <li>
+                  <span className="check-icon">✓</span>
+                  <span><strong>16 Structured Tests:</strong> Phased test series (Mini, Sectional & Full-length) with model answers and marks improvement roadmap.</span>
+                </li>
+              </ul>
             </div>
           </div>
 
-          <blockquote>
-            &ldquo;The process is more important than the results. And if you take care of the process, you will get the results.&rdquo;
-            <span className="quote-author">— MS Dhoni (Indrajeet Sir&apos;s Guiding Mentorship Philosophy)</span>
-          </blockquote>
-        </div>
-      </section>
-
-      {/* ── Course Roadmap & Timeline ── */}
-      <section className="roadmap-section">
-        <div className="section-inner text-center">
-          <span className="pill">Course Roadmap</span>
-          <h2>Your Journey to UPSC Mains</h2>
-          <p>
-            Month by month: from short notes and PYQs to full-length test practice and final simulation.
-          </p>
-
-          <div className="roadmap-grid">
-            <div className="roadmap-card">
-              <span className="phase-tag">PHASE 1</span>
-              <div className="phase-month">OCT</div>
-              <h4>Mains Short Notes</h4>
-              <p>Diverse, exam-ready notes covering the entire Mains syllabus topic-by-topic across 600+ topics.</p>
-            </div>
-            <div className="roadmap-card">
-              <span className="phase-tag">PHASE 2</span>
-              <div className="phase-month">NOV</div>
-              <h4>PYQ Deep Analysis</h4>
-              <p>Dissecting last 10 years of Mains questions to decode exam demand, question patterns, and winning approach.</p>
-            </div>
-            <div className="roadmap-card">
-              <span className="phase-tag">PHASE 3</span>
-              <div className="phase-month">DEC</div>
-              <h4>Mains Value Addition</h4>
-              <p>Case studies, committee reports, diagrams, and supreme court judgements to lift a good answer into a top scorer.</p>
-            </div>
-            <div className="roadmap-card">
-              <span className="phase-tag">PHASE 4</span>
-              <div className="phase-month">JAN – MAY</div>
-              <h4>5-Month Revision</h4>
-              <p>Structured, cyclical revision across both Prelims & Mains notes to lock conceptual clarity before the exam.</p>
-            </div>
-          </div>
-
-          {/* 16 Tests Summary Bar */}
-          <div className="tests-summary-bar">
-            <div>
-              <strong>16 Tests in Total</strong> — Systematic evaluation from habit to peak endurance
-            </div>
-            <div className="tests-breakdown">
-              <span>📝 4 Mini Tests</span>
-              <span>⚡ 8 Half-Length Tests</span>
-              <span>🎯 4 Full-Length Tests</span>
-            </div>
+          {/* Dhoni Quote 3D Card */}
+          <div className="quote-card-3d">
+            <blockquote>
+              &ldquo;The process is more important than the results. If you take care of the process, results will follow.&rdquo;
+              <span className="quote-author">— MS Dhoni</span>
+            </blockquote>
           </div>
         </div>
       </section>
 
-      {/* ── Courses & Fee Section ── */}
-      <section id="courses" className="courses-section">
+      {/* ── Courses & Pricing Section (3D Depth) ── */}
+      <section id="courses" className="section-wrap" style={{ background: 'rgba(255, 255, 255, 0.6)' }}>
         <div className="section-inner text-center">
-          <span className="pill">Select Your Course</span>
-          <h2>Live Mentorship Programs & Fee Structure</h2>
-          <p>
-            Choose your preparation path. Complete enrollment via secure Razorpay checkout to instantly receive your mobile app login credentials and Android download link via email.
+          <h2 className="section-heading">Mentorship Batches & Fees</h2>
+          <p className="section-subtext">
+            Transparent course fees. Login credentials and Android application access are delivered immediately after enrollment.
           </p>
 
-          <div className="courses-grid">
+          <div className="courses-grid-3d">
             {courses.map((course, idx) => (
-              <div key={course.id} className={`pricing-card ${idx === 0 ? 'featured' : ''}`}>
-                {idx === 0 && <span className="featured-badge">Featured Batch</span>}
+              <div key={course.id} className={`pricing-card-3d ${idx === 0 ? 'featured' : ''}`}>
                 <div>
-                  <div className="pricing-header">
+                  <div className="pricing-title-wrap">
                     <h3>{course.title}</h3>
-                    <p className="pricing-desc">
-                      {course.description || 'Personalized 1:1 guidance with Indrajeet Sir, Mains answer evaluation, and dedicated live sessions.'}
+                    <p className="pricing-desc-text">
+                      {course.description || 'Personalized 1:1 guidance with Indrajeet Sir, direct Mains evaluation, and live interactive classes.'}
                     </p>
                   </div>
-                  <div className="pricing-amount">
-                    <span className="price-currency">₹</span>
-                    <span className="price-value">{Number(course.price).toLocaleString('en-IN')}</span>
-                    <span className="price-period">/ complete course</span>
+                  <div className="pricing-fee-block">
+                    <span className="currency-sym">₹</span>
+                    <span className="amount-val">{Number(course.price).toLocaleString('en-IN')}</span>
+                    <span className="fee-tenure">/ full course</span>
                   </div>
-                  <ul className="pricing-features">
-                    <li><span className="feature-check">✓</span> Direct 1:1 Live Interactive Mentorship Sessions with Indrajeet Sir</li>
-                    <li><span className="feature-check">✓</span> Alternate-Day Mains Answer Writing & Personal Line-by-Line Review</li>
-                    <li><span className="feature-check">✓</span> 600+ Topic-wise High-Yield Micro Notes & Mains Syllabus Coverage</li>
-                    <li><span className="feature-check">✓</span> 16 Evaluated Tests (Mini, Sectional & Full-Length Simulation)</li>
-                    <li><span className="feature-check">✓</span> Personalized Diagnostic Strategy & Continuous Doubt Support</li>
+                  <ul className="features-checklist">
+                    <li><span className="check-tick">✓</span> 1:1 Live interactive sessions with Indrajeet Sir</li>
+                    <li><span className="check-tick">✓</span> Direct Mains answer writing evaluation & feedback</li>
+                    <li><span className="check-tick">✓</span> 600+ Topic-wise short notes for GS 1 to 4</li>
+                    <li><span className="check-tick">✓</span> 16 Evaluated tests (Mini, Sectional & Full-length)</li>
+                    <li><span className="check-tick">✓</span> Direct WhatsApp & Call doubt clearing desk</li>
                   </ul>
                 </div>
                 <button
                   className="btn-primary full lg"
                   onClick={() => handleStartEnrollment(course)}
                 >
-                  Enroll & Pay ₹{Number(course.price).toLocaleString('en-IN')} →
+                  Enroll Now — ₹{Number(course.price).toLocaleString('en-IN')}
                 </button>
               </div>
             ))}
@@ -419,93 +417,75 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── How It Works ── */}
-      <section id="how" className="how-section">
+      {/* ── Real Aspirant FAQs (Fluid Accordion) ── */}
+      <section id="faqs" className="section-wrap">
         <div className="section-inner text-center">
-          <span className="pill">End-to-End Workflow</span>
-          <h2>How Your Mentorship Works</h2>
-          <div className="steps">
-            <div className="step">
-              <div className="step-num">1</div>
-              <h3>Enroll & Pay</h3>
-              <p>Select your course and complete fast, secure checkout via Razorpay (UPI, Cards, NetBanking).</p>
-            </div>
-            <div className="step-arrow">→</div>
-            <div className="step">
-              <div className="step-num">2</div>
-              <h3>Receive Credentials</h3>
-              <p>Your unique login credentials and mobile application download link are emailed instantly.</p>
-            </div>
-            <div className="step-arrow">→</div>
-            <div className="step">
-              <div className="step-num">3</div>
-              <h3>Access Schedule</h3>
-              <p>Log in to view your enrolled curriculum, weekly targets, and upcoming live class timetable.</p>
-            </div>
-            <div className="step-arrow">→</div>
-            <div className="step">
-              <div className="step-num">4</div>
-              <h3>1:1 Live Mentorship</h3>
-              <p>Attend live sessions directly with Indrajeet Sir, submit answer sheets, and receive diagnostic evaluation.</p>
-            </div>
+          <h2 className="section-heading">Frequently Asked Questions</h2>
+          <p className="section-subtext">
+            Clear answers to common questions about copy checking, schedules, and study material.
+          </p>
+
+          <div className="faq-container">
+            {faqs.map((faq, index) => {
+              const isOpen = openFaq === index;
+              return (
+                <div key={index} className="faq-card-fluid">
+                  <button
+                    className="faq-question-btn"
+                    onClick={() => setOpenFaq(isOpen ? null : index)}
+                    aria-expanded={isOpen}
+                  >
+                    <span>{faq.q}</span>
+                    <span className={`faq-icon-indicator ${isOpen ? 'open' : ''}`}>+</span>
+                  </button>
+                  {isOpen && (
+                    <div className="faq-answer-wrap">
+                      <p>{faq.a}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section className="cta-section">
-        <div className="cta-box text-center">
-          <h2>Start Your UPSC Journey with Indrajeet Sir</h2>
-          <p>Direct 1:1 live guidance, personalized answers review, and continuous support.</p>
-          <a href="#courses" className="btn-primary lg">View Courses & Enroll Now</a>
+      {/* ── Direct Desk CTA (3D Floating Card) ── */}
+      <section id="contact" className="section-wrap" style={{ paddingTop: '1rem' }}>
+        <div className="cta-desk-card">
+          <h2>Have Questions About Preparation Strategy?</h2>
+          <p>Talk directly with Indrajeet Sir&apos;s mentorship desk to discuss your attempt year and study plan.</p>
+          <div className="cta-desk-actions">
+            <a
+              href="tel:+919873486158"
+              className="btn-primary lg"
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.55rem' }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              <span>Call: +91 98734 86158</span>
+            </a>
+            <a
+              href="https://wa.me/919873486158"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline lg"
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.55rem' }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true">
+                <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2ZM12.04 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.16 12.04 20.16C10.66 20.16 9.3 19.8 8.1 19.09L7.81 18.92L4.69 19.74L5.52 16.7L5.33 16.39C4.54 15.13 4.12 13.68 4.12 11.91C4.12 7.38 7.82 3.67 12.04 3.67ZM8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7.02 8.48 7.02 9.69C7.02 10.9 7.9 12.07 8.02 12.23C8.15 12.39 9.74 14.85 12.19 15.91C12.77 16.16 13.23 16.31 13.58 16.42C14.17 16.61 14.7 16.58 15.13 16.52C15.61 16.45 16.6 15.92 16.81 15.33C17.02 14.74 17.02 14.24 16.96 14.13C16.89 14.03 16.73 13.97 16.48 13.85C16.24 13.72 15.02 13.12 14.79 13.04C14.57 12.96 14.4 12.92 14.24 13.17C14.07 13.41 13.59 13.97 13.45 14.13C13.3 14.3 13.16 14.32 12.91 14.2C12.67 14.07 11.88 13.82 10.95 12.98C10.22 12.33 9.73 11.53 9.58 11.28C9.44 11.04 9.57 10.9 9.69 10.78C9.8 10.67 9.94 10.49 10.06 10.34C10.19 10.2 10.23 10.09 10.31 9.93C10.39 9.76 10.35 9.62 10.29 9.5C10.23 9.37 9.73 8.16 9.53 7.66C9.33 7.18 9.12 7.24 8.97 7.24C8.82 7.23 8.68 7.23 8.53 7.33Z"/>
+              </svg>
+              <span>WhatsApp Us</span>
+            </a>
+          </div>
         </div>
       </section>
 
-      {/* ── Footer ── */}
-      <footer id="contact" className="footer">
-        <div className="footer-grid">
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.5rem' }}>
-              <Image
-                src="/logo.png"
-                alt="Indrajeet Sir Official Logo"
-                width={36}
-                height={36}
-                className="nav-brand-logo"
-              />
-              <div className="nav-title">Indrajeet Sir</div>
-            </div>
-            <p className="footer-desc">Expert UPSC & State PCS Mentorship with 10 years of dedicated teaching experience.</p>
-          </div>
-          <div>
-            <h4>Quick Links</h4>
-            <ul>
-              <li><a href="#courses">Courses & Fees</a></li>
-              <li><a href="#about">About Mentorship</a></li>
-              <li><Link href="/resources">Resources & Guides</Link></li>
-              <li><Link href="/admin">Admin Portal</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4>Legal & Policies</h4>
-            <ul>
-              <li><Link href="/privacy">Privacy Policy</Link></li>
-              <li><Link href="/terms">Terms of Service</Link></li>
-              <li><Link href="/terms#refund">Refund Policy</Link></li>
-              <li><Link href="/disclaimer">Disclaimers & Cookies</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4>Contact & Mentorship Desk</h4>
-            <p><a href="mailto:indrajeet.visionias@gmail.com" style={{ color: 'inherit', textDecoration: 'none' }}>indrajeet.visionias@gmail.com</a></p>
-            <p><a href="tel:+919873486158" style={{ color: 'inherit', textDecoration: 'none' }}>+91 98734 86158</a></p>
-            <p>Mon–Sat, 9:00 AM – 8:00 PM IST</p>
-          </div>
-        </div>
-        <div className="footer-copy">© 2026 Indrajeet Sir Mentorship. All rights reserved. • Delhi, India</div>
-      </footer>
+      {/* ── Modular Footer ── */}
+      <Footer />
 
-      {/* ── Razorpay Checkout Modal ── */}
+      {/* ── Secure Course Checkout Modal ── */}
       {showCheckoutModal && selectedCourse && (
         <div className="modal-overlay" onClick={() => !isProcessing && setShowCheckoutModal(false)}>
           <div className="modal-card" onClick={e => e.stopPropagation()}>
@@ -543,7 +523,7 @@ export default function Home() {
                 <label>WhatsApp / Mobile Number *</label>
                 <input
                   type="tel"
-                  placeholder="+91 98765 43210"
+                  placeholder="e.g. +91 98734 86158"
                   required
                   value={checkoutForm.phone}
                   onChange={e => setCheckoutForm({ ...checkoutForm, phone: e.target.value })}
@@ -551,11 +531,11 @@ export default function Home() {
               </div>
 
               <button type="submit" className="btn-primary full lg" disabled={isProcessing}>
-                {isProcessing ? 'Connecting to Razorpay...' : `Pay ₹${Number(selectedCourse.price).toLocaleString('en-IN')} via Razorpay →`}
+                {isProcessing ? 'Processing Secure Payment...' : `Proceed to Pay ₹${Number(selectedCourse.price).toLocaleString('en-IN')}`}
               </button>
 
               <div className="checkout-secure-badge">
-                🔒 256-Bit Encrypted Razorpay Checkout (UPI, GPay, Cards, NetBanking)
+                🔒 256-Bit Encrypted Secure Checkout (UPI, GPay, Cards, NetBanking)
               </div>
             </form>
           </div>
@@ -620,7 +600,7 @@ export default function Home() {
                 <label>Mobile Number</label>
                 <input
                   type="tel"
-                  placeholder="+91 98765 43210"
+                  placeholder="e.g. +91 98734 86158"
                   required
                   value={consultForm.phone}
                   onChange={e => setConsultForm({ ...consultForm, phone: e.target.value })}

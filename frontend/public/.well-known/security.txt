@@ -1,0 +1,6 @@
+Contact: mailto:indrajeet.visionias@gmail.com
+Expires: 2027-10-31T23:59:59.000Z
+Preferred-Languages: en, hi
+Canonical: https://indrajeetsir.vercel.app/.well-known/security.txt
+Policy: https://indrajeetsir.vercel.app/privacy
+Acknowledgments: https://indrajeetsir.vercel.app/

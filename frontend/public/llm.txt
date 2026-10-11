@@ -1,0 +1,18 @@
+# Indrajeet Sir IAS Mentorship
+
+> Personalized 1:1 UPSC Civil Services Examination (CSE) and State PCS Mentorship program founded and led by Indrajeet Sir with 10+ years of teaching expertise.
+
+## Core Offerings
+- **1:1 Live Interactive Mentorship**: Direct one-on-one strategy calls and doubt clearance via Google Meet.
+- **Mains Answer Writing & Evaluation**: Alternate-day answer writing with line-by-line personal review and feedback by Indrajeet Sir.
+- **Curriculum & Micro Notes**: 600+ topic-wise short notes covering GS Papers 1 to 4 and Public Administration Optional.
+- **Evaluated Test Series**: 16 comprehensive tests including mini, sectional, and full-length simulated exams.
+- **Student Android Mobile App**: Official mobile app (com.nighwantech.indrajeetsir) for daily class schedules, study materials, and direct desk messaging.
+
+## Contact & Verification
+- Lead Mentor: Indrajeet Sir
+- Official Email: indrajeet.visionias@gmail.com
+- Helpline / WhatsApp: +91 98734 86158
+- Office Desk Hours: Monday – Saturday, 9:00 AM – 8:00 PM IST
+- Location: Delhi, India
+- Website: https://indrajeetsir.vercel.app

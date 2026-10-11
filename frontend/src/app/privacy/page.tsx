@@ -15,15 +15,12 @@ export default function PrivacyPolicyPage() {
         <Link href="/" className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none' }}>
           <Image
             src="/logo.png"
-            alt="Indrajeet Sir Logo"
+            alt="Indrajeet Sir"
             width={38}
             height={38}
-            style={{ borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #2563eb' }}
+            style={{ borderRadius: '50%', objectFit: 'cover' }}
           />
-          <div>
-            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#111827', lineHeight: 1.1 }}>Indrajeet Sir</div>
-            <div style={{ fontSize: '0.68rem', color: '#2563eb', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>IAS Mentorship</div>
-          </div>
+          <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#111827' }}>Indrajeet Sir</div>
         </Link>
         <Link href="/" className="back-link">
           ← Back to Home
@@ -51,15 +48,15 @@ export default function PrivacyPolicyPage() {
         <ul>
           <li><strong>Personal Identifiers:</strong> Student full name, email address, contact phone/WhatsApp number.</li>
           <li><strong>Academic Profile:</strong> Target UPSC CSE attempt year (e.g., 2026, 2027), Optional Subject (e.g., Public Administration, PSIR, Geography), educational background, and preparation stage (Beginner, Intermediate, Mains-appearing).</li>
-          <li><strong>Classroom & Evaluation Records:</strong> Uploaded Mains handwritten answer copies, evaluation sheets, marks scored, attendance in live Google Meet sessions, and 1:1 strategy interaction notes.</li>
-          <li><strong>Transaction Metadata:</strong> Order IDs, payment transaction status, amount paid, and invoice details processed securely via Razorpay. <em>(Note: We do NOT store card numbers, CVVs, or net banking passwords; all payments are tokenized and processed directly by RBI-regulated payment gateways).</em></li>
+          <li><strong>Classroom & Evaluation Records:</strong> Uploaded Mains handwritten answer copies, evaluation sheets, marks scored, attendance in live interactive sessions, and 1:1 strategy interaction notes.</li>
+          <li><strong>Transaction Metadata:</strong> Order IDs, payment transaction status, amount paid, and invoice details processed securely via certified payment gateways. <em>(Note: We do NOT store card numbers, CVVs, or net banking passwords; all payments are tokenized and processed directly by RBI-regulated payment gateways).</em></li>
           <li><strong>Device & Application Diagnostics:</strong> Device model, OS version, and crash logs needed to guarantee smooth video class delivery and real-time push reminder reliability.</li>
         </ul>
 
         <h2>3. How We Use Collected Information</h2>
         <p>We process your data strictly for legitimate educational mentorship functions:</p>
         <ol>
-          <li><strong>Course Delivery & Session Scheduling:</strong> Allotting personalized 1:1 mentorship time slots, distributing private Google Meet links, and sending session schedules and class updates.</li>
+          <li><strong>Course Delivery & Session Scheduling:</strong> Allotting personalized 1:1 mentorship time slots, distributing private session links, and sending session schedules and class updates.</li>
           <li><strong>Mains Answer Evaluation:</strong> Analyzing your answer copies, highlighting structural gaps, suggesting diagram additions, and tracking improvement metrics across phases.</li>
           <li><strong>Communication & Desk Support:</strong> Answering academic queries, sending course schedule updates, and resolving technical support issues via WhatsApp/Email.</li>
           <li><strong>Compliance & Invoicing:</strong> Generating tax-compliant invoices and verifying enrollments under Indian regulatory frameworks.</li>
@@ -78,8 +75,8 @@ export default function PrivacyPolicyPage() {
         <h2>5. Third-Party Service Providers</h2>
         <p>We partner only with vetted industry leaders for core technological infrastructure:</p>
         <ul>
-          <li><strong>Razorpay:</strong> Certified PCI-DSS Level 1 payment gateway partner handling secure UPI, card, and net banking transactions.</li>
-          <li><strong>Google Meet / Workspace:</strong> End-to-end encrypted video conferencing for live strategy calls and doubt clearance.</li>
+          <li><strong>Payment Processing Infrastructure:</strong> Certified PCI-DSS Level 1 payment gateway handling secure UPI, card, and net banking transactions.</li>
+          <li><strong>Video Conferencing Infrastructure:</strong> End-to-end encrypted video conferencing for live strategy calls and doubt clearance.</li>
           <li><strong>Transactional Email (SMTP):</strong> Secure delivery of login credentials, schedules, and fee receipts.</li>
         </ul>
 

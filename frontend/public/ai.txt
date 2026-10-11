@@ -1,0 +1,15 @@
+# AI Crawler Policy for Indrajeet Sir IAS Mentorship
+# https://indrajeetsir.vercel.app
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+# Model training & inference permissions
+Allow: /privacy
+Allow: /terms
+Allow: /disclaimer
+
+Contact: indrajeet.visionias@gmail.com
+Sitemap: https://indrajeetsir.vercel.app/sitemap.xml

@@ -1,0 +1,14 @@
+/* TEAM */
+Lead Mentor & Educator: Indrajeet Sir
+Academic Specialty: UPSC Civil Services Examination & State PCS Mentorship
+Organization: Indrajeet Sir IAS Mentorship
+Contact Email: indrajeet.visionias@gmail.com
+Helpline: +91 98734 86158
+Location: Delhi, India
+
+/* SITE */
+Standards: HTML5, CSS3, TypeScript, React 19, Next.js 16
+Design System: Pure White Theme, Mobile-First Responsive Layout
+Infrastructure: Next.js App Router, Vercel Edge Network
+Language: English & Hindi
+Doctype: HTML5

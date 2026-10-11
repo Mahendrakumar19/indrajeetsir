@@ -15,15 +15,12 @@ export default function TermsOfServicePage() {
         <Link href="/" className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none' }}>
           <Image
             src="/logo.png"
-            alt="Indrajeet Sir Logo"
+            alt="Indrajeet Sir"
             width={38}
             height={38}
-            style={{ borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #2563eb' }}
+            style={{ borderRadius: '50%', objectFit: 'cover' }}
           />
-          <div>
-            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#111827', lineHeight: 1.1 }}>Indrajeet Sir</div>
-            <div style={{ fontSize: '0.68rem', color: '#2563eb', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>IAS Mentorship</div>
-          </div>
+          <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#111827' }}>Indrajeet Sir</div>
         </Link>
         <Link href="/" className="back-link">
           ← Back to Home
@@ -43,12 +40,12 @@ export default function TermsOfServicePage() {
 
         <h2>1. Acceptance of Terms</h2>
         <p>
-          These Terms of Service (&quot;Terms&quot;) constitute a legally binding agreement between you (&quot;Student&quot;, &quot;Enrolled Aspirant&quot;, or &quot;User&quot;) and <strong>Indrajeet Sir IAS Mentorship</strong> (&quot;Academy&quot;, &quot;We&quot;, &quot;Us&quot;). These terms govern your access to the web portal, live Google Meet sessions, curriculum notes, evaluative feedback, and the <strong>Indrajeet Sir UPSC</strong> mobile application.
+          These Terms of Service (&quot;Terms&quot;) constitute a legally binding agreement between you (&quot;Student&quot;, &quot;Enrolled Aspirant&quot;, or &quot;User&quot;) and <strong>Indrajeet Sir IAS Mentorship</strong> (&quot;Academy&quot;, &quot;We&quot;, &quot;Us&quot;). These terms govern your access to the web portal, live interactive sessions, curriculum notes, evaluative feedback, and the <strong>Indrajeet Sir UPSC</strong> mobile application.
         </p>
 
         <h2>2. Enrollment & Student Account Integrity</h2>
         <ul>
-          <li><strong>Single-User License:</strong> Each mentorship seat is strictly personal and non-transferable. You agree not to share, resell, or distribute your mobile app credentials, login tokens, or live Google Meet links to any non-enrolled person.</li>
+          <li><strong>Single-User License:</strong> Each mentorship seat is strictly personal and non-transferable. You agree not to share, resell, or distribute your mobile app credentials, login tokens, or live session links to any non-enrolled person.</li>
           <li><strong>Accurate Information:</strong> Aspirants must provide authentic contact details (email, WhatsApp number) during enrollment to ensure receipt of live class links, meeting reschedule notifications, and evaluation copies.</li>
         </ul>
 
@@ -64,14 +61,14 @@ export default function TermsOfServicePage() {
         <h2>4. Live Classroom & 1:1 Mentorship Etiquette</h2>
         <p>To preserve high academic standards:</p>
         <ol>
-          <li><strong>Punctuality:</strong> Aspirants must join scheduled Google Meet sessions on time. Live sessions start precisely at the notified hour.</li>
+          <li><strong>Punctuality:</strong> Aspirants must join scheduled live sessions on time. Live sessions start precisely at the notified hour.</li>
           <li><strong>Prior Notice for Rescheduling:</strong> If an aspirant is unable to attend a scheduled 1:1 strategy slot due to unavoidable emergency, at least 4 hours prior notice must be provided via WhatsApp/Email to allow slot re-allocation.</li>
           <li><strong>Constructive Discourse:</strong> Respectful, professional communication is mandatory during all student-mentor interactions. Disruptive behavior will result in immediate suspension.</li>
         </ol>
 
-        <h2>5. Fees & Razorpay Payment Processing</h2>
+        <h2>5. Fees & Secure Payment Processing</h2>
         <ul>
-          <li><strong>Transparent Pricing:</strong> Mentorship course fees are explicitly stated on the portal prior to checkout. All transactions are securely processed in Indian Rupees (INR) via Razorpay.</li>
+          <li><strong>Transparent Pricing:</strong> Mentorship course fees are explicitly stated on the portal prior to checkout. All transactions are securely processed in Indian Rupees (INR) via RBI-regulated payment gateways.</li>
           <li><strong>Tax Invoicing:</strong> Successful payments generate a formal digital fee receipt delivered immediately to your registered email address.</li>
         </ul>
 

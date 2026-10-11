@@ -15,15 +15,12 @@ export default function DisclaimersPage() {
         <Link href="/" className="nav-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none' }}>
           <Image
             src="/logo.png"
-            alt="Indrajeet Sir Logo"
+            alt="Indrajeet Sir"
             width={38}
             height={38}
-            style={{ borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #2563eb' }}
+            style={{ borderRadius: '50%', objectFit: 'cover' }}
           />
-          <div>
-            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#111827', lineHeight: 1.1 }}>Indrajeet Sir</div>
-            <div style={{ fontSize: '0.68rem', color: '#2563eb', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>IAS Mentorship</div>
-          </div>
+          <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#111827' }}>Indrajeet Sir</div>
         </Link>
         <Link href="/" className="back-link">
           ← Back to Home
@@ -67,7 +64,7 @@ export default function DisclaimersPage() {
 
         <h2>4. External Links Disclaimer</h2>
         <p>
-          Our platform may contain external links to Google Meet, official government gazettes, PIB releases, or curriculum reference resources. We do not exercise editorial control over third-party domains and are not responsible for the privacy practices or contents of such external platforms.
+          Our platform may contain external links to official government gazettes, PIB releases, or curriculum reference resources. We do not exercise editorial control over third-party domains and are not responsible for the privacy practices or contents of such external platforms.
         </p>
 
         <div className="legal-contact-card">

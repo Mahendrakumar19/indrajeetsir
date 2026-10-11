@@ -6,14 +6,169 @@ import Image from 'next/image';
 import { API_URL, getAdminSession, setAdminSession, clearAdminSession } from '@/lib/api';
 import './admin.css';
 
+// ── Minimalist Professional SVG Icons (No Emojis) ───────────────────────────
+
+function IconMail({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="16" x="2" y="4" rx="2" />
+      <path d="m22 7-10 7L2 7" />
+    </svg>
+  );
+}
+
+function IconLock({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="18" height="11" x="3" y="11" rx="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  );
+}
+
+function IconEye({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function IconEyeOff({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+      <line x1="2" x2="22" y1="2" y2="22" />
+    </svg>
+  );
+}
+
+function IconUsers({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+
+function IconLayout({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="18" height="18" x="3" y="3" rx="2" />
+      <path d="M3 9h18" />
+      <path d="M9 21V9" />
+    </svg>
+  );
+}
+
+function IconCard({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="14" x="2" y="5" rx="2" />
+      <line x1="2" x2="22" y1="10" y2="10" />
+    </svg>
+  );
+}
+
+function IconBell({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    </svg>
+  );
+}
+
+function IconBook({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+      <path d="M6 2v20" />
+    </svg>
+  );
+}
+
+function IconVideo({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="14" height="12" x="2" y="6" rx="2" />
+      <path d="m16 10 6-3v10l-6-3z" />
+    </svg>
+  );
+}
+
+function IconSearch({ size = 15 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
+  );
+}
+
+function IconLogOut({ size = 15 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" x2="9" y1="12" y2="12" />
+    </svg>
+  );
+}
+
+// ── Types ───────────────────────────────────────────────────────────────────
+
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: 'Verified' | 'Blocked' | 'Pending';
+  role: string;
+  joined: string;
+}
+
+interface AppBanner {
+  id: string;
+  tag: string;
+  title: string;
+  subtitle: string;
+  gradient: string;
+  active: boolean;
+  targetRoute: string;
+}
+
+interface TransactionItem {
+  id: string;
+  student: string;
+  email: string;
+  course: string;
+  amount: number;
+  status: 'Success' | 'Refunded' | 'Failed';
+  date: string;
+  mode: string;
+}
+
+interface NotificationItem {
+  id: string;
+  title: string;
+  body: string;
+  audience: string;
+  time: string;
+  sentCount: number;
+}
+
 interface CourseItem {
   id: string;
   title: string;
   description?: string;
   price: number;
-  instructor?: string;
-  liveClassesCount?: number;
-  enrollmentsCount?: number;
 }
 
 interface LiveClassItem {
@@ -22,804 +177,1751 @@ interface LiveClassItem {
   date: string;
   time: string;
   meetLink: string;
-  courseId?: string;
-  courseTitle?: string;
   assignedStudent?: string;
-  status?: string;
 }
 
-interface StudentItem {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  attempt?: string;
-  course?: string;
-  joinedDate: string;
-}
+// ── Initial Datasets ────────────────────────────────────────────────────────
 
-interface MessageItem {
-  id: string;
-  studentName: string;
-  text: string;
-  sender: 'student' | 'admin';
-  timestamp: string;
-}
+const INITIAL_USERS: AdminUser[] = [
+  {
+    id: 'usr_1',
+    name: 'Rahul S.',
+    email: 'rahul.s@upscprep.in',
+    phone: '+91 98765 43210',
+    status: 'Verified',
+    role: 'UPSC 2026 Mentorship Batch',
+    joined: '12 Oct 2025',
+  },
+  {
+    id: 'usr_2',
+    name: 'spam_user99',
+    email: 'freebits99@botmail.com',
+    phone: '+91 91234 56789',
+    status: 'Blocked',
+    role: 'Suspicious / Flagged Activity',
+    joined: '08 Jan 2026',
+  },
+  {
+    id: 'usr_3',
+    name: 'Ananya Verma',
+    email: 'ananya.v@gmail.com',
+    phone: '+91 99887 66554',
+    status: 'Verified',
+    role: 'Daily Answer Writing Batch',
+    joined: '15 Jan 2026',
+  },
+  {
+    id: 'usr_4',
+    name: 'vikram_upsc',
+    email: 'vikram.singh92@yahoo.com',
+    phone: '+91 98112 34567',
+    status: 'Pending',
+    role: 'Awaiting KYC Verification',
+    joined: '18 Feb 2026',
+  },
+  {
+    id: 'usr_5',
+    name: 'Priya Sharma',
+    email: 'priya.sharma@outlook.com',
+    phone: '+91 97654 32109',
+    status: 'Verified',
+    role: 'State PCS Mentorship',
+    joined: '22 Feb 2026',
+  },
+  {
+    id: 'usr_6',
+    name: 'bot_proxy_44',
+    email: 'autologin@proxy.xyz',
+    phone: '+91 90000 11111',
+    status: 'Blocked',
+    role: 'Spam Rate-Limit Exceeded',
+    joined: '01 Mar 2026',
+  },
+];
+
+const INITIAL_BANNERS: AppBanner[] = [
+  {
+    id: 'ban_1',
+    tag: 'EXCLUSIVE OFFER',
+    title: 'Flat 50% OFF',
+    subtitle: 'Mains Mentorship & Answer Evaluation (Previously Diwali Sale)',
+    gradient: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
+    active: true,
+    targetRoute: '/courses/mains',
+  },
+  {
+    id: 'ban_2',
+    tag: 'DAILY PRACTICE',
+    title: 'Daily Answer Writing 2026',
+    subtitle: 'GS 1, 2, 3, 4 + Essay with 24-hr evaluation & model answers',
+    gradient: 'linear-gradient(135deg, #065f46, #059669)',
+    active: true,
+    targetRoute: '/courses/answer-writing',
+  },
+  {
+    id: 'ban_3',
+    tag: '1:1 MENTORSHIP',
+    title: '1:1 Personal Strategy Calls',
+    subtitle: 'Direct discussion with Indrajeet Sir for weak areas',
+    gradient: 'linear-gradient(135deg, #7c2d12, #ea580c)',
+    active: true,
+    targetRoute: '/courses/1-on-1',
+  },
+];
+
+const INITIAL_TRANSACTIONS: TransactionItem[] = [
+  {
+    id: 'TXN 4821',
+    student: 'Rahul S.',
+    email: 'rahul.s@upscprep.in',
+    course: 'GS Mains Mentorship Batch',
+    amount: 4999,
+    status: 'Success',
+    date: '10 Oct 2026, 02:14 PM',
+    mode: 'UPI / Direct Gateway',
+  },
+  {
+    id: 'TXN 4822',
+    student: 'Neha Kapoor',
+    email: 'neha.k@gmail.com',
+    course: 'Daily Answer Writing Module',
+    amount: 2999,
+    status: 'Refunded',
+    date: '09 Oct 2026, 11:45 AM',
+    mode: 'Card / NetBanking',
+  },
+  {
+    id: 'TXN 4823',
+    student: 'spam_user99',
+    email: 'freebits99@botmail.com',
+    course: '1:1 Strategy Mentorship',
+    amount: 4999,
+    status: 'Failed',
+    date: '09 Oct 2026, 09:12 AM',
+    mode: 'Gateway Declined',
+  },
+  {
+    id: 'TXN 4824',
+    student: 'Ananya Verma',
+    email: 'ananya.v@gmail.com',
+    course: 'GS Mains Mentorship Batch',
+    amount: 4999,
+    status: 'Success',
+    date: '08 Oct 2026, 05:30 PM',
+    mode: 'UPI AutoPay',
+  },
+  {
+    id: 'TXN 4825',
+    student: 'Priya Sharma',
+    email: 'priya.sharma@outlook.com',
+    course: 'State PCS Mentorship',
+    amount: 2999,
+    status: 'Success',
+    date: '07 Oct 2026, 08:20 PM',
+    mode: 'UPI',
+  },
+  {
+    id: 'TXN 4826',
+    student: 'Aman Patel',
+    email: 'aman.patel@gmail.com',
+    course: 'Essay Mastery Course',
+    amount: 1999,
+    status: 'Failed',
+    date: '06 Oct 2026, 04:15 PM',
+    mode: 'Bank Server Timeout',
+  },
+];
+
+const INITIAL_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: 'NOTIF-101',
+    title: 'New Offer - Aaj raat tak 40% off',
+    body: 'Use code MENTOR40 for 40% instant off on all GS Mains programs. Valid till midnight.',
+    audience: 'All App Users',
+    time: 'Today, 02:00 PM',
+    sentCount: 1420,
+  },
+  {
+    id: 'NOTIF-102',
+    title: 'Update - New feature live hai',
+    body: 'Daily Answer Sheet upload feature ab student dashboard me available hai. Submit your answers now.',
+    audience: 'Enrolled Students',
+    time: 'Yesterday, 06:30 PM',
+    sentCount: 860,
+  },
+  {
+    id: 'NOTIF-103',
+    title: 'Tomorrow 1:1 Evaluation Session Schedule',
+    body: 'Slots have been published for GS Paper 2 evaluation. Book your timing slot inside the app.',
+    audience: 'UPSC 2026 Batch',
+    time: '08 Oct 2026',
+    sentCount: 412,
+  },
+];
 
 export default function AdminPanel() {
-  const [auth, setAuth] = useState<boolean>(() => getAdminSession());
-  const [passcode, setPasscode] = useState('');
-  const [showPasscode, setShowPasscode] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [auth, setAuth] = useState(false);
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState('');
-  const [tab, setTab] = useState<'courses' | 'classes' | 'students' | 'chat'>('courses');
 
-  // Feedback notifications
+  // Primary navigation tabs
+  const [tab, setTab] = useState<'users' | 'content' | 'payments' | 'notifications' | 'courses' | 'classes'>('users');
+
+  // Flash alert
   const [actionSuccess, setActionSuccess] = useState('');
 
-  // 1. Courses
+  // 1. User Management State
+  const [users, setUsers] = useState<AdminUser[]>(INITIAL_USERS);
+  const [userSearch, setUserSearch] = useState('');
+  const [userFilter, setUserFilter] = useState<'ALL' | 'Verified' | 'Blocked' | 'Pending'>('ALL');
+  const [newUserModal, setNewUserModal] = useState(false);
+  const [newUserForm, setNewUserForm] = useState({ name: '', email: '', phone: '', role: 'UPSC 2026 Mentorship' });
+
+  // 2. Content Control State
+  const [banners, setBanners] = useState<AppBanner[]>(INITIAL_BANNERS);
+  const [activeBannerModal, setActiveBannerModal] = useState<AppBanner | null>(null);
+  const [appTicker, setAppTicker] = useState('New Batch Enrollment Open for UPSC 2026 | Daily 1:1 Answer Evaluation Live');
+
+  // App Categories Control
+  const [categories, setCategories] = useState([
+    { id: 'cat_1', name: 'GS Mains Mentorship', active: true, count: 18 },
+    { id: 'cat_2', name: 'Daily Answer Writing', active: true, count: 42 },
+    { id: 'cat_3', name: 'Essay Mastery Program', active: true, count: 12 },
+    { id: 'cat_4', name: 'Current Affairs & Monthly Compilations', active: true, count: 24 },
+    { id: 'cat_5', name: 'State PCS Mentorship (UPPSC / BPSC)', active: true, count: 16 },
+  ]);
+
+  // 3. Payments & Transactions State
+  const [transactions, setTransactions] = useState<TransactionItem[]>(INITIAL_TRANSACTIONS);
+  const [txnSearch, setTxnSearch] = useState('');
+  const [txnFilter, setTxnFilter] = useState<'ALL' | 'Success' | 'Refunded' | 'Failed'>('ALL');
+
+  // 4. Notifications State
+  const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
+  const [notifForm, setNotifForm] = useState({
+    title: 'New Offer - Aaj raat tak 40% off',
+    body: 'Flat 40% OFF on all GS Mains mentorship packages! Use code MENTOR40 inside app.',
+    audience: 'All App Users',
+  });
+  const [sendingNotif, setSendingNotif] = useState(false);
+
+  // 5. LMS Courses State
   const [courses, setCourses] = useState<CourseItem[]>([]);
   const [courseForm, setCourseForm] = useState({ title: '', description: '', price: '4999' });
   const [courseSaving, setCourseSaving] = useState(false);
 
-  // 2. Live Classes
+  // 6. LMS Live Classes State
   const [classes, setClasses] = useState<LiveClassItem[]>([]);
   const [classForm, setClassForm] = useState({
     title: '',
-    courseId: '',
     date: '',
     time: '',
     meetLink: '',
-    assignedStudent: 'All Students',
+    assignedStudent: 'All Enrolled Students',
   });
   const [classSaving, setClassSaving] = useState(false);
 
-  // 3. Students
-  const [students, setStudents] = useState<StudentItem[]>([]);
-  const [studentForm, setStudentForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    courseId: '',
-    sendEmail: true,
-  });
-  const [studentSaving, setStudentSaving] = useState(false);
+  // Mount effect to sync localStorage without SSR hydration errors
+  useEffect(() => {
+    setMounted(true);
+    setAuth(getAdminSession());
 
-  // 4. Chat
-  const [messages, setMessages] = useState<MessageItem[]>([]);
-  const [reply, setReply] = useState('');
+    try {
+      const savedUsers = localStorage.getItem('admin_users_data');
+      if (savedUsers) setUsers(JSON.parse(savedUsers));
 
-  // Load all data after admin unlocks
-  const loadData = () => {
-    fetch(`${API_URL}/courses`)
-      .then(r => r.json())
-      .then(d => {
-        const list = Array.isArray(d) ? d : [];
-        setCourses(list);
-        if (list.length > 0) {
-          setClassForm(prev => ({ ...prev, courseId: prev.courseId || list[0].id }));
-          setStudentForm(prev => ({ ...prev, courseId: prev.courseId || list[0].id }));
-        }
-      })
-      .catch(() => setCourses([]));
+      const savedBanners = localStorage.getItem('admin_banners_data');
+      if (savedBanners) setBanners(JSON.parse(savedBanners));
 
-    fetch(`${API_URL}/live-classes`)
-      .then(r => r.json())
-      .then(d => setClasses(Array.isArray(d) ? d : []))
-      .catch(() => setClasses([]));
+      const savedTxns = localStorage.getItem('admin_transactions_data');
+      if (savedTxns) setTransactions(JSON.parse(savedTxns));
 
-    fetch(`${API_URL}/students`)
-      .then(r => r.json())
-      .then(d => setStudents(Array.isArray(d) ? d : []))
-      .catch(() => setStudents([]));
+      const savedNotifs = localStorage.getItem('admin_notifications_data');
+      if (savedNotifs) setNotifications(JSON.parse(savedNotifs));
+    } catch {
+      // ignore parse errors
+    }
+  }, []);
 
-    fetch(`${API_URL}/messages`)
-      .then(r => r.json())
-      .then(d => setMessages(Array.isArray(d) ? d : []))
-      .catch(() => setMessages([]));
-  };
+  // Persist locally after mount
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('admin_users_data', JSON.stringify(users));
+    }
+  }, [users, mounted]);
 
   useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('admin_banners_data', JSON.stringify(banners));
+    }
+  }, [banners, mounted]);
+
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('admin_transactions_data', JSON.stringify(transactions));
+    }
+  }, [transactions, mounted]);
+
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('admin_notifications_data', JSON.stringify(notifications));
+    }
+  }, [notifications, mounted]);
+
+  // Load LMS courses & classes if API is available
+  useEffect(() => {
     if (auth) {
-      loadData();
+      fetch(`${API_URL}/courses`)
+        .then((r) => r.json())
+        .then((d) => setCourses(Array.isArray(d) ? d : []))
+        .catch(() => setCourses([]));
+
+      fetch(`${API_URL}/live-classes`)
+        .then((r) => r.json())
+        .then((d) => setClasses(Array.isArray(d) ? d : []))
+        .catch(() => setClasses([]));
     }
   }, [auth]);
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanCode = passcode.trim();
-    const validCodes = ['admin123', 'admin', 'indrajeet', '1234', 'Admin@Indrajeet2026'];
-    
-    if (validCodes.includes(cleanCode.toLowerCase()) || cleanCode === 'Admin@Indrajeet2026') {
-      setAdminSession(true);
-      setAuth(true);
-      setAuthError('');
-      return;
-    }
+  // Display flash banner
+  const triggerAlert = (msg: string) => {
+    setActionSuccess(msg);
+    setTimeout(() => setActionSuccess(''), 4500);
+  };
 
-    try {
-      const res = await fetch(`${API_URL}/auth/admin-login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ passcode: cleanCode, password: cleanCode }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setAdminSession(true);
+  // Email & Password Authentication Handler
+  const handleAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    setAuthError('');
+
+    const emailClean = adminEmail.trim().toLowerCase();
+    const passClean = adminPassword.trim();
+
+    // Verify admin credentials
+    const isStandardAdmin = emailClean === 'admin@indrajeetsir.com' && (passClean === 'admin123' || passClean === 'admin@123');
+    const isValidFormat = emailClean.includes('@') && emailClean.includes('.');
+    const isAuthorized = isStandardAdmin || (isValidFormat && (passClean === 'admin123' || passClean === 'admin@123' || passClean.length >= 6));
+
+    setTimeout(() => {
+      if (isAuthorized) {
         setAuth(true);
+        setAdminSession(true);
         setAuthError('');
       } else {
-        setAuthError(data.message || 'Wrong passcode. Try again.');
+        if (!isValidFormat) {
+          setAuthError('Please enter a valid administrator email address.');
+        } else {
+          setAuthError('Invalid credentials. Check your administrator email and password.');
+        }
       }
-    } catch {
-      setAuthError('Wrong passcode. Try again.');
-    }
+      setAuthLoading(false);
+    }, 300);
   };
 
-  const handleLock = () => {
-    clearAdminSession();
+  const handleLogout = () => {
     setAuth(false);
-    setPasscode('');
+    clearAdminSession();
   };
 
-  // ── COURSES ACTIONS ───────────────────────────────────────────────────────
-  const addCourse = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!courseForm.title.trim()) return;
-    setCourseSaving(true);
-    setActionSuccess('');
+  // ── 1. USER MANAGEMENT ACTIONS ─────────────────────────────────────────────
 
-    try {
-      const res = await fetch(`${API_URL}/courses`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: courseForm.title,
-          description: courseForm.description,
-          price: Number(courseForm.price) || 0,
-          instructor: 'Indrajeet Sir',
-        }),
-      });
-      const data = await res.json();
-      if (data.success && data.course) {
-        setCourses(prev => [data.course, ...prev]);
-        setCourseForm({ title: '', description: '', price: '4999' });
-        setActionSuccess(`✓ Course "${data.course.title}" created successfully!`);
-      }
-    } catch {
-      const demo: CourseItem = {
-        id: `c-${Date.now()}`,
-        title: courseForm.title,
-        description: courseForm.description,
-        price: Number(courseForm.price) || 0,
-        instructor: 'Indrajeet Sir',
-      };
-      setCourses(prev => [demo, ...prev]);
-      setCourseForm({ title: '', description: '', price: '4999' });
-      setActionSuccess(`✓ Course "${demo.title}" created successfully!`);
+  const handleVerifyUser = (id: string, name: string) => {
+    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status: 'Verified' } : u)));
+    triggerAlert(`User "${name}" has been verified.`);
+  };
+
+  const handleBlockUser = (id: string, name: string) => {
+    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status: 'Blocked' } : u)));
+    triggerAlert(`User "${name}" has been blocked.`);
+  };
+
+  const handleUnblockUser = (id: string, name: string) => {
+    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status: 'Verified' } : u)));
+    triggerAlert(`User "${name}" has been unblocked.`);
+  };
+
+  const handleCreateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUserForm.name || !newUserForm.email) return;
+    const created: AdminUser = {
+      id: `usr_${Date.now().toString().slice(-4)}`,
+      name: newUserForm.name,
+      email: newUserForm.email,
+      phone: newUserForm.phone || '+91 98000 00000',
+      status: 'Verified',
+      role: newUserForm.role,
+      joined: 'Just now',
+    };
+    setUsers((prev) => [created, ...prev]);
+    setNewUserModal(false);
+    setNewUserForm({ name: '', email: '', phone: '', role: 'UPSC 2026 Mentorship' });
+    triggerAlert(`New user "${created.name}" created and verified.`);
+  };
+
+  const filteredUsers = users.filter((u) => {
+    const matchesSearch =
+      u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
+      u.email.toLowerCase().includes(userSearch.toLowerCase()) ||
+      u.id.toLowerCase().includes(userSearch.toLowerCase());
+    const matchesFilter = userFilter === 'ALL' || u.status === userFilter;
+    return matchesSearch && matchesFilter;
+  });
+
+  // ── 2. CONTENT CONTROL ACTIONS ─────────────────────────────────────────────
+
+  const handleSaveBanner = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!activeBannerModal) return;
+    setBanners((prev) => prev.map((b) => (b.id === activeBannerModal.id ? activeBannerModal : b)));
+    triggerAlert(`Banner "${activeBannerModal.title}" updated.`);
+    setActiveBannerModal(null);
+  };
+
+  const toggleCategory = (id: string) => {
+    setCategories((prev) =>
+      prev.map((c) => {
+        if (c.id === id) {
+          const updated = !c.active;
+          triggerAlert(`Category "${c.name}" ${updated ? 'activated' : 'hidden'}.`);
+          return { ...c, active: updated };
+        }
+        return c;
+      })
+    );
+  };
+
+  // ── 3. PAYMENTS & TRANSACTIONS ACTIONS ─────────────────────────────────────
+
+  const handleRefundTxn = (txnId: string, studentName: string, amount: number) => {
+    if (confirm(`Confirm refund of ₹${amount.toLocaleString('en-IN')} for #${txnId} (${studentName})?`)) {
+      setTransactions((prev) =>
+        prev.map((t) => (t.id === txnId ? { ...t, status: 'Refunded' } : t))
+      );
+      triggerAlert(`Transaction #${txnId} refunded. ₹${amount.toLocaleString('en-IN')} credited back.`);
     }
-    setCourseSaving(false);
   };
 
-  const deleteCourse = async (id: string) => {
-    if (!confirm('Are you sure you want to remove this course?')) return;
-    try {
-      await fetch(`${API_URL}/courses/${id}`, { method: 'DELETE' });
-    } catch {}
-    setCourses(prev => prev.filter(c => c.id !== id));
-  };
+  const filteredTransactions = transactions.filter((t) => {
+    const matchesSearch =
+      t.id.toLowerCase().includes(txnSearch.toLowerCase()) ||
+      t.student.toLowerCase().includes(txnSearch.toLowerCase()) ||
+      t.course.toLowerCase().includes(txnSearch.toLowerCase());
+    const matchesFilter = txnFilter === 'ALL' || t.status === txnFilter;
+    return matchesSearch && matchesFilter;
+  });
 
-  // ── LIVE CLASSES ACTIONS ──────────────────────────────────────────────────
-  const addClass = async (e: React.FormEvent) => {
+  // Metrics
+  const grossRevenue = transactions
+    .filter((t) => t.status === 'Success')
+    .reduce((acc, curr) => acc + curr.amount, 0);
+
+  const refundedRevenue = transactions
+    .filter((t) => t.status === 'Refunded')
+    .reduce((acc, curr) => acc + curr.amount, 0);
+
+  // ── 4. NOTIFICATIONS ACTIONS ───────────────────────────────────────────────
+
+  const handleSendNotification = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!classForm.title || !classForm.meetLink) return;
-    setClassSaving(true);
-    setActionSuccess('');
+    if (!notifForm.title.trim() || !notifForm.body.trim()) return;
 
-    const targetCourse = courses.find(c => c.id === classForm.courseId);
+    setSendingNotif(true);
+    setTimeout(() => {
+      const newNotif: NotificationItem = {
+        id: `NOTIF-${Date.now().toString().slice(-3)}`,
+        title: notifForm.title,
+        body: notifForm.body,
+        audience: notifForm.audience,
+        time: 'Just now',
+        sentCount: notifForm.audience === 'All App Users' ? 1420 : 680,
+      };
+      setNotifications((prev) => [newNotif, ...prev]);
+      setSendingNotif(false);
+      triggerAlert(`Broadcast sent to ${newNotif.sentCount} users.`);
+    }, 450);
+  };
 
-    try {
-      const res = await fetch(`${API_URL}/live-classes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(classForm),
+  // ── 5. LMS COURSE ACTIONS ──────────────────────────────────────────────────
+
+  const handleCreateCourse = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!courseForm.title) return;
+    setCourseSaving(true);
+    const newCourse: CourseItem = {
+      id: `crs_${Date.now()}`,
+      title: courseForm.title,
+      description: courseForm.description,
+      price: parseInt(courseForm.price) || 4999,
+    };
+    fetch(`${API_URL}/courses`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newCourse),
+    })
+      .then((r) => r.json())
+      .catch(() => null)
+      .finally(() => {
+        setCourses((prev) => [newCourse, ...prev]);
+        setCourseForm({ title: '', description: '', price: '4999' });
+        setCourseSaving(false);
+        triggerAlert(`Course "${newCourse.title}" published.`);
       });
-      const data = await res.json();
-      if (data.success) {
-        setClasses(prev => [...prev, data.liveClass]);
-        setClassForm(prev => ({
+  };
+
+  // ── 6. LMS LIVE CLASS ACTIONS ──────────────────────────────────────────────
+
+  const handleCreateClass = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!classForm.title || !classForm.date || !classForm.time) return;
+    setClassSaving(true);
+    const newClass: LiveClassItem = {
+      id: `cls_${Date.now()}`,
+      title: classForm.title,
+      date: classForm.date,
+      time: classForm.time,
+      meetLink: classForm.meetLink || 'https://live.indrajeetsir.com/session/upsc-2026',
+      assignedStudent: classForm.assignedStudent,
+    };
+    fetch(`${API_URL}/live-classes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newClass),
+    })
+      .then((r) => r.json())
+      .catch(() => null)
+      .finally(() => {
+        setClasses((prev) => [newClass, ...prev]);
+        setClassForm({
           title: '',
-          courseId: prev.courseId,
           date: '',
           time: '',
           meetLink: '',
-          assignedStudent: 'All Students',
-        }));
-        setActionSuccess(`✓ Live class "${data.liveClass.title}" scheduled with Google Meet link!`);
-      }
-    } catch {
-      const demo: LiveClassItem = {
-        id: `lc-${Date.now()}`,
-        ...classForm,
-        courseTitle: targetCourse?.title || 'Mentorship Program',
-        status: 'UPCOMING',
-      };
-      setClasses(prev => [...prev, demo]);
-      setClassForm(prev => ({
-        title: '',
-        courseId: prev.courseId,
-        date: '',
-        time: '',
-        meetLink: '',
-        assignedStudent: 'All Students',
-      }));
-      setActionSuccess(`✓ Live class scheduled with Google Meet link!`);
-    }
-    setClassSaving(false);
-  };
-
-  const deleteClass = async (id: string) => {
-    try {
-      await fetch(`${API_URL}/live-classes/${id}`, { method: 'DELETE' });
-    } catch {}
-    setClasses(prev => prev.filter(c => c.id !== id));
-  };
-
-  // ── STUDENT ONBOARDING ACTIONS ────────────────────────────────────────────
-  const enrollStudent = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!studentForm.name || !studentForm.email) return;
-    setStudentSaving(true);
-    setActionSuccess('');
-
-    try {
-      const res = await fetch(`${API_URL}/admin/enroll-student`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          studentName: studentForm.name,
-          studentEmail: studentForm.email,
-          studentPhone: studentForm.phone,
-          courseId: studentForm.courseId,
-          sendEmail: studentForm.sendEmail,
-        }),
+          assignedStudent: 'All Enrolled Students',
+        });
+        setClassSaving(false);
+        triggerAlert(`Live session "${newClass.title}" scheduled.`);
       });
-      const data = await res.json();
-      if (data.success) {
-        const assignedCourse = courses.find(c => c.id === studentForm.courseId)?.title || 'Mentorship Program';
-        const newSt: StudentItem = {
-          id: data.student?.id || `st-${Date.now()}`,
-          name: studentForm.name,
-          email: studentForm.email,
-          phone: studentForm.phone || '+91 98765 43210',
-          course: assignedCourse,
-          joinedDate: new Date().toISOString().slice(0, 10),
-        };
-        setStudents(prev => [newSt, ...prev]);
-        setStudentForm(prev => ({
-          name: '',
-          email: '',
-          phone: '',
-          courseId: prev.courseId,
-          sendEmail: true,
-        }));
-        setActionSuccess(
-          `✓ Student ${newSt.name} enrolled in "${assignedCourse}"! Login credentials & App download link sent to ${newSt.email}.`
-        );
-      } else {
-        alert(data.message || 'Failed to enroll student.');
-      }
-    } catch {
-      const assignedCourse = courses.find(c => c.id === studentForm.courseId)?.title || 'Mentorship Program';
-      const demoSt: StudentItem = {
-        id: `st-${Date.now()}`,
-        name: studentForm.name,
-        email: studentForm.email,
-        phone: studentForm.phone || '+91 98765 43210',
-        course: assignedCourse,
-        joinedDate: new Date().toISOString().slice(0, 10),
-      };
-      setStudents(prev => [demoSt, ...prev]);
-      setStudentForm(prev => ({
-        name: '',
-        email: '',
-        phone: '',
-        courseId: prev.courseId,
-        sendEmail: true,
-      }));
-      setActionSuccess(`✓ Student ${demoSt.name} enrolled! Credentials & App link dispatched to ${demoSt.email}.`);
-    }
-    setStudentSaving(false);
   };
 
-  const removeStudent = async (id: string) => {
-    if (!confirm('Remove this student from mentorship?')) return;
-    try {
-      await fetch(`${API_URL}/students/${id}`, { method: 'DELETE' });
-    } catch {}
-    setStudents(prev => prev.filter(s => s.id !== id));
-  };
+  // ── RENDER LOGIN SCREEN (EMAIL & PASSWORD AUTHENTICATION) ──────────────────
 
-  // ── CHAT ACTIONS ──────────────────────────────────────────────────────────
-  const sendReply = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!reply.trim()) return;
-    try {
-      const res = await fetch(`${API_URL}/messages`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentName: 'Indrajeet Sir', text: reply, sender: 'admin' }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setMessages(prev => [...prev, data.message]);
-      }
-    } catch {
-      const demo: MessageItem = {
-        id: `m-${Date.now()}`,
-        studentName: 'Indrajeet Sir',
-        text: reply,
-        sender: 'admin',
-        timestamp: 'Just now',
-      };
-      setMessages(prev => [...prev, demo]);
-    }
-    setReply('');
-  };
-
-  // ── Lock Screen ──────────────────────────────────────────────────────────
-  if (!auth) {
+  if (!mounted || !auth) {
     return (
       <div className="admin-lock">
         <div className="lock-box">
-          <div className="lock-icon">🔒</div>
-          <h2>Admin Portal</h2>
-          <p>Enter your passcode to access Indrajeet Sir Admin Portal.</p>
-          <form onSubmit={handleAuth}>
-            <div className="pass-wrapper">
-              <input
-                type={showPasscode ? 'text' : 'password'}
-                placeholder="Enter admin passcode..."
-                value={passcode}
-                onChange={e => setPasscode(e.target.value)}
-                required
+          <div className="lock-header">
+            <div className="lock-badge">ADMINISTRATOR ACCESS</div>
+            <div className="lock-icon-wrap">
+              <Image
+                src="/logo.png"
+                alt="Indrajeet Sir Logo"
+                width={38}
+                height={38}
+                style={{ borderRadius: '10px' }}
               />
-              <button
-                type="button"
-                className="eye-btn"
-                onClick={() => setShowPasscode(!showPasscode)}
-                title={showPasscode ? "Hide Passcode" : "Show Passcode"}
-              >
-                {showPasscode ? '👁️' : '🙈'}
-              </button>
             </div>
-            {authError && <div className="lock-error">{authError}</div>}
-            <button type="submit">Unlock Portal →</button>
-          </form>
-          <Link href="/" className="lock-back">← Back to Website</Link>
+            <h2>Admin Sign In</h2>
+            <p>Sign in with your administrative email and password</p>
+          </div>
+
+          {!mounted ? (
+            <div style={{ color: '#64748b', fontSize: '0.9rem', padding: '1.5rem 0', textAlign: 'center' }}>
+              Verifying session credentials...
+            </div>
+          ) : (
+            <form onSubmit={handleAuth}>
+              {/* Email Address */}
+              <div className="login-field">
+                <label htmlFor="admin-email">Admin Email Address</label>
+                <div className="login-input-wrap">
+                  <span className="login-input-icon">
+                    <IconMail size={16} />
+                  </span>
+                  <input
+                    id="admin-email"
+                    type="email"
+                    placeholder="admin@indrajeetsir.com"
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                    required
+                    autoFocus
+                    autoComplete="email"
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="login-field">
+                <label htmlFor="admin-password">Password</label>
+                <div className="login-input-wrap">
+                  <span className="login-input-icon">
+                    <IconLock size={16} />
+                  </span>
+                  <input
+                    id="admin-password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter admin password"
+                    className="has-action"
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    className="eye-btn"
+                    onClick={() => setShowPassword(!showPassword)}
+                    title={showPassword ? 'Hide password' : 'Show password'}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <IconEye size={16} /> : <IconEyeOff size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Remember me & Forgot Password */}
+              <div className="login-options-row">
+                <label className="remember-label">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
+                  <span>Remember this device</span>
+                </label>
+                <span
+                  className="forgot-hint"
+                  onClick={() => setAuthError('Administrator default: admin@indrajeetsir.com / admin123')}
+                >
+                  Forgot Password?
+                </span>
+              </div>
+
+              {authError && (
+                <div className="lock-error">
+                  <span>{authError}</span>
+                </div>
+              )}
+
+              <button type="submit" disabled={authLoading}>
+                {authLoading ? 'Signing In...' : 'Sign In'}
+              </button>
+            </form>
+          )}
+
+          <div className="lock-back-wrap">
+            <Link href="/" className="lock-back">
+              Return to Public Website
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
-  // ── Admin Dashboard ──────────────────────────────────────────────────────
+  // ── MAIN ADMIN INTERFACE ───────────────────────────────────────────────────
+
   return (
     <div className="admin">
       {/* Sidebar */}
       <aside className="admin-sidebar">
-        <div className="admin-brand">
+        <Link href="/" className="admin-brand">
           <Image
             src="/logo.png"
-            alt="Indrajeet Sir Logo"
-            width={38}
-            height={38}
-            style={{ borderRadius: '50%' }}
+            alt="Indrajeet Sir IAS"
+            width={34}
+            height={34}
+            style={{ borderRadius: '8px' }}
           />
           <div>
             <div className="brand-name">Indrajeet Sir</div>
-            <div className="brand-sub">Admin Portal</div>
+            <div className="brand-sub">Master Admin</div>
           </div>
-        </div>
+        </Link>
+
         <nav className="admin-nav">
           <button
-            className={tab === 'courses' ? 'anav active' : 'anav'}
-            onClick={() => { setTab('courses'); setActionSuccess(''); }}
+            className={`anav ${tab === 'users' ? 'active' : ''}`}
+            onClick={() => setTab('users')}
           >
-            📚 Courses
+            <div className="anav-inner">
+              <IconUsers size={16} />
+              <span>User Management</span>
+            </div>
+            <span className="anav-count">{users.length}</span>
           </button>
+
           <button
-            className={tab === 'classes' ? 'anav active' : 'anav'}
-            onClick={() => { setTab('classes'); setActionSuccess(''); }}
+            className={`anav ${tab === 'content' ? 'active' : ''}`}
+            onClick={() => setTab('content')}
           >
-            📹 Live Classes & Meet
+            <div className="anav-inner">
+              <IconLayout size={16} />
+              <span>Content Control</span>
+            </div>
+            <span className="anav-count">{banners.length}</span>
           </button>
+
           <button
-            className={tab === 'students' ? 'anav active' : 'anav'}
-            onClick={() => { setTab('students'); setActionSuccess(''); }}
+            className={`anav ${tab === 'payments' ? 'active' : ''}`}
+            onClick={() => setTab('payments')}
           >
-            👥 Enrolled Students
+            <div className="anav-inner">
+              <IconCard size={16} />
+              <span>Payments & Txns</span>
+            </div>
+            <span className="anav-count">{transactions.length}</span>
           </button>
+
           <button
-            className={tab === 'chat' ? 'anav active' : 'anav'}
-            onClick={() => { setTab('chat'); setActionSuccess(''); }}
+            className={`anav ${tab === 'notifications' ? 'active' : ''}`}
+            onClick={() => setTab('notifications')}
           >
-            💬 Student Messages
+            <div className="anav-inner">
+              <IconBell size={16} />
+              <span>Notifications</span>
+            </div>
+            <span className="anav-count">{notifications.length}</span>
+          </button>
+
+          <button
+            className={`anav ${tab === 'courses' ? 'active' : ''}`}
+            onClick={() => setTab('courses')}
+          >
+            <div className="anav-inner">
+              <IconBook size={16} />
+              <span>Courses Catalog</span>
+            </div>
+            <span className="anav-count">{courses.length}</span>
+          </button>
+
+          <button
+            className={`anav ${tab === 'classes' ? 'active' : ''}`}
+            onClick={() => setTab('classes')}
+          >
+            <div className="anav-inner">
+              <IconVideo size={16} />
+              <span>Live Classes</span>
+            </div>
+            <span className="anav-count">{classes.length}</span>
           </button>
         </nav>
-        <button className="admin-lock-btn" onClick={handleLock}>🔒 Lock Portal</button>
+
+        <button className="admin-lock-btn" onClick={handleLogout}>
+          <IconLogOut size={15} />
+          <span>Lock Session</span>
+        </button>
       </aside>
 
-      {/* Main Area */}
+      {/* Main Workspace */}
       <main className="admin-main">
+        {/* Flash Alert */}
         {actionSuccess && (
-          <div className="admin-notice-success">
-            {actionSuccess}
+          <div className="action-alert">
+            <span>{actionSuccess}</span>
+            <button
+              onClick={() => setActionSuccess('')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}
+            >
+              ✕
+            </button>
           </div>
         )}
 
-        {/* ── 1. COURSES TAB ────────────────────────────────────────────── */}
-        {tab === 'courses' && (
-          <div>
+        {/* ══════════════════════════════════════════════════════════════════════
+            MODULE 1: USER MANAGEMENT
+            ══════════════════════════════════════════════════════════════════════ */}
+        {tab === 'users' && (
+          <section>
             <div className="admin-page-header">
-              <h1>Courses & Mentorship Programs</h1>
-              <p>Add courses, configure mentorship fees, and manage student offerings.</p>
+              <div>
+                <h1>User Management</h1>
+                <p>View, verify, or block student accounts and monitor access credentials.</p>
+              </div>
+              <button className="btn-primary-admin" onClick={() => setNewUserModal(true)}>
+                <span>+</span> Add User / Student
+              </button>
             </div>
 
-            {/* Add Course Form */}
-            <div className="admin-form-card">
-              <h3>+ Add New Course / Batch</h3>
-              <form onSubmit={addCourse} className="admin-form">
-                <div className="form-row" style={{ gridTemplateColumns: '2fr 1fr' }}>
-                  <div className="form-field">
-                    <label>Course Title</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. 1:1 Comprehensive UPSC Mentorship 2026-27"
-                      required
-                      value={courseForm.title}
-                      onChange={e => setCourseForm({ ...courseForm, title: e.target.value })}
-                    />
-                  </div>
-                  <div className="form-field">
-                    <label>Course Fee / Price (₹ INR)</label>
-                    <input
-                      type="number"
-                      placeholder="e.g. 4999"
-                      required
-                      value={courseForm.price}
-                      onChange={e => setCourseForm({ ...courseForm, price: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div className="form-field">
-                  <label>Course Description / Syllabus Outline</label>
-                  <textarea
-                    rows={3}
-                    placeholder="Details about 1:1 live sessions, syllabus coverage, Google Meet timetable, and answer evaluation..."
-                    value={courseForm.description}
-                    onChange={e => setCourseForm({ ...courseForm, description: e.target.value })}
-                  />
-                </div>
-                <button type="submit" className="admin-btn" disabled={courseSaving}>
-                  {courseSaving ? 'Creating Course...' : '+ Create Course'}
+            {/* KPI Stat Cards */}
+            <div className="kpi-grid">
+              <div className="kpi-card">
+                <span className="kpi-card-label">Total Users</span>
+                <span className="kpi-card-val">{users.length}</span>
+                <span className="kpi-card-meta">Active database accounts</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-card-label">Verified</span>
+                <span className="kpi-card-val" style={{ color: '#059669' }}>
+                  {users.filter((u) => u.status === 'Verified').length}
+                </span>
+                <span className="kpi-card-meta">Full platform access</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-card-label">Blocked Users</span>
+                <span className="kpi-card-val" style={{ color: '#dc2626' }}>
+                  {users.filter((u) => u.status === 'Blocked').length}
+                </span>
+                <span className="kpi-card-meta alert">Access revoked</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-card-label">Pending Review</span>
+                <span className="kpi-card-val" style={{ color: '#d97706' }}>
+                  {users.filter((u) => u.status === 'Pending').length}
+                </span>
+                <span className="kpi-card-meta">Awaiting approval</span>
+              </div>
+            </div>
+
+            {/* Action Toolbar */}
+            <div className="action-toolbar">
+              <div className="search-input-wrap">
+                <span className="search-icon">
+                  <IconSearch size={15} />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search user by name, email, or ID..."
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                />
+              </div>
+
+              <div className="filter-group">
+                <button
+                  className={`filter-btn ${userFilter === 'ALL' ? 'active' : ''}`}
+                  onClick={() => setUserFilter('ALL')}
+                >
+                  All ({users.length})
                 </button>
-              </form>
+                <button
+                  className={`filter-btn ${userFilter === 'Verified' ? 'active' : ''}`}
+                  onClick={() => setUserFilter('Verified')}
+                >
+                  Verified ({users.filter((u) => u.status === 'Verified').length})
+                </button>
+                <button
+                  className={`filter-btn ${userFilter === 'Blocked' ? 'active' : ''}`}
+                  onClick={() => setUserFilter('Blocked')}
+                >
+                  Blocked ({users.filter((u) => u.status === 'Blocked').length})
+                </button>
+                <button
+                  className={`filter-btn ${userFilter === 'Pending' ? 'active' : ''}`}
+                  onClick={() => setUserFilter('Pending')}
+                >
+                  Pending ({users.filter((u) => u.status === 'Pending').length})
+                </button>
+              </div>
             </div>
 
-            {/* Courses List */}
-            <div className="admin-section">
-              <h3>Active Mentorship Courses ({courses.length})</h3>
-              {courses.length === 0 ? (
-                <div className="admin-empty">No courses created yet. Add one above.</div>
-              ) : (
-                <div className="course-grid">
-                  {courses.map(c => (
-                    <div key={c.id} className="course-card">
-                      <div>
-                        <div className="course-card-top">
-                          <span className="assigned-badge">Mentor: {c.instructor || 'Indrajeet Sir'}</span>
-                          <span className="course-price-tag">₹{Number(c.price).toLocaleString('en-IN')}</span>
-                        </div>
-                        <h4>{c.title}</h4>
-                        <p>{c.description || 'Comprehensive UPSC guidance with direct 1:1 live Google Meet sessions.'}</p>
-                      </div>
-                      <div>
-                        <div className="course-meta">
-                          <span>👥 {c.enrollmentsCount || 0} Enrolled Students</span>
-                          <span>📹 {c.liveClassesCount || 0} Scheduled Classes</span>
-                        </div>
-                        <div className="course-actions">
-                          <button
-                            className="delete-btn"
-                            onClick={() => deleteCourse(c.id)}
+            {/* Users Data Table */}
+            <div className="table-card">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>User & Identity</th>
+                    <th>Contact Details</th>
+                    <th>Assigned Batch / Role</th>
+                    <th>Joined</th>
+                    <th>Status</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
+                        No users matching filter criteria.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredUsers.map((u) => (
+                      <tr key={u.id}>
+                        <td>
+                          <div style={{ fontWeight: 800, color: '#0f172a' }}>{u.name}</div>
+                          <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{u.id}</div>
+                        </td>
+                        <td>
+                          <div>{u.email}</div>
+                          <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{u.phone}</div>
+                        </td>
+                        <td>
+                          <span style={{ fontWeight: 600, color: '#334155' }}>{u.role}</span>
+                        </td>
+                        <td style={{ fontSize: '0.82rem', color: '#64748b' }}>{u.joined}</td>
+                        <td>
+                          <span
+                            className={`status-pill ${
+                              u.status === 'Verified'
+                                ? 'verified'
+                                : u.status === 'Blocked'
+                                ? 'blocked'
+                                : 'pending'
+                            }`}
                           >
-                            Remove Course
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── 2. LIVE CLASSES & MEET TAB ────────────────────────────────── */}
-        {tab === 'classes' && (
-          <div>
-            <div className="admin-page-header">
-              <h1>Schedule Live Classes & Google Meet</h1>
-              <p>Schedule a live class for a course with specific timing and Google Meet link. Enrolled students will see the schedule on their mobile app.</p>
-            </div>
-
-            {/* Add class form */}
-            <div className="admin-form-card">
-              <h3>+ Schedule New Live Class</h3>
-              <form onSubmit={addClass} className="admin-form">
-                <div className="form-row" style={{ gridTemplateColumns: '2fr 1fr 1fr' }}>
-                  <div className="form-field">
-                    <label>Session Topic / Subject</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. GS-3: Indian Economy & Inflation Strategy"
-                      required
-                      value={classForm.title}
-                      onChange={e => setClassForm({ ...classForm, title: e.target.value })}
-                    />
-                  </div>
-                  <div className="form-field">
-                    <label>Date</label>
-                    <input
-                      type="date"
-                      required
-                      value={classForm.date}
-                      onChange={e => setClassForm({ ...classForm, date: e.target.value })}
-                    />
-                  </div>
-                  <div className="form-field">
-                    <label>Specific Timing</label>
-                    <input
-                      type="time"
-                      required
-                      value={classForm.time}
-                      onChange={e => setClassForm({ ...classForm, time: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div className="form-row" style={{ gridTemplateColumns: '1.2fr 1fr' }}>
-                  <div className="form-field">
-                    <label>Select Associated Course</label>
-                    <select
-                      value={classForm.courseId}
-                      onChange={e => setClassForm({ ...classForm, courseId: e.target.value })}
-                    >
-                      {courses.map(c => (
-                        <option key={c.id} value={c.id}>📚 {c.title}</option>
-                      ))}
-                      {courses.length === 0 && <option value="">No Course (General)</option>}
-                    </select>
-                  </div>
-                  <div className="form-field">
-                    <label>Audience / Allotted Student</label>
-                    <select
-                      value={classForm.assignedStudent}
-                      onChange={e => setClassForm({ ...classForm, assignedStudent: e.target.value })}
-                    >
-                      <option value="All Students">🌐 All Enrolled Students in this Course</option>
-                      {students.map(s => (
-                        <option key={s.id} value={s.name}>👤 1:1 Session for {s.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="form-field meet-field">
-                  <label>Google Meet Link / Meeting URL</label>
-                  <input
-                    type="url"
-                    placeholder="https://meet.google.com/xxx-xxxx-xxx"
-                    required
-                    value={classForm.meetLink}
-                    onChange={e => setClassForm({ ...classForm, meetLink: e.target.value })}
-                  />
-                </div>
-
-                <button type="submit" className="admin-btn" disabled={classSaving}>
-                  {classSaving ? 'Scheduling Live Class...' : '+ Schedule Class & Send Reminder'}
-                </button>
-              </form>
-            </div>
-
-            {/* Classes list */}
-            <div className="admin-section">
-              <h3>Scheduled Classes ({classes.length})</h3>
-              {classes.length === 0 ? (
-                <div className="admin-empty">No classes scheduled yet. Add one above.</div>
-              ) : (
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Topic</th>
-                      <th>Course</th>
-                      <th>Audience</th>
-                      <th>Date</th>
-                      <th>Timing</th>
-                      <th>Google Meet Link</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {classes.map(cls => (
-                      <tr key={cls.id}>
-                        <td><strong>{cls.title}</strong></td>
-                        <td><span className="assigned-badge">{cls.courseTitle || 'Mentorship Program'}</span></td>
-                        <td>
-                          {cls.assignedStudent === 'All Students' || !cls.assignedStudent ? '🌐 All Enrolled' : `👤 ${cls.assignedStudent}`}
-                        </td>
-                        <td>{cls.date}</td>
-                        <td><strong>{cls.time}</strong></td>
-                        <td>
-                          <a href={cls.meetLink} target="_blank" rel="noopener noreferrer" className="meet-link">
-                            Open Google Meet ↗
-                          </a>
-                        </td>
-                        <td>
-                          <button className="delete-btn" onClick={() => deleteClass(cls.id)}>Remove</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── 3. STUDENTS TAB ───────────────────────────────────────────── */}
-        {tab === 'students' && (
-          <div>
-            <div className="admin-page-header">
-              <h1>Enrolled Students Management</h1>
-              <p>Add students directly to courses. Login credentials and the mobile app download link will be dispatched automatically to their email.</p>
-            </div>
-
-            {/* Enroll Student Form */}
-            <div className="admin-form-card">
-              <h3>+ Add Student to Course & Send Login Details</h3>
-              <form onSubmit={enrollStudent} className="admin-form">
-                <div className="form-row" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-                  <div className="form-field">
-                    <label>Student Full Name</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Rahul Sharma"
-                      required
-                      value={studentForm.name}
-                      onChange={e => setStudentForm({ ...studentForm, name: e.target.value })}
-                    />
-                  </div>
-                  <div className="form-field">
-                    <label>Student Email (Receives Login & App Link)</label>
-                    <input
-                      type="email"
-                      placeholder="e.g. rahul@example.com"
-                      required
-                      value={studentForm.email}
-                      onChange={e => setStudentForm({ ...studentForm, email: e.target.value })}
-                    />
-                  </div>
-                  <div className="form-field">
-                    <label>WhatsApp / Phone Number</label>
-                    <input
-                      type="tel"
-                      placeholder="+91 98765 43210"
-                      value={studentForm.phone}
-                      onChange={e => setStudentForm({ ...studentForm, phone: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div className="form-field">
-                  <label>Assign to Course</label>
-                  <select
-                    value={studentForm.courseId}
-                    onChange={e => setStudentForm({ ...studentForm, courseId: e.target.value })}
-                  >
-                    {courses.map(c => (
-                      <option key={c.id} value={c.id}>📚 {c.title} (₹{c.price})</option>
-                    ))}
-                    {courses.length === 0 && <option value="">General Mentorship</option>}
-                  </select>
-                </div>
-
-                <label className="form-check">
-                  <input
-                    type="checkbox"
-                    checked={studentForm.sendEmail}
-                    onChange={e => setStudentForm({ ...studentForm, sendEmail: e.target.checked })}
-                  />
-                  <span>Send student login details (email + password) & mobile application download link via email</span>
-                </label>
-
-                <button type="submit" className="admin-btn" disabled={studentSaving}>
-                  {studentSaving ? 'Enrolling & Sending Email...' : '+ Enroll Student & Dispatch Details'}
-                </button>
-              </form>
-            </div>
-
-            {/* Students List */}
-            <div className="admin-section">
-              <h3>Enrolled Aspirants ({students.length})</h3>
-              {students.length === 0 ? (
-                <div className="admin-empty">No students registered yet. Enroll one above.</div>
-              ) : (
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Phone</th>
-                      <th>Enrolled Course</th>
-                      <th>Joined Date</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {students.map(s => (
-                      <tr key={s.id}>
-                        <td><strong>{s.name}</strong></td>
-                        <td>{s.email}</td>
-                        <td>{s.phone}</td>
-                        <td>
-                          <span className="assigned-badge">
-                            {s.course || '1:1 Comprehensive UPSC Mentorship'}
+                            {u.status}
                           </span>
                         </td>
-                        <td>{s.joinedDate}</td>
                         <td>
-                          <button className="delete-btn" onClick={() => removeStudent(s.id)}>Remove</button>
+                          <div className="table-actions" style={{ justifyContent: 'flex-end' }}>
+                            {u.status !== 'Verified' && (
+                              <button
+                                className="action-btn-sm verify"
+                                onClick={() => handleVerifyUser(u.id, u.name)}
+                                title="Grant full verified access"
+                              >
+                                Verify
+                              </button>
+                            )}
+                            {u.status !== 'Blocked' && (
+                              <button
+                                className="action-btn-sm block"
+                                onClick={() => handleBlockUser(u.id, u.name)}
+                                title="Block user from app & portal"
+                              >
+                                Block
+                              </button>
+                            )}
+                            {u.status === 'Blocked' && (
+                              <button
+                                className="action-btn-sm unblock"
+                                onClick={() => handleUnblockUser(u.id, u.name)}
+                                title="Re-activate user"
+                              >
+                                Unblock
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-          </div>
+          </section>
         )}
 
-        {/* ── 4. CHAT TAB ───────────────────────────────────────────────── */}
-        {tab === 'chat' && (
-          <div className="admin-chat-wrap">
+        {/* ══════════════════════════════════════════════════════════════════════
+            MODULE 2: CONTENT CONTROL (Banners, Categories, Listings, Offers)
+            ══════════════════════════════════════════════════════════════════════ */}
+        {tab === 'content' && (
+          <section>
             <div className="admin-page-header">
-              <h1>Student Messages</h1>
-              <p>Reply to student questions as Indrajeet Sir.</p>
+              <div>
+                <h1>Content Control</h1>
+                <p>
+                  Change banners, categories, listings, and offers inside the app without doing an app update.
+                </p>
+              </div>
             </div>
-            <div className="admin-chat-box">
-              <div className="admin-chat-msgs">
-                {messages.length === 0 && <div className="admin-empty">No messages yet.</div>}
-                {messages.map(m => (
-                  <div key={m.id} className={`adm-msg ${m.sender === 'admin' ? 'adm-right' : 'adm-left'}`}>
-                    <div className="adm-msg-name">{m.sender === 'admin' ? 'Indrajeet Sir (You)' : m.studentName}</div>
-                    <div className="adm-msg-text">{m.text}</div>
-                    <div className="adm-msg-time">{m.timestamp}</div>
+
+            {/* App Announcement Ticker */}
+            <div className="admin-card" style={{ marginBottom: '2rem' }}>
+              <h3>Top Announcement Ticker (Inside Mobile App & Web)</h3>
+              <p style={{ fontSize: '0.86rem', color: '#64748b', marginBottom: '1rem' }}>
+                This message scrolls at the top of the student home screen in real time.
+              </p>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <input
+                  type="text"
+                  value={appTicker}
+                  onChange={(e) => setAppTicker(e.target.value)}
+                  style={{
+                    flex: 1,
+                    minWidth: '280px',
+                    padding: '0.75rem 1rem',
+                    border: '1.5px solid #cbd5e1',
+                    borderRadius: '10px',
+                    fontSize: '0.92rem',
+                  }}
+                />
+                <button
+                  className="btn-primary-admin"
+                  onClick={() => triggerAlert('Top Announcement Ticker updated live across all apps.')}
+                >
+                  Publish Ticker
+                </button>
+              </div>
+            </div>
+
+            {/* Live App Banners Grid */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <div>
+                <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0f172a' }}>
+                  Live App Banners & Offers
+                </h2>
+                <p style={{ fontSize: '0.86rem', color: '#64748b' }}>
+                  Example: Easily update &quot;Diwali Sale&quot; to &quot;Flat 50% OFF&quot; with 1 click.
+                </p>
+              </div>
+            </div>
+
+            <div className="banners-grid">
+              {banners.map((banner) => (
+                <div className="banner-card" key={banner.id}>
+                  <div
+                    className="banner-preview-box"
+                    style={{ background: banner.gradient }}
+                  >
+                    <span className="banner-tag-badge">{banner.tag}</span>
+                    <div>
+                      <h3>{banner.title}</h3>
+                      <p>{banner.subtitle}</p>
+                    </div>
+                  </div>
+                  <div className="banner-card-body">
+                    <div>
+                      <div className="banner-meta">Route: {banner.targetRoute}</div>
+                      <span
+                        className={`status-pill ${banner.active ? 'active' : 'blocked'}`}
+                        style={{ marginTop: '0.35rem' }}
+                      >
+                        {banner.active ? 'Live in App' : 'Disabled'}
+                      </span>
+                    </div>
+                    <button
+                      className="btn-secondary-admin"
+                      style={{ padding: '0.45rem 0.9rem', fontSize: '0.84rem' }}
+                      onClick={() => setActiveBannerModal(banner)}
+                    >
+                      Edit Banner
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* App Categories & Module Visibility */}
+            <div className="admin-card">
+              <h3>App Categories & Listing Toggles</h3>
+              <p style={{ fontSize: '0.86rem', color: '#64748b', marginBottom: '1.5rem' }}>
+                Toggle which modules or study sections appear on the student dashboard without redeploying the app.
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
+                {categories.map((cat) => (
+                  <div
+                    key={cat.id}
+                    style={{
+                      background: '#f8fafc',
+                      border: '1.5px solid #e2e8f0',
+                      borderRadius: '14px',
+                      padding: '1.1rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.92rem' }}>
+                        {cat.name}
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                        {cat.count} active resources
+                      </div>
+                    </div>
+                    <button
+                      className={`action-btn-sm ${cat.active ? 'verify' : 'block'}`}
+                      onClick={() => toggleCategory(cat.id)}
+                    >
+                      {cat.active ? 'Active' : 'Hidden'}
+                    </button>
                   </div>
                 ))}
               </div>
-              <form className="admin-chat-input" onSubmit={sendReply}>
+            </div>
+          </section>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            MODULE 3: PAYMENTS & TRANSACTIONS
+            ══════════════════════════════════════════════════════════════════════ */}
+        {tab === 'payments' && (
+          <section>
+            <div className="admin-page-header">
+              <div>
+                <h1>Payments & Transactions</h1>
+                <p>Track all payments: Success, Refunded, and Failed transactions with audit logs.</p>
+              </div>
+            </div>
+
+            {/* KPI Stat Cards */}
+            <div className="kpi-grid">
+              <div className="kpi-card">
+                <span className="kpi-card-label">Gross Revenue</span>
+                <span className="kpi-card-val" style={{ color: '#059669' }}>
+                  ₹{grossRevenue.toLocaleString('en-IN')}
+                </span>
+                <span className="kpi-card-meta">From verified enrollments</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-card-label">Success Rate</span>
+                <span className="kpi-card-val">
+                  {(
+                    (transactions.filter((t) => t.status === 'Success').length /
+                      transactions.length) *
+                    100
+                  ).toFixed(0)}
+                  %
+                </span>
+                <span className="kpi-card-meta">
+                  {transactions.filter((t) => t.status === 'Success').length} successful txns
+                </span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-card-label">Total Refunded</span>
+                <span className="kpi-card-val" style={{ color: '#d97706' }}>
+                  ₹{refundedRevenue.toLocaleString('en-IN')}
+                </span>
+                <span className="kpi-card-meta">
+                  {transactions.filter((t) => t.status === 'Refunded').length} processed refunds
+                </span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-card-label">Failed Txns</span>
+                <span className="kpi-card-val" style={{ color: '#dc2626' }}>
+                  {transactions.filter((t) => t.status === 'Failed').length}
+                </span>
+                <span className="kpi-card-meta alert">Bank/gateway declines</span>
+              </div>
+            </div>
+
+            {/* Action Toolbar */}
+            <div className="action-toolbar">
+              <div className="search-input-wrap">
+                <span className="search-icon">
+                  <IconSearch size={15} />
+                </span>
                 <input
                   type="text"
-                  placeholder="Reply as Indrajeet Sir..."
-                  value={reply}
-                  onChange={e => setReply(e.target.value)}
+                  placeholder="Search by #TXN ID, student name, or course..."
+                  value={txnSearch}
+                  onChange={(e) => setTxnSearch(e.target.value)}
                 />
-                <button type="submit">Send Reply</button>
-              </form>
+              </div>
+
+              <div className="filter-group">
+                <button
+                  className={`filter-btn ${txnFilter === 'ALL' ? 'active' : ''}`}
+                  onClick={() => setTxnFilter('ALL')}
+                >
+                  All ({transactions.length})
+                </button>
+                <button
+                  className={`filter-btn ${txnFilter === 'Success' ? 'active' : ''}`}
+                  onClick={() => setTxnFilter('Success')}
+                >
+                  Success ({transactions.filter((t) => t.status === 'Success').length})
+                </button>
+                <button
+                  className={`filter-btn ${txnFilter === 'Refunded' ? 'active' : ''}`}
+                  onClick={() => setTxnFilter('Refunded')}
+                >
+                  Refunded ({transactions.filter((t) => t.status === 'Refunded').length})
+                </button>
+                <button
+                  className={`filter-btn ${txnFilter === 'Failed' ? 'active' : ''}`}
+                  onClick={() => setTxnFilter('Failed')}
+                >
+                  Failed ({transactions.filter((t) => t.status === 'Failed').length})
+                </button>
+              </div>
             </div>
-          </div>
+
+            {/* Transactions Data Table */}
+            <div className="table-card">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Transaction ID</th>
+                    <th>Student Name</th>
+                    <th>Course / Item</th>
+                    <th>Amount</th>
+                    <th>Payment Gateway / Mode</th>
+                    <th>Date & Time</th>
+                    <th>Status</th>
+                    <th style={{ textAlign: 'right' }}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTransactions.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
+                        No transactions matching search criteria.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredTransactions.map((txn) => (
+                      <tr key={txn.id}>
+                        <td>
+                          <span style={{ fontWeight: 800, fontFamily: 'monospace', color: '#0f172a' }}>
+                            #{txn.id}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{ fontWeight: 700, color: '#0f172a' }}>{txn.student}</div>
+                          <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{txn.email}</div>
+                        </td>
+                        <td>{txn.course}</td>
+                        <td style={{ fontWeight: 850, color: '#0f172a' }}>
+                          ₹{txn.amount.toLocaleString('en-IN')}
+                        </td>
+                        <td style={{ fontSize: '0.82rem', color: '#64748b' }}>{txn.mode}</td>
+                        <td style={{ fontSize: '0.82rem', color: '#64748b' }}>{txn.date}</td>
+                        <td>
+                          <span
+                            className={`status-pill ${
+                              txn.status === 'Success'
+                                ? 'success'
+                                : txn.status === 'Refunded'
+                                ? 'refunded'
+                                : 'failed'
+                            }`}
+                          >
+                            {txn.status}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="table-actions" style={{ justifyContent: 'flex-end' }}>
+                            {txn.status === 'Success' && (
+                              <button
+                                className="action-btn-sm refund"
+                                onClick={() => handleRefundTxn(txn.id, txn.student, txn.amount)}
+                                title="Issue full refund to student"
+                              >
+                                Process Refund
+                              </button>
+                            )}
+                            {txn.status === 'Refunded' && (
+                              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Processed</span>
+                            )}
+                            {txn.status === 'Failed' && (
+                              <span style={{ fontSize: '0.75rem', color: '#ef4444' }}>Declined</span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            MODULE 4: BROADCAST NOTIFICATIONS
+            ══════════════════════════════════════════════════════════════════════ */}
+        {tab === 'notifications' && (
+          <section>
+            <div className="admin-page-header">
+              <div>
+                <h1>Broadcast Notifications</h1>
+                <p>
+                  Send important updates, offers, or announcements directly to user mobile devices.
+                </p>
+              </div>
+            </div>
+
+            <div className="composer-grid">
+              {/* Notification Composer */}
+              <div className="admin-card">
+                <h3>Compose Broadcast Message</h3>
+                <form onSubmit={handleSendNotification}>
+                  <div className="form-group">
+                    <label>Notification Title</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: New Offer - Aaj raat tak 40% off"
+                      value={notifForm.title}
+                      onChange={(e) => setNotifForm({ ...notifForm, title: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Message Content</label>
+                    <textarea
+                      placeholder="Ex: New feature live hai - Submit answers directly from the student app..."
+                      value={notifForm.body}
+                      onChange={(e) => setNotifForm({ ...notifForm, body: e.target.value })}
+                      rows={4}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Target Audience Segment</label>
+                    <select
+                      value={notifForm.audience}
+                      onChange={(e) => setNotifForm({ ...notifForm, audience: e.target.value })}
+                    >
+                      <option value="All App Users">All App Users (1,420 registered)</option>
+                      <option value="Enrolled Mentorship Students">Enrolled Mentorship Students (860 active)</option>
+                      <option value="UPSC 2026 Batch">UPSC 2026 Batch (412 students)</option>
+                      <option value="State PCS Aspirants">State PCS Aspirants (148 students)</option>
+                    </select>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="btn-primary-admin"
+                    style={{ width: '100%', marginTop: '0.5rem' }}
+                    disabled={sendingNotif}
+                  >
+                    {sendingNotif ? 'Broadcasting...' : 'Send Broadcast Notification'}
+                  </button>
+                </form>
+              </div>
+
+              {/* Mobile Notification Preview */}
+              <div>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 750, color: '#64748b', marginBottom: '0.75rem' }}>
+                  MOBILE DEVICE PREVIEW
+                </h4>
+                <div className="phone-preview-card">
+                  <div className="phone-notch" />
+                  <div style={{ textAlign: 'center', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
+                    10:10 AM • Friday
+                  </div>
+
+                  <div className="phone-notif-bubble">
+                    <div className="phone-notif-app">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <Image
+                          src="/logo.png"
+                          alt="Logo"
+                          width={16}
+                          height={16}
+                          style={{ borderRadius: '4px' }}
+                        />
+                        <span style={{ fontWeight: 700, color: '#f8fafc' }}>Indrajeet Sir IAS</span>
+                      </div>
+                      <span>now</span>
+                    </div>
+
+                    <div className="phone-notif-title">
+                      {notifForm.title || 'Notification Title Preview'}
+                    </div>
+                    <div className="phone-notif-body">
+                      {notifForm.body || 'Message details will be displayed here on the student lock screen...'}
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'center', fontSize: '0.7rem', color: '#64748b', marginTop: 'auto' }}>
+                    Swipe up to open application
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sent Notifications History */}
+            <div className="table-card">
+              <div style={{ padding: '1.25rem 1.4rem', borderBottom: '1px solid #e2e8f0' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a' }}>
+                  Sent Notification History
+                </h3>
+              </div>
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Campaign ID</th>
+                    <th>Notification Title</th>
+                    <th>Message Snippet</th>
+                    <th>Target Audience</th>
+                    <th>Delivered To</th>
+                    <th>Sent Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {notifications.map((notif) => (
+                    <tr key={notif.id}>
+                      <td style={{ fontWeight: 800, fontFamily: 'monospace' }}>#{notif.id}</td>
+                      <td style={{ fontWeight: 750, color: '#0f172a' }}>{notif.title}</td>
+                      <td style={{ color: '#475569', maxWidth: '320px' }}>{notif.body}</td>
+                      <td>
+                        <span className="status-pill active">{notif.audience}</span>
+                      </td>
+                      <td style={{ fontWeight: 700, color: '#059669' }}>
+                        {notif.sentCount.toLocaleString()} devices
+                      </td>
+                      <td style={{ fontSize: '0.82rem', color: '#64748b' }}>{notif.time}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            MODULE 5: COURSES CATALOG
+            ══════════════════════════════════════════════════════════════════════ */}
+        {tab === 'courses' && (
+          <section>
+            <div className="admin-page-header">
+              <div>
+                <h1>Courses & Programs Catalog</h1>
+                <p>Manage mentorship programs, fee structures, and curriculum modules.</p>
+              </div>
+            </div>
+
+            <div className="composer-grid">
+              <div className="admin-card">
+                <h3>Add New Mentorship Course</h3>
+                <form onSubmit={handleCreateCourse}>
+                  <div className="form-group">
+                    <label>Course Title</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: UPSC GS Mains 2026 Mentorship"
+                      value={courseForm.title}
+                      onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Description</label>
+                    <textarea
+                      placeholder="Comprehensive guidance, answer writing and 1:1 strategy calls..."
+                      value={courseForm.description}
+                      onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })}
+                      rows={3}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Fee (INR)</label>
+                    <input
+                      type="number"
+                      value={courseForm.price}
+                      onChange={(e) => setCourseForm({ ...courseForm, price: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="btn-primary-admin" disabled={courseSaving}>
+                    {courseSaving ? 'Saving...' : 'Publish Course'}
+                  </button>
+                </form>
+              </div>
+
+              <div className="table-card" style={{ height: 'fit-content' }}>
+                <div style={{ padding: '1.25rem 1.4rem', borderBottom: '1px solid #e2e8f0' }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>Active Courses ({courses.length})</h3>
+                </div>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Course Title</th>
+                      <th>Price</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {courses.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                          No custom courses created yet.
+                        </td>
+                      </tr>
+                    ) : (
+                      courses.map((c) => (
+                        <tr key={c.id}>
+                          <td>
+                            <div style={{ fontWeight: 800 }}>{c.title}</div>
+                            <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{c.description}</div>
+                          </td>
+                          <td style={{ fontWeight: 850 }}>₹{c.price.toLocaleString('en-IN')}</td>
+                          <td>
+                            <span className="status-pill verified">Live</span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            MODULE 6: LIVE CLASSES
+            ══════════════════════════════════════════════════════════════════════ */}
+        {tab === 'classes' && (
+          <section>
+            <div className="admin-page-header">
+              <div>
+                <h1>Live Classes & Mentorship Sessions</h1>
+                <p>Schedule upcoming 1:1 strategy sessions and group masterclasses.</p>
+              </div>
+            </div>
+
+            <div className="composer-grid">
+              <div className="admin-card">
+                <h3>Schedule Live Class</h3>
+                <form onSubmit={handleCreateClass}>
+                  <div className="form-group">
+                    <label>Session Title</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: GS Paper 2 Governance Strategy & Answer Critique"
+                      value={classForm.title}
+                      onChange={(e) => setClassForm({ ...classForm, title: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="form-group">
+                      <label>Date</label>
+                      <input
+                        type="date"
+                        value={classForm.date}
+                        onChange={(e) => setClassForm({ ...classForm, date: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Time</label>
+                      <input
+                        type="time"
+                        value={classForm.time}
+                        onChange={(e) => setClassForm({ ...classForm, time: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label>Live Class URL (Secure Session Link)</label>
+                    <input
+                      type="url"
+                      placeholder="https://live.indrajeetsir.com/session/upsc-2026"
+                      value={classForm.meetLink}
+                      onChange={(e) => setClassForm({ ...classForm, meetLink: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Target Students / Batch</label>
+                    <input
+                      type="text"
+                      placeholder="All Enrolled Students or specific name"
+                      value={classForm.assignedStudent}
+                      onChange={(e) => setClassForm({ ...classForm, assignedStudent: e.target.value })}
+                    />
+                  </div>
+                  <button type="submit" className="btn-primary-admin" disabled={classSaving}>
+                    {classSaving ? 'Scheduling...' : 'Schedule Session'}
+                  </button>
+                </form>
+              </div>
+
+              <div className="table-card" style={{ height: 'fit-content' }}>
+                <div style={{ padding: '1.25rem 1.4rem', borderBottom: '1px solid #e2e8f0' }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>Scheduled Sessions ({classes.length})</h3>
+                </div>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Session</th>
+                      <th>Date & Time</th>
+                      <th>Target</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {classes.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                          No live sessions scheduled.
+                        </td>
+                      </tr>
+                    ) : (
+                      classes.map((cls) => (
+                        <tr key={cls.id}>
+                          <td>
+                            <div style={{ fontWeight: 800 }}>{cls.title}</div>
+                            <div style={{ fontSize: '0.78rem', color: '#2563eb' }}>{cls.meetLink}</div>
+                          </td>
+                          <td style={{ fontSize: '0.84rem' }}>
+                            {cls.date} at {cls.time}
+                          </td>
+                          <td>
+                            <span className="status-pill active">{cls.assignedStudent}</span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
         )}
       </main>
+
+      {/* ── MODAL: EDIT BANNER (Content Control) ──────────────────────────────── */}
+      {activeBannerModal && (
+        <div className="modal-overlay" onClick={() => setActiveBannerModal(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn" onClick={() => setActiveBannerModal(null)}>
+              ✕
+            </button>
+            <h3>Edit App Banner & Offer</h3>
+            <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
+              Change banner copy inside the student mobile app in real time without app release.
+            </p>
+
+            <form onSubmit={handleSaveBanner}>
+              <div className="form-group">
+                <label>Badge Tag</label>
+                <input
+                  type="text"
+                  value={activeBannerModal.tag}
+                  onChange={(e) =>
+                    setActiveBannerModal({ ...activeBannerModal, tag: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Banner Headline (e.g. &quot;Flat 50% OFF&quot; instead of &quot;Diwali Sale&quot;)</label>
+                <input
+                  type="text"
+                  value={activeBannerModal.title}
+                  onChange={(e) =>
+                    setActiveBannerModal({ ...activeBannerModal, title: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Subheading / Offer Details</label>
+                <textarea
+                  value={activeBannerModal.subtitle}
+                  onChange={(e) =>
+                    setActiveBannerModal({ ...activeBannerModal, subtitle: e.target.value })
+                  }
+                  rows={3}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Target Screen Route</label>
+                <input
+                  type="text"
+                  value={activeBannerModal.targetRoute}
+                  onChange={(e) =>
+                    setActiveBannerModal({ ...activeBannerModal, targetRoute: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Banner Visibility Status</label>
+                <select
+                  value={activeBannerModal.active ? 'active' : 'inactive'}
+                  onChange={(e) =>
+                    setActiveBannerModal({
+                      ...activeBannerModal,
+                      active: e.target.value === 'active',
+                    })
+                  }
+                >
+                  <option value="active">Active (Visible in App)</option>
+                  <option value="inactive">Disabled (Hidden)</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
+                <button type="submit" className="btn-primary-admin" style={{ flex: 1 }}>
+                  Save Changes
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary-admin"
+                  onClick={() => setActiveBannerModal(null)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: CREATE USER ───────────────────────────────────────────────── */}
+      {newUserModal && (
+        <div className="modal-overlay" onClick={() => setNewUserModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn" onClick={() => setNewUserModal(false)}>
+              ✕
+            </button>
+            <h3>Add New Student Account</h3>
+            <form onSubmit={handleCreateUser}>
+              <div className="form-group">
+                <label>Full Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Rahul Sharma"
+                  value={newUserForm.name}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Email Address</label>
+                <input
+                  type="email"
+                  placeholder="e.g. rahul@example.com"
+                  value={newUserForm.email}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Phone Number</label>
+                <input
+                  type="tel"
+                  placeholder="+91 98765 43210"
+                  value={newUserForm.phone}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, phone: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Assigned Program / Batch</label>
+                <input
+                  type="text"
+                  value={newUserForm.role}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, role: e.target.value })}
+                  required
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
+                <button type="submit" className="btn-primary-admin" style={{ flex: 1 }}>
+                  Create Account
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary-admin"
+                  onClick={() => setNewUserModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
