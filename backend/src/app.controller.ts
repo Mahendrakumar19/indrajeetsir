@@ -558,6 +558,34 @@ export class AppController {
     }
   }
 
+  @Post('courses/:id')
+  async updateCoursePost(@Param('id') id: string, @Body() body: { title?: string; description?: string; price?: number }) {
+    return this.updateCourse(id, body);
+  }
+
+  async updateCourse(id: string, body: { title?: string; description?: string; price?: number }) {
+    try {
+      const updated = await this.prisma.course.update({
+        where: { id },
+        data: {
+          title: body.title ?? undefined,
+          description: body.description ?? undefined,
+          price: body.price !== undefined ? Number(body.price) : undefined,
+        },
+      });
+      return { success: true, course: updated };
+    } catch {
+      const c = fallbackCourses.find(course => course.id === id);
+      if (c) {
+        if (body.title !== undefined) c.title = body.title;
+        if (body.description !== undefined) c.description = body.description;
+        if (body.price !== undefined) c.price = Number(body.price);
+        return { success: true, course: c };
+      }
+      return { success: false, message: 'Course not found' };
+    }
+  }
+
   @Delete('courses/:id')
   async deleteCourse(@Param('id') id: string) {
     try {

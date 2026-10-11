@@ -713,6 +713,28 @@ body {
   background: #fef3c7;
 }
 
+.action-btn-sm.edit {
+  background: #f8fafc;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+
+.action-btn-sm.edit:hover {
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+
+.action-btn-sm.delete {
+  background: #fff1f2;
+  color: #e11d48;
+  border-color: #fecdd3;
+}
+
+.action-btn-sm.delete:hover {
+  background: #ffe4e6;
+  border-color: #fda4af;
+}
+
 /* ── Content Control (Banners Grid) ──────────────────────── */
 .banners-grid {
   display: grid;

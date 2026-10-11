@@ -272,6 +272,8 @@ export default function AdminPanel() {
   const [courses, setCourses] = useState<CourseItem[]>([]);
   const [courseForm, setCourseForm] = useState({ title: '', description: '', price: '4999' });
   const [courseSaving, setCourseSaving] = useState(false);
+  const [editCourseModal, setEditCourseModal] = useState<CourseItem | null>(null);
+  const [editCourseSaving, setEditCourseSaving] = useState(false);
 
   // 6. LMS Live Classes State
   const [classes, setClasses] = useState<LiveClassItem[]>([]);
@@ -464,6 +466,18 @@ export default function AdminPanel() {
     triggerAlert(`User "${name}" has been unblocked.`);
   };
 
+  const handleDeleteUser = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete user "${name}"?`)) return;
+    setUsers((prev) => prev.filter((u) => u.id !== id));
+    triggerAlert(`User "${name}" has been deleted.`);
+
+    try {
+      await fetch(`${API_URL}/students/${id}`, { method: 'DELETE' });
+    } catch {
+      // offline fallback
+    }
+  };
+
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUserForm.name || !newUserForm.email) return;
@@ -611,6 +625,40 @@ export default function AdminPanel() {
         setCourseSaving(false);
         triggerAlert(`Course "${newCourse.title}" published.`);
       });
+  };
+
+  const handleUpdateCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editCourseModal || !editCourseModal.title.trim()) return;
+    setEditCourseSaving(true);
+    const updated = {
+      ...editCourseModal,
+      price: Number(editCourseModal.price) || 0,
+    };
+    try {
+      await fetch(`${API_URL}/courses/${updated.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      });
+    } catch {
+      // offline fallback
+    }
+    setCourses((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+    setEditCourseSaving(false);
+    setEditCourseModal(null);
+    triggerAlert(`Course "${updated.title}" updated successfully.`);
+  };
+
+  const handleDeleteCourse = async (id: string, title: string) => {
+    if (!window.confirm(`Are you sure you want to delete course "${title}"?`)) return;
+    setCourses((prev) => prev.filter((c) => c.id !== id));
+    triggerAlert(`Course "${title}" removed.`);
+    try {
+      await fetch(`${API_URL}/courses/${id}`, { method: 'DELETE' });
+    } catch {
+      // offline fallback
+    }
   };
 
   // ── 6. LMS LIVE CLASS ACTIONS ──────────────────────────────────────────────
@@ -1042,6 +1090,13 @@ export default function AdminPanel() {
                                 Unblock
                               </button>
                             )}
+                            <button
+                              className="action-btn-sm delete"
+                              onClick={() => handleDeleteUser(u.id, u.name)}
+                              title="Delete user account"
+                            >
+                              Delete
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -1583,12 +1638,13 @@ export default function AdminPanel() {
                       <th>Course Title</th>
                       <th>Price</th>
                       <th>Status</th>
+                      <th style={{ textAlign: 'right' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {courses.length === 0 ? (
                       <tr>
-                        <td colSpan={3} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                        <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
                           No custom courses created yet.
                         </td>
                       </tr>
@@ -1602,6 +1658,24 @@ export default function AdminPanel() {
                           <td style={{ fontWeight: 850 }}>₹{c.price.toLocaleString('en-IN')}</td>
                           <td>
                             <span className="status-pill verified">Live</span>
+                          </td>
+                          <td>
+                            <div className="table-actions" style={{ justifyContent: 'flex-end' }}>
+                              <button
+                                className="action-btn-sm edit"
+                                onClick={() => setEditCourseModal(c)}
+                                title="Edit course details"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                className="action-btn-sm delete"
+                                onClick={() => handleDeleteCourse(c.id, c.title)}
+                                title="Delete course"
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -1875,6 +1949,76 @@ export default function AdminPanel() {
                   type="button"
                   className="btn-secondary-admin"
                   onClick={() => setNewUserModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: EDIT COURSE ────────────────────────────────────────────────── */}
+      {editCourseModal && (
+        <div className="modal-overlay" onClick={() => setEditCourseModal(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn" onClick={() => setEditCourseModal(null)}>
+              ✕
+            </button>
+            <h3>Edit Course / Mentorship Program</h3>
+            <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
+              Update title, curriculum description, or fee pricing in real time.
+            </p>
+
+            <form onSubmit={handleUpdateCourse}>
+              <div className="form-group">
+                <label>Course Title</label>
+                <input
+                  type="text"
+                  value={editCourseModal.title}
+                  onChange={(e) =>
+                    setEditCourseModal({ ...editCourseModal, title: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Description</label>
+                <textarea
+                  value={editCourseModal.description || ''}
+                  onChange={(e) =>
+                    setEditCourseModal({ ...editCourseModal, description: e.target.value })
+                  }
+                  rows={3}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Fee (INR)</label>
+                <input
+                  type="number"
+                  value={editCourseModal.price}
+                  onChange={(e) =>
+                    setEditCourseModal({ ...editCourseModal, price: Number(e.target.value) || 0 })
+                  }
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
+                <button
+                  type="submit"
+                  className="btn-primary-admin"
+                  style={{ flex: 1 }}
+                  disabled={editCourseSaving}
+                >
+                  {editCourseSaving ? 'Saving...' : 'Save Changes'}
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary-admin"
+                  onClick={() => setEditCourseModal(null)}
                 >
                   Cancel
                 </button>

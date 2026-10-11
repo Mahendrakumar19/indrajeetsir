@@ -45,7 +45,7 @@ export default function Footer() {
           <div className="footer-contact-block">
             <h4 className="footer-col-title">Contact Desk</h4>
             <p><a href="mailto:indrajeet.visionias@gmail.com" style={{ color: 'inherit', textDecoration: 'none' }}>indrajeet.visionias@gmail.com</a></p>
-            <p><a href="tel:+919873486158" style={{ color: 'inherit', textDecoration: 'none' }}>+91 98734 86158</a></p>
+            {/* <p><a href="tel:+919873486158" style={{ color: 'inherit', textDecoration: 'none' }}>+91 98734 86158</a></p> */}
             <p style={{ marginTop: '0.5rem', fontSize: '0.82rem', color: '#94a3b8' }}>Delhi, India • Mon–Sat, 9 AM – 8 PM IST</p>
           </div>
         </div>
