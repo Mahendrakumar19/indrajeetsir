@@ -25,7 +25,19 @@ export default function Header() {
           <a href="#faqs">FAQs</a>
           <a href="#contact">Contact</a>
         </nav>
-        <div className="nav-actions">
+        <div className="nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <Link href="/login" style={{
+            fontSize: '0.88rem',
+            fontWeight: 600,
+            color: '#1e293b',
+            textDecoration: 'none',
+            padding: '0.5rem 0.9rem',
+            borderRadius: '8px',
+            border: '1px solid #e2e8f0',
+            transition: 'all 0.2s'
+          }}>
+            Student Login
+          </Link>
           <a href="#courses" className="btn-primary">Enroll Now</a>
         </div>
       </div>

@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:file_picker/file_picker.dart';
 
 void main() {
   runApp(const EduApp());
@@ -77,7 +78,7 @@ class ApiService {
     return [];
   }
 
-  static Future<List<Map<String, String>>> fetchMessages() async {
+  static Future<List<Map<String, dynamic>>> fetchMessages() async {
     try {
       final res = await http.get(
         Uri.parse('$baseUrl/messages'),
@@ -89,9 +90,15 @@ class ApiService {
           return data.map((item) {
             final m = Map<String, dynamic>.from(item);
             return {
+              'id': (m['id'] ?? 'm-${DateTime.now().millisecondsSinceEpoch}').toString(),
               'sender': (m['studentName'] ?? m['sender'] ?? 'Indrajeet Sir').toString(),
               'text': (m['text'] ?? '').toString(),
               'time': (m['timestamp'] ?? 'Recently').toString(),
+              'createdAtMs': m['createdAtMs'] is num ? (m['createdAtMs'] as num).toInt() : DateTime.now().millisecondsSinceEpoch,
+              'fileName': m['fileName']?.toString(),
+              'fileType': m['fileType']?.toString(),
+              'fileUrl': m['fileUrl']?.toString(),
+              'isEdited': m['isEdited'] == true,
             };
           }).toList();
         }
@@ -100,7 +107,13 @@ class ApiService {
     return [];
   }
 
-  static Future<bool> sendMessage(String studentName, String text) async {
+  static Future<Map<String, dynamic>?> sendMessage({
+    required String studentName,
+    required String text,
+    String? fileName,
+    String? fileType,
+    String? fileUrl,
+  }) async {
     try {
       final res = await http.post(
         Uri.parse('$baseUrl/messages'),
@@ -109,13 +122,47 @@ class ApiService {
           'studentName': studentName,
           'text': text,
           'sender': 'student',
+          'fileName': fileName,
+          'fileType': fileType,
+          'fileUrl': fileUrl,
         }),
       ).timeout(const Duration(seconds: 7));
 
-      return res.statusCode == 200 || res.statusCode == 201;
-    } catch (_) {
-      return false;
-    }
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        final data = jsonDecode(res.body);
+        if (data is Map<String, dynamic> && data['message'] != null) {
+          return Map<String, dynamic>.from(data['message']);
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  static Future<bool> editMessage({
+    required String id,
+    String? text,
+    String? fileName,
+    String? fileType,
+    String? fileUrl,
+  }) async {
+    try {
+      final res = await http.post(
+        Uri.parse('$baseUrl/messages/$id/edit'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'text': text,
+          'fileName': fileName,
+          'fileType': fileType,
+          'fileUrl': fileUrl,
+        }),
+      ).timeout(const Duration(seconds: 7));
+
+      if (res.statusCode == 200 || res.statusCode == 201) {
+        final data = jsonDecode(res.body);
+        return data['success'] == true;
+      }
+    } catch (_) {}
+    return false;
   }
 
   static Future<bool> syncProfile(StudentProfile profile) async {
@@ -1862,6 +1909,9 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
 // ============================================================================
 // 5. MENTORSHIP CHAT SCREEN (APPLE iMESSAGE STYLE)
 // ============================================================================
+// ============================================================================
+// 5. MENTORSHIP CHAT SCREEN (WITH FILE ATTACHMENTS & 2-MIN EDIT COOLDOWN)
+// ============================================================================
 class ChatScreen extends StatefulWidget {
   final StudentProfile profile;
 
@@ -1873,21 +1923,36 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _msgController = TextEditingController();
-  final List<Map<String, String>> _messages = [
+  final ScrollController _scrollController = ScrollController();
+  String? _selectedFileName;
+  String? _selectedFileType;
+
+  final List<Map<String, dynamic>> _messages = [
     {
+      'id': 'm-seed-1',
       'sender': 'Indrajeet Sir',
       'text': 'Good morning Rahul. Did you finish the Case Study outline for Ethics Paper 4?',
       'time': '10:00 AM',
+      'createdAtMs': DateTime.now().subtract(const Duration(minutes: 30)).millisecondsSinceEpoch,
+      'isEdited': false,
     },
     {
+      'id': 'm-seed-2',
       'sender': 'Rahul Kumar',
       'text': 'Yes sir, submitted my response sheet on the portal. Ready for your review.',
       'time': '10:05 AM',
+      'createdAtMs': DateTime.now().subtract(const Duration(minutes: 25)).millisecondsSinceEpoch,
+      'fileName': 'Ethics_CaseStudy_Ans.pdf',
+      'fileType': 'PDF Document (2.4 MB)',
+      'isEdited': false,
     },
     {
+      'id': 'm-seed-3',
       'sender': 'Indrajeet Sir',
       'text': 'Excellent. We will evaluate your answer during tonight\'s 1:1 live strategy call at 7:00 PM.',
       'time': '10:12 AM',
+      'createdAtMs': DateTime.now().subtract(const Duration(minutes: 18)).millisecondsSinceEpoch,
+      'isEdited': false,
     },
   ];
 
@@ -1900,24 +1965,186 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _fetchRemote() async {
     final remote = await ApiService.fetchMessages();
     if (remote.isNotEmpty && mounted) {
-      setState(() => _messages.addAll(remote));
+      setState(() {
+        for (final r in remote) {
+          final exists = _messages.any((m) => m['id'] == r['id']);
+          if (!exists) _messages.add(r);
+        }
+      });
+      _scrollToBottom();
+    }
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  Future<void> _pickRealFile() async {
+    try {
+      final files = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
+      );
+
+      if (files.isNotEmpty) {
+        final file = files.first;
+        final ext = (file.extension ?? 'PDF').toUpperCase();
+
+        setState(() {
+          _selectedFileName = file.name;
+          _selectedFileType = '$ext Document';
+        });
+      }
+    } catch (e) {
+      debugPrint('File picker error: $e');
     }
   }
 
   Future<void> _send() async {
     final text = _msgController.text.trim();
-    if (text.isEmpty) return;
+    if (text.isEmpty && _selectedFileName == null) return;
+
+    final now = DateTime.now();
+    final newMsg = {
+      'id': 'm-${now.millisecondsSinceEpoch}',
+      'sender': widget.profile.name,
+      'text': text,
+      'time': '${now.hour > 12 ? now.hour - 12 : now.hour}:${now.minute.toString().padLeft(2, '0')} ${now.hour >= 12 ? 'PM' : 'AM'}',
+      'createdAtMs': now.millisecondsSinceEpoch,
+      'fileName': _selectedFileName,
+      'fileType': _selectedFileType,
+      'isEdited': false,
+    };
 
     setState(() {
-      _messages.add({
-        'sender': widget.profile.name,
-        'text': text,
-        'time': 'Just now',
-      });
+      _messages.add(newMsg);
       _msgController.clear();
+      _selectedFileName = null;
+      _selectedFileType = null;
     });
 
-    await ApiService.sendMessage(widget.profile.name, text);
+    _scrollToBottom();
+
+    await ApiService.sendMessage(
+      studentName: widget.profile.name,
+      text: text,
+      fileName: newMsg['fileName'] as String?,
+      fileType: newMsg['fileType'] as String?,
+    );
+  }
+
+  void _openEditDialog(Map<String, dynamic> msg) {
+    final createdAtMs = (msg['createdAtMs'] ?? 0) as int;
+    final elapsedSec = ((DateTime.now().millisecondsSinceEpoch - createdAtMs) / 1000).floor();
+    final remainingSec = 120 - elapsedSec;
+
+    if (remainingSec <= 0) {
+      showCupertinoDialog(
+        context: context,
+        builder: (ctx) => CupertinoAlertDialog(
+          title: const Text('Edit Window Expired'),
+          content: const Text(
+            'Messages and shared files can only be modified within 2 minutes of sending.',
+          ),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('OK'),
+              onPressed: () => Navigator.pop(ctx),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    final editCtrl = TextEditingController(text: (msg['text'] ?? '').toString());
+    String? editFileName = msg['fileName']?.toString();
+
+    showCupertinoDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) {
+          return CupertinoAlertDialog(
+            title: const Text('Edit Message'),
+            content: Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CupertinoTextField(
+                    controller: editCtrl,
+                    placeholder: 'Edit your message...',
+                    maxLines: 3,
+                    padding: const EdgeInsets.all(10),
+                  ),
+                  if (editFileName != null) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE2E8F0),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '📎 $editFileName',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => setModalState(() => editFileName = null),
+                            child: const Icon(CupertinoIcons.xmark_circle_fill, size: 16, color: Colors.red),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            actions: [
+              CupertinoDialogAction(
+                child: const Text('Cancel'),
+                onPressed: () => Navigator.pop(ctx),
+              ),
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                child: const Text('Save Changes'),
+                onPressed: () async {
+                  final newText = editCtrl.text.trim();
+                  Navigator.pop(ctx);
+
+                  setState(() {
+                    msg['text'] = newText;
+                    msg['fileName'] = editFileName;
+                    if (editFileName == null) msg['fileType'] = null;
+                    msg['isEdited'] = true;
+                  });
+
+                  await ApiService.editMessage(
+                    id: msg['id'] ?? '',
+                    text: newText,
+                    fileName: editFileName,
+                  );
+                },
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -1989,19 +2216,23 @@ class _ChatScreenState extends State<ChatScreen> {
             // Messages List
             Expanded(
               child: ListView.builder(
+                controller: _scrollController,
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
                   final msg = _messages[index];
                   final isMe = msg['sender'] == widget.profile.name || msg['sender'] == 'Rahul Kumar';
+                  final createdAtMs = (msg['createdAtMs'] ?? 0) as int;
+                  final elapsedSec = ((DateTime.now().millisecondsSinceEpoch - createdAtMs) / 1000).floor();
+                  final canEdit = isMe && elapsedSec <= 120;
 
                   return Align(
                     alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
                     child: Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      margin: const EdgeInsets.only(bottom: 12),
+                      constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.82),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                       decoration: BoxDecoration(
                         color: isMe
                             ? IosTheme.primaryBlue
@@ -2016,21 +2247,132 @@ class _ChatScreenState extends State<ChatScreen> {
                       child: Column(
                         crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            msg['text']!,
-                            style: TextStyle(
-                              color: isMe ? Colors.white : (isDark ? Colors.white : Colors.black),
-                              fontSize: 14.5,
-                              height: 1.35,
+                          // Attached File Box
+                          if (msg['fileName'] != null && (msg['fileName'] as String).isNotEmpty) ...[
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: isMe
+                                    ? Colors.black.withValues(alpha: 0.20)
+                                    : (isDark ? const Color(0xFF1C1C1E) : Colors.white),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isMe
+                                      ? Colors.white.withValues(alpha: 0.2)
+                                      : (isDark ? const Color(0xFF3A3A3C) : const Color(0xFFE2E8F0)),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: isMe ? Colors.white.withValues(alpha: 0.2) : const Color(0xFFEFF6FF),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      CupertinoIcons.doc_fill,
+                                      size: 18,
+                                      color: isMe ? Colors.white : IosTheme.primaryBlue,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Flexible(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          msg['fileName']!,
+                                          style: TextStyle(
+                                            color: isMe ? Colors.white : (isDark ? Colors.white : Colors.black87),
+                                            fontSize: 12.5,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        Text(
+                                          msg['fileType'] ?? 'Document Attachment',
+                                          style: TextStyle(
+                                            color: isMe ? Colors.white70 : CupertinoColors.systemGrey,
+                                            fontSize: 10.5,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            msg['time']!,
-                            style: TextStyle(
-                              color: isMe ? Colors.white70 : CupertinoColors.systemGrey,
-                              fontSize: 10,
+                          ],
+
+                          // Text Content
+                          if ((msg['text'] ?? '').toString().isNotEmpty)
+                            Text(
+                              msg['text']!,
+                              style: TextStyle(
+                                color: isMe ? Colors.white : (isDark ? Colors.white : Colors.black),
+                                fontSize: 14.5,
+                                height: 1.35,
+                              ),
                             ),
+                          const SizedBox(height: 4),
+
+                          // Timestamp, Edit Status & 2-min Edit Button
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (msg['isEdited'] == true) ...[
+                                Text(
+                                  '(edited) ',
+                                  style: TextStyle(
+                                    color: isMe ? Colors.white60 : CupertinoColors.systemGrey,
+                                    fontSize: 10,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ],
+                              Text(
+                                msg['time']!,
+                                style: TextStyle(
+                                  color: isMe ? Colors.white70 : CupertinoColors.systemGrey,
+                                  fontSize: 10,
+                                ),
+                              ),
+                              if (isMe) ...[
+                                const SizedBox(width: 8),
+                                if (canEdit)
+                                  GestureDetector(
+                                    onTap: () => _openEditDialog(msg),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(alpha: 0.22),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(CupertinoIcons.pencil, size: 10, color: Colors.white),
+                                          const SizedBox(width: 3),
+                                          Text(
+                                            'Edit',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 9.5,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  const SizedBox.shrink(),
+                              ],
+                            ],
                           ),
                         ],
                       ),
@@ -2040,15 +2382,63 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
 
+            // File Attachment Selected Banner
+            if (_selectedFileName != null)
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFE2E8F0),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: IosTheme.primaryBlue.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(CupertinoIcons.paperclip, size: 16, color: IosTheme.primaryBlue),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _selectedFileName!,
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => setState(() {
+                        _selectedFileName = null;
+                        _selectedFileType = null;
+                      }),
+                      child: const Icon(CupertinoIcons.xmark_circle_fill, size: 18, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+
             // iOS Frosted Input Bar
             Container(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+              padding: const EdgeInsets.fromLTRB(10, 8, 12, 10),
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
                 border: Border(top: BorderSide(color: IosTheme.separator(isDark))),
               ),
               child: Row(
                 children: [
+                  // Attachment Paperclip Button
+                  CupertinoButton(
+                    padding: const EdgeInsets.all(8),
+                    minimumSize: Size.zero,
+                    onPressed: _pickRealFile,
+                    child: Icon(
+                      CupertinoIcons.paperclip,
+                      size: 22,
+                      color: isDark ? CupertinoColors.systemGrey : const Color(0xFF4B5563),
+                    ),
+                  ),
                   Expanded(
                     child: CupertinoTextField(
                       controller: _msgController,

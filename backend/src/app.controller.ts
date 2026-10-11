@@ -1018,20 +1018,64 @@ export class AppController {
     return { success: true, notification: notif };
   }
 
-  // ── Messages / Chat ───────────────────────────────────────────────────────
+  // ── Messages / Chat (File Sharing & 2-Minute Edit Cooldown) ────────────
   @Get('messages')
   getMessages() {
     return fallbackMessages;
   }
 
   @Post('messages')
-  sendMessage(@Body() body: { studentName: string; text: string; sender: 'student' | 'admin' }) {
+  sendMessage(@Body() body: {
+    studentName: string;
+    text: string;
+    sender: 'student' | 'admin';
+    fileUrl?: string;
+    fileName?: string;
+    fileType?: string;
+  }) {
+    const now = Date.now();
     const msg = {
-      id: `m-${Date.now()}`,
-      ...body,
-      timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+      id: `m-${now}`,
+      studentName: body.studentName,
+      text: body.text || '',
+      sender: body.sender || 'student',
+      fileUrl: body.fileUrl || null,
+      fileName: body.fileName || null,
+      fileType: body.fileType || null,
+      createdAtMs: now,
+      isEdited: false,
+      timestamp: new Date(now).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
     };
     fallbackMessages.push(msg);
+    return { success: true, message: msg };
+  }
+
+  @Post('messages/:id/edit')
+  editMessage(
+    @Param('id') id: string,
+    @Body() body: { text?: string; fileUrl?: string; fileName?: string; fileType?: string }
+  ) {
+    const msg = fallbackMessages.find((m) => m.id === id);
+    if (!msg) {
+      return { success: false, message: 'Message not found.' };
+    }
+
+    const elapsedMs = Date.now() - (msg.createdAtMs || Date.now());
+    const twoMinutesMs = 2 * 60 * 1000;
+
+    if (elapsedMs > twoMinutesMs) {
+      return {
+        success: false,
+        message: 'Edit window expired. Messages can only be edited within 2 minutes of sending.',
+      };
+    }
+
+    if (body.text !== undefined) msg.text = body.text;
+    if (body.fileUrl !== undefined) msg.fileUrl = body.fileUrl;
+    if (body.fileName !== undefined) msg.fileName = body.fileName;
+    if (body.fileType !== undefined) msg.fileType = body.fileType;
+    msg.isEdited = true;
+
     return { success: true, message: msg };
   }
 }
