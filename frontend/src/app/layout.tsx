@@ -1,6 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,7 +18,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://indrajeetsir.vercel.app';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://indrajeetsir.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -20,7 +26,7 @@ export const metadata: Metadata = {
     default: 'Indrajeet Sir | 1:1 UPSC & State PCS Mentorship',
     template: '%s | Indrajeet Sir UPSC',
   },
-  description: 'Personalized 1:1 UPSC Mentorship by Indrajeet Sir. Comprehensive guidance for Prelims foundation, Mains answer writing edge (600+ micro notes, 16 tests), and 1:1 live strategy sessions.',
+  description: '1:1 UPSC Mentorship by Indrajeet Sir. Line-by-line Mains copy checking, 600+ micro notes, 16 test evaluations, and personal strategy sessions.',
   keywords: [
     'UPSC Mentorship',
     'Indrajeet Sir',
@@ -35,11 +41,11 @@ export const metadata: Metadata = {
   creator: 'Indrajeet Sir',
   publisher: 'Indrajeet Sir UPSC Mentorship',
   alternates: {
-    canonical: '/',
+    canonical: siteUrl,
   },
   openGraph: {
     title: 'Indrajeet Sir | 1:1 UPSC & State PCS Mentorship',
-    description: 'Personalized 1:1 UPSC Mentorship by Indrajeet Sir. Comprehensive guidance for Prelims, Mains answer writing, and Personality Test interview.',
+    description: '1:1 UPSC Mentorship by Indrajeet Sir. Line-by-line Mains copy checking, 600+ micro notes, 16 test evaluations, and personal strategy sessions.',
     url: siteUrl,
     siteName: 'Indrajeet Sir UPSC Mentorship',
     locale: 'en_IN',

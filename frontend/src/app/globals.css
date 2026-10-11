@@ -1,6 +1,6 @@
 /* globals.css — reset only */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { -webkit-font-smoothing: antialiased; background: #ffffff; }
+html { scroll-behavior: smooth; overflow-x: hidden; width: 100%; }
+body { -webkit-font-smoothing: antialiased; background: #ffffff; overflow-x: hidden; width: 100%; position: relative; }
 a { color: inherit; }
 img { max-width: 100%; display: block; }

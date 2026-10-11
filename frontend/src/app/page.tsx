@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { API_URL } from '@/lib/api';
 import Header from '@/components/Header';
@@ -17,9 +16,19 @@ interface Course {
   published?: boolean;
 }
 
+interface RazorpayResponse {
+  razorpay_order_id?: string;
+  razorpay_payment_id?: string;
+  razorpay_signature?: string;
+}
+
+interface RazorpayInstance {
+  open: () => void;
+}
+
 declare global {
   interface Window {
-    Razorpay: any;
+    Razorpay: new (options: Record<string, unknown>) => RazorpayInstance;
   }
 }
 
@@ -69,7 +78,7 @@ export default function Home() {
   // Dynamic Site Content (Editable via Admin Panel)
   const [siteContent, setSiteContent] = useState({
     heroHeading: 'UPSC CSE is cracked on Answer Writing & Discipline, not endless lectures.',
-    heroSubheading: 'Direct personal guidance by Indrajeet Sir. Line-by-line Mains copy checking, weekly 1:1 strategy reviews, and high-yield GS 1–4 study notes.',
+    heroSubheading: 'UPSC CSE is cracked on answer writing and daily discipline rather than endless passive lectures. Get direct personal guidance by Indrajeet Sir with line-by-line Mains copy checking, weekly 1:1 strategy reviews, and high-yield GS 1–4 study notes.',
     stat1Number: '600+',
     stat1Label: 'Mains Micro Notes',
     stat2Number: '16 Tests',
@@ -77,7 +86,7 @@ export default function Home() {
     stat3Number: '1:1 Private',
     stat3Label: 'Strategy Sessions',
     aboutHeading: 'No Outsourced Checking. Direct Teacher Accountability.',
-    aboutSubheading: 'In Civil Services preparation, passive listening creates an illusion of knowledge. Real improvement happens when your answers are diagnosed and corrected consistently.',
+    aboutSubheading: 'In UPSC CSE preparation, endless passive lectures create a false illusion of progress. True mastery is built when disciplined answer writing is rigorously evaluated and personally cracked through consistent diagnosis.',
     dhoniQuote: 'The process is more important than the results. If you take care of the process, results will follow.',
     dhoniAuthor: 'MS Dhoni',
     pdfSectionHeading: 'Important Study Material & Resource PDFs',
@@ -114,21 +123,23 @@ export default function Home() {
 
   // Fetch courses and live website content
   useEffect(() => {
-    try {
-      const savedContent = localStorage.getItem('indrajeet_site_content');
-      if (savedContent) {
-        setSiteContent((prev) => ({ ...prev, ...JSON.parse(savedContent) }));
-      }
-      const savedPdfs = localStorage.getItem('indrajeet_pdf_list');
-      if (savedPdfs) {
-        const parsed = JSON.parse(savedPdfs);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setPdfList(parsed);
+    const frameId = requestAnimationFrame(() => {
+      try {
+        const savedContent = localStorage.getItem('indrajeet_site_content');
+        if (savedContent) {
+          setSiteContent((prev) => ({ ...prev, ...JSON.parse(savedContent) }));
         }
+        const savedPdfs = localStorage.getItem('indrajeet_pdf_list');
+        if (savedPdfs) {
+          const parsed = JSON.parse(savedPdfs);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setPdfList(parsed);
+          }
+        }
+      } catch {
+        // ignore parse error
       }
-    } catch {
-      // ignore parse error
-    }
+    });
 
     fetch(`${API_URL}/courses`)
       .then(r => r.json())
@@ -138,6 +149,8 @@ export default function Home() {
         }
       })
       .catch(() => {});
+
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
   // Dynamically load Razorpay SDK
@@ -168,6 +181,7 @@ export default function Home() {
     const emailClean = checkoutForm.email.trim().toLowerCase();
     const studentName = checkoutForm.name.trim();
     const studentPhone = checkoutForm.phone.trim();
+    const timestamp = new Date().getTime();
 
     try {
       const res = await fetch(`${API_URL}/payments/create-order`, {
@@ -192,7 +206,7 @@ export default function Home() {
       const scriptLoaded = await loadRazorpayScript();
 
       if (scriptLoaded && window.Razorpay && orderData.keyId && !orderData.keyId.startsWith('rzp_test_placeholder')) {
-        const options = {
+        const options: Record<string, unknown> = {
           key: orderData.keyId,
           amount: orderData.amount,
           currency: orderData.currency || 'INR',
@@ -207,10 +221,10 @@ export default function Home() {
           theme: {
             color: '#2563eb',
           },
-          handler: async (response: any) => {
+          handler: async (response: RazorpayResponse) => {
             await verifyPaymentAndFinish({
               orderId: response.razorpay_order_id || orderData.orderId,
-              paymentId: response.razorpay_payment_id || `pay_${Date.now()}`,
+              paymentId: response.razorpay_payment_id || `pay_${timestamp}`,
               signature: response.razorpay_signature || 'verified_sig',
               courseId: selectedCourse.id,
               studentName,
@@ -230,7 +244,7 @@ export default function Home() {
       } else {
         await verifyPaymentAndFinish({
           orderId: orderData.orderId,
-          paymentId: `pay_test_${Date.now()}`,
+          paymentId: `pay_test_${timestamp}`,
           signature: 'verified_sig',
           courseId: selectedCourse.id,
           studentName,
@@ -241,8 +255,8 @@ export default function Home() {
     } catch (err) {
       console.error('Checkout error:', err);
       await verifyPaymentAndFinish({
-        orderId: `order_${Date.now()}`,
-        paymentId: `pay_${Date.now()}`,
+        orderId: `order_${timestamp}`,
+        paymentId: `pay_${timestamp}`,
         courseId: selectedCourse.id,
         studentName,
         studentEmail: emailClean,
@@ -251,7 +265,15 @@ export default function Home() {
     }
   };
 
-  const verifyPaymentAndFinish = async (verifyPayload: any) => {
+  const verifyPaymentAndFinish = async (verifyPayload: {
+    orderId: string;
+    paymentId: string;
+    signature?: string;
+    courseId: string;
+    studentName: string;
+    studentEmail: string;
+    studentPhone: string;
+  }) => {
     try {
       const res = await fetch(`${API_URL}/payments/verify`, {
         method: 'POST',
@@ -334,9 +356,10 @@ export default function Home() {
               <Image
                 src="/indrajeet-sir.jpg"
                 alt="Indrajeet Sir - 1:1 UPSC & State PCS Mentorship"
-                width={480}
-                height={270}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 25%' }}
+                width={640}
+                height={360}
+                quality={95}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%' }}
                 className="mentor-img"
                 priority
               />
@@ -596,16 +619,6 @@ export default function Home() {
           <p>{siteContent.contactDeskSubheading}</p>
           <div className="cta-desk-actions">
             <a
-              href={`tel:${siteContent.phoneTel}`}
-              className="btn-primary lg"
-              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.55rem' }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-              <span>Call: {siteContent.phoneDisplay}</span>
-            </a>
-            <a
               href={siteContent.telegramUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -615,7 +628,7 @@ export default function Home() {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/>
               </svg>
-              <span>Telegram: {siteContent.telegramHandle}</span>
+              <span>Join Telegram: {siteContent.telegramHandle}</span>
             </a>
             <a
               href={siteContent.whatsappUrl}
@@ -635,6 +648,21 @@ export default function Home() {
 
       {/* ── Modular Footer ── */}
       <Footer />
+
+      {/* ── Floating WhatsApp Button ── */}
+      <a
+        href={siteContent.whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="whatsapp-fab"
+        aria-label="Chat on WhatsApp"
+        title="Chat with us on WhatsApp"
+      >
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true">
+          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2ZM12.04 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.16 12.04 20.16C10.66 20.16 9.3 19.8 8.1 19.09L7.81 18.92L4.69 19.74L5.52 16.7L5.33 16.39C4.54 15.13 4.12 13.68 4.12 11.91C4.12 7.38 7.82 3.67 12.04 3.67ZM8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7.02 8.48 7.02 9.69C7.02 10.9 7.9 12.07 8.02 12.23C8.15 12.39 9.74 14.85 12.19 15.91C12.77 16.16 13.23 16.31 13.58 16.42C14.17 16.61 14.7 16.58 15.13 16.52C15.61 16.45 16.6 15.92 16.81 15.33C17.02 14.74 17.02 14.24 16.96 14.13C16.89 14.03 16.73 13.97 16.48 13.85C16.24 13.72 15.02 13.12 14.79 13.04C14.57 12.96 14.4 12.92 14.24 13.17C14.07 13.41 13.59 13.97 13.45 14.13C13.3 14.3 13.16 14.32 12.91 14.2C12.67 14.07 11.88 13.82 10.95 12.98C10.22 12.33 9.73 11.53 9.58 11.28C9.44 11.04 9.57 10.9 9.69 10.78C9.8 10.67 9.94 10.49 10.06 10.34C10.19 10.2 10.23 10.09 10.31 9.93C10.39 9.76 10.35 9.62 10.29 9.5C10.23 9.37 9.73 8.16 9.53 7.66C9.33 7.18 9.12 7.24 8.97 7.24C8.82 7.23 8.68 7.23 8.53 7.33Z"/>
+        </svg>
+        <span className="whatsapp-fab-label">WhatsApp</span>
+      </a>
 
       {/* ── Secure Course Checkout Modal ── */}
       {showCheckoutModal && selectedCourse && (

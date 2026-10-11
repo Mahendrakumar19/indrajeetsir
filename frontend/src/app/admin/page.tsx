@@ -239,6 +239,7 @@ export default function AdminPanel() {
 
   // Primary navigation tabs
   const [tab, setTab] = useState<'users' | 'content' | 'payments' | 'notifications' | 'courses' | 'classes' | 'website'>('users');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   // Flash alert
   const [actionSuccess, setActionSuccess] = useState('');
@@ -246,7 +247,7 @@ export default function AdminPanel() {
   // 0. Website Live Content Editor State
   const [siteContent, setSiteContent] = useState({
     heroHeading: 'UPSC CSE is cracked on Answer Writing & Discipline, not endless lectures.',
-    heroSubheading: 'Direct personal guidance by Indrajeet Sir. Line-by-line Mains copy checking, weekly 1:1 strategy reviews, and high-yield GS 1–4 study notes.',
+    heroSubheading: 'UPSC CSE is cracked on answer writing and daily discipline rather than endless passive lectures. Get direct personal guidance by Indrajeet Sir with line-by-line Mains copy checking, weekly 1:1 strategy reviews, and high-yield GS 1–4 study notes.',
     stat1Number: '600+',
     stat1Label: 'Mains Micro Notes',
     stat2Number: '16 Tests',
@@ -254,7 +255,7 @@ export default function AdminPanel() {
     stat3Number: '1:1 Private',
     stat3Label: 'Strategy Sessions',
     aboutHeading: 'No Outsourced Checking. Direct Teacher Accountability.',
-    aboutSubheading: 'In Civil Services preparation, passive listening creates an illusion of knowledge. Real improvement happens when your answers are diagnosed and corrected consistently.',
+    aboutSubheading: 'In UPSC CSE preparation, endless passive lectures create a false illusion of progress. True mastery is built when disciplined answer writing is rigorously evaluated and personally cracked through consistent diagnosis.',
     dhoniQuote: 'The process is more important than the results. If you take care of the process, results will follow.',
     dhoniAuthor: 'MS Dhoni',
     pdfSectionHeading: 'Important Study Material & Resource PDFs',
@@ -360,11 +361,12 @@ export default function AdminPanel() {
 
   // Mount effect to sync localStorage without SSR hydration errors and cleanse dummy data
   useEffect(() => {
-    setMounted(true);
-    setAuth(getAdminSession());
+    const frameId = requestAnimationFrame(() => {
+      setMounted(true);
+      setAuth(getAdminSession());
 
-    try {
-      const savedUsers = localStorage.getItem('admin_users_data');
+      try {
+        const savedUsers = localStorage.getItem('admin_users_data');
       if (savedUsers) {
         const parsed = JSON.parse(savedUsers);
         if (Array.isArray(parsed)) {
@@ -418,7 +420,10 @@ export default function AdminPanel() {
     } catch {
       // ignore parse errors
     }
-  }, []);
+  });
+
+  return () => cancelAnimationFrame(frameId);
+}, []);
 
   // Persist locally after mount
   useEffect(() => {
@@ -483,7 +488,15 @@ export default function AdminPanel() {
         .then((r) => r.json())
         .then((d) => {
           if (Array.isArray(d)) {
-            const mapped: AdminUser[] = d.map((s: any) => ({
+            const mapped: AdminUser[] = d.map((s: {
+              id?: string;
+              name?: string;
+              email: string;
+              phone?: string;
+              course?: string;
+              attempt?: string;
+              joinedDate?: string;
+            }) => ({
               id: s.id || `usr_${Date.now()}`,
               name: s.name || 'Student',
               email: s.email,
@@ -509,7 +522,7 @@ export default function AdminPanel() {
         .then((d) => {
           if (Array.isArray(d)) {
             setTransactions((prev) => {
-              const liveIds = new Set(d.map((p: any) => p.id));
+              const liveIds = new Set(d.map((p: { id: string }) => p.id));
               const localUnique = prev.filter((p) => !liveIds.has(p.id) && !DUMMY_IDS.has(p.id));
               return [...d, ...localUnique];
             });
@@ -860,8 +873,9 @@ export default function AdminPanel() {
       } else {
         alert(json.message || 'PDF upload failed.');
       }
-    } catch (err: any) {
-      alert('Upload error: ' + (err?.message || 'Check network connection'));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Check network connection';
+      alert('Upload error: ' + msg);
     } finally {
       setPdfUploading(false);
     }
@@ -994,9 +1008,72 @@ export default function AdminPanel() {
 
   return (
     <div className="admin">
+      {/* Mobile Top Header */}
+      <header className="admin-mobile-header">
+        <div className="admin-mobile-brand">
+          <Image
+            src="/logo.png"
+            alt="Indrajeet Sir Logo"
+            width={28}
+            height={28}
+            style={{ borderRadius: '6px' }}
+          />
+          <div>
+            <div className="admin-mobile-brand-title">Indrajeet Sir Admin</div>
+            <span className="admin-mobile-tab-pill">
+              {tab === 'users' && 'Users'}
+              {tab === 'content' && 'Content'}
+              {tab === 'payments' && 'Payments'}
+              {tab === 'notifications' && 'Notifications'}
+              {tab === 'courses' && 'Courses'}
+              {tab === 'classes' && 'Live Classes'}
+              {tab === 'website' && 'Live Editor'}
+            </span>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+          <button
+            type="button"
+            className="admin-mobile-toggle-btn"
+            onClick={() => setMobileNavOpen(!mobileNavOpen)}
+            aria-label="Toggle navigation menu"
+          >
+            {mobileNavOpen ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="4" y1="6" x2="20" y2="6"></line>
+                <line x1="4" y1="12" x2="20" y2="12"></line>
+                <line x1="4" y1="18" x2="20" y2="18"></line>
+              </svg>
+            )}
+          </button>
+          <button
+            type="button"
+            className="admin-mobile-toggle-btn"
+            onClick={handleLogout}
+            title="Lock Session"
+          >
+            <IconLogOut size={16} />
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile Drawer Backdrop */}
+      {mobileNavOpen && (
+        <div
+          className="admin-mobile-backdrop"
+          onClick={() => setMobileNavOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="admin-sidebar">
-        <Link href="/" className="admin-brand">
+      <aside className={`admin-sidebar ${mobileNavOpen ? 'mobile-open' : ''}`}>
+        <Link href="/" className="admin-brand" onClick={() => setMobileNavOpen(false)}>
           <Image
             src="/logo.png"
             alt="Indrajeet Sir UPSC"
@@ -1013,7 +1090,7 @@ export default function AdminPanel() {
         <nav className="admin-nav">
           <button
             className={`anav ${tab === 'users' ? 'active' : ''}`}
-            onClick={() => setTab('users')}
+            onClick={() => { setTab('users'); setMobileNavOpen(false); }}
           >
             <div className="anav-inner">
               <IconUsers size={16} />
@@ -1024,7 +1101,7 @@ export default function AdminPanel() {
 
           <button
             className={`anav ${tab === 'content' ? 'active' : ''}`}
-            onClick={() => setTab('content')}
+            onClick={() => { setTab('content'); setMobileNavOpen(false); }}
           >
             <div className="anav-inner">
               <IconLayout size={16} />
@@ -1035,7 +1112,7 @@ export default function AdminPanel() {
 
           <button
             className={`anav ${tab === 'payments' ? 'active' : ''}`}
-            onClick={() => setTab('payments')}
+            onClick={() => { setTab('payments'); setMobileNavOpen(false); }}
           >
             <div className="anav-inner">
               <IconCard size={16} />
@@ -1046,7 +1123,7 @@ export default function AdminPanel() {
 
           <button
             className={`anav ${tab === 'notifications' ? 'active' : ''}`}
-            onClick={() => setTab('notifications')}
+            onClick={() => { setTab('notifications'); setMobileNavOpen(false); }}
           >
             <div className="anav-inner">
               <IconBell size={16} />
@@ -1057,7 +1134,7 @@ export default function AdminPanel() {
 
           <button
             className={`anav ${tab === 'courses' ? 'active' : ''}`}
-            onClick={() => setTab('courses')}
+            onClick={() => { setTab('courses'); setMobileNavOpen(false); }}
           >
             <div className="anav-inner">
               <IconBook size={16} />
@@ -1068,7 +1145,7 @@ export default function AdminPanel() {
 
           <button
             className={`anav ${tab === 'classes' ? 'active' : ''}`}
-            onClick={() => setTab('classes')}
+            onClick={() => { setTab('classes'); setMobileNavOpen(false); }}
           >
             <div className="anav-inner">
               <IconVideo size={16} />
@@ -1079,7 +1156,7 @@ export default function AdminPanel() {
 
           <button
             className={`anav ${tab === 'website' ? 'active' : ''}`}
-            onClick={() => setTab('website')}
+            onClick={() => { setTab('website'); setMobileNavOpen(false); }}
           >
             <div className="anav-inner">
               <IconGlobe size={16} />
