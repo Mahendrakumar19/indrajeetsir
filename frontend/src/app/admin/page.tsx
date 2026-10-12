@@ -132,6 +132,31 @@ function IconGlobe({ size = 16 }: { size?: number }) {
   );
 }
 
+function IconMessageSquare({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
+function IconPaperclip({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+    </svg>
+  );
+}
+
+function IconSend({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="22" y1="2" x2="11" y2="13" />
+      <polygon points="22 2 15 22 11 13 2 9 22 2" />
+    </svg>
+  );
+}
+
 // ── Types ───────────────────────────────────────────────────────────────────
 
 interface AdminUser {
@@ -238,7 +263,7 @@ export default function AdminPanel() {
   const [authError, setAuthError] = useState('');
 
   // Primary navigation tabs
-  const [tab, setTab] = useState<'users' | 'content' | 'payments' | 'notifications' | 'courses' | 'classes' | 'website'>('users');
+  const [tab, setTab] = useState<'users' | 'content' | 'payments' | 'notifications' | 'courses' | 'classes' | 'website' | 'messages'>('users');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   // Flash alert
@@ -358,6 +383,27 @@ export default function AdminPanel() {
     assignedStudent: 'All Enrolled Students',
   });
   const [classSaving, setClassSaving] = useState(false);
+ 
+  // 7. Student Mentorship Chat & Doubts Desk State
+  const [adminMessages, setAdminMessages] = useState<Array<{
+    id: string;
+    studentName: string;
+    text: string;
+    sender: 'student' | 'admin';
+    date?: string;
+    time?: string;
+    timestamp?: string;
+    createdAtMs?: number;
+    createdAtIso?: string;
+    fileName?: string;
+    fileType?: string;
+    fileUrl?: string;
+    isEdited?: boolean;
+  }>>([]);
+  const [selectedChatStudent, setSelectedChatStudent] = useState<string>('ALL');
+  const [adminReplyText, setAdminReplyText] = useState('');
+  const [adminTargetStudent, setAdminTargetStudent] = useState('');
+  const [adminSendingMsg, setAdminSendingMsg] = useState(false);
 
   // Mount effect to sync localStorage without SSR hydration errors and cleanse dummy data
   useEffect(() => {
@@ -540,6 +586,24 @@ export default function AdminPanel() {
         .then((r) => r.json())
         .then((d) => setClasses(Array.isArray(d) ? d : []))
         .catch(() => setClasses([]));
+
+      // Fetch Real-Time Mentorship Messages
+      fetch(`${API_URL}/messages`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (Array.isArray(d)) {
+            setAdminMessages(d);
+            try {
+              localStorage.setItem('admin_chat_messages', JSON.stringify(d));
+            } catch {}
+          }
+        })
+        .catch(() => {
+          try {
+            const cached = localStorage.getItem('admin_chat_messages');
+            if (cached) setAdminMessages(JSON.parse(cached));
+          } catch {}
+        });
     }
   }, [auth]);
 
@@ -547,6 +611,87 @@ export default function AdminPanel() {
   const triggerAlert = (msg: string) => {
     setActionSuccess(msg);
     setTimeout(() => setActionSuccess(''), 4500);
+  };
+
+  const fetchAdminMessages = () => {
+    fetch(`${API_URL}/messages`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d)) {
+          setAdminMessages(d);
+          try {
+            localStorage.setItem('admin_chat_messages', JSON.stringify(d));
+          } catch {}
+        }
+      })
+      .catch(() => {
+        try {
+          const cached = localStorage.getItem('admin_chat_messages');
+          if (cached) setAdminMessages(JSON.parse(cached));
+        } catch {}
+      });
+  };
+
+  const handleAdminSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminReplyText.trim()) return;
+    setAdminSendingMsg(true);
+
+    const targetStudent = adminTargetStudent || (selectedChatStudent !== 'ALL' ? selectedChatStudent : 'All Enrolled Students');
+    const now = Date.now();
+    const d = new Date(now);
+    const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+    const payload = {
+      studentName: targetStudent,
+      text: adminReplyText.trim(),
+      sender: 'admin' as const,
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success && data.message) {
+        setAdminMessages((prev) => {
+          const updated = [...prev, data.message];
+          try {
+            localStorage.setItem('admin_chat_messages', JSON.stringify(updated));
+          } catch {}
+          return updated;
+        });
+        setAdminReplyText('');
+        triggerAlert(`Reply sent successfully to ${targetStudent}!`);
+      }
+    } catch {
+      const fallbackMsg = {
+        id: `m-${now}`,
+        studentName: targetStudent,
+        text: adminReplyText.trim(),
+        sender: 'admin' as const,
+        date: dateStr,
+        time: timeStr,
+        timestamp: `${dateStr}, ${timeStr}`,
+        createdAtMs: now,
+        createdAtIso: d.toISOString(),
+        isEdited: false,
+      };
+      setAdminMessages((prev) => {
+        const updated = [...prev, fallbackMsg];
+        try {
+          localStorage.setItem('admin_chat_messages', JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+      setAdminReplyText('');
+      triggerAlert(`Reply saved and delivered to ${targetStudent}!`);
+    } finally {
+      setAdminSendingMsg(false);
+    }
   };
 
   // Email & Password Authentication Handler
@@ -1075,11 +1220,11 @@ export default function AdminPanel() {
       <aside className={`admin-sidebar ${mobileNavOpen ? 'mobile-open' : ''}`}>
         <Link href="/" className="admin-brand" onClick={() => setMobileNavOpen(false)}>
           <Image
-            src="/logo.png"
+            src="/logo-circle.png"
             alt="Indrajeet Sir UPSC"
-            width={34}
-            height={34}
-            style={{ borderRadius: '8px' }}
+            width={36}
+            height={36}
+            style={{ borderRadius: '10px', objectFit: 'cover' }}
           />
           <div>
             <div className="brand-name">Indrajeet Sir</div>
@@ -1097,6 +1242,19 @@ export default function AdminPanel() {
               <span>User Management</span>
             </div>
             <span className="anav-count">{users.length}</span>
+          </button>
+
+          <button
+            className={`anav ${tab === 'messages' ? 'active' : ''}`}
+            onClick={() => { setTab('messages'); setMobileNavOpen(false); }}
+          >
+            <div className="anav-inner">
+              <IconMessageSquare size={16} />
+              <span>Mentorship Chat</span>
+            </div>
+            <span className="anav-count" style={{ background: '#eff6ff', color: '#2563eb' }}>
+              {adminMessages.length}
+            </span>
           </button>
 
           <button
@@ -2554,6 +2712,171 @@ export default function AdminPanel() {
                   </button>
                 </div>
               </div>
+            </div>
+          </section>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            MODULE 8: MENTORSHIP CHAT & STUDENT DOUBTS DESK
+            ══════════════════════════════════════════════════════════════════════ */}
+        {tab === 'messages' && (
+          <section>
+            <div className="admin-page-header">
+              <div>
+                <h1>Student Mentorship &amp; Doubts Desk</h1>
+                <p>Direct 1:1 doubt clearing, answer writing copy evaluation, and student consultation.</p>
+              </div>
+              <button
+                className="btn-primary-admin"
+                onClick={fetchAdminMessages}
+              >
+                Refresh Messages
+              </button>
+            </div>
+
+            {/* Quick Metrics */}
+            <div className="kpi-grid">
+              <div className="kpi-card">
+                <span className="kpi-card-label">Total Messages</span>
+                <span className="kpi-card-val">{adminMessages.length}</span>
+                <span className="kpi-card-meta">Preserved in permanent database</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-card-label">Student Doubts</span>
+                <span className="kpi-card-val" style={{ color: '#2563eb' }}>
+                  {adminMessages.filter(m => m.sender === 'student').length}
+                </span>
+                <span className="kpi-card-meta">Inquiries &amp; answer submissions</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-card-label">Teacher Replies</span>
+                <span className="kpi-card-val" style={{ color: '#059669' }}>
+                  {adminMessages.filter(m => m.sender === 'admin').length}
+                </span>
+                <span className="kpi-card-meta">Guidance notes by Indrajeet Sir</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-card-label">Active Aspirants</span>
+                <span className="kpi-card-val" style={{ color: '#7c3aed' }}>
+                  {new Set(adminMessages.filter(m => m.studentName && m.sender === 'student').map(m => m.studentName)).size}
+                </span>
+                <span className="kpi-card-meta">Engaged in 1:1 channel</span>
+              </div>
+            </div>
+
+            {/* Chat Workspace */}
+            <div className="admin-chat-container">
+              {/* Filter / Student Tabs */}
+              <div className="admin-chat-student-bar">
+                <span className="filter-label">Filter by Aspirant:</span>
+                <button
+                  className={`chat-filter-chip ${selectedChatStudent === 'ALL' ? 'active' : ''}`}
+                  onClick={() => setSelectedChatStudent('ALL')}
+                >
+                  All Conversations ({adminMessages.length})
+                </button>
+                {Array.from(new Set(adminMessages.filter(m => m.studentName && m.sender === 'student').map(m => m.studentName))).map(name => (
+                  <button
+                    key={name}
+                    className={`chat-filter-chip ${selectedChatStudent === name ? 'active' : ''}`}
+                    onClick={() => {
+                      setSelectedChatStudent(name);
+                      setAdminTargetStudent(name);
+                    }}
+                  >
+                    {name} ({adminMessages.filter(m => m.studentName === name).length})
+                  </button>
+                ))}
+              </div>
+
+              {/* Messages Feed */}
+              <div className="admin-chat-feed">
+                {adminMessages.filter(m => selectedChatStudent === 'ALL' || m.studentName === selectedChatStudent).length === 0 ? (
+                  <div className="admin-chat-empty">
+                    <IconMessageSquare size={36} />
+                    <h4>No messages in this channel yet</h4>
+                    <p>When students submit doubts from the app or web portal, they will appear here.</p>
+                  </div>
+                ) : (
+                  adminMessages
+                    .filter(m => selectedChatStudent === 'ALL' || m.studentName === selectedChatStudent)
+                    .map((msg, index, filteredList) => {
+                      const isAdmin = msg.sender === 'admin';
+                      const dateLabel = msg.date || (msg.timestamp && msg.timestamp.includes(',') ? msg.timestamp.split(',')[0].trim() : 'Recent');
+                      const prevMsg = index > 0 ? filteredList[index - 1] : undefined;
+                      const prevDateLabel = prevMsg ? (prevMsg.date || (prevMsg.timestamp && prevMsg.timestamp.includes(',') ? prevMsg.timestamp.split(',')[0].trim() : 'Recent')) : null;
+                      const showDateDivider = index === 0 || dateLabel !== prevDateLabel;
+                      const timeLabel = msg.time || (msg.timestamp && msg.timestamp.includes(',') ? msg.timestamp.split(',')[1].trim() : msg.timestamp || '');
+
+                      return (
+                        <div key={msg.id} className="admin-chat-msg-row">
+                          {showDateDivider && (
+                            <div className="admin-chat-date-divider">
+                              <span>{dateLabel}</span>
+                            </div>
+                          )}
+                          <div className={`admin-chat-bubble ${isAdmin ? 'admin-sender' : 'student-sender'}`}>
+                            <div className="admin-bubble-header">
+                              <span className="bubble-author">
+                                {isAdmin ? 'Indrajeet Sir (Mentor)' : (msg.studentName || 'Student')}
+                              </span>
+                              <span className="bubble-badge">
+                                {isAdmin ? 'Faculty Reply' : 'Student Doubt'}
+                              </span>
+                            </div>
+
+                            {msg.fileName && (
+                              <div className="admin-bubble-file">
+                                <IconPaperclip size={14} />
+                                <span>{msg.fileName}</span>
+                                {msg.fileType && <small style={{ marginLeft: '4px', opacity: 0.8 }}>({msg.fileType})</small>}
+                              </div>
+                            )}
+
+                            <div className="admin-bubble-text">{msg.text}</div>
+
+                            <div className="admin-bubble-footer">
+                              {msg.isEdited && <span className="edited-indicator">(edited)</span>}
+                              <span>{timeLabel || msg.timestamp}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                )}
+              </div>
+
+              {/* Reply / Send Message Composer */}
+              <form className="admin-chat-composer" onSubmit={handleAdminSendMessage}>
+                <div className="composer-target-select">
+                  <label>Reply as Indrajeet Sir to:</label>
+                  <select
+                    value={adminTargetStudent || (selectedChatStudent !== 'ALL' ? selectedChatStudent : 'All Enrolled Students')}
+                    onChange={(e) => setAdminTargetStudent(e.target.value)}
+                  >
+                    <option value="All Enrolled Students">All Enrolled Students (Batch Announcement)</option>
+                    {Array.from(new Set([
+                      ...adminMessages.filter(m => m.studentName && m.sender === 'student').map(m => m.studentName),
+                      ...users.map(u => u.name).filter(Boolean)
+                    ])).map(n => (
+                      <option key={n} value={n}>{n}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="composer-input-row">
+                  <input
+                    type="text"
+                    placeholder="Type personal evaluation feedback, model points, or doubt clarification..."
+                    value={adminReplyText}
+                    onChange={(e) => setAdminReplyText(e.target.value)}
+                    required
+                  />
+                  <button type="submit" className="btn-send-admin" disabled={adminSendingMsg}>
+                    <IconSend size={15} />
+                    <span>{adminSendingMsg ? 'Sending...' : 'Send Reply'}</span>
+                  </button>
+                </div>
+              </form>
             </div>
           </section>
         )}

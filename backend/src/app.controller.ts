@@ -5,6 +5,58 @@ import { AuthService } from './auth.service.js';
 import { MailService } from './mail.service.js';
 import { RazorpayService } from './razorpay.service.js';
 
+import fs from 'node:fs';
+import path from 'node:path';
+
+// ─── Persistent Storage for Chat Messages on Disk ───────────────────────────
+const DATA_DIR = path.join(process.cwd(), 'data');
+const MESSAGES_FILE = path.join(DATA_DIR, 'messages.json');
+
+function loadPersistedMessages(): any[] {
+  try {
+    if (fs.existsSync(MESSAGES_FILE)) {
+      const content = fs.readFileSync(MESSAGES_FILE, 'utf-8');
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (err) {
+    console.warn('⚠️ Could not load persisted messages from disk:', err);
+  }
+
+  const now = Date.now();
+  const d = new Date(now);
+  const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+  const initial = [
+    {
+      id: 'm-welcome-1',
+      studentName: 'Indrajeet Sir',
+      text: 'Welcome to your 1:1 UPSC Mentorship portal! Feel free to ask your syllabus strategy doubts or attach answer sheets here anytime.',
+      sender: 'admin',
+      date: dateStr,
+      time: timeStr,
+      timestamp: `${dateStr}, ${timeStr}`,
+      createdAtMs: now - 3600000,
+      createdAtIso: new Date(now - 3600000).toISOString(),
+      isEdited: false,
+    },
+  ];
+  savePersistedMessages(initial);
+  return initial;
+}
+
+function savePersistedMessages(messages: any[]) {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('⚠️ Could not save messages to disk:', err);
+  }
+}
+
 // ─── In-Memory Resilient Fallback Store ───────────────────────────────────────
 let fallbackStudents: any[] = [];
 
@@ -29,7 +81,7 @@ let fallbackCourses: any[] = [
   },
 ];
 
-let fallbackMessages: any[] = [];
+let fallbackMessages: any[] = loadPersistedMessages();
 let fallbackPayments: any[] = [];
 let fallbackNotifications: any[] = [];
 
@@ -1034,6 +1086,18 @@ export class AppController {
     fileType?: string;
   }) {
     const now = Date.now();
+    const dateObj = new Date(now);
+    const dateStr = dateObj.toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    }); // e.g. "12 Oct 2026"
+    const timeStr = dateObj.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    }); // e.g. "11:45 AM"
+
     const msg = {
       id: `m-${now}`,
       studentName: body.studentName,
@@ -1043,10 +1107,14 @@ export class AppController {
       fileName: body.fileName || null,
       fileType: body.fileType || null,
       createdAtMs: now,
+      createdAtIso: dateObj.toISOString(),
+      date: dateStr,
+      time: timeStr,
+      timestamp: `${dateStr}, ${timeStr}`,
       isEdited: false,
-      timestamp: new Date(now).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
     };
     fallbackMessages.push(msg);
+    savePersistedMessages(fallbackMessages);
     return { success: true, message: msg };
   }
 
@@ -1075,6 +1143,8 @@ export class AppController {
     if (body.fileName !== undefined) msg.fileName = body.fileName;
     if (body.fileType !== undefined) msg.fileType = body.fileType;
     msg.isEdited = true;
+    msg.editedAtMs = Date.now();
+    savePersistedMessages(fallbackMessages);
 
     return { success: true, message: msg };
   }

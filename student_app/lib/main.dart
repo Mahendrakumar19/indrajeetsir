@@ -2335,7 +2335,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                               ],
                               Text(
-                                msg['time']!,
+                                (msg['time'] ?? msg['timestamp'] ?? '').toString(),
                                 style: TextStyle(
                                   color: isMe ? Colors.white70 : CupertinoColors.systemGrey,
                                   fontSize: 10,

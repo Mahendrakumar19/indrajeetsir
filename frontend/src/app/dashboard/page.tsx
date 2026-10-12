@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   API_URL,
@@ -12,6 +13,170 @@ import {
   StudentUser,
 } from '@/lib/api';
 import './dashboard.css';
+
+// ── Minimalist SVG Vector Icons (Zero Emojis) ───────────────────────────────
+
+function IconHome({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  );
+}
+
+function IconVideo({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5" />
+      <rect x="2" y="6" width="14" height="12" rx="2" />
+    </svg>
+  );
+}
+
+function IconMessageSquare({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  );
+}
+
+function IconUser({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
+function IconLogOut({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" x2="9" y1="12" y2="12" />
+    </svg>
+  );
+}
+
+function IconBookOpen({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+    </svg>
+  );
+}
+
+function IconCalendar({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="18" height="18" x="3" y="4" rx="2" />
+      <line x1="16" x2="16" y1="2" y2="6" />
+      <line x1="8" x2="8" y1="2" y2="6" />
+      <line x1="3" x2="21" y1="10" y2="10" />
+    </svg>
+  );
+}
+
+function IconClock({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
+function IconUsers({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+
+function IconHeadphones({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+      <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
+    </svg>
+  );
+}
+
+function IconWifi({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 20h.01" />
+      <path d="M2 8.82a15 15 0 0 1 20 0" />
+      <path d="M5 12.859a10 10 0 0 1 14 0" />
+      <path d="M8.5 16.429a5 5 0 0 1 7 0" />
+    </svg>
+  );
+}
+
+function IconFileText({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" x2="8" y1="13" y2="13" />
+      <line x1="16" x2="8" y1="17" y2="17" />
+      <line x1="10" x2="8" y1="9" y2="9" />
+    </svg>
+  );
+}
+
+function IconPaperclip({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+    </svg>
+  );
+}
+
+function IconRefresh({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+      <path d="M8 16H3v5" />
+    </svg>
+  );
+}
+
+function IconArrowRight({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
+    </svg>
+  );
+}
+
+function IconShieldCheck({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  );
+}
+
+function IconCheck({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
 
 interface LiveClassItem {
   id: string;
@@ -28,7 +193,10 @@ interface MessageItem {
   studentName: string;
   text: string;
   sender: 'student' | 'admin';
-  timestamp: string;
+  timestamp?: string;
+  date?: string;
+  time?: string;
+  createdAtIso?: string;
   createdAtMs?: number;
   fileName?: string;
   fileType?: string;
@@ -36,14 +204,67 @@ interface MessageItem {
   isEdited?: boolean;
 }
 
-const AVATAR_OPTIONS = [
-  { key: 'ias_officer', emoji: '👮‍♂️', label: 'IAS Officer' },
-  { key: 'aspirant_male', emoji: '👨‍🎓', label: 'Aspirant (M)' },
-  { key: 'aspirant_female', emoji: '👩‍🎓', label: 'Aspirant (F)' },
-  { key: 'scholar', emoji: '🧑‍🏫', label: 'Scholar' },
-  { key: 'bookworm', emoji: '📚', label: 'Bookworm' },
-  { key: 'top_ranker', emoji: '🌟', label: 'Top Ranker' },
-];
+function formatChatDate(msg: MessageItem): string {
+  if (msg.date) return msg.date;
+  const ms = msg.createdAtMs || (msg.createdAtIso ? new Date(msg.createdAtIso).getTime() : null);
+  if (ms) {
+    const d = new Date(ms);
+    const today = new Date();
+    if (d.toDateString() === today.toDateString()) return 'Today';
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  if (msg.timestamp && msg.timestamp.includes(',')) {
+    return msg.timestamp.split(',')[0].trim();
+  }
+  return 'Previous Discussion';
+}
+
+function formatChatTime(msg: MessageItem): string {
+  if (msg.time) return msg.time;
+  const ms = msg.createdAtMs || (msg.createdAtIso ? new Date(msg.createdAtIso).getTime() : null);
+  if (ms) {
+    return new Date(ms).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+  }
+  if (msg.timestamp) {
+    if (msg.timestamp.includes(',')) {
+      return msg.timestamp.split(',')[1].trim();
+    }
+    return msg.timestamp;
+  }
+  return '';
+}
+
+function formatDisplayName(name?: string, email?: string): string {
+  if (name && name.trim()) {
+    // If name contains dot like "rahul.kumar", format as "Rahul Kumar"
+    if (name.includes('.')) {
+      return name
+        .split('.')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join(' ');
+    }
+    return name;
+  }
+  if (email && email.trim()) {
+    const prefix = email.split('@')[0];
+    return prefix
+      .split('.')
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join(' ');
+  }
+  return 'Aspirant';
+}
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+}
 
 export default function StudentDashboard() {
   const router = useRouter();
@@ -67,13 +288,12 @@ export default function StudentDashboard() {
     attempt: '2027',
     optionalSubject: '',
     bio: '',
-    avatarKey: 'ias_officer',
   });
   const [profileSaveSuccess, setProfileSaveSuccess] = useState(false);
 
   // Settings toggles
   const [alert10mEnabled, setAlert10mEnabled] = useState(true);
-  const [whatsappAlerts, setWhatsappAlerts] = useState(true);
+  const [pushAlertsEnabled, setPushAlertsEnabled] = useState(true);
 
   // Throttled activity tracker for 7-day inactivity sliding session
   const lastTouchRef = useRef<number>(Date.now());
@@ -93,13 +313,11 @@ export default function StudentDashboard() {
       attempt: session.attempt || '2027',
       optionalSubject: session.optionalSubject || '',
       bio: session.bio || '',
-      avatarKey: session.avatarKey || 'ias_officer',
     });
 
     // 2. Attach user interaction listeners to maintain active session
     const handleUserActivity = () => {
       const now = Date.now();
-      // Throttle localStorage updates to at most once every 30 seconds
       if (now - lastTouchRef.current > 30000) {
         lastTouchRef.current = now;
         touchStudentActivity();
@@ -122,6 +340,16 @@ export default function StudentDashboard() {
   }, [router]);
 
   useEffect(() => {
+    try {
+      const cached = localStorage.getItem('indrajeet_student_chat_history');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed);
+        }
+      }
+    } catch {}
+
     fetchClasses();
     fetchMessages();
   }, []);
@@ -140,7 +368,14 @@ export default function StudentDashboard() {
   const fetchMessages = () => {
     fetch(`${API_URL}/messages`)
       .then(r => r.json())
-      .then(d => setMessages(Array.isArray(d) ? d : []))
+      .then(d => {
+        if (Array.isArray(d)) {
+          setMessages(d);
+          try {
+            localStorage.setItem('indrajeet_student_chat_history', JSON.stringify(d));
+          } catch {}
+        }
+      })
       .catch(() => {});
   };
 
@@ -160,8 +395,12 @@ export default function StudentDashboard() {
     e.preventDefault();
     if (!msgText.trim() && !selectedFileName) return;
     const now = Date.now();
+    const d = new Date(now);
+    const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const displayName = formatDisplayName(student?.name, student?.email);
     const payload = {
-      studentName: student?.name || 'Student',
+      studentName: displayName,
       text: msgText,
       sender: 'student' as const,
       fileName: selectedFileName || undefined,
@@ -176,23 +415,38 @@ export default function StudentDashboard() {
       });
       const data = await res.json();
       if (data.success && data.message) {
-        setMessages(prev => [...prev, data.message]);
+        setMessages(prev => {
+          const updated = [...prev, data.message];
+          try {
+            localStorage.setItem('indrajeet_student_chat_history', JSON.stringify(updated));
+          } catch {}
+          return updated;
+        });
         setMsgText('');
         setSelectedFileName('');
       }
     } catch {
-      const demo: MessageItem = {
+      const fallbackMsg: MessageItem = {
         id: `m-${now}`,
-        studentName: student?.name || 'Student',
+        studentName: displayName,
         text: msgText,
         sender: 'student',
-        timestamp: new Date(now).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+        date: dateStr,
+        time: timeStr,
+        timestamp: `${dateStr}, ${timeStr}`,
         createdAtMs: now,
+        createdAtIso: d.toISOString(),
         fileName: selectedFileName || undefined,
         fileType: selectedFileName ? 'Uploaded Document' : undefined,
         isEdited: false,
       };
-      setMessages(prev => [...prev, demo]);
+      setMessages(prev => {
+        const updated = [...prev, fallbackMsg];
+        try {
+          localStorage.setItem('indrajeet_student_chat_history', JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
       setMsgText('');
       setSelectedFileName('');
     }
@@ -236,7 +490,6 @@ export default function StudentDashboard() {
       attempt: profileForm.attempt,
       optionalSubject: profileForm.optionalSubject.trim(),
       bio: profileForm.bio.trim(),
-      avatarKey: profileForm.avatarKey,
     };
 
     setStudent(updatedStudent);
@@ -255,13 +508,16 @@ export default function StudentDashboard() {
     setTimeout(() => setProfileSaveSuccess(false), 3500);
   };
 
-  const studentName = (student?.name || '').toLowerCase();
+  const rawStudentName = (student?.name || '').toLowerCase();
+  const displayName = formatDisplayName(student?.name, student?.email);
+  const initials = getInitials(displayName);
+
   const filteredClasses = (Array.isArray(classes) ? classes : []).filter(cls => {
     const isMine =
       !cls.assignedStudent ||
       cls.assignedStudent === 'All Students' ||
       cls.assignedStudent === 'All Enrolled Students' ||
-      (studentName && cls.assignedStudent.toLowerCase().includes(studentName));
+      (rawStudentName && cls.assignedStudent.toLowerCase().includes(rawStudentName));
 
     if (!isMine) return false;
 
@@ -276,59 +532,68 @@ export default function StudentDashboard() {
 
   const nextUpcomingClass = filteredClasses.length > 0 ? filteredClasses[0] : null;
 
-  const currentAvatarEmoji =
-    AVATAR_OPTIONS.find(a => a.key === (student?.avatarKey || 'ias_officer'))?.emoji || '👮‍♂️';
-
   return (
     <div className="dash">
       {/* ── Sidebar (Desktop) ── */}
       <aside className="dash-sidebar">
-        <div className="dash-logo">
-          <span className="dash-flag">🇮🇳</span>
+        <Link href="/" className="dash-logo">
+          <Image
+            src="/logo-circle.png"
+            alt="Indrajeet Sir Official Logo"
+            width={38}
+            height={38}
+            className="dash-logo-img"
+            priority
+          />
           <div>
             <div className="dash-app-name">Indrajeet Sir</div>
             <div className="dash-app-sub">Student Portal</div>
           </div>
-        </div>
+        </Link>
 
         <nav className="dash-nav">
           <button
             className={tab === 'overview' ? 'dash-nav-btn active' : 'dash-nav-btn'}
             onClick={() => setTab('overview')}
           >
-            <span className="nav-btn-icon">🏠</span> Overview
+            <span className="nav-btn-icon"><IconHome /></span>
+            <span>Overview</span>
           </button>
           <button
             className={tab === 'classes' ? 'dash-nav-btn active' : 'dash-nav-btn'}
             onClick={() => setTab('classes')}
           >
-            <span className="nav-btn-icon">📹</span> Live Classes & Schedule
+            <span className="nav-btn-icon"><IconVideo /></span>
+            <span>Live Classes</span>
           </button>
           <button
             className={tab === 'chat' ? 'dash-nav-btn active' : 'dash-nav-btn'}
             onClick={() => setTab('chat')}
           >
-            <span className="nav-btn-icon">💬</span> 1:1 Mentor Chat
+            <span className="nav-btn-icon"><IconMessageSquare /></span>
+            <span>Mentor Chat</span>
           </button>
           <button
             className={tab === 'profile' ? 'dash-nav-btn active' : 'dash-nav-btn'}
             onClick={() => setTab('profile')}
           >
-            <span className="nav-btn-icon">👤</span> Profile & Settings
+            <span className="nav-btn-icon"><IconUser /></span>
+            <span>Profile &amp; Settings</span>
           </button>
         </nav>
 
         {/* User Snapshot in Sidebar */}
         <div className="dash-user">
           <div className="dash-user-row">
-            <span className="dash-user-avatar-mini">{currentAvatarEmoji}</span>
+            <div className="dash-user-avatar-initials">{initials}</div>
             <div className="dash-user-details">
-              <div className="dash-user-name">{student?.name || 'Aspirant'}</div>
+              <div className="dash-user-name">{displayName}</div>
               <div className="dash-user-info">UPSC CSE {student?.attempt || '2027'}</div>
             </div>
           </div>
           <button onClick={handleLogout} className="dash-logout-btn">
-            🚪 Sign Out
+            <IconLogOut size={14} />
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
@@ -340,8 +605,8 @@ export default function StudentDashboard() {
           <div>
             <div className="dash-sub-title">UPSC CSE {student?.attempt?.toUpperCase() || '2027'} ASPIRANT</div>
             <h1 className="dash-main-title">
-              {tab === 'overview' && `Welcome, ${student?.name ? student.name.split(' ')[0] : 'Aspirant'}`}
-              {tab === 'classes' && 'Live Classroom & Masterclasses'}
+              {tab === 'overview' && `Welcome, ${displayName}`}
+              {tab === 'classes' && 'Live Classes & Classroom Schedule'}
               {tab === 'chat' && 'Direct Mentorship Chat with Indrajeet Sir'}
               {tab === 'profile' && 'Student Profile & Preferences'}
             </h1>
@@ -352,31 +617,34 @@ export default function StudentDashboard() {
               className="dash-avatar-btn"
               title="View Student Profile"
             >
-              <span className="avatar-emoji">{currentAvatarEmoji}</span>
-              <span className="avatar-label-desktop">{student?.name || 'Profile'}</span>
+              <span className="avatar-circle-top">{initials}</span>
+              <span className="avatar-label-desktop">{displayName}</span>
             </button>
           </div>
         </header>
 
         {profileSaveSuccess && (
           <div className="dash-alert-toast">
-            ✅ Profile changes saved successfully to your cloud profile!
+            <IconCheck size={16} />
+            <span>Profile details saved successfully!</span>
           </div>
         )}
 
         {/* ══════════════════════════════════════════════════════
-            TAB 1: OVERVIEW (MATCHING APPLICATION HOME SCREEN)
+            TAB 1: OVERVIEW (CLEAN EXECUTIVE REDESIGN)
             ══════════════════════════════════════════════════════ */}
         {tab === 'overview' && (
           <div className="tab-pane">
             {/* Enrolled Course Status Banner */}
             <div className="course-banner-card">
-              <div className="course-banner-icon">📚</div>
+              <div className="course-banner-icon">
+                <IconBookOpen size={22} />
+              </div>
               <div className="course-banner-text">
                 <div className="course-banner-badge-row">
                   <span className="status-tag-green">ENROLLED COURSE</span>
                   <span className="status-tag-info">
-                    {alert10mEnabled ? '• 10m Live Alerts Active' : '• Alerts Muted'}
+                    {alert10mEnabled ? '• 10m Pre-Class Alerts Active' : '• Alerts Muted'}
                   </span>
                 </div>
                 <div className="course-banner-title">
@@ -390,12 +658,12 @@ export default function StudentDashboard() {
               <div className="hero-session-header">
                 <div className="hero-live-badge">
                   <span className="pulse-dot"></span>
-                  <span>{nextUpcomingClass ? 'UPCOMING LIVE SESSION' : 'LIVE STATUS'}</span>
+                  <span>{nextUpcomingClass ? 'UPCOMING LIVE SESSION' : 'LIVE CLASSROOM STATUS'}</span>
                 </div>
                 <div className="hero-session-time">
                   {nextUpcomingClass
                     ? `${nextUpcomingClass.date ? new Date(nextUpcomingClass.date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }) : 'Today'} • ${nextUpcomingClass.time}`
-                    : 'Awaiting Schedule'}
+                    : 'Awaiting Next Schedule'}
                 </div>
               </div>
 
@@ -407,9 +675,9 @@ export default function StudentDashboard() {
               <p className="hero-session-desc">
                 {nextUpcomingClass
                   ? (nextUpcomingClass.assignedStudent && !nextUpcomingClass.assignedStudent.toLowerCase().includes('all')
-                      ? '👤 Direct 1:1 Personal Mentorship Session with Indrajeet Sir'
-                      : '🌐 Batch Live Strategy & Answer Writing Session with Indrajeet Sir')
-                  : 'Indrajeet Sir assigns session schedules here. You will receive an alert 10 minutes prior.'}
+                      ? 'Personal 1:1 Strategy & Evaluation Call with Indrajeet Sir'
+                      : 'Batch Live Strategy & Answer Writing Session with Indrajeet Sir')
+                  : 'Your mentorship sessions are scheduled directly by Indrajeet Sir. You will receive an alert before the class starts.'}
               </p>
 
               <div className="hero-session-actions">
@@ -420,32 +688,39 @@ export default function StudentDashboard() {
                     rel="noopener noreferrer"
                     className="btn-join-hero"
                   >
-                    📹 Join Live Classroom
+                    <IconVideo size={16} />
+                    <span>Join Live Classroom</span>
                   </a>
                 ) : (
                   <button onClick={() => setTab('classes')} className="btn-join-hero">
-                    📅 View Full Classroom Schedule
+                    <IconCalendar size={16} />
+                    <span>View Classroom Schedule</span>
                   </button>
                 )}
                 <button onClick={() => setTab('chat')} className="btn-secondary-hero">
-                  💬 Ask Sir a Question
+                  <IconMessageSquare size={16} />
+                  <span>Ask Sir a Question</span>
                 </button>
               </div>
             </div>
 
-            {/* Quick Metrics (2-Card Clean Grid matching Mobile App) */}
+            {/* Quick Metrics Grid */}
             <div className="metrics-grid">
               <div className="metric-tile">
-                <div className="metric-icon blue">📹</div>
+                <div className="metric-icon blue">
+                  <IconClock size={20} />
+                </div>
                 <div className="metric-content">
                   <div className="metric-label">NEXT LIVE CLASS</div>
                   <div className="metric-value">{nextUpcomingClass ? nextUpcomingClass.time : 'Scheduled Soon'}</div>
-                  <div className="metric-sub">{nextUpcomingClass ? 'With Indrajeet Sir' : 'Check notification tab'}</div>
+                  <div className="metric-sub">{nextUpcomingClass ? 'With Indrajeet Sir' : 'Check notifications tab'}</div>
                 </div>
               </div>
 
               <div className="metric-tile">
-                <div className="metric-icon orange">👤</div>
+                <div className="metric-icon orange">
+                  <IconUsers size={20} />
+                </div>
                 <div className="metric-content">
                   <div className="metric-label">SESSION FORMAT</div>
                   <div className="metric-value">1:1 Ready</div>
@@ -457,17 +732,20 @@ export default function StudentDashboard() {
             {/* Today's Live Classroom Schedule */}
             <div className="dash-section">
               <div className="dash-section-header">
-                <h3>TODAY&apos;S LIVE CLASSROOM SCHEDULE</h3>
+                <h3>TODAY&apos;S CLASSROOM SCHEDULE</h3>
                 <button onClick={() => setTab('classes')} className="dash-link-action">
-                  View All &rarr;
+                  <span>View All</span>
+                  <IconArrowRight size={14} />
                 </button>
               </div>
 
               {filteredClasses.length === 0 ? (
                 <div className="schedule-empty-card">
-                  <div className="empty-calendar-icon">📅</div>
+                  <div className="empty-vector-wrap">
+                    <IconCalendar size={28} />
+                  </div>
                   <h4>No Sessions Scheduled for Today</h4>
-                  <p>You will receive an alert 10 minutes before your allotted session starts.</p>
+                  <p>You will receive an alert before your allotted live class begins.</p>
                 </div>
               ) : (
                 <div className="schedule-list">
@@ -479,8 +757,8 @@ export default function StudentDashboard() {
                           <div className="schedule-title">{cls.title}</div>
                           <div className="schedule-meta-tag">
                             {cls.assignedStudent && !cls.assignedStudent.toLowerCase().includes('all')
-                              ? '1:1 ALLOTTED MENTEE'
-                              : 'BATCH LIVE CLASS'}
+                              ? '1:1 PERSONAL SESSION'
+                              : 'BATCH MASTERCLASS'}
                           </div>
                         </div>
                       </div>
@@ -490,7 +768,7 @@ export default function StudentDashboard() {
                         rel="noopener noreferrer"
                         className="btn-join-small"
                       >
-                        Join Class ↗
+                        Join Class
                       </a>
                     </div>
                   ))}
@@ -498,36 +776,42 @@ export default function StudentDashboard() {
               )}
             </div>
 
-            {/* Live Class Readiness Guidelines (Matching App) */}
+            {/* Live Class Readiness Guidelines */}
             <div className="dash-section">
               <div className="dash-section-header">
-                <h3>LIVE CLASS GUIDELINES</h3>
+                <h3>LIVE CLASS PREPARATION GUIDELINES</h3>
               </div>
               <div className="guidelines-card">
                 <div className="guideline-item">
-                  <div className="guideline-icon blue">🎧</div>
+                  <div className="guideline-icon blue">
+                    <IconHeadphones size={18} />
+                  </div>
                   <div>
-                    <div className="guideline-title">Audio &amp; Microphone Ready</div>
+                    <div className="guideline-title">Audio &amp; Microphone Check</div>
                     <div className="guideline-desc">
-                      Connect earphones/mic for smooth two-way live interactive discussion with Indrajeet Sir.
+                      Connect headphones with microphone for crisp, two-way interactive feedback with Indrajeet Sir.
                     </div>
                   </div>
                 </div>
                 <div className="guideline-item">
-                  <div className="guideline-icon green">📶</div>
+                  <div className="guideline-icon green">
+                    <IconWifi size={18} />
+                  </div>
                   <div>
-                    <div className="guideline-title">Stable Connection Required</div>
+                    <div className="guideline-title">Reliable Connection</div>
                     <div className="guideline-desc">
-                      Ensure Wi-Fi or reliable 4G/5G connectivity for uninterrupted HD video interaction.
+                      Ensure stable Wi-Fi or high-speed mobile internet for high-definition video evaluation.
                     </div>
                   </div>
                 </div>
                 <div className="guideline-item">
-                  <div className="guideline-icon orange">📝</div>
+                  <div className="guideline-icon orange">
+                    <IconFileText size={18} />
+                  </div>
                   <div>
-                    <div className="guideline-title">Keep Notebooks Ready</div>
+                    <div className="guideline-title">Notebooks &amp; Drafts Ready</div>
                     <div className="guideline-desc">
-                      Keep your Mains syllabus notes and query points ready for direct feedback during the session.
+                      Keep your Mains syllabus notes and query points handy for direct diagnosis during the session.
                     </div>
                   </div>
                 </div>
@@ -537,7 +821,7 @@ export default function StudentDashboard() {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            TAB 2: COURSES & LIVE CLASSES SCHEDULE
+            TAB 2: LIVE CLASSES & SCHEDULE
             ══════════════════════════════════════════════════════ */}
         {tab === 'classes' && (
           <div className="tab-pane">
@@ -553,17 +837,18 @@ export default function StudentDashboard() {
                   className={classFilter === 'personal' ? 'filter-pill active' : 'filter-pill'}
                   onClick={() => setClassFilter('personal')}
                 >
-                  👤 1:1 Personal Calls
+                  1:1 Personal Calls
                 </button>
                 <button
                   className={classFilter === 'batch' ? 'filter-pill active' : 'filter-pill'}
                   onClick={() => setClassFilter('batch')}
                 >
-                  🌐 Batch Masterclasses
+                  Batch Masterclasses
                 </button>
               </div>
               <button onClick={fetchClasses} className="btn-refresh" title="Refresh Schedule">
-                🔄 Refresh
+                <IconRefresh size={14} />
+                <span>Refresh</span>
               </button>
             </div>
 
@@ -571,9 +856,11 @@ export default function StudentDashboard() {
               <div className="dash-empty">Loading classroom schedule...</div>
             ) : filteredClasses.length === 0 ? (
               <div className="dash-empty">
-                <div className="empty-icon">📅</div>
+                <div className="empty-vector-wrap">
+                  <IconCalendar size={32} />
+                </div>
                 <h3>No classes scheduled right now</h3>
-                <p>Indrajeet Sir will assign your personal session link shortly.</p>
+                <p>Indrajeet Sir will allocate your upcoming session timing shortly.</p>
               </div>
             ) : (
               <div className="class-cards-stack">
@@ -582,9 +869,11 @@ export default function StudentDashboard() {
                     <div className="class-card-left">
                       <div className="class-title">{cls.title}</div>
                       <div className="class-meta">
-                        <span>📅 {cls.date ? new Date(cls.date).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }) : 'Today'}</span>
-                        <span>🕐 {cls.time}</span>
-                        <span>{cls.assignedStudent && !cls.assignedStudent.toLowerCase().includes('all') ? '👤 1:1 Personal Session' : '🌐 Batch Session'}</span>
+                        <span>{cls.date ? new Date(cls.date).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }) : 'Today'}</span>
+                        <span>•</span>
+                        <span>{cls.time}</span>
+                        <span>•</span>
+                        <span>{cls.assignedStudent && !cls.assignedStudent.toLowerCase().includes('all') ? '1:1 Personal Session' : 'Batch Session'}</span>
                       </div>
                     </div>
                     <a
@@ -593,7 +882,7 @@ export default function StudentDashboard() {
                       rel="noopener noreferrer"
                       className={`join-btn ${cls.status === 'LIVE' ? 'join-live' : ''}`}
                     >
-                      {cls.status === 'LIVE' ? '🔴 Join Live' : 'Join Classroom ↗'}
+                      {cls.status === 'LIVE' ? 'Join Live Now' : 'Join Classroom'}
                     </a>
                   </div>
                 ))}
@@ -603,7 +892,7 @@ export default function StudentDashboard() {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            TAB 3: 1:1 MENTORSHIP CHAT WITH INDRAJEET SIR
+            TAB 3: 1:1 MENTORSHIP CHAT
             ══════════════════════════════════════════════════════ */}
         {tab === 'chat' && (
           <div className="tab-pane chat-wrap">
@@ -611,16 +900,25 @@ export default function StudentDashboard() {
               {/* Chat Sub-header */}
               <div className="chat-header-bar">
                 <div className="chat-teacher-info">
-                  <div className="chat-avatar">IS</div>
+                  <Image
+                    src="/logo-circle.png"
+                    alt="Indrajeet Sir"
+                    width={38}
+                    height={38}
+                    className="chat-teacher-avatar"
+                  />
                   <div>
                     <div className="chat-teacher-name">
-                      Indrajeet Sir <span className="verified-check">✓</span>
+                      Indrajeet Sir
+                      <span className="verified-pill">
+                        <IconCheck size={10} /> Verified Mentor
+                      </span>
                     </div>
-                    <div className="chat-teacher-status">Personal UPSC Mentor • Active Online</div>
+                    <div className="chat-teacher-status">Personal 1:1 Mentorship Channel</div>
                   </div>
                 </div>
                 <button onClick={fetchMessages} className="btn-refresh-small" title="Check new messages">
-                  🔄
+                  <IconRefresh size={15} />
                 </button>
               </div>
 
@@ -628,49 +926,61 @@ export default function StudentDashboard() {
               <div className="chat-messages">
                 {messages.length === 0 && (
                   <div className="dash-empty">
-                    No messages yet. Ask your first query or upload an answer sheet below!
+                    <p>No messages yet. Send your preparation doubt or share your answer copy below.</p>
                   </div>
                 )}
-                {messages.map(m => {
+                {messages.map((m, index) => {
                   const isMe = m.sender === 'student';
                   const elapsedSec = Math.floor((Date.now() - (m.createdAtMs || Date.now())) / 1000);
                   const canEdit = isMe && elapsedSec <= 120;
+                  const dateLabel = formatChatDate(m);
+                  const prevDateLabel = index > 0 ? formatChatDate(messages[index - 1]) : null;
+                  const showDateDivider = index === 0 || dateLabel !== prevDateLabel;
+                  const timeDisplay = formatChatTime(m);
+                  const fullDateTimeTitle = `${dateLabel} • ${timeDisplay}`;
 
                   return (
-                    <div key={m.id} className={`chat-msg ${isMe ? 'msg-student' : 'msg-admin'}`}>
-                      <div className="msg-name">{isMe ? (student?.name || 'You') : 'Indrajeet Sir'}</div>
-
-                      {/* File attachment preview */}
-                      {m.fileName && (
-                        <div className="msg-file-box">
-                          <span>📎</span>
-                          <span>{m.fileName}</span>
+                    <div key={m.id} className="chat-msg-row">
+                      {showDateDivider && (
+                        <div className="chat-date-divider">
+                          <span>{dateLabel}</span>
                         </div>
                       )}
+                      <div className={`chat-msg ${isMe ? 'msg-student' : 'msg-admin'}`}>
+                        <div className="msg-name">{isMe ? displayName : 'Indrajeet Sir'}</div>
 
-                      {editingMsgId === m.id ? (
-                        <div className="msg-edit-box">
-                          <input
-                            type="text"
-                            value={editText}
-                            onChange={e => setEditText(e.target.value)}
-                            className="edit-input"
-                          />
-                          <button onClick={() => handleSaveEdit(m.id)} className="btn-save-edit">Save</button>
-                          <button onClick={() => setEditingMsgId(null)} className="btn-cancel-edit">Cancel</button>
-                        </div>
-                      ) : (
-                        <div className="msg-text">{m.text}</div>
-                      )}
-
-                      <div className="msg-time">
-                        {m.isEdited && <span className="edited-tag">(edited)</span>}
-                        <span>{m.timestamp}</span>
-                        {canEdit && (
-                          <button onClick={() => handleStartEdit(m)} className="btn-edit-link">
-                            Edit
-                          </button>
+                        {/* File attachment preview */}
+                        {m.fileName && (
+                          <div className="msg-file-box">
+                            <IconPaperclip size={14} />
+                            <span>{m.fileName}</span>
+                          </div>
                         )}
+
+                        {editingMsgId === m.id ? (
+                          <div className="msg-edit-box">
+                            <input
+                              type="text"
+                              value={editText}
+                              onChange={e => setEditText(e.target.value)}
+                              className="edit-input"
+                            />
+                            <button onClick={() => handleSaveEdit(m.id)} className="btn-save-edit">Save</button>
+                            <button onClick={() => setEditingMsgId(null)} className="btn-cancel-edit">Cancel</button>
+                          </div>
+                        ) : (
+                          <div className="msg-text">{m.text}</div>
+                        )}
+
+                        <div className="msg-time" title={fullDateTimeTitle}>
+                          {m.isEdited && <span className="edited-tag">(edited)</span>}
+                          <span>{timeDisplay}</span>
+                          {canEdit && (
+                            <button onClick={() => handleStartEdit(m)} className="btn-edit-link">
+                              Edit
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -680,7 +990,10 @@ export default function StudentDashboard() {
               {/* Selected File Banner */}
               {selectedFileName && (
                 <div className="chat-attached-banner">
-                  <span>📎 Selected Document: <strong>{selectedFileName}</strong></span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <IconPaperclip size={14} />
+                    <span>Selected Document: <strong>{selectedFileName}</strong></span>
+                  </div>
                   <button onClick={() => setSelectedFileName('')} className="btn-remove-attachment">✕</button>
                 </div>
               )}
@@ -688,12 +1001,12 @@ export default function StudentDashboard() {
               {/* Chat Input Bar */}
               <form className="chat-input" onSubmit={sendMessage}>
                 <label className="chat-attach-btn" title="Attach Answer PDF or Image">
-                  📎
+                  <IconPaperclip size={18} />
                   <input type="file" onChange={handleFileSelect} style={{ display: 'none' }} />
                 </label>
                 <input
                   type="text"
-                  placeholder="Type your UPSC query or doubt for Indrajeet Sir..."
+                  placeholder="Type your UPSC query or strategy doubt for Indrajeet Sir..."
                   value={msgText}
                   onChange={e => setMsgText(e.target.value)}
                 />
@@ -706,33 +1019,35 @@ export default function StudentDashboard() {
         )}
 
         {/* ══════════════════════════════════════════════════════
-            TAB 4: STUDENT PROFILE & SETTINGS (MATCHING MOBILE APP)
+            TAB 4: STUDENT PROFILE & SETTINGS
             ══════════════════════════════════════════════════════ */}
         {tab === 'profile' && (
           <div className="tab-pane">
             {/* Profile Overview Card */}
             <div className="profile-hero-card">
               <div className="profile-hero-top">
-                <div className="profile-large-avatar">{currentAvatarEmoji}</div>
+                <div className="profile-initials-badge">{initials}</div>
                 <div className="profile-hero-info">
-                  <h2>{student?.name || 'Aspirant'}</h2>
+                  <h2>{displayName}</h2>
                   <div className="profile-hero-email">{student?.email}</div>
                   <div className="profile-hero-badges">
                     <span className="profile-badge">Target CSE {student?.attempt || '2027'}</span>
-                    <span className="profile-badge-opt">Optional: {student?.optionalSubject || 'Public Administration'}</span>
+                    {student?.optionalSubject && (
+                      <span className="profile-badge-opt">Optional: {student.optionalSubject}</span>
+                    )}
                   </div>
                 </div>
                 <button
                   onClick={() => setIsEditingProfile(!isEditingProfile)}
                   className="btn-edit-profile"
                 >
-                  {isEditingProfile ? '✕ Cancel Editing' : '✏️ Edit Profile'}
+                  {isEditingProfile ? 'Cancel' : 'Edit Profile'}
                 </button>
               </div>
 
               {student?.bio && (
                 <div className="profile-bio-box">
-                  <strong>Directive:</strong> {student.bio}
+                  <strong>Preparation Focus:</strong> {student.bio}
                 </div>
               )}
             </div>
@@ -766,6 +1081,7 @@ export default function StudentDashboard() {
                     <label>Phone / WhatsApp Number</label>
                     <input
                       type="text"
+                      placeholder="+91"
                       value={profileForm.phone}
                       onChange={e => setProfileForm({ ...profileForm, phone: e.target.value })}
                     />
@@ -795,36 +1111,19 @@ export default function StudentDashboard() {
                   </div>
 
                   <div className="form-group full-width">
-                    <label>Aspirant Bio / Study Directive</label>
+                    <label>Personal Directive / Focus</label>
                     <textarea
                       rows={2}
                       value={profileForm.bio}
                       onChange={e => setProfileForm({ ...profileForm, bio: e.target.value })}
-                      placeholder="e.g. Targeting Rank in CSE 2027 • Focusing on Mains GS-2 & GS-3 Answer Writing"
+                      placeholder="e.g. Targeting Top Rank • Working on Mains GS-2 and GS-3 answer structure"
                     />
-                  </div>
-
-                  <div className="form-group full-width">
-                    <label>Choose Aspirant Avatar</label>
-                    <div className="avatar-selector-grid">
-                      {AVATAR_OPTIONS.map(opt => (
-                        <button
-                          key={opt.key}
-                          type="button"
-                          className={`avatar-option-btn ${profileForm.avatarKey === opt.key ? 'selected' : ''}`}
-                          onClick={() => setProfileForm({ ...profileForm, avatarKey: opt.key })}
-                        >
-                          <span className="avatar-opt-emoji">{opt.emoji}</span>
-                          <span className="avatar-opt-label">{opt.label}</span>
-                        </button>
-                      ))}
-                    </div>
                   </div>
                 </div>
 
                 <div className="form-actions">
                   <button type="submit" className="btn-save-profile">
-                    💾 Save Changes
+                    Save Changes
                   </button>
                   <button
                     type="button"
@@ -844,7 +1143,7 @@ export default function StudentDashboard() {
                 <div>
                   <div className="setting-title">10-Minute Pre-Class Alert</div>
                   <div className="setting-desc">
-                    Show upcoming classroom countdown and join button 10 minutes prior to session start.
+                    Show upcoming classroom countdown and direct link 10 minutes prior to session start.
                   </div>
                 </div>
                 <label className="toggle-switch">
@@ -859,16 +1158,22 @@ export default function StudentDashboard() {
 
               <div className="setting-toggle-row">
                 <div>
-                  <div className="setting-title">WhatsApp Session Reminders</div>
+                  <div className="setting-title">Device &amp; Browser Push Notifications</div>
                   <div className="setting-desc">
-                    Receive session joining links directly on your registered WhatsApp number ({student?.phone || 'Configured'}).
+                    Receive session joining alerts and schedule updates directly on your device.
                   </div>
                 </div>
                 <label className="toggle-switch">
                   <input
                     type="checkbox"
-                    checked={whatsappAlerts}
-                    onChange={e => setWhatsappAlerts(e.target.checked)}
+                    checked={pushAlertsEnabled}
+                    onChange={e => {
+                      const enabled = e.target.checked;
+                      setPushAlertsEnabled(enabled);
+                      if (enabled && typeof window !== 'undefined' && 'Notification' in window) {
+                        Notification.requestPermission();
+                      }
+                    }}
                   />
                   <span className="slider"></span>
                 </label>
@@ -878,7 +1183,7 @@ export default function StudentDashboard() {
             {/* Academy Mentor Help Desk Card */}
             <div className="helpdesk-card">
               <h3>Direct Mentorship Desk</h3>
-              <p>For urgent scheduling conflicts, 1:1 call rescheduling, or submission assistance:</p>
+              <p>For urgent scheduling conflicts, 1:1 call rescheduling, or copy submission queries:</p>
               <div className="helpdesk-actions">
                 <a
                   href="https://wa.me/919873486158"
@@ -886,13 +1191,13 @@ export default function StudentDashboard() {
                   rel="noopener noreferrer"
                   className="btn-help-whatsapp"
                 >
-                  💬 WhatsApp Indrajeet Sir&apos;s Desk
+                  WhatsApp Mentorship Desk
                 </a>
                 <a
                   href="mailto:indrajeet.visionias@gmail.com"
                   className="btn-help-email"
                 >
-                  ✉️ Email Desk
+                  Email Desk
                 </a>
               </div>
             </div>
@@ -913,34 +1218,34 @@ export default function StudentDashboard() {
         )}
       </main>
 
-      {/* ── Mobile Floating Tab Bar (Matching iOS App Dock) ── */}
+      {/* ── Mobile Dock Navigation Bar ── */}
       <nav className="mobile-dock-nav">
         <button
           className={tab === 'overview' ? 'mobile-dock-item active' : 'mobile-dock-item'}
           onClick={() => setTab('overview')}
         >
-          <span className="dock-icon">🏠</span>
+          <span className="dock-icon"><IconHome size={20} /></span>
           <span className="dock-label">Overview</span>
         </button>
         <button
           className={tab === 'classes' ? 'mobile-dock-item active' : 'mobile-dock-item'}
           onClick={() => setTab('classes')}
         >
-          <span className="dock-icon">📹</span>
+          <span className="dock-icon"><IconVideo size={20} /></span>
           <span className="dock-label">Courses</span>
         </button>
         <button
           className={tab === 'chat' ? 'mobile-dock-item active' : 'mobile-dock-item'}
           onClick={() => setTab('chat')}
         >
-          <span className="dock-icon">💬</span>
+          <span className="dock-icon"><IconMessageSquare size={20} /></span>
           <span className="dock-label">Mentorship</span>
         </button>
         <button
           className={tab === 'profile' ? 'mobile-dock-item active' : 'mobile-dock-item'}
           onClick={() => setTab('profile')}
         >
-          <span className="dock-icon">👤</span>
+          <span className="dock-icon"><IconUser size={20} /></span>
           <span className="dock-label">Settings</span>
         </button>
       </nav>
