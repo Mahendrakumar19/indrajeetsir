@@ -5,6 +5,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const EduApp());
@@ -209,7 +212,7 @@ class StudentProfile {
     required this.optionalSubject,
     required this.bio,
     this.avatarKey = 'ias_officer',
-    this.enrolledCourse = '1:1 Comprehensive UPSC Mentorship 2026-27',
+    this.enrolledCourse = 'Comprehensive UPSC CSE Mentorship 2026-27',
   });
 
   String get avatarDisplayEmoji {
@@ -229,6 +232,58 @@ class StudentProfile {
       default:
         return '👮‍♂️';
     }
+  }
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'email': email,
+    'phone': phone,
+    'attemptYear': attemptYear,
+    'optionalSubject': optionalSubject,
+    'bio': bio,
+    'avatarKey': avatarKey,
+    'enrolledCourse': enrolledCourse,
+  };
+
+  factory StudentProfile.fromJson(Map<String, dynamic> json) => StudentProfile(
+    name: json['name'] ?? 'Rahul Kumar',
+    email: json['email'] ?? 'rahul.kumar@indrajeetsir.com',
+    phone: json['phone'] ?? '+91 98765 43210',
+    attemptYear: json['attemptYear'] ?? '2027',
+    optionalSubject: json['optionalSubject'] ?? 'Public Administration',
+    bio: json['bio'] ?? 'Targeting UPSC CSE 2027 • Mentored by Indrajeet Sir',
+    avatarKey: json['avatarKey'] ?? 'ias_officer',
+    enrolledCourse: json['enrolledCourse'] ?? 'Comprehensive UPSC CSE Mentorship 2026-27',
+  );
+}
+
+class SessionManager {
+  static const String _sessionKey = 'indrajeet_student_session';
+
+  static Future<StudentProfile?> getSavedProfile() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final str = prefs.getString(_sessionKey);
+      if (str != null && str.isNotEmpty) {
+        final Map<String, dynamic> data = jsonDecode(str);
+        return StudentProfile.fromJson(data);
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  static Future<void> saveProfile(StudentProfile profile) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_sessionKey, jsonEncode(profile.toJson()));
+    } catch (_) {}
+  }
+
+  static Future<void> clearSession() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_sessionKey);
+    } catch (_) {}
   }
 }
 
@@ -329,6 +384,8 @@ class EduApp extends StatefulWidget {
 
 class _EduAppState extends State<EduApp> {
   ThemeMode _themeMode = ThemeMode.light;
+  bool _isCheckingSession = true;
+  StudentProfile? _activeSessionProfile;
 
   final StudentProfile _profile = StudentProfile(
     name: 'Rahul Kumar',
@@ -339,6 +396,32 @@ class _EduAppState extends State<EduApp> {
     bio: 'Targeting UPSC CSE 2027 • Mentored by Indrajeet Sir',
     avatarKey: 'ias_officer',
   );
+
+  @override
+  void initState() {
+    super.initState();
+    _restoreSavedSession();
+  }
+
+  Future<void> _restoreSavedSession() async {
+    final saved = await SessionManager.getSavedProfile();
+    if (mounted) {
+      setState(() {
+        if (saved != null) {
+          _activeSessionProfile = saved;
+          _profile.name = saved.name;
+          _profile.email = saved.email;
+          _profile.phone = saved.phone;
+          _profile.attemptYear = saved.attemptYear;
+          _profile.optionalSubject = saved.optionalSubject;
+          _profile.bio = saved.bio;
+          _profile.avatarKey = saved.avatarKey;
+          _profile.enrolledCourse = saved.enrolledCourse;
+        }
+        _isCheckingSession = false;
+      });
+    }
+  }
 
   void _toggleTheme() {
     setState(() {
@@ -356,13 +439,13 @@ class _EduAppState extends State<EduApp> {
         brightness: Brightness.light,
         scaffoldBackgroundColor: IosTheme.lightBg,
         primaryColor: IosTheme.primaryBlue,
-        fontFamily: '.SF Pro Text',
-        appBarTheme: const AppBarTheme(
+        fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
+        appBarTheme: AppBarTheme(
           backgroundColor: IosTheme.lightBg,
           elevation: 0,
           scrolledUnderElevation: 0,
-          iconTheme: IconThemeData(color: Colors.black),
-          titleTextStyle: TextStyle(
+          iconTheme: const IconThemeData(color: Colors.black),
+          titleTextStyle: GoogleFonts.plusJakartaSans(
             color: Colors.black,
             fontSize: 17,
             fontWeight: FontWeight.w700,
@@ -374,13 +457,13 @@ class _EduAppState extends State<EduApp> {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: IosTheme.darkBg,
         primaryColor: IosTheme.primaryBlue,
-        fontFamily: '.SF Pro Text',
-        appBarTheme: const AppBarTheme(
+        fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
+        appBarTheme: AppBarTheme(
           backgroundColor: IosTheme.darkBg,
           elevation: 0,
           scrolledUnderElevation: 0,
-          iconTheme: IconThemeData(color: Colors.white),
-          titleTextStyle: TextStyle(
+          iconTheme: const IconThemeData(color: Colors.white),
+          titleTextStyle: GoogleFonts.plusJakartaSans(
             color: Colors.white,
             fontSize: 17,
             fontWeight: FontWeight.w700,
@@ -388,11 +471,28 @@ class _EduAppState extends State<EduApp> {
           ),
         ),
       ),
-      home: LoginScreen(
-        onThemeToggle: _toggleTheme,
-        profile: _profile,
-        onProfileUpdate: (updated) => setState(() {}),
-      ),
+      home: _isCheckingSession
+          ? const Scaffold(
+              body: Center(
+                child: CupertinoActivityIndicator(radius: 16),
+              ),
+            )
+          : _activeSessionProfile != null
+              ? MainNavigation(
+                  onThemeToggle: _toggleTheme,
+                  profile: _activeSessionProfile!,
+                  onProfileUpdate: (updated) {
+                    setState(() {
+                      _activeSessionProfile = updated;
+                    });
+                    SessionManager.saveProfile(updated);
+                  },
+                )
+              : LoginScreen(
+                  onThemeToggle: _toggleTheme,
+                  profile: _profile,
+                  onProfileUpdate: (updated) => setState(() {}),
+                ),
     );
   }
 }
@@ -452,6 +552,9 @@ class _LoginScreenState extends State<LoginScreen> {
         widget.onProfileUpdate(widget.profile);
       }
 
+      await SessionManager.saveProfile(widget.profile);
+
+      if (!mounted) return;
       setState(() => _isLoading = false);
 
       Navigator.pushReplacement(
@@ -541,8 +644,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         placeholder: 'Student Email or Roll Number',
                         prefix: const Padding(
-                          padding: EdgeInsets.only(right: 8),
-                          child: Icon(CupertinoIcons.mail, size: 18, color: CupertinoColors.systemGrey),
+                          padding: EdgeInsets.only(right: 10, left: 2),
+                          child: FaIcon(FontAwesomeIcons.envelope, size: 16, color: CupertinoColors.systemGrey),
                         ),
                         decoration: const BoxDecoration(),
                         style: TextStyle(color: isDark ? Colors.white : Colors.black),
@@ -554,8 +657,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         placeholder: 'Access Passcode',
                         obscureText: true,
                         prefix: const Padding(
-                          padding: EdgeInsets.only(right: 8),
-                          child: Icon(CupertinoIcons.lock, size: 18, color: CupertinoColors.systemGrey),
+                          padding: EdgeInsets.only(right: 10, left: 2),
+                          child: FaIcon(FontAwesomeIcons.lock, size: 16, color: CupertinoColors.systemGrey),
                         ),
                         decoration: const BoxDecoration(),
                         style: TextStyle(color: isDark ? Colors.white : Colors.black),
@@ -736,7 +839,7 @@ class _MainNavigationState extends State<MainNavigation> {
   // ── iOS DYNAMIC ISLAND HEADS-UP NOTIFICATION PILL ──
   Widget _buildDynamicIslandPill(BuildContext context) {
     final cls = _upcomingAlertClass ?? {
-      'title': '1:1 GS-3 Strategy Session',
+      'title': 'GS-3 Strategy & Evaluation Session',
       'meetLink': 'https://meet.google.com/abc-defg-hij',
     };
     final meetUrl = cls['meetLink'] ?? cls['meetingUrl'] ?? 'https://meet.google.com/abc-defg-hij';
@@ -818,7 +921,7 @@ class _MainNavigationState extends State<MainNavigation> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        cls['title'] ?? '1:1 Mentorship Session',
+                        cls['title'] ?? 'Direct Mentorship Session',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 15,
@@ -985,6 +1088,7 @@ class _MainNavigationState extends State<MainNavigation> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      extendBody: true,
       body: Stack(
         children: [
           IndexedStack(
@@ -1002,89 +1106,98 @@ class _MainNavigationState extends State<MainNavigation> {
                 child: _buildDynamicIslandPill(context),
               ),
             ),
-        ],
-      ),
 
-      // ── ULTRA REFINED iOS FROSTED FLOATING TAB DOCK ──
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-          child: Container(
-            height: 64,
-            decoration: BoxDecoration(
-              color: isDark
-                  ? const Color(0xFF1C1C1E).withValues(alpha: 0.85)
-                  : Colors.white.withValues(alpha: 0.88),
-              borderRadius: BorderRadius.circular(32),
-              border: Border.all(
-                color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.06),
-                width: 1.0,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
+          // ── ULTRA REFINED iOS FROSTED FLOATING TAB DOCK ──
+          Positioned(
+            left: 20,
+            right: 20,
+            bottom: MediaQuery.of(context).padding.bottom + 12,
+            child: Container(
+              height: 64,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF1C1C1E).withValues(alpha: 0.85)
+                    : Colors.white.withValues(alpha: 0.88),
+                borderRadius: BorderRadius.circular(32),
+                border: Border.all(
+                  color: isDark ? Colors.white.withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.06),
+                  width: 1.0,
                 ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(32),
-              child: BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildDockItem(0, CupertinoIcons.house_fill, 'Overview'),
-                    _buildDockItem(1, CupertinoIcons.book_fill, 'Courses'),
-                    _buildDockItem(2, CupertinoIcons.chat_bubble_2_fill, 'Mentorship'),
-                    _buildDockItem(3, CupertinoIcons.person_crop_circle_fill, 'Settings'),
-                  ],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.08),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(32),
+                child: BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  child: Row(
+                    children: [
+                      _buildDockItem(0, FontAwesomeIcons.house, 'Home'),
+                      _buildDockItem(1, FontAwesomeIcons.graduationCap, 'Courses'),
+                      _buildDockItem(2, FontAwesomeIcons.solidComments, 'Mentorship'),
+                      _buildDockItem(3, FontAwesomeIcons.gear, 'Settings'),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildDockItem(int index, IconData icon, String label) {
+  Widget _buildDockItem(int index, FaIconData icon, String label) {
     final isSelected = _selectedIndex == index;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final activeColor = IosTheme.primaryBlue;
     final inactiveColor = isDark ? CupertinoColors.systemGrey : CupertinoColors.systemGrey2;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => setState(() => _selectedIndex = index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? (isDark ? activeColor.withValues(alpha: 0.18) : activeColor.withValues(alpha: 0.10))
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 22,
-              color: isSelected ? activeColor : inactiveColor,
+    return Expanded(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          if (_selectedIndex != index) {
+            setState(() => _selectedIndex = index);
+          }
+        },
+        child: Center(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? (isDark ? activeColor.withValues(alpha: 0.18) : activeColor.withValues(alpha: 0.10))
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(20),
             ),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? activeColor : inactiveColor,
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FaIcon(
+                  icon,
+                  size: 19,
+                  color: isSelected ? activeColor : inactiveColor,
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                    color: isSelected ? activeColor : inactiveColor,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -1212,7 +1325,7 @@ class HomeScreen extends StatelessWidget {
 
             // Content List
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 140),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   // Enrolled Course Status Banner
@@ -1339,14 +1452,14 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(height: 14),
                         Text(
                           upcomingClass != null
-                              ? (upcomingClass!['title'] ?? '1:1 Mentorship Session')
+                              ? (upcomingClass!['title'] ?? 'Direct Mentorship Session')
                               : 'No Live Sessions Scheduled Right Now',
                           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.3),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           upcomingClass != null
-                              ? 'Direct 1:1 Live Class with Indrajeet Sir'
+                              ? 'Interactive Live Strategy Class with Indrajeet Sir'
                               : 'Live sessions will appear here automatically once scheduled by Indrajeet Sir.',
                           style: TextStyle(
                             fontSize: 13,
@@ -1365,8 +1478,8 @@ class HomeScreen extends StatelessWidget {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(CupertinoIcons.videocam_fill, size: 16, color: Colors.white),
-                                    const SizedBox(width: 6),
+                                    const FaIcon(FontAwesomeIcons.video, size: 14, color: Colors.white),
+                                    const SizedBox(width: 8),
                                     Text(
                                       upcomingClass != null ? 'Join Live Classroom' : 'Open Classroom Schedule',
                                       style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white),
@@ -1391,7 +1504,7 @@ class HomeScreen extends StatelessWidget {
                           title: 'NEXT LIVE CLASS',
                           value: upcomingClass != null ? (upcomingClass!['time'] ?? 'Today') : 'None',
                           subtitle: upcomingClass != null ? 'With Indrajeet Sir' : 'Awaiting Schedule',
-                          icon: CupertinoIcons.videocam_circle_fill,
+                          icon: FontAwesomeIcons.solidCirclePlay,
                           color: IosTheme.primaryBlue,
                         ),
                       ),
@@ -1400,9 +1513,9 @@ class HomeScreen extends StatelessWidget {
                         child: _buildMetricTile(
                           context,
                           title: 'SESSION FORMAT',
-                          value: '1:1 Ready',
+                          value: 'Personalized',
                           subtitle: 'Allotted Mentee',
-                          icon: CupertinoIcons.person_2_fill,
+                          icon: FontAwesomeIcons.userGraduate,
                           color: IosTheme.systemOrange,
                         ),
                       ),
@@ -1434,7 +1547,7 @@ class HomeScreen extends StatelessWidget {
                                 time: upcomingClass!['time'] ?? 'Live',
                                 title: upcomingClass!['title'] ?? 'Mentorship Session',
                                 type: (upcomingClass!['assignedStudent'] ?? 'All Students').toString().toLowerCase().contains(profile.name.toLowerCase())
-                                    ? '1:1 ALLOTTED MENTEE'
+                                    ? 'PERSONAL MENTEE SESSION'
                                     : 'BATCH LIVE CLASS',
                                 isAssigned: true,
                                 onTap: () => onNavigateTab(1),
@@ -1492,7 +1605,7 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         _buildGuidelineItem(
                           context,
-                          icon: CupertinoIcons.headphones,
+                          icon: FontAwesomeIcons.headphones,
                           color: IosTheme.primaryBlue,
                           title: 'Audio & Microphone Ready',
                           subtitle: 'Connect headphones with mic for smooth two-way live interaction with Indrajeet Sir.',
@@ -1500,7 +1613,7 @@ class HomeScreen extends StatelessWidget {
                         Divider(height: 24, indent: 44, color: IosTheme.separator(isDark)),
                         _buildGuidelineItem(
                           context,
-                          icon: CupertinoIcons.wifi,
+                          icon: FontAwesomeIcons.wifi,
                           color: IosTheme.systemGreen,
                           title: 'Stable Connection Required',
                           subtitle: 'Ensure high-speed Wi-Fi or 4G/5G connectivity for uninterrupted HD video stream.',
@@ -1508,7 +1621,7 @@ class HomeScreen extends StatelessWidget {
                         Divider(height: 24, indent: 44, color: IosTheme.separator(isDark)),
                         _buildGuidelineItem(
                           context,
-                          icon: CupertinoIcons.pencil,
+                          icon: FontAwesomeIcons.bookOpen,
                           color: IosTheme.systemOrange,
                           title: 'Keep Notebooks Ready',
                           subtitle: 'Keep your notes and questions handy during the live classroom interaction.',
@@ -1530,7 +1643,7 @@ class HomeScreen extends StatelessWidget {
     required String title,
     required String value,
     required String subtitle,
-    required IconData icon,
+    required FaIconData icon,
     required Color color,
   }) {
     return IosGlassCard(
@@ -1540,7 +1653,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, size: 20, color: color),
+              FaIcon(icon, size: 18, color: color),
               const Spacer(),
             ],
           ),
@@ -1640,7 +1753,7 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildGuidelineItem(
     BuildContext context, {
-    required IconData icon,
+    required FaIconData icon,
     required Color color,
     required String title,
     required String subtitle,
@@ -1655,7 +1768,7 @@ class HomeScreen extends StatelessWidget {
             color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, size: 18, color: color),
+          child: FaIcon(icon, size: 16, color: color),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -1762,7 +1875,7 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
                   children: const {
                     0: Padding(
                       padding: EdgeInsets.symmetric(vertical: 8),
-                      child: Text('Allotted (1:1)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                      child: Text('Personal Mentee', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                     ),
                     1: Padding(
                       padding: EdgeInsets.symmetric(vertical: 8),
@@ -1794,7 +1907,7 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
                                     color: IosTheme.primaryBlue.withValues(alpha: 0.1),
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(CupertinoIcons.calendar, size: 38, color: IosTheme.primaryBlue),
+                                  child: const FaIcon(FontAwesomeIcons.calendarCheck, size: 36, color: IosTheme.primaryBlue),
                                 ),
                                 const SizedBox(height: 16),
                                 const Text(
@@ -1803,7 +1916,7 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  'Live classes and 1:1 sessions will appear here as soon as scheduled by Indrajeet Sir.',
+                                  'Live classes and personal strategy sessions will appear here as soon as scheduled by Indrajeet Sir.',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 13,
@@ -1816,7 +1929,7 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
                         )
                       : ListView.builder(
                           physics: const BouncingScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+                          padding: const EdgeInsets.fromLTRB(20, 8, 20, 140),
                           itemCount: displayList.length,
                       itemBuilder: (context, index) {
                         final cls = displayList[index];
@@ -1845,7 +1958,7 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
-                                      isAllottedToStudent ? '1:1 ALLOTTED MENTEE' : 'BATCH MASTERCLASS',
+                                      isAllottedToStudent ? 'PERSONAL MENTEE' : 'BATCH MASTERCLASS',
                                       style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w800,
@@ -1949,7 +2062,7 @@ class _ChatScreenState extends State<ChatScreen> {
     {
       'id': 'm-seed-3',
       'sender': 'Indrajeet Sir',
-      'text': 'Excellent. We will evaluate your answer during tonight\'s 1:1 live strategy call at 7:00 PM.',
+      'text': 'Excellent. We will evaluate your answer during tonight\'s live strategy review call at 7:00 PM.',
       'time': '10:12 AM',
       'createdAtMs': DateTime.now().subtract(const Duration(minutes: 18)).millisecondsSinceEpoch,
       'isEdited': false,
@@ -2419,9 +2532,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
 
-            // iOS Frosted Input Bar
+            // iOS Frosted Input Bar (Floated above bottom tab dock)
             Container(
-              padding: const EdgeInsets.fromLTRB(10, 8, 12, 10),
+              padding: EdgeInsets.fromLTRB(
+                10,
+                8,
+                12,
+                MediaQuery.of(context).padding.bottom + 84,
+              ),
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
                 border: Border(top: BorderSide(color: IosTheme.separator(isDark))),
@@ -2433,9 +2551,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     padding: const EdgeInsets.all(8),
                     minimumSize: Size.zero,
                     onPressed: _pickRealFile,
-                    child: Icon(
-                      CupertinoIcons.paperclip,
-                      size: 22,
+                    child: FaIcon(
+                      FontAwesomeIcons.paperclip,
+                      size: 18,
                       color: isDark ? CupertinoColors.systemGrey : const Color(0xFF4B5563),
                     ),
                   ),
@@ -2458,12 +2576,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     minimumSize: Size.zero,
                     onPressed: _send,
                     child: Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(10),
                       decoration: const BoxDecoration(
                         color: IosTheme.primaryBlue,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(CupertinoIcons.arrow_up, size: 18, color: Colors.white),
+                      child: const FaIcon(FontAwesomeIcons.arrowUp, size: 14, color: Colors.white),
                     ),
                   ),
                 ],
@@ -2732,7 +2850,7 @@ class ProfileScreen extends StatelessWidget {
       body: SafeArea(
         child: ListView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 140),
           children: [
             // iOS Title
             const Text(
@@ -2783,7 +2901,14 @@ class ProfileScreen extends StatelessWidget {
                   CupertinoButton(
                     padding: EdgeInsets.zero,
                     onPressed: () => _openEditProfileDialog(context),
-                    child: const Icon(CupertinoIcons.pencil_circle_fill, size: 28, color: IosTheme.primaryBlue),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: IosTheme.primaryBlue.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const FaIcon(FontAwesomeIcons.userPen, size: 16, color: IosTheme.primaryBlue),
+                    ),
                   ),
                 ],
               ),
@@ -2801,7 +2926,7 @@ class ProfileScreen extends StatelessWidget {
             IosGlassCard(
               padding: EdgeInsets.zero,
               child: _buildToggleRow(
-                icon: CupertinoIcons.alarm_fill,
+                icon: FontAwesomeIcons.bell,
                 iconColor: IosTheme.systemOrange,
                 title: '10-Minute Live Reminder',
                 subtitle: 'Alert before your scheduled session begins',
@@ -2822,7 +2947,7 @@ class ProfileScreen extends StatelessWidget {
             IosGlassCard(
               padding: EdgeInsets.zero,
               child: _buildToggleRow(
-                icon: CupertinoIcons.moon_fill,
+                icon: FontAwesomeIcons.moon,
                 iconColor: IosTheme.systemIndigo,
                 title: 'Dark Mode',
                 value: isDark,
@@ -2844,7 +2969,7 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 children: [
                   _buildSettingsTile(
-                    icon: CupertinoIcons.shield_fill,
+                    icon: FontAwesomeIcons.shieldHalved,
                     color: const Color(0xFF10B981),
                     title: 'Privacy & Data Protection',
                     onTap: () => _showPolicySheet(
@@ -2855,18 +2980,18 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   Divider(height: 1, indent: 56, color: IosTheme.separator(isDark)),
                   _buildSettingsTile(
-                    icon: CupertinoIcons.doc_plaintext,
+                    icon: FontAwesomeIcons.fileContract,
                     color: const Color(0xFF6366F1),
                     title: 'Academic Code of Conduct',
                     onTap: () => _showPolicySheet(
                       context,
                       'Code of Conduct',
-                      'Students enrolled under Indrajeet Sir\'s Mentorship agree to adhere to strict academic honesty, punctual attendance in 1:1 sessions, and respectful discourse across classroom interactions.\n\nClassroom video links and internal materials are licensed solely for the enrolled candidate.',
+                      'Students enrolled under Indrajeet Sir\'s Mentorship agree to adhere to strict academic honesty, punctual attendance in personal strategy sessions, and respectful discourse across classroom interactions.\n\nClassroom video links and internal materials are licensed solely for the enrolled candidate.',
                     ),
                   ),
                   Divider(height: 1, indent: 56, color: IosTheme.separator(isDark)),
                   _buildSettingsTile(
-                    icon: CupertinoIcons.info_circle_fill,
+                    icon: FontAwesomeIcons.circleInfo,
                     color: IosTheme.primaryBlue,
                     title: 'About Mentorship Program',
                     onTap: () => _showPolicySheet(
@@ -2877,7 +3002,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   Divider(height: 1, indent: 56, color: IosTheme.separator(isDark)),
                   _buildSettingsTile(
-                    icon: CupertinoIcons.phone_fill,
+                    icon: FontAwesomeIcons.headset,
                     color: const Color(0xFF10B981),
                     title: 'Contact & Support Desk',
                     onTap: () => _showPolicySheet(
@@ -2902,17 +3027,20 @@ class ProfileScreen extends StatelessWidget {
                     style: TextStyle(color: IosTheme.systemRed, fontWeight: FontWeight.w600, fontSize: 15),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (ctx) => LoginScreen(
-                        onThemeToggle: onThemeToggle,
-                        profile: profile,
-                        onProfileUpdate: onProfileUpdate,
+                onPressed: () async {
+                  await SessionManager.clearSession();
+                  if (context.mounted) {
+                    Navigator.pushReplacement(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (ctx) => LoginScreen(
+                          onThemeToggle: onThemeToggle,
+                          profile: profile,
+                          onProfileUpdate: onProfileUpdate,
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  }
                 },
               ),
             ),
@@ -2923,7 +3051,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildToggleRow({
-    required IconData icon,
+    required FaIconData icon,
     required Color iconColor,
     required String title,
     String? subtitle,
@@ -2934,7 +3062,7 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
-          Icon(icon, color: iconColor, size: 22),
+          FaIcon(icon, color: iconColor, size: 20),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -2960,7 +3088,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildSettingsTile({
-    required IconData icon,
+    required FaIconData icon,
     required Color color,
     required String title,
     required VoidCallback onTap,
@@ -2971,9 +3099,9 @@ class ProfileScreen extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(7),
             decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(8)),
-            child: Icon(icon, size: 16, color: Colors.white),
+            child: FaIcon(icon, size: 14, color: Colors.white),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -2982,7 +3110,7 @@ class ProfileScreen extends StatelessWidget {
               style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600),
             ),
           ),
-          const Icon(CupertinoIcons.chevron_right, size: 14, color: CupertinoColors.systemGrey3),
+          const FaIcon(FontAwesomeIcons.chevronRight, size: 12, color: CupertinoColors.systemGrey3),
         ],
       ),
     );
