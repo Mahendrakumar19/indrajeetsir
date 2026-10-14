@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { API_URL } from '@/lib/api';
+import Link from 'next/link';
+import { API_URL, setStudentSession } from '@/lib/api';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import './home.css';
@@ -36,8 +37,8 @@ export default function Home() {
   const [courses, setCourses] = useState<Course[]>([
     {
       id: 'c-1',
-      title: '1:1 Comprehensive UPSC Mentorship 2026-27',
-      description: 'Personalized 1:1 guidance with Indrajeet Sir, live interactive strategy sessions, and dedicated answer evaluation.',
+      title: 'Comprehensive UPSC CSE Mentorship 2026-27',
+      description: 'Personal guidance with Indrajeet Sir, live interactive strategy sessions, and line-by-line answer evaluation.',
       price: 4999,
       instructor: 'Indrajeet Sir',
     },
@@ -78,12 +79,12 @@ export default function Home() {
   // Dynamic Site Content (Editable via Admin Panel)
   const [siteContent, setSiteContent] = useState({
     heroHeading: 'UPSC CSE is cracked on Answer Writing & Discipline, not endless lectures.',
-    heroSubheading: 'UPSC CSE is cracked on answer writing and daily discipline rather than endless passive lectures. Get direct personal guidance by Indrajeet Sir with line-by-line Mains copy checking, weekly 1:1 strategy reviews, and high-yield GS 1–4 study notes.',
+    heroSubheading: 'UPSC CSE is cracked on answer writing and daily discipline rather than endless passive lectures. Get direct personal guidance by Indrajeet Sir with line-by-line Mains copy checking, weekly personal strategy reviews, and high-yield GS 1–4 study notes.',
     stat1Number: '600+',
     stat1Label: 'Mains Micro Notes',
     stat2Number: '16 Tests',
     stat2Label: 'Checked Personally',
-    stat3Number: '1:1 Private',
+    stat3Number: 'Private',
     stat3Label: 'Strategy Sessions',
     aboutHeading: 'No Outsourced Checking. Direct Teacher Accountability.',
     aboutSubheading: 'In UPSC CSE preparation, endless passive lectures create a false illusion of progress. True mastery is built when disciplined answer writing is rigorously evaluated and personally cracked through consistent diagnosis.',
@@ -108,8 +109,8 @@ export default function Home() {
       a: 'Har ek copy Indrajeet Sir personally evaluate karte hain. Hum koi third-party evaluator ya outsourced intern appoint nahi karte, taaki aapko direct structure improvement aur actionable feedback mile.',
     },
     {
-      q: '1:1 personal strategy sessions kab schedule hote hain?',
-      a: 'Enrollment ke baad aapko direct calendar booking link milta hai. Har session private 1:1 video call hota hai jisme aapka study schedule, answer analysis aur weekly preparation roadmap review hota hai.',
+      q: 'Personal strategy sessions kab schedule hote hain?',
+      a: 'Enrollment ke baad aapko direct calendar booking link milta hai. Har session private video call hota hai jisme aapka study schedule, answer analysis aur weekly preparation roadmap review hota hai.',
     },
     {
       q: 'GS 1–4 ke notes kis format me milte hain?',
@@ -128,10 +129,22 @@ export default function Home() {
         const savedContent = localStorage.getItem('indrajeet_site_content');
         if (savedContent) {
           const parsed = JSON.parse(savedContent);
+          let updated = false;
           if (parsed.telegramHandle === '@Indrajeet_UPSC' || parsed.telegramHandle === '@IndrajeetSir_UPSC') {
             parsed.telegramHandle = '@Indrajeetsir_UPSC';
             parsed.telegramUrl = 'https://t.me/Indrajeetsir_UPSC';
-            try { localStorage.setItem('indrajeet_site_content', JSON.stringify({ ...parsed, telegramHandle: '@Indrajeetsir_UPSC', telegramUrl: 'https://t.me/Indrajeetsir_UPSC' })); } catch {}
+            updated = true;
+          }
+          if (parsed.stat3Number === '1:1 Private' || parsed.stat3Number === '1:1') {
+            parsed.stat3Number = 'Private';
+            updated = true;
+          }
+          if (parsed.heroSubheading && parsed.heroSubheading.includes('weekly 1:1 strategy reviews')) {
+            parsed.heroSubheading = parsed.heroSubheading.replace('weekly 1:1 strategy reviews', 'weekly personal strategy reviews');
+            updated = true;
+          }
+          if (updated) {
+            try { localStorage.setItem('indrajeet_site_content', JSON.stringify(parsed)); } catch {}
           }
           setSiteContent((prev) => ({ ...prev, ...parsed }));
         }
@@ -293,6 +306,17 @@ export default function Home() {
           email: verifyPayload.studentEmail,
           name: verifyPayload.studentName,
         });
+        setStudentSession({
+          id: `st-${Date.now()}`,
+          name: verifyPayload.studentName,
+          email: verifyPayload.studentEmail,
+          phone: verifyPayload.studentPhone,
+          attempt: '2027',
+          optionalSubject: 'Public Administration',
+          bio: 'Targeting UPSC CSE 2027 • Mentored by Indrajeet Sir',
+          avatarKey: 'ias_officer',
+          enrolledCourse: selectedCourse?.title || '1:1 Comprehensive UPSC Mentorship 2026-27',
+        });
         setShowCheckoutModal(false);
         setShowSuccessModal(true);
         setCheckoutForm({ name: '', email: '', phone: '' });
@@ -303,6 +327,17 @@ export default function Home() {
       setCompletedStudent({
         email: verifyPayload.studentEmail,
         name: verifyPayload.studentName,
+      });
+      setStudentSession({
+        id: `st-${Date.now()}`,
+        name: verifyPayload.studentName,
+        email: verifyPayload.studentEmail,
+        phone: verifyPayload.studentPhone,
+        attempt: '2027',
+        optionalSubject: 'Public Administration',
+        bio: 'Targeting UPSC CSE 2027 • Mentored by Indrajeet Sir',
+        avatarKey: 'ias_officer',
+        enrolledCourse: selectedCourse?.title || '1:1 Comprehensive UPSC Mentorship 2026-27',
       });
       setShowCheckoutModal(false);
       setShowSuccessModal(true);
@@ -380,7 +415,7 @@ export default function Home() {
               />
               <div className="mentor-live-floating-badge">
                 <span className="live-green-pulse" />
-                <span>Live 1:1 Mentorship</span>
+                <span>Direct Mentorship</span>
               </div>
             </div>
             <div className="mentor-card-footer">
@@ -399,7 +434,7 @@ export default function Home() {
                 </span>
                 <span className="mentor-tag-chip">
                   <i className="fa-solid fa-video" style={{ marginRight: '0.35rem', color: '#2563eb' }} aria-hidden="true" />
-                  1:1 Strategy
+                  Targeted Strategy
                 </span>
               </div>
             </div>
@@ -450,11 +485,11 @@ export default function Home() {
               </ul>
             </div>
 
-            {/* Indrajeet Sir's Direct 1:1 Approach */}
+            {/* Indrajeet Sir's Direct Mentorship Approach */}
             <div className="solution-card">
               <h3>
                 <i className="fa-solid fa-shield-halved" style={{ color: '#2563eb', marginRight: '0.5rem' }} aria-hidden="true" />
-                <span>Indrajeet Sir&apos;s 1:1 Accountability</span>
+                <span>Indrajeet Sir&apos;s Direct Mentorship</span>
               </h3>
               <ul className="solution-list">
                 <li>
@@ -467,7 +502,7 @@ export default function Home() {
                   <span className="check-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                     <i className="fa-solid fa-check" aria-hidden="true" />
                   </span>
-                  <span><strong>Weekly 1:1 Strategy Calls:</strong> Private video sessions to review your weekly study timetable and fix preparation gaps.</span>
+                  <span><strong>Weekly Private Strategy Calls:</strong> Diagnostic video sessions to review your weekly study timetable and fix preparation gaps.</span>
                 </li>
                 <li>
                   <span className="check-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -606,9 +641,9 @@ export default function Home() {
                   </span>
                   <span className="edu-stage-num">03</span>
                 </div>
-                <h3>Personality Test &amp; 1:1 Board Diagnostic</h3>
+                <h3>Personality Test &amp; Interview Board Guidance</h3>
                 <p className="edu-stage-desc">
-                  Detailed Application Form (DAF) line-by-line audit, contemporary policy analysis, and 1:1 mock interview debrief with Indrajeet Sir.
+                  Detailed Application Form (DAF) line-by-line audit, contemporary policy analysis, and personal mock interview debrief with Indrajeet Sir.
                 </p>
 
                 <div className="edu-infographic-box">
@@ -628,7 +663,7 @@ export default function Home() {
                     <span className="edu-diagram-icon edu-icon-emerald">
                       <i className="fa-solid fa-video" aria-hidden="true" />
                     </span>
-                    <span>1:1 Private Mock Simulation Video</span>
+                    <span>Interview Simulation &amp; Personality Audit</span>
                   </div>
                   <div className="edu-metric-bar">
                     <div className="edu-metric-fill" style={{ width: '90%' }} />
@@ -774,8 +809,8 @@ export default function Home() {
               <div className="pipeline-icon-box" style={{ background: '#ecfdf5', color: '#10b981' }}>
                 <i className="fa-solid fa-headset" aria-hidden="true" />
               </div>
-              <h4>4. 1:1 Video Strategy Review</h4>
-              <p>Private video consultation to diagnose mental fatigue, timetable lags, and roadmap improvements for the upcoming week.</p>
+              <h4>4. Weekly Personal Strategy Review</h4>
+              <p>Private video consultation to diagnose mental focus, timetable lags, and roadmap improvements for the upcoming week.</p>
             </div>
           </div>
         </div>
@@ -800,7 +835,7 @@ export default function Home() {
                   <div className="pricing-title-wrap">
                     <h3>{course.title}</h3>
                     <p className="pricing-desc-text">
-                      {course.description || 'Personalized 1:1 guidance with Indrajeet Sir, direct Mains evaluation, and live interactive classes.'}
+                      {course.description || 'Comprehensive mentorship with Indrajeet Sir, direct Mains evaluation, and live interactive classes.'}
                     </p>
                   </div>
                   <div className="pricing-fee-block">
@@ -811,7 +846,7 @@ export default function Home() {
                   <ul className="features-checklist">
                     <li>
                       <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
-                      <span>1:1 Live interactive sessions with Indrajeet Sir</span>
+                      <span>Live interactive strategy masterclasses with Indrajeet Sir</span>
                     </li>
                     <li>
                       <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
@@ -1084,13 +1119,21 @@ export default function Home() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1.25rem' }}>
+              <Link
+                href="/dashboard"
+                className="btn-primary full"
+                style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: '#1d4ed8' }}
+              >
+                <i className="fa-solid fa-user-graduate" style={{ fontSize: '1rem' }} aria-hidden="true" />
+                <span>Go to My Dashboard →</span>
+              </Link>
               <a
                 href="/indrajeet-sir-app.apk"
                 download
-                className="btn-primary full"
+                className="btn-outline full"
                 style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
               >
-                <i className="fa-brands fa-android" style={{ fontSize: '1.2rem' }} aria-hidden="true" />
+                <i className="fa-brands fa-android" style={{ fontSize: '1.2rem', color: '#16a34a' }} aria-hidden="true" />
                 <span>Download Android App (.apk)</span>
               </a>
               <button

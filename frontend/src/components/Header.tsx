@@ -1,11 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getStudentSession, getAdminSession, StudentUser } from '@/lib/api';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [student, setStudent] = useState<StudentUser | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setStudent(getStudentSession());
+    setIsAdmin(getAdminSession());
+
+    // Listen to storage events so changes in other tabs or actions update the header immediately
+    const handleStorageChange = () => {
+      setStudent(getStudentSession());
+      setIsAdmin(getAdminSession());
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const closeMenu = () => setMobileMenuOpen(false);
 
@@ -35,10 +54,23 @@ export default function Header() {
 
         {/* Navigation Actions */}
         <div className="nav-actions">
-          <Link href="/login" className="btn-nav-login">
-            <i className="fa-solid fa-arrow-right-to-bracket" style={{ marginRight: '0.4rem', fontSize: '0.9rem' }} aria-hidden="true" />
-            <span>Student Login</span>
-          </Link>
+          {mounted && student ? (
+            <Link href="/dashboard" className="btn-nav-dashboard" title={`Logged in as ${student.name} (${student.email})`}>
+              <i className="fa-solid fa-user-graduate" aria-hidden="true" />
+              <span>Dashboard ({student.name ? student.name.split(' ')[0] : 'Portal'})</span>
+            </Link>
+          ) : mounted && isAdmin ? (
+            <Link href="/admin" className="btn-nav-dashboard" title="Admin Control Center">
+              <i className="fa-solid fa-shield-halved" aria-hidden="true" />
+              <span>Admin Panel</span>
+            </Link>
+          ) : (
+            <Link href="/login" className="btn-nav-login">
+              <i className="fa-solid fa-arrow-right-to-bracket" style={{ marginRight: '0.4rem', fontSize: '0.9rem' }} aria-hidden="true" />
+              <span>Student Login</span>
+            </Link>
+          )}
+
           <a href="#courses" className="btn-primary btn-nav-enroll btn-nav-enroll-desktop">
             <i className="fa-solid fa-graduation-cap" style={{ marginRight: '0.45rem', fontSize: '0.95rem' }} aria-hidden="true" />
             <span>Enroll Now</span>
@@ -92,10 +124,22 @@ export default function Header() {
           </nav>
           <div className="mobile-nav-divider" />
           <div className="mobile-nav-actions">
-            <Link href="/login" className="btn-mobile-login" onClick={closeMenu}>
-              <i className="fa-solid fa-arrow-right-to-bracket" style={{ marginRight: '0.45rem' }} aria-hidden="true" />
-              Student Portal Login
-            </Link>
+            {mounted && student ? (
+              <Link href="/dashboard" className="btn-mobile-dashboard" onClick={closeMenu}>
+                <i className="fa-solid fa-user-graduate" aria-hidden="true" />
+                <span>Go to Dashboard ({student.name ? student.name.split(' ')[0] : 'Portal'})</span>
+              </Link>
+            ) : mounted && isAdmin ? (
+              <Link href="/admin" className="btn-mobile-dashboard" onClick={closeMenu}>
+                <i className="fa-solid fa-shield-halved" aria-hidden="true" />
+                <span>Open Admin Panel</span>
+              </Link>
+            ) : (
+              <Link href="/login" className="btn-mobile-login" onClick={closeMenu}>
+                <i className="fa-solid fa-arrow-right-to-bracket" style={{ marginRight: '0.45rem' }} aria-hidden="true" />
+                <span>Student Portal Login</span>
+              </Link>
+            )}
             <a href="#courses" className="btn-primary full" onClick={closeMenu}>
               <i className="fa-solid fa-graduation-cap" style={{ marginRight: '0.45rem' }} aria-hidden="true" />
               Enroll Now

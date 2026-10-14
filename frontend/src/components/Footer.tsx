@@ -18,7 +18,7 @@ export default function Footer() {
               <div className="nav-title">Indrajeet Sir</div>
             </div>
             <p className="footer-brand-desc">
-              1:1 UPSC & State PCS Mentorship. Dedicated to personal evaluation, structured answer writing, and honest aspirant accountability.
+              UPSC &amp; State PCS Mentorship by Indrajeet Sir. Dedicated to personal evaluation, structured answer writing, and honest aspirant accountability.
             </p>
           </div>
 

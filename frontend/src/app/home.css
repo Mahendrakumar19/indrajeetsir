@@ -259,6 +259,51 @@ h1, h2, h3, h4, h5, h6, .nav-title, .section-heading, .stat-card-3d strong, .pri
   color: #2563eb;
 }
 
+.btn-nav-dashboard {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1d4ed8;
+  background: #eff6ff;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1.5px solid #bfdbfe;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.08);
+}
+
+.btn-nav-dashboard:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1e40af;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.btn-mobile-dashboard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem;
+  border-radius: 10px;
+  background: #eff6ff;
+  border: 1.5px solid #bfdbfe;
+  color: #1d4ed8;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s;
+  gap: 0.5rem;
+}
+
+.btn-mobile-dashboard:hover {
+  background: #dbeafe;
+}
+
 .btn-nav-enroll {
   white-space: nowrap;
 }

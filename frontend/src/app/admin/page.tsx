@@ -272,12 +272,12 @@ export default function AdminPanel() {
   // 0. Website Live Content Editor State
   const [siteContent, setSiteContent] = useState({
     heroHeading: 'UPSC CSE is cracked on Answer Writing & Discipline, not endless lectures.',
-    heroSubheading: 'UPSC CSE is cracked on answer writing and daily discipline rather than endless passive lectures. Get direct personal guidance by Indrajeet Sir with line-by-line Mains copy checking, weekly 1:1 strategy reviews, and high-yield GS 1–4 study notes.',
+    heroSubheading: 'UPSC CSE is cracked on answer writing and daily discipline rather than endless passive lectures. Get direct personal guidance by Indrajeet Sir with line-by-line Mains copy checking, weekly personal strategy reviews, and high-yield GS 1–4 study notes.',
     stat1Number: '600+',
     stat1Label: 'Mains Micro Notes',
     stat2Number: '16 Tests',
     stat2Label: 'Checked Personally',
-    stat3Number: '1:1 Private',
+    stat3Number: 'Private',
     stat3Label: 'Strategy Sessions',
     aboutHeading: 'No Outsourced Checking. Direct Teacher Accountability.',
     aboutSubheading: 'In UPSC CSE preparation, endless passive lectures create a false illusion of progress. True mastery is built when disciplined answer writing is rigorously evaluated and personally cracked through consistent diagnosis.',
@@ -447,10 +447,22 @@ export default function AdminPanel() {
       const savedSiteContent = localStorage.getItem('indrajeet_site_content');
       if (savedSiteContent) {
         const parsed = JSON.parse(savedSiteContent);
+        let updated = false;
         if (parsed.telegramHandle === '@Indrajeet_UPSC' || parsed.telegramHandle === '@IndrajeetSir_UPSC') {
           parsed.telegramHandle = '@Indrajeetsir_UPSC';
           parsed.telegramUrl = 'https://t.me/Indrajeetsir_UPSC';
-          try { localStorage.setItem('indrajeet_site_content', JSON.stringify({ ...parsed, telegramHandle: '@Indrajeetsir_UPSC', telegramUrl: 'https://t.me/Indrajeetsir_UPSC' })); } catch {}
+          updated = true;
+        }
+        if (parsed.stat3Number === '1:1 Private' || parsed.stat3Number === '1:1') {
+          parsed.stat3Number = 'Private';
+          updated = true;
+        }
+        if (parsed.heroSubheading && parsed.heroSubheading.includes('weekly 1:1 strategy reviews')) {
+          parsed.heroSubheading = parsed.heroSubheading.replace('weekly 1:1 strategy reviews', 'weekly personal strategy reviews');
+          updated = true;
+        }
+        if (updated) {
+          try { localStorage.setItem('indrajeet_site_content', JSON.stringify(parsed)); } catch {}
         }
         setSiteContent((prev) => ({ ...prev, ...parsed }));
       }
