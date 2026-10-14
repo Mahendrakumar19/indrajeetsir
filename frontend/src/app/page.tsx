@@ -93,8 +93,8 @@ export default function Home() {
     pdfSectionSubheading: 'Download verified syllabus blueprints, official brochures, model answer evaluations, and strategic notes prepared by Indrajeet Sir.',
     contactDeskHeading: 'Have Questions About Preparation Strategy?',
     contactDeskSubheading: "Talk directly with Indrajeet Sir's mentorship desk to discuss your attempt year and study plan.",
-    telegramHandle: '@Indrajeet_UPSC',
-    telegramUrl: 'https://t.me/Indrajeet_UPSC',
+    telegramHandle: '@Indrajeetsir_UPSC',
+    telegramUrl: 'https://t.me/Indrajeetsir_UPSC',
     phoneDisplay: '+91 98734 86158',
     phoneTel: '+919873486158',
     whatsappDisplay: '+91 98734 86158',
@@ -127,7 +127,13 @@ export default function Home() {
       try {
         const savedContent = localStorage.getItem('indrajeet_site_content');
         if (savedContent) {
-          setSiteContent((prev) => ({ ...prev, ...JSON.parse(savedContent) }));
+          const parsed = JSON.parse(savedContent);
+          if (parsed.telegramHandle === '@Indrajeet_UPSC' || parsed.telegramHandle === '@IndrajeetSir_UPSC') {
+            parsed.telegramHandle = '@Indrajeetsir_UPSC';
+            parsed.telegramUrl = 'https://t.me/Indrajeetsir_UPSC';
+            try { localStorage.setItem('indrajeet_site_content', JSON.stringify({ ...parsed, telegramHandle: '@Indrajeetsir_UPSC', telegramUrl: 'https://t.me/Indrajeetsir_UPSC' })); } catch {}
+          }
+          setSiteContent((prev) => ({ ...prev, ...parsed }));
         }
         const savedPdfs = localStorage.getItem('indrajeet_pdf_list');
         if (savedPdfs) {
@@ -330,19 +336,28 @@ export default function Home() {
           <h1>{siteContent.heroHeading}</h1>
           <p className="hero-desc">{siteContent.heroSubheading}</p>
           <div className="hero-btns">
-            <a href="#courses" className="btn-primary lg">View Programs & Fees →</a>
-            <button className="btn-outline lg" onClick={() => setShowBookModal(true)}>Request Callback</button>
+            <a href="#courses" className="btn-primary lg">
+              <i className="fa-solid fa-graduation-cap" style={{ marginRight: '0.5rem' }} aria-hidden="true" />
+              <span>View Programs & Fees</span>
+            </a>
+            <button className="btn-outline lg" onClick={() => setShowBookModal(true)}>
+              <i className="fa-solid fa-phone" style={{ marginRight: '0.5rem' }} aria-hidden="true" />
+              <span>Request Callback</span>
+            </button>
           </div>
           <div className="hero-stats-3d">
             <div className="stat-card-3d">
+              <i className="fa-solid fa-book-bookmark" style={{ color: '#2563eb', fontSize: '1.2rem', marginBottom: '0.45rem', display: 'block' }} aria-hidden="true" />
               <strong>{siteContent.stat1Number}</strong>
               <span>{siteContent.stat1Label}</span>
             </div>
             <div className="stat-card-3d">
+              <i className="fa-solid fa-file-signature" style={{ color: '#2563eb', fontSize: '1.2rem', marginBottom: '0.45rem', display: 'block' }} aria-hidden="true" />
               <strong>{siteContent.stat2Number}</strong>
               <span>{siteContent.stat2Label}</span>
             </div>
             <div className="stat-card-3d">
+              <i className="fa-solid fa-chalkboard-user" style={{ color: '#2563eb', fontSize: '1.2rem', marginBottom: '0.45rem', display: 'block' }} aria-hidden="true" />
               <strong>{siteContent.stat3Number}</strong>
               <span>{siteContent.stat3Label}</span>
             </div>
@@ -374,9 +389,18 @@ export default function Home() {
                 <span>Former Faculty at Top Delhi Institutes • 10+ Yrs UPSC Mentorship</span>
               </div>
               <div className="mentor-chips-row">
-                <span className="mentor-tag-chip">GS 1–4 Mains</span>
-                <span className="mentor-tag-chip">Personal Copy Checking</span>
-                <span className="mentor-tag-chip">1:1 Strategy</span>
+                <span className="mentor-tag-chip">
+                  <i className="fa-solid fa-pen-nib" style={{ marginRight: '0.35rem', color: '#2563eb' }} aria-hidden="true" />
+                  GS 1–4 Mains
+                </span>
+                <span className="mentor-tag-chip">
+                  <i className="fa-solid fa-check-double" style={{ marginRight: '0.35rem', color: '#2563eb' }} aria-hidden="true" />
+                  Personal Copy Checking
+                </span>
+                <span className="mentor-tag-chip">
+                  <i className="fa-solid fa-video" style={{ marginRight: '0.35rem', color: '#2563eb' }} aria-hidden="true" />
+                  1:1 Strategy
+                </span>
               </div>
             </div>
           </div>
@@ -395,23 +419,32 @@ export default function Home() {
             {/* The Bulk Coaching Dilemma */}
             <div className="problem-card">
               <h3>
-                <span>⚠️</span> The Bulk Coaching Problem
+                <i className="fa-solid fa-triangle-exclamation" style={{ color: '#ef4444', marginRight: '0.5rem' }} aria-hidden="true" />
+                <span>The Bulk Coaching Problem</span>
               </h3>
               <ul className="problem-list">
                 <li>
-                  <span className="cross-icon">✕</span>
+                  <span className="cross-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="fa-solid fa-xmark" aria-hidden="true" />
+                  </span>
                   <span>400+ students packed into a single batch with zero individual attention or strategy diagnosis.</span>
                 </li>
                 <li>
-                  <span className="cross-icon">✕</span>
+                  <span className="cross-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="fa-solid fa-xmark" aria-hidden="true" />
+                  </span>
                   <span>Answer copies checked after 3–4 weeks by junior interns or outsourced evaluation contractors.</span>
                 </li>
                 <li>
-                  <span className="cross-icon">✕</span>
+                  <span className="cross-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="fa-solid fa-xmark" aria-hidden="true" />
+                  </span>
                   <span>Generic scorecards with no actionable remarks on how to improve introduction, arguments, or conclusion.</span>
                 </li>
                 <li>
-                  <span className="cross-icon">✕</span>
+                  <span className="cross-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="fa-solid fa-xmark" aria-hidden="true" />
+                  </span>
                   <span>Students spend months watching lectures without ever building real 3-hour answer writing stamina.</span>
                 </li>
               </ul>
@@ -420,23 +453,32 @@ export default function Home() {
             {/* Indrajeet Sir's Direct 1:1 Approach */}
             <div className="solution-card">
               <h3>
-                <span>🛡️</span> Indrajeet Sir&apos;s 1:1 Accountability
+                <i className="fa-solid fa-shield-halved" style={{ color: '#2563eb', marginRight: '0.5rem' }} aria-hidden="true" />
+                <span>Indrajeet Sir&apos;s 1:1 Accountability</span>
               </h3>
               <ul className="solution-list">
                 <li>
-                  <span className="check-icon">✓</span>
+                  <span className="check-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="fa-solid fa-check" aria-hidden="true" />
+                  </span>
                   <span><strong>Personal Copy Checking:</strong> Every Mains answer is evaluated directly by Indrajeet Sir with actionable remarks.</span>
                 </li>
                 <li>
-                  <span className="check-icon">✓</span>
+                  <span className="check-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="fa-solid fa-check" aria-hidden="true" />
+                  </span>
                   <span><strong>Weekly 1:1 Strategy Calls:</strong> Private video sessions to review your weekly study timetable and fix preparation gaps.</span>
                 </li>
                 <li>
-                  <span className="check-icon">✓</span>
+                  <span className="check-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="fa-solid fa-check" aria-hidden="true" />
+                  </span>
                   <span><strong>600+ Topic Micro Notes:</strong> Concise, high-yield revision material across GS-1, GS-2, GS-3, and GS-4.</span>
                 </li>
                 <li>
-                  <span className="check-icon">✓</span>
+                  <span className="check-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="fa-solid fa-check" aria-hidden="true" />
+                  </span>
                   <span><strong>16 Structured Tests:</strong> Phased test series (Mini, Sectional & Full-length) with model answers and marks improvement roadmap.</span>
                 </li>
               </ul>
@@ -453,10 +495,300 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Educative Graphic 1: 3-Stage UPSC Mentorship Architecture ── */}
+      <section id="architecture" className="section-wrap" style={{ background: 'rgba(255, 255, 255, 0.45)' }}>
+        <div className="section-inner text-center">
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.35rem 0.85rem', borderRadius: '999px', background: 'rgba(37, 99, 235, 0.08)', color: '#2563eb', fontSize: '0.82rem', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '0.85rem' }}>
+            <i className="fa-solid fa-graduation-cap" aria-hidden="true" />
+            <span>Pedagogical Framework</span>
+          </div>
+          <h2 className="section-heading">3-Stage UPSC Mentorship Architecture</h2>
+          <p className="section-subtext">
+            A battle-tested progression model transforming raw aspirants into rank-ready civil servants through phased diagnosis, feedback, and accountability.
+          </p>
+
+          <div className="edu-architecture-wrap">
+            <div className="edu-stages-grid">
+              {/* Stage 1 */}
+              <div className="edu-stage-card">
+                <div className="edu-stage-header">
+                  <span className="edu-stage-badge">
+                    <i className="fa-solid fa-compass" aria-hidden="true" />
+                    <span>Stage 01</span>
+                  </span>
+                  <span className="edu-stage-num">01</span>
+                </div>
+                <h3>Prelims Elimination &amp; Static Foundation</h3>
+                <p className="edu-stage-desc">
+                  Building micro-level conceptual clarity across NCERTs and standard reference books with rigorous PYQ pattern extraction.
+                </p>
+
+                <div className="edu-infographic-box">
+                  <div className="edu-diagram-item">
+                    <span className="edu-diagram-icon edu-icon-blue">
+                      <i className="fa-solid fa-filter" aria-hidden="true" />
+                    </span>
+                    <span>10-Year PYQ Elimination Tactics</span>
+                  </div>
+                  <div className="edu-diagram-item">
+                    <span className="edu-diagram-icon edu-icon-emerald">
+                      <i className="fa-solid fa-layer-group" aria-hidden="true" />
+                    </span>
+                    <span>High-Yield Theme Mapping</span>
+                  </div>
+                  <div className="edu-diagram-item">
+                    <span className="edu-diagram-icon edu-icon-amber">
+                      <i className="fa-solid fa-clock-rotate-left" aria-hidden="true" />
+                    </span>
+                    <span>Negative Marking Diagnostic</span>
+                  </div>
+                  <div className="edu-metric-bar">
+                    <div className="edu-metric-fill" style={{ width: '85%' }} />
+                  </div>
+                </div>
+
+                <div className="edu-card-deliverable">
+                  <i className="fa-solid fa-circle-check" aria-hidden="true" />
+                  <span>Deliverable: 100% Core Syllabus Mastery</span>
+                </div>
+              </div>
+
+              {/* Stage 2 */}
+              <div className="edu-stage-card" style={{ borderColor: 'rgba(37, 99, 235, 0.4)', boxShadow: '0 12px 35px -6px rgba(37, 99, 235, 0.12)' }}>
+                <div className="edu-stage-header">
+                  <span className="edu-stage-badge" style={{ background: '#2563eb', color: '#ffffff', borderColor: '#1d4ed8' }}>
+                    <i className="fa-solid fa-pen-fancy" aria-hidden="true" />
+                    <span>Stage 02 • Core Focus</span>
+                  </span>
+                  <span className="edu-stage-num" style={{ color: '#93c5fd' }}>02</span>
+                </div>
+                <h3>Mains GS 1–4 &amp; Essay Answer Diagnosis</h3>
+                <p className="edu-stage-desc">
+                  Line-by-line copy evaluation personally conducted by Indrajeet Sir. Structural formatting, committee citations, and value addition.
+                </p>
+
+                <div className="edu-infographic-box">
+                  <div className="edu-diagram-item">
+                    <span className="edu-diagram-icon edu-icon-indigo">
+                      <i className="fa-solid fa-pen-nib" aria-hidden="true" />
+                    </span>
+                    <span>Direct Copy Evaluation by Sir</span>
+                  </div>
+                  <div className="edu-diagram-item">
+                    <span className="edu-diagram-icon edu-icon-emerald">
+                      <i className="fa-solid fa-chart-line" aria-hidden="true" />
+                    </span>
+                    <span>Intro-Body-Conclusion Structuring</span>
+                  </div>
+                  <div className="edu-diagram-item">
+                    <span className="edu-diagram-icon edu-icon-blue">
+                      <i className="fa-solid fa-diagram-project" aria-hidden="true" />
+                    </span>
+                    <span>Flowcharts &amp; Case Laws Integration</span>
+                  </div>
+                  <div className="edu-metric-bar">
+                    <div className="edu-metric-fill" style={{ width: '95%', background: 'linear-gradient(90deg, #2563eb, #10b981)' }} />
+                  </div>
+                </div>
+
+                <div className="edu-card-deliverable" style={{ color: '#1e40af', background: '#eff6ff', borderColor: '#bfdbfe' }}>
+                  <i className="fa-solid fa-award" aria-hidden="true" />
+                  <span>Deliverable: +40 to +60 Marks Mains Boost</span>
+                </div>
+              </div>
+
+              {/* Stage 3 */}
+              <div className="edu-stage-card">
+                <div className="edu-stage-header">
+                  <span className="edu-stage-badge">
+                    <i className="fa-solid fa-user-tie" aria-hidden="true" />
+                    <span>Stage 03</span>
+                  </span>
+                  <span className="edu-stage-num">03</span>
+                </div>
+                <h3>Personality Test &amp; 1:1 Board Diagnostic</h3>
+                <p className="edu-stage-desc">
+                  Detailed Application Form (DAF) line-by-line audit, contemporary policy analysis, and 1:1 mock interview debrief with Indrajeet Sir.
+                </p>
+
+                <div className="edu-infographic-box">
+                  <div className="edu-diagram-item">
+                    <span className="edu-diagram-icon edu-icon-amber">
+                      <i className="fa-solid fa-id-card" aria-hidden="true" />
+                    </span>
+                    <span>DAF In-Depth Scrutiny &amp; Questions</span>
+                  </div>
+                  <div className="edu-diagram-item">
+                    <span className="edu-diagram-icon edu-icon-blue">
+                      <i className="fa-solid fa-comments" aria-hidden="true" />
+                    </span>
+                    <span>Situational Crisis Decision-Making</span>
+                  </div>
+                  <div className="edu-diagram-item">
+                    <span className="edu-diagram-icon edu-icon-emerald">
+                      <i className="fa-solid fa-video" aria-hidden="true" />
+                    </span>
+                    <span>1:1 Private Mock Simulation Video</span>
+                  </div>
+                  <div className="edu-metric-bar">
+                    <div className="edu-metric-fill" style={{ width: '90%' }} />
+                  </div>
+                </div>
+
+                <div className="edu-card-deliverable">
+                  <i className="fa-solid fa-circle-check" aria-hidden="true" />
+                  <span>Deliverable: Final Service Selection Mindset</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Educative Graphic 2: Authentic Evaluated Mains Copy Showcase ── */}
+          <div className="mains-copy-graphic-wrap">
+            <div className="mains-copy-header">
+              <div>
+                <span className="mains-copy-badge">
+                  <i className="fa-solid fa-microscope" aria-hidden="true" />
+                  <span>Live Evaluation Diagnostic</span>
+                </span>
+                <h3 style={{ fontSize: '1.45rem', fontWeight: 850, marginTop: '0.45rem', color: '#0f172a' }}>
+                  How Indrajeet Sir Personally Evaluates Your Answers
+                </h3>
+              </div>
+              <div className="mains-mentor-seal">
+                <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', fontSize: '1.1rem' }} aria-hidden="true" />
+                <span>Line-by-Line Copy Checking • Zero Outsourcing</span>
+              </div>
+            </div>
+
+            <div className="mains-copy-grid">
+              {/* Lined Answer Sheet Mockup */}
+              <div className="upsc-sheet-mockup">
+                <div className="upsc-sheet-margin" />
+                <div className="upsc-question-box">
+                  Q. &ldquo;Examine the constitutional role of statutory watchdogs in preserving federal integrity in India.&rdquo; (15 Marks, 250 Words)
+                </div>
+                <div className="upsc-student-answer-excerpt">
+                  <span className="answer-line">
+                    Statutory and Constitutional watchdogs like <span className="answer-highlight">CAG (Art 148) and Finance Commission (Art 280)</span> play a crucial balancing role...
+                    <span className="critique-callout">
+                      <i className="fa-solid fa-check" aria-hidden="true" /> Good Articles Cited
+                    </span>
+                  </span>
+                  <span className="answer-line" style={{ marginTop: '0.65rem' }}>
+                    However, fiscal friction between Centre and States has increased due to cess and surcharges...
+                    <span className="critique-callout tip">
+                      <i className="fa-solid fa-lightbulb" aria-hidden="true" /> Add 2nd ARC Flowchart
+                    </span>
+                  </span>
+                  <span className="answer-line" style={{ marginTop: '0.65rem' }}>
+                    <span className="answer-highlight">Way Forward:</span> Strengthening inter-state council consultations and institutionalizing tax devotions.
+                  </span>
+                </div>
+              </div>
+
+              {/* Feedback Breakdown Panel */}
+              <div className="mains-feedback-panel">
+                <div className="feedback-card-item">
+                  <div className="feedback-card-title" style={{ color: '#16a34a' }}>
+                    <i className="fa-solid fa-circle-check" aria-hidden="true" />
+                    <span>Content Strengths Identified</span>
+                  </div>
+                  <p className="feedback-card-text">
+                    Accurate constitutional articles referenced in introduction. Direct addressing of core question directive (&ldquo;Examine&rdquo;).
+                  </p>
+                </div>
+
+                <div className="feedback-card-item">
+                  <div className="feedback-card-title" style={{ color: '#dc2626' }}>
+                    <i className="fa-solid fa-circle-exclamation" aria-hidden="true" />
+                    <span>Structure &amp; Value Addition Remarks</span>
+                  </div>
+                  <p className="feedback-card-text">
+                    Divide body into 3 clear pillars: Legislative, Fiscal, and Dispute Resolution. Citing Sarkaria &amp; Punchhi Commission reports will fetch +2 marks.
+                  </p>
+                </div>
+
+                <div className="scorecard-banner">
+                  <div>
+                    <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#94a3b8', fontWeight: 800, letterSpacing: '0.05em' }}>
+                      Diagnostic Marks Given
+                    </div>
+                    <div className="scorecard-marks">
+                      <span className="scorecard-val">8.5</span>
+                      <span className="scorecard-total">/ 15 Marks</span>
+                    </div>
+                  </div>
+                  <span className="scorecard-gain">
+                    <i className="fa-solid fa-arrow-trend-up" style={{ marginRight: '0.35rem' }} aria-hidden="true" />
+                    +3.5 Marks Potential
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Educative Graphic 3: 4-Pillar Daily Mentorship Clock (Workflow) ── */}
+          <div className="daily-pipeline-grid">
+            <div className="pipeline-step-card">
+              <span className="pipeline-time-badge">
+                <i className="fa-regular fa-clock" aria-hidden="true" />
+                <span>08:00 AM IST</span>
+              </span>
+              <div className="pipeline-icon-box">
+                <i className="fa-solid fa-paper-plane" aria-hidden="true" />
+              </div>
+              <h4>1. Daily Question Prompt</h4>
+              <p>Curated GS Mains questions delivered daily via the Student App aligned with the weekly study roadmap.</p>
+            </div>
+
+            <div className="pipeline-step-card">
+              <span className="pipeline-time-badge">
+                <i className="fa-regular fa-clock" aria-hidden="true" />
+                <span>02:00 PM IST</span>
+              </span>
+              <div className="pipeline-icon-box">
+                <i className="fa-solid fa-cloud-arrow-up" aria-hidden="true" />
+              </div>
+              <h4>2. Aspirant Copy Upload</h4>
+              <p>Upload your handwritten answer PDF scan through the mobile app or web portal in under 15 seconds.</p>
+            </div>
+
+            <div className="pipeline-step-card">
+              <span className="pipeline-time-badge">
+                <i className="fa-regular fa-clock" aria-hidden="true" />
+                <span>08:00 PM IST</span>
+              </span>
+              <div className="pipeline-icon-box">
+                <i className="fa-solid fa-user-check" aria-hidden="true" />
+              </div>
+              <h4>3. Line-by-Line Copy Return</h4>
+              <p>Indrajeet Sir personally reviews and marks your copy with actionable margins, model structure, and audio critique.</p>
+            </div>
+
+            <div className="pipeline-step-card">
+              <span className="pipeline-time-badge" style={{ background: '#dcfce7', color: '#15803d', borderColor: '#bbf7d0' }}>
+                <i className="fa-solid fa-calendar-check" aria-hidden="true" />
+                <span>Weekly Session</span>
+              </span>
+              <div className="pipeline-icon-box" style={{ background: '#ecfdf5', color: '#10b981' }}>
+                <i className="fa-solid fa-headset" aria-hidden="true" />
+              </div>
+              <h4>4. 1:1 Video Strategy Review</h4>
+              <p>Private video consultation to diagnose mental fatigue, timetable lags, and roadmap improvements for the upcoming week.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Courses & Pricing Section (3D Depth) ── */}
       <section id="courses" className="section-wrap" style={{ background: 'rgba(255, 255, 255, 0.6)' }}>
         <div className="section-inner text-center">
-          <h2 className="section-heading">Mentorship Batches & Fees</h2>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.35rem 0.85rem', borderRadius: '999px', background: 'rgba(37, 99, 235, 0.08)', color: '#2563eb', fontSize: '0.82rem', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '0.85rem' }}>
+            <i className="fa-solid fa-certificate" aria-hidden="true" />
+            <span>Structured Mentorship Batches</span>
+          </div>
+          <h2 className="section-heading">Mentorship Batches &amp; Fees</h2>
           <p className="section-subtext">
             Transparent course fees. Login credentials and Android application access are delivered immediately after enrollment.
           </p>
@@ -477,18 +809,34 @@ export default function Home() {
                     <span className="fee-tenure">/ full course</span>
                   </div>
                   <ul className="features-checklist">
-                    <li><span className="check-tick">✓</span> 1:1 Live interactive sessions with Indrajeet Sir</li>
-                    <li><span className="check-tick">✓</span> Direct Mains answer writing evaluation & feedback</li>
-                    <li><span className="check-tick">✓</span> 600+ Topic-wise short notes for GS 1 to 4</li>
-                    <li><span className="check-tick">✓</span> 16 Evaluated tests (Mini, Sectional & Full-length)</li>
-                    <li><span className="check-tick">✓</span> Direct WhatsApp & Call doubt clearing desk</li>
+                    <li>
+                      <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
+                      <span>1:1 Live interactive sessions with Indrajeet Sir</span>
+                    </li>
+                    <li>
+                      <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
+                      <span>Direct Mains answer writing evaluation &amp; feedback</span>
+                    </li>
+                    <li>
+                      <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
+                      <span>600+ Topic-wise short notes for GS 1 to 4</span>
+                    </li>
+                    <li>
+                      <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
+                      <span>16 Evaluated tests (Mini, Sectional &amp; Full-length)</span>
+                    </li>
+                    <li>
+                      <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
+                      <span>Direct WhatsApp &amp; Call doubt clearing desk</span>
+                    </li>
                   </ul>
                 </div>
                 <button
                   className="btn-primary full lg"
                   onClick={() => handleStartEnrollment(course)}
                 >
-                  Enroll Now — ₹{Number(course.price).toLocaleString('en-IN')}
+                  <i className="fa-solid fa-bolt" style={{ marginRight: '0.45rem' }} aria-hidden="true" />
+                  <span>Enroll Now — ₹{Number(course.price).toLocaleString('en-IN')}</span>
                 </button>
               </div>
             ))}
@@ -501,13 +849,7 @@ export default function Home() {
         <section id="resources" className="section-wrap">
           <div className="section-inner text-center">
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.35rem 0.85rem', borderRadius: '999px', background: 'rgba(37, 99, 235, 0.08)', color: '#2563eb', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.85rem' }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-                <polyline points="10 9 9 9 8 9" />
-              </svg>
+              <i className="fa-solid fa-file-circle-check" aria-hidden="true" />
               <span>Verified Study Material</span>
             </div>
             <h2 className="section-heading">{siteContent.pdfSectionHeading}</h2>
@@ -521,12 +863,7 @@ export default function Home() {
                   <div>
                     <div className="pdf-card-header">
                       <div className="pdf-icon-badge">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                          <polyline points="14 2 14 8 20 8" />
-                          <line x1="12" y1="18" x2="12" y2="12" />
-                          <line x1="9" y1="15" x2="15" y2="15" />
-                        </svg>
+                        <i className="fa-solid fa-file-pdf" style={{ fontSize: '1.4rem', color: '#dc2626' }} aria-hidden="true" />
                       </div>
                       <span className="pdf-tag-pill">{item.tag}</span>
                     </div>
@@ -548,11 +885,7 @@ export default function Home() {
                         style={{ background: 'transparent', color: '#2563eb', border: '1px solid #2563eb', boxShadow: 'none' }}
                         title={`Open ${item.title} in new tab`}
                       >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                          <polyline points="15 3 21 3 21 9" />
-                          <line x1="10" y1="14" x2="21" y2="3" />
-                        </svg>
+                        <i className="fa-solid fa-arrow-up-right-from-square" style={{ marginRight: '0.35rem' }} aria-hidden="true" />
                         <span>Open Tab</span>
                       </a>
                       <a
@@ -563,11 +896,7 @@ export default function Home() {
                         className="btn-pdf-download"
                         title={`Download ${item.title}`}
                       >
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                          <polyline points="7 10 12 15 17 10" />
-                          <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg>
+                        <i className="fa-solid fa-download" style={{ marginRight: '0.35rem' }} aria-hidden="true" />
                         <span>Download</span>
                       </a>
                     </div>
@@ -582,6 +911,10 @@ export default function Home() {
       {/* ── Real Aspirant FAQs (Fluid Accordion) ── */}
       <section id="faqs" className="section-wrap">
         <div className="section-inner text-center">
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.35rem 0.85rem', borderRadius: '999px', background: 'rgba(37, 99, 235, 0.08)', color: '#2563eb', fontSize: '0.82rem', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '0.85rem' }}>
+            <i className="fa-solid fa-circle-question" aria-hidden="true" />
+            <span>Aspirant Clarifications</span>
+          </div>
           <h2 className="section-heading">Frequently Asked Questions</h2>
           <p className="section-subtext">
             Clear answers to common questions about copy checking, schedules, and study material.
@@ -598,7 +931,9 @@ export default function Home() {
                     aria-expanded={isOpen}
                   >
                     <span>{faq.q}</span>
-                    <span className={`faq-icon-indicator ${isOpen ? 'open' : ''}`}>+</span>
+                    <span className={`faq-icon-indicator ${isOpen ? 'open' : ''}`} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <i className={`fa-solid ${isOpen ? 'fa-minus' : 'fa-plus'}`} aria-hidden="true" />
+                    </span>
                   </button>
                   {isOpen && (
                     <div className="faq-answer-wrap">
@@ -625,9 +960,7 @@ export default function Home() {
               className="btn-primary lg"
               style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.55rem', background: '#0088cc', borderColor: '#0088cc' }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/>
-              </svg>
+              <i className="fa-brands fa-telegram" style={{ fontSize: '1.35rem' }} aria-hidden="true" />
               <span>Join Telegram: {siteContent.telegramHandle}</span>
             </a>
             <a
@@ -637,9 +970,7 @@ export default function Home() {
               className="btn-outline lg"
               style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.55rem' }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366" aria-hidden="true">
-                <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2ZM12.04 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.16 12.04 20.16C10.66 20.16 9.3 19.8 8.1 19.09L7.81 18.92L4.69 19.74L5.52 16.7L5.33 16.39C4.54 15.13 4.12 13.68 4.12 11.91C4.12 7.38 7.82 3.67 12.04 3.67ZM8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7.02 8.48 7.02 9.69C7.02 10.9 7.9 12.07 8.02 12.23C8.15 12.39 9.74 14.85 12.19 15.91C12.77 16.16 13.23 16.31 13.58 16.42C14.17 16.61 14.7 16.58 15.13 16.52C15.61 16.45 16.6 15.92 16.81 15.33C17.02 14.74 17.02 14.24 16.96 14.13C16.89 14.03 16.73 13.97 16.48 13.85C16.24 13.72 15.02 13.12 14.79 13.04C14.57 12.96 14.4 12.92 14.24 13.17C14.07 13.41 13.59 13.97 13.45 14.13C13.3 14.3 13.16 14.32 12.91 14.2C12.67 14.07 11.88 13.82 10.95 12.98C10.22 12.33 9.73 11.53 9.58 11.28C9.44 11.04 9.57 10.9 9.69 10.78C9.8 10.67 9.94 10.49 10.06 10.34C10.19 10.2 10.23 10.09 10.31 9.93C10.39 9.76 10.35 9.62 10.29 9.5C10.23 9.37 9.73 8.16 9.53 7.66C9.33 7.18 9.12 7.24 8.97 7.24C8.82 7.23 8.68 7.23 8.53 7.33Z"/>
-              </svg>
+              <i className="fa-brands fa-whatsapp" style={{ fontSize: '1.35rem', color: '#25D366' }} aria-hidden="true" />
               <span>WhatsApp Us</span>
             </a>
           </div>
@@ -658,9 +989,7 @@ export default function Home() {
         aria-label="Chat on WhatsApp"
         title="Chat with us on WhatsApp"
       >
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true">
-          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2ZM12.04 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.16 12.04 20.16C10.66 20.16 9.3 19.8 8.1 19.09L7.81 18.92L4.69 19.74L5.52 16.7L5.33 16.39C4.54 15.13 4.12 13.68 4.12 11.91C4.12 7.38 7.82 3.67 12.04 3.67ZM8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7.02 8.48 7.02 9.69C7.02 10.9 7.9 12.07 8.02 12.23C8.15 12.39 9.74 14.85 12.19 15.91C12.77 16.16 13.23 16.31 13.58 16.42C14.17 16.61 14.7 16.58 15.13 16.52C15.61 16.45 16.6 15.92 16.81 15.33C17.02 14.74 17.02 14.24 16.96 14.13C16.89 14.03 16.73 13.97 16.48 13.85C16.24 13.72 15.02 13.12 14.79 13.04C14.57 12.96 14.4 12.92 14.24 13.17C14.07 13.41 13.59 13.97 13.45 14.13C13.3 14.3 13.16 14.32 12.91 14.2C12.67 14.07 11.88 13.82 10.95 12.98C10.22 12.33 9.73 11.53 9.58 11.28C9.44 11.04 9.57 10.9 9.69 10.78C9.8 10.67 9.94 10.49 10.06 10.34C10.19 10.2 10.23 10.09 10.31 9.93C10.39 9.76 10.35 9.62 10.29 9.5C10.23 9.37 9.73 8.16 9.53 7.66C9.33 7.18 9.12 7.24 8.97 7.24C8.82 7.23 8.68 7.23 8.53 7.33Z"/>
-        </svg>
+        <i className="fa-brands fa-whatsapp" style={{ fontSize: '28px' }} aria-hidden="true" />
         <span className="whatsapp-fab-label">WhatsApp</span>
       </a>
 
@@ -668,9 +997,11 @@ export default function Home() {
       {showCheckoutModal && selectedCourse && (
         <div className="modal-overlay" onClick={() => !isProcessing && setShowCheckoutModal(false)}>
           <div className="modal-card" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => !isProcessing && setShowCheckoutModal(false)}>✕</button>
+            <button className="modal-close" onClick={() => !isProcessing && setShowCheckoutModal(false)} aria-label="Close modal">
+              <i className="fa-solid fa-xmark" aria-hidden="true" />
+            </button>
             <h3>Secure Course Enrollment</h3>
-            <p>Enter your contact details to enroll. Your app download link & password will be sent to your email.</p>
+            <p>Enter your contact details to enroll. Your app download link &amp; password will be sent to your email.</p>
 
             <div className="checkout-summary-box">
               <div className="checkout-course-title">{selectedCourse.title}</div>
@@ -710,11 +1041,22 @@ export default function Home() {
               </div>
 
               <button type="submit" className="btn-primary full lg" disabled={isProcessing}>
-                {isProcessing ? 'Processing Secure Payment...' : `Proceed to Pay ₹${Number(selectedCourse.price).toLocaleString('en-IN')}`}
+                {isProcessing ? (
+                  <span>
+                    <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '0.45rem' }} aria-hidden="true" />
+                    Processing Secure Payment...
+                  </span>
+                ) : (
+                  <span>
+                    <i className="fa-solid fa-shield-halved" style={{ marginRight: '0.45rem' }} aria-hidden="true" />
+                    Proceed to Pay ₹{Number(selectedCourse.price).toLocaleString('en-IN')}
+                  </span>
+                )}
               </button>
 
               <div className="checkout-secure-badge">
-                🔒 256-Bit Encrypted Secure Checkout (UPI, GPay, Cards, NetBanking)
+                <i className="fa-solid fa-lock" style={{ color: '#16a34a', marginRight: '0.45rem' }} aria-hidden="true" />
+                <span>256-Bit Encrypted Secure Checkout (UPI, GPay, Cards, NetBanking)</span>
               </div>
             </form>
           </div>
@@ -725,12 +1067,17 @@ export default function Home() {
       {showSuccessModal && (
         <div className="modal-overlay" onClick={() => setShowSuccessModal(false)}>
           <div className="modal-card success-card" onClick={e => e.stopPropagation()}>
-            <div className="success-icon">🎉</div>
+            <div style={{ textAlign: 'center', marginBottom: '0.85rem' }}>
+              <i className="fa-solid fa-circle-check" style={{ fontSize: '3rem', color: '#16a34a' }} aria-hidden="true" />
+            </div>
             <h3>Enrollment Confirmed!</h3>
             <p>Welcome to Indrajeet Sir&apos;s Mentorship Program.</p>
 
             <div className="success-info-box">
-              <strong>✓ Login Details Dispatched!</strong>
+              <strong style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#16a34a' }}>
+                <i className="fa-solid fa-check" aria-hidden="true" />
+                Login Details Dispatched!
+              </strong>
               We have emailed your student login credentials and mobile application download link to:
               <br />
               <strong style={{ marginTop: '0.25rem', color: '#0f172a' }}>{completedStudent?.email}</strong>
@@ -741,9 +1088,10 @@ export default function Home() {
                 href="/indrajeet-sir-app.apk"
                 download
                 className="btn-primary full"
-                style={{ textDecoration: 'none' }}
+                style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
               >
-                📲 Download Android App (.apk)
+                <i className="fa-brands fa-android" style={{ fontSize: '1.2rem' }} aria-hidden="true" />
+                <span>Download Android App (.apk)</span>
               </a>
               <button
                 type="button"
@@ -761,7 +1109,9 @@ export default function Home() {
       {showBookModal && (
         <div className="modal-overlay" onClick={() => setShowBookModal(false)}>
           <div className="modal-card" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowBookModal(false)}>✕</button>
+            <button className="modal-close" onClick={() => setShowBookModal(false)} aria-label="Close modal">
+              <i className="fa-solid fa-xmark" aria-hidden="true" />
+            </button>
             <h3>Book Free Strategy Call</h3>
             <p>Speak directly with Indrajeet Sir&apos;s team to understand the mentorship roadmap.</p>
             <form onSubmit={handleConsultSubmit}>
@@ -785,7 +1135,10 @@ export default function Home() {
                   onChange={e => setConsultForm({ ...consultForm, phone: e.target.value })}
                 />
               </div>
-              <button type="submit" className="btn-primary full lg">Confirm Free Call →</button>
+              <button type="submit" className="btn-primary full lg">
+                <i className="fa-solid fa-calendar-check" style={{ marginRight: '0.45rem' }} aria-hidden="true" />
+                <span>Confirm Strategy Call</span>
+              </button>
             </form>
           </div>
         </div>

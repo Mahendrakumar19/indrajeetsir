@@ -13,9 +13,14 @@
   background: radial-gradient(circle at 50% 10%, #eff6ff 0%, #f8fafc 45%, #f1f5f9 100%);
   position: relative;
   overflow-x: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-main);
   color: #0f172a;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.auth-header h1, .auth-brand-name {
+  font-family: var(--font-display);
 }
 
 /* Subtle decorative ambient lights */

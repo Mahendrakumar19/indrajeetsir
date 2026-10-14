@@ -9,9 +9,15 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-main);
   background: #f8fafc;
   color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
+  font-family: var(--font-display);
 }
 
 /* ── Admin Login Screen (Email & Password Authentication) ── */

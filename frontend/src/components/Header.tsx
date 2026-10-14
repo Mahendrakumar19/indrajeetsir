@@ -36,10 +36,12 @@ export default function Header() {
         {/* Navigation Actions */}
         <div className="nav-actions">
           <Link href="/login" className="btn-nav-login">
-            Student Login
+            <i className="fa-solid fa-arrow-right-to-bracket" style={{ marginRight: '0.4rem', fontSize: '0.9rem' }} aria-hidden="true" />
+            <span>Student Login</span>
           </Link>
           <a href="#courses" className="btn-primary btn-nav-enroll btn-nav-enroll-desktop">
-            Enroll Now
+            <i className="fa-solid fa-graduation-cap" style={{ marginRight: '0.45rem', fontSize: '0.95rem' }} aria-hidden="true" />
+            <span>Enroll Now</span>
           </a>
 
           {/* Mobile Hamburger Toggle Button */}
@@ -51,16 +53,9 @@ export default function Header() {
             aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <i className="fa-solid fa-xmark" style={{ fontSize: '1.25rem' }} aria-hidden="true" />
             ) : (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="4" y1="6" x2="20" y2="6"></line>
-                <line x1="4" y1="12" x2="20" y2="12"></line>
-                <line x1="4" y1="18" x2="20" y2="18"></line>
-              </svg>
+              <i className="fa-solid fa-bars" style={{ fontSize: '1.2rem' }} aria-hidden="true" />
             )}
           </button>
         </div>
@@ -70,18 +65,39 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="mobile-nav-drawer">
           <nav className="mobile-nav-links">
-            <a href="#top" onClick={closeMenu}>Home</a>
-            <a href="#about" onClick={closeMenu}>About Mentorship</a>
-            <a href="#courses" onClick={closeMenu}>Courses & Fees</a>
-            <a href="#faqs" onClick={closeMenu}>FAQs</a>
-            <a href="#contact" onClick={closeMenu}>Contact Desk</a>
+            <a href="#top" onClick={closeMenu}>
+              <i className="fa-solid fa-house" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
+              Home
+            </a>
+            <a href="#about" onClick={closeMenu}>
+              <i className="fa-solid fa-compass" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
+              About Mentorship
+            </a>
+            <a href="#architecture" onClick={closeMenu}>
+              <i className="fa-solid fa-sitemap" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
+              Mentorship Architecture
+            </a>
+            <a href="#courses" onClick={closeMenu}>
+              <i className="fa-solid fa-book-open" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
+              Courses & Fees
+            </a>
+            <a href="#faqs" onClick={closeMenu}>
+              <i className="fa-solid fa-circle-question" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
+              FAQs
+            </a>
+            <a href="#contact" onClick={closeMenu}>
+              <i className="fa-solid fa-headset" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
+              Contact Desk
+            </a>
           </nav>
           <div className="mobile-nav-divider" />
           <div className="mobile-nav-actions">
             <Link href="/login" className="btn-mobile-login" onClick={closeMenu}>
+              <i className="fa-solid fa-arrow-right-to-bracket" style={{ marginRight: '0.45rem' }} aria-hidden="true" />
               Student Portal Login
             </Link>
             <a href="#courses" className="btn-primary full" onClick={closeMenu}>
+              <i className="fa-solid fa-graduation-cap" style={{ marginRight: '0.45rem' }} aria-hidden="true" />
               Enroll Now
             </a>
           </div>

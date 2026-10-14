@@ -287,8 +287,8 @@ export default function AdminPanel() {
     pdfSectionSubheading: 'Download verified syllabus blueprints, official brochures, model answer evaluations, and strategic notes prepared by Indrajeet Sir.',
     contactDeskHeading: 'Have Questions About Preparation Strategy?',
     contactDeskSubheading: "Talk directly with Indrajeet Sir's mentorship desk to discuss your attempt year and study plan.",
-    telegramHandle: '@Indrajeet_UPSC',
-    telegramUrl: 'https://t.me/Indrajeet_UPSC',
+    telegramHandle: '@Indrajeetsir_UPSC',
+    telegramUrl: 'https://t.me/Indrajeetsir_UPSC',
     phoneDisplay: '+91 98734 86158',
     phoneTel: '+919873486158',
     whatsappDisplay: '+91 98734 86158',
@@ -446,7 +446,13 @@ export default function AdminPanel() {
 
       const savedSiteContent = localStorage.getItem('indrajeet_site_content');
       if (savedSiteContent) {
-        setSiteContent((prev) => ({ ...prev, ...JSON.parse(savedSiteContent) }));
+        const parsed = JSON.parse(savedSiteContent);
+        if (parsed.telegramHandle === '@Indrajeet_UPSC' || parsed.telegramHandle === '@IndrajeetSir_UPSC') {
+          parsed.telegramHandle = '@Indrajeetsir_UPSC';
+          parsed.telegramUrl = 'https://t.me/Indrajeetsir_UPSC';
+          try { localStorage.setItem('indrajeet_site_content', JSON.stringify({ ...parsed, telegramHandle: '@Indrajeetsir_UPSC', telegramUrl: 'https://t.me/Indrajeetsir_UPSC' })); } catch {}
+        }
+        setSiteContent((prev) => ({ ...prev, ...parsed }));
       }
 
       const savedPdfs = localStorage.getItem('indrajeet_pdf_list');
