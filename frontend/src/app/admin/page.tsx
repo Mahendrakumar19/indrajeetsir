@@ -266,6 +266,7 @@ export default function AdminPanel() {
   // Primary navigation tabs
   const [tab, setTab] = useState<'users' | 'content' | 'payments' | 'notifications' | 'courses' | 'classes' | 'website' | 'messages'>('users');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Flash alert
   const [actionSuccess, setActionSuccess] = useState('');
@@ -413,6 +414,11 @@ export default function AdminPanel() {
       setAuth(getAdminSession());
 
       try {
+        const savedCollapsed = localStorage.getItem('admin_sidebar_collapsed');
+        if (savedCollapsed === 'true') {
+          setSidebarCollapsed(true);
+        }
+
         const savedUsers = localStorage.getItem('admin_users_data');
       if (savedUsers) {
         const parsed = JSON.parse(savedUsers);
@@ -1236,29 +1242,62 @@ export default function AdminPanel() {
       )}
 
       {/* Sidebar */}
-      <aside className={`admin-sidebar ${mobileNavOpen ? 'mobile-open' : ''}`}>
-        <Link href="/" className="admin-brand" onClick={() => setMobileNavOpen(false)}>
-          <Image
-            src="/logo-circle.png"
-            alt="Indrajeet Sir UPSC"
-            width={36}
-            height={36}
-            style={{ borderRadius: '10px', objectFit: 'cover' }}
-          />
-          <div>
-            <div className="brand-name">Indrajeet Sir</div>
-            <div className="brand-sub">Master Admin</div>
-          </div>
-        </Link>
+      <aside className={`admin-sidebar ${mobileNavOpen ? 'mobile-open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
+        <div className="admin-brand-wrap">
+          <Link href="/" className="admin-brand" onClick={() => setMobileNavOpen(false)} title="Indrajeet Sir Admin">
+            <Image
+              src="/logo-circle.png"
+              alt="Indrajeet Sir UPSC"
+              width={36}
+              height={36}
+              style={{ borderRadius: '10px', objectFit: 'cover', flexShrink: 0 }}
+            />
+            <div className="brand-text">
+              <div className="brand-name">Indrajeet Sir</div>
+              <div className="brand-sub">Master Admin</div>
+            </div>
+          </Link>
+          <button
+            type="button"
+            className="admin-collapse-toggle"
+            onClick={() => {
+              const next = !sidebarCollapsed;
+              setSidebarCollapsed(next);
+              try {
+                localStorage.setItem('admin_sidebar_collapsed', String(next));
+              } catch {}
+            }}
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                transform: sidebarCollapsed ? 'rotate(180deg)' : 'none',
+                transition: 'transform 0.25s ease',
+              }}
+            >
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+        </div>
 
         <nav className="admin-nav">
           <button
             className={`anav ${tab === 'users' ? 'active' : ''}`}
             onClick={() => { setTab('users'); setMobileNavOpen(false); }}
+            title="User Management"
           >
             <div className="anav-inner">
-              <IconUsers size={16} />
-              <span>User Management</span>
+              <IconUsers size={18} />
+              <span className="anav-label">User Management</span>
             </div>
             <span className="anav-count">{users.length}</span>
           </button>
@@ -1266,10 +1305,11 @@ export default function AdminPanel() {
           <button
             className={`anav ${tab === 'messages' ? 'active' : ''}`}
             onClick={() => { setTab('messages'); setMobileNavOpen(false); }}
+            title="Mentorship Chat"
           >
             <div className="anav-inner">
-              <IconMessageSquare size={16} />
-              <span>Mentorship Chat</span>
+              <IconMessageSquare size={18} />
+              <span className="anav-label">Mentorship Chat</span>
             </div>
             <span className="anav-count" style={{ background: '#eff6ff', color: '#2563eb' }}>
               {adminMessages.length}
@@ -1279,10 +1319,11 @@ export default function AdminPanel() {
           <button
             className={`anav ${tab === 'content' ? 'active' : ''}`}
             onClick={() => { setTab('content'); setMobileNavOpen(false); }}
+            title="Content Control"
           >
             <div className="anav-inner">
-              <IconLayout size={16} />
-              <span>Content Control</span>
+              <IconLayout size={18} />
+              <span className="anav-label">Content Control</span>
             </div>
             <span className="anav-count">{banners.length}</span>
           </button>
@@ -1290,10 +1331,11 @@ export default function AdminPanel() {
           <button
             className={`anav ${tab === 'payments' ? 'active' : ''}`}
             onClick={() => { setTab('payments'); setMobileNavOpen(false); }}
+            title="Payments & Transactions"
           >
             <div className="anav-inner">
-              <IconCard size={16} />
-              <span>Payments & Txns</span>
+              <IconCard size={18} />
+              <span className="anav-label">Payments & Txns</span>
             </div>
             <span className="anav-count">{transactions.length}</span>
           </button>
@@ -1301,10 +1343,11 @@ export default function AdminPanel() {
           <button
             className={`anav ${tab === 'notifications' ? 'active' : ''}`}
             onClick={() => { setTab('notifications'); setMobileNavOpen(false); }}
+            title="Notifications"
           >
             <div className="anav-inner">
-              <IconBell size={16} />
-              <span>Notifications</span>
+              <IconBell size={18} />
+              <span className="anav-label">Notifications</span>
             </div>
             <span className="anav-count">{notifications.length}</span>
           </button>
@@ -1312,10 +1355,11 @@ export default function AdminPanel() {
           <button
             className={`anav ${tab === 'courses' ? 'active' : ''}`}
             onClick={() => { setTab('courses'); setMobileNavOpen(false); }}
+            title="Courses Catalog"
           >
             <div className="anav-inner">
-              <IconBook size={16} />
-              <span>Courses Catalog</span>
+              <IconBook size={18} />
+              <span className="anav-label">Courses Catalog</span>
             </div>
             <span className="anav-count">{courses.length}</span>
           </button>
@@ -1323,10 +1367,11 @@ export default function AdminPanel() {
           <button
             className={`anav ${tab === 'classes' ? 'active' : ''}`}
             onClick={() => { setTab('classes'); setMobileNavOpen(false); }}
+            title="Live Classes"
           >
             <div className="anav-inner">
-              <IconVideo size={16} />
-              <span>Live Classes</span>
+              <IconVideo size={18} />
+              <span className="anav-label">Live Classes</span>
             </div>
             <span className="anav-count">{classes.length}</span>
           </button>
@@ -1334,28 +1379,35 @@ export default function AdminPanel() {
           <button
             className={`anav ${tab === 'website' ? 'active' : ''}`}
             onClick={() => { setTab('website'); setMobileNavOpen(false); }}
+            title="Website Editor"
           >
             <div className="anav-inner">
-              <IconGlobe size={16} />
-              <span>Website Live Editor</span>
+              <IconGlobe size={18} />
+              <span className="anav-label">Website Editor</span>
             </div>
             <span className="anav-count" style={{ background: '#2563eb', color: '#fff' }}>Live</span>
           </button>
         </nav>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0.25rem', marginTop: 'auto' }}>
-          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'inherit' }}>Appearance</span>
-          <ThemeToggle />
-        </div>
+        <div className="admin-sidebar-footer">
+          <div className="admin-sidebar-appearance">
+            <span className="appearance-label">Appearance</span>
+            <ThemeToggle />
+          </div>
 
-        <button className="admin-lock-btn" onClick={handleLogout} style={{ marginTop: '0.5rem' }}>
-          <IconLogOut size={15} />
-          <span>Lock Session</span>
-        </button>
+          <button
+            className="admin-lock-btn"
+            onClick={handleLogout}
+            title="Lock Session"
+          >
+            <IconLogOut size={16} />
+            <span className="lock-btn-label">Lock Session</span>
+          </button>
+        </div>
       </aside>
 
       {/* Main Workspace */}
-      <main className="admin-main">
+      <main className={`admin-main ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         {/* Flash Alert */}
         {actionSuccess && (
           <div className="action-alert">
@@ -1581,11 +1633,11 @@ export default function AdminPanel() {
                   type="text"
                   value={appTicker}
                   onChange={(e) => setAppTicker(e.target.value)}
+                  className="admin-ticker-input"
                   style={{
                     flex: 1,
                     minWidth: '280px',
                     padding: '0.75rem 1rem',
-                    border: '1.5px solid #cbd5e1',
                     borderRadius: '10px',
                     fontSize: '0.92rem',
                   }}
@@ -1602,7 +1654,7 @@ export default function AdminPanel() {
             {/* Live App Banners Grid */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <div>
-                <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0f172a' }}>
+                <h2 style={{ fontSize: '1.3rem', fontWeight: 800 }}>
                   Live App Banners & Offers
                 </h2>
                 <p style={{ fontSize: '0.86rem', color: '#64748b' }}>
@@ -1657,9 +1709,8 @@ export default function AdminPanel() {
                 {categories.map((cat) => (
                   <div
                     key={cat.id}
+                    className="category-toggle-card"
                     style={{
-                      background: '#f8fafc',
-                      border: '1.5px solid #e2e8f0',
                       borderRadius: '14px',
                       padding: '1.1rem',
                       display: 'flex',
@@ -1668,7 +1719,7 @@ export default function AdminPanel() {
                     }}
                   >
                     <div>
-                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.92rem' }}>
+                      <div className="category-toggle-title" style={{ fontWeight: 800, fontSize: '0.92rem' }}>
                         {cat.name}
                       </div>
                       <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
@@ -2038,7 +2089,7 @@ export default function AdminPanel() {
               </div>
             </div>
 
-            <div className="composer-grid">
+            <div className="stacked-vertical-layout">
               <div className="admin-card">
                 <h3>Add New Mentorship Course</h3>
                 <form onSubmit={handleCreateCourse}>
@@ -2076,7 +2127,7 @@ export default function AdminPanel() {
                 </form>
               </div>
 
-              <div className="table-card" style={{ height: 'fit-content' }}>
+              <div className="table-card">
                 <div style={{ padding: '1.25rem 1.4rem', borderBottom: '1px solid #e2e8f0' }}>
                   <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>Active Courses ({courses.length})</h3>
                 </div>
@@ -2147,7 +2198,7 @@ export default function AdminPanel() {
               </div>
             </div>
 
-            <div className="composer-grid">
+            <div className="stacked-vertical-layout">
               <div className="admin-card">
                 <h3>Schedule Live Class</h3>
                 <form onSubmit={handleCreateClass}>
@@ -2161,7 +2212,7 @@ export default function AdminPanel() {
                       required
                     />
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
                     <div className="form-group">
                       <label>Date</label>
                       <input
@@ -2205,7 +2256,7 @@ export default function AdminPanel() {
                 </form>
               </div>
 
-              <div className="table-card" style={{ height: 'fit-content' }}>
+              <div className="table-card">
                 <div style={{ padding: '1.25rem 1.4rem', borderBottom: '1px solid #e2e8f0' }}>
                   <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>Scheduled Sessions ({classes.length})</h3>
                 </div>
@@ -2517,15 +2568,14 @@ export default function AdminPanel() {
                 {/* Upload New PDF Form */}
                 <form
                   onSubmit={handleUploadPdf}
+                  className="admin-pdf-upload-form"
                   style={{
-                    background: '#f8fafc',
                     padding: '1.2rem',
                     borderRadius: '12px',
-                    border: '1px solid #e2e8f0',
                     marginBottom: '1.5rem',
                   }}
                 >
-                  <div style={{ fontWeight: 700, fontSize: '0.92rem', marginBottom: '0.75rem', color: '#1e293b' }}>
+                  <div className="admin-pdf-form-title" style={{ fontWeight: 700, fontSize: '0.92rem', marginBottom: '0.75rem' }}>
                     Upload New PDF Document
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.9rem', marginBottom: '0.9rem' }}>
@@ -2544,7 +2594,7 @@ export default function AdminPanel() {
                       <select
                         value={pdfForm.tag}
                         onChange={(e) => setPdfForm({ ...pdfForm, tag: e.target.value })}
-                        style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                        style={{ width: '100%', padding: '0.55rem', borderRadius: '6px' }}
                       >
                         <option value="Official Brochure">Official Brochure</option>
                         <option value="Mains Notes">Mains Notes</option>
@@ -2560,7 +2610,8 @@ export default function AdminPanel() {
                         accept=".pdf,application/pdf"
                         onChange={(e) => setPdfForm({ ...pdfForm, file: e.target.files ? e.target.files[0] : null })}
                         required
-                        style={{ padding: '0.4rem', background: '#fff' }}
+                        className="admin-file-input"
+                        style={{ padding: '0.4rem' }}
                       />
                     </div>
                   </div>
@@ -2579,20 +2630,19 @@ export default function AdminPanel() {
                 </form>
 
                 {/* Current Active PDFs List */}
-                <div style={{ fontWeight: 700, fontSize: '0.92rem', marginBottom: '0.75rem', color: '#1e293b' }}>
+                <div className="admin-pdf-library-title" style={{ fontWeight: 700, fontSize: '0.92rem', marginBottom: '0.75rem' }}>
                   Live PDF Library ({pdfList.length})
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   {pdfList.map((item) => (
                     <div
                       key={item.id}
+                      className="admin-pdf-item"
                       style={{
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         padding: '0.85rem 1.1rem',
-                        background: '#ffffff',
-                        border: '1px solid #e2e8f0',
                         borderRadius: '10px',
                         gap: '1rem',
                         flexWrap: 'wrap',
@@ -2600,7 +2650,7 @@ export default function AdminPanel() {
                     >
                       <div style={{ flex: 1, minWidth: '220px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span style={{ fontWeight: 750, color: '#0f172a', fontSize: '0.92rem' }}>{item.title}</span>
+                          <span className="admin-pdf-title" style={{ fontWeight: 750, fontSize: '0.92rem' }}>{item.title}</span>
                           <span className="status-pill active" style={{ fontSize: '0.7rem' }}>{item.tag}</span>
                         </div>
                         <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.2rem' }}>
@@ -2651,7 +2701,7 @@ export default function AdminPanel() {
 
               {/* Card 7: Legal Pages Live Editor (Terms, Privacy, Disclaimers) */}
               <div className="admin-card">
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem' }}>
                   7. Other Website Pages Editor (Terms, Privacy & Disclaimers)
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
@@ -2659,8 +2709,8 @@ export default function AdminPanel() {
                 </p>
 
                 {/* Sub-block A: Terms of Service */}
-                <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '1rem' }}>
-                  <div style={{ fontWeight: 750, color: '#1e293b', marginBottom: '0.75rem' }}>Terms of Service (/terms)</div>
+                <div className="admin-legal-subcard" style={{ padding: '1rem', borderRadius: '10px', marginBottom: '1rem' }}>
+                  <div className="admin-legal-subcard-title" style={{ fontWeight: 750, marginBottom: '0.75rem' }}>Terms of Service (/terms)</div>
                   <div className="form-group">
                     <label>Top Callout Box</label>
                     <textarea
@@ -2680,8 +2730,8 @@ export default function AdminPanel() {
                 </div>
 
                 {/* Sub-block B: Privacy Policy */}
-                <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '1rem' }}>
-                  <div style={{ fontWeight: 750, color: '#1e293b', marginBottom: '0.75rem' }}>Privacy Policy (/privacy)</div>
+                <div className="admin-legal-subcard" style={{ padding: '1rem', borderRadius: '10px', marginBottom: '1rem' }}>
+                  <div className="admin-legal-subcard-title" style={{ fontWeight: 750, marginBottom: '0.75rem' }}>Privacy Policy (/privacy)</div>
                   <div className="form-group">
                     <label>Confidentiality Callout Box</label>
                     <textarea
@@ -2701,8 +2751,8 @@ export default function AdminPanel() {
                 </div>
 
                 {/* Sub-block C: Disclaimers */}
-                <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '1rem' }}>
-                  <div style={{ fontWeight: 750, color: '#1e293b', marginBottom: '0.75rem' }}>Disclaimers & Cookie Policy (/disclaimer)</div>
+                <div className="admin-legal-subcard" style={{ padding: '1rem', borderRadius: '10px', marginBottom: '1rem' }}>
+                  <div className="admin-legal-subcard-title" style={{ fontWeight: 750, marginBottom: '0.75rem' }}>Disclaimers & Cookie Policy (/disclaimer)</div>
                   <div className="form-group">
                     <label>Non-Affiliation Notice</label>
                     <textarea

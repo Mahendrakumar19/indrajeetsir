@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Delete, Body, Param, Headers } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { PrismaService } from './prisma.service.js';
 import { AuthService } from './auth.service.js';
 
@@ -114,6 +115,7 @@ export class AppController {
 
   // ── Auth Endpoints ──────────────────────────────────────────────────────────
 
+  @Throttle({ auth: { limit: 10, ttl: 60000 } })
   @Post('auth/student-login')
   async studentLogin(@Body() body: { email: string; password?: string }) {
     const emailClean = (body.email || '').trim().toLowerCase();
@@ -232,6 +234,7 @@ export class AppController {
     }
   }
 
+  @Throttle({ auth: { limit: 10, ttl: 60000 } })
   @Post('auth/register')
   async registerStudent(@Body() body: {
     name: string;
@@ -325,6 +328,7 @@ export class AppController {
     }
   }
 
+  @Throttle({ auth: { limit: 10, ttl: 60000 } })
   @Post('auth/admin-login')
   async adminLogin(@Body() body: { email?: string; password?: string; passcode?: string }) {
     const inputPasscode = (body.passcode || '').trim();

@@ -335,7 +335,7 @@ h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
   width: 260px;
   background: #ffffff;
   border-right: 1px solid #e2e8f0;
-  padding: 1.5rem 1.1rem;
+  padding: 1.25rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -344,7 +344,30 @@ h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
   left: 0;
   height: 100vh;
   z-index: 40;
-  transition: transform 0.25s ease;
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s ease, padding 0.25s ease;
+  overflow-x: hidden;
+}
+
+.admin-sidebar.collapsed {
+  width: 78px;
+  padding: 1.25rem 0.65rem;
+}
+
+.admin-brand-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  min-height: 48px;
+}
+
+.admin-sidebar.collapsed .admin-brand-wrap {
+  justify-content: center;
+  padding-bottom: 0.75rem;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 .admin-brand {
@@ -352,8 +375,43 @@ h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
   align-items: center;
   gap: 0.75rem;
   text-decoration: none;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  min-width: 0;
+  flex: 1;
+}
+
+.admin-sidebar.collapsed .admin-brand {
+  flex: none;
+  justify-content: center;
+}
+
+.admin-sidebar.collapsed .brand-text {
+  display: none;
+}
+
+.admin-collapse-toggle {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.admin-collapse-toggle:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+.admin-sidebar.collapsed .admin-collapse-toggle {
+  width: 32px;
+  height: 32px;
 }
 
 .brand-name {
@@ -361,6 +419,7 @@ h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
   font-weight: 850;
   color: #0f172a;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .brand-sub {
@@ -369,6 +428,7 @@ h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .admin-nav {
@@ -377,6 +437,7 @@ h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
   gap: 0.4rem;
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .anav {
@@ -394,6 +455,17 @@ h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
   text-align: left;
   transition: all 0.2s ease;
   width: 100%;
+  white-space: nowrap;
+}
+
+.admin-sidebar.collapsed .anav {
+  padding: 0.75rem 0;
+  justify-content: center;
+}
+
+.admin-sidebar.collapsed .anav-label,
+.admin-sidebar.collapsed .anav-count {
+  display: none;
 }
 
 .anav:hover {
@@ -407,10 +479,21 @@ h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
   box-shadow: inset 3px 0 0 #2563eb;
 }
 
+.admin-sidebar.collapsed .anav.active {
+  box-shadow: none;
+  background: #eff6ff;
+  border-radius: 12px;
+}
+
 .anav-inner {
   display: flex;
   align-items: center;
   gap: 0.65rem;
+}
+
+.admin-sidebar.collapsed .anav-inner {
+  gap: 0;
+  justify-content: center;
 }
 
 .anav-count {
@@ -427,6 +510,31 @@ h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
   color: #1e40af;
 }
 
+.admin-sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: auto;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 0.75rem;
+}
+
+.admin-sidebar-appearance {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.25rem;
+}
+
+.admin-sidebar.collapsed .admin-sidebar-appearance {
+  justify-content: center;
+  padding: 0.4rem 0;
+}
+
+.admin-sidebar.collapsed .appearance-label {
+  display: none;
+}
+
 .admin-lock-btn {
   background: #fff;
   border: 1px solid #e2e8f0;
@@ -441,6 +549,15 @@ h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  width: 100%;
+}
+
+.admin-sidebar.collapsed .admin-lock-btn {
+  padding: 0.65rem 0;
+}
+
+.admin-sidebar.collapsed .lock-btn-label {
+  display: none;
 }
 
 .admin-lock-btn:hover {
@@ -456,6 +573,12 @@ h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
   margin-left: 260px;
   width: calc(100% - 260px);
   min-height: 100vh;
+  transition: margin-left 0.25s cubic-bezier(0.16, 1, 0.3, 1), width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-main.sidebar-collapsed {
+  margin-left: 78px;
+  width: calc(100% - 78px);
 }
 
 .admin-page-header {
@@ -828,6 +951,14 @@ h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
   grid-template-columns: 1.2fr 0.8fr;
   gap: 2rem;
   margin-bottom: 2.5rem;
+}
+
+.stacked-vertical-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  width: 100%;
 }
 
 .admin-card {
@@ -1690,8 +1821,28 @@ html.dark .admin-sidebar {
   border-right-color: #171717 !important;
 }
 
-html.dark .admin-brand {
+html.dark .admin-brand-wrap {
   border-bottom-color: #171717 !important;
+}
+
+html.dark .admin-sidebar-footer {
+  border-top-color: #171717 !important;
+}
+
+html.dark .admin-collapse-toggle {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+  color: #94a3b8 !important;
+}
+
+html.dark .admin-collapse-toggle:hover {
+  background: #1d4ed8 !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html.dark .admin-brand {
+  border-bottom-color: transparent !important;
 }
 
 html.dark .brand-name {
@@ -1974,8 +2125,128 @@ html.dark p[style*="color: #64748b"] {
 }
 
 /* Category & Module Cards */
+.category-toggle-card {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.category-toggle-title {
+  color: #0f172a;
+}
+
+.admin-ticker-input {
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  color: #0f172a;
+  outline: none;
+}
+
+.admin-ticker-input:focus {
+  border-color: #2563eb;
+}
+
+.admin-pdf-upload-form {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-pdf-form-title {
+  color: #1e293b;
+}
+
+.admin-pdf-library-title {
+  color: #1e293b;
+}
+
+.admin-pdf-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-pdf-title {
+  color: #0f172a;
+}
+
+.admin-file-input {
+  background: #ffffff;
+  color: inherit;
+}
+
+.admin-legal-subcard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-legal-subcard-title {
+  color: #1e293b;
+}
+
+/* Dark Mode Overrides for Newly Styled Elements */
+html.dark .admin-chat-student-bar {
+  background: #000000 !important;
+  border-bottom: 1px solid #1f2937 !important;
+}
+
+html.dark .filter-label {
+  color: #94a3b8 !important;
+}
+
+html.dark .category-toggle-card {
+  background: #0a0a0a !important;
+  border: 1.5px solid #1f2937 !important;
+  color: #ffffff !important;
+}
+
+html.dark .category-toggle-title {
+  color: #ffffff !important;
+}
+
+html.dark .admin-ticker-input {
+  background: #050505 !important;
+  border: 1.5px solid #374151 !important;
+  color: #ffffff !important;
+}
+
+html.dark .admin-ticker-input:focus {
+  border-color: #3b82f6 !important;
+}
+
+html.dark .admin-pdf-upload-form {
+  background: #0a0a0a !important;
+  border: 1px solid #1f2937 !important;
+}
+
+html.dark .admin-pdf-form-title,
+html.dark .admin-pdf-library-title {
+  color: #ffffff !important;
+}
+
+html.dark .admin-pdf-item {
+  background: #0a0a0a !important;
+  border: 1px solid #1f2937 !important;
+}
+
+html.dark .admin-pdf-title {
+  color: #ffffff !important;
+}
+
+html.dark .admin-file-input {
+  background: #050505 !important;
+  color: #ffffff !important;
+  border: 1px solid #374151 !important;
+}
+
+html.dark .admin-legal-subcard {
+  background: #0a0a0a !important;
+  border: 1px solid #1f2937 !important;
+}
+
+html.dark .admin-legal-subcard-title {
+  color: #ffffff !important;
+}
+
 html.dark .category-card,
-html.dark .category-toggle-card,
 html.dark .catalog-course-card,
 html.dark .notification-log-card {
   background: #0a0a0a !important;
@@ -2030,4 +2301,5 @@ html.dark .action-btn-sm.delete {
   color: #fb7185 !important;
   border-color: rgba(251, 113, 133, 0.3) !important;
 }
+
 

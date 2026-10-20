@@ -563,10 +563,6 @@ export default function Home() {
       {/* ── Educative Graphic 1: 3-Stage UPSC Mentorship Architecture ── */}
       <section id="architecture" className="section-wrap">
         <div className="section-inner text-center">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.35rem 0.85rem', borderRadius: '999px', background: 'rgba(37, 99, 235, 0.08)', color: '#2563eb', fontSize: '0.82rem', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '0.85rem' }}>
-            <i className="fa-solid fa-graduation-cap" aria-hidden="true" />
-            <span>Pedagogical Framework</span>
-          </div>
           <h2 className="section-heading">3-Stage UPSC Mentorship Architecture</h2>
           <p className="section-subtext">
             A battle-tested progression model transforming raw aspirants into rank-ready civil servants through phased diagnosis, feedback, and accountability.
@@ -849,10 +845,6 @@ export default function Home() {
       {/* ── Courses & Pricing Section (3D Depth) ── */}
       <section id="courses" className="section-wrap" style={{ background: 'rgba(255, 255, 255, 0.6)' }}>
         <div className="section-inner text-center">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.35rem 0.85rem', borderRadius: '999px', background: 'rgba(37, 99, 235, 0.08)', color: '#2563eb', fontSize: '0.82rem', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '0.85rem' }}>
-            <i className="fa-solid fa-certificate" aria-hidden="true" />
-            <span>Structured Mentorship Batches</span>
-          </div>
           <h2 className="section-heading">Mentorship Batches &amp; Fees</h2>
           <p className="section-subtext">
             Transparent course fees. Login credentials and Android application access are delivered immediately after enrollment.
@@ -943,10 +935,6 @@ export default function Home() {
       {pdfList.length > 0 && (
         <section id="resources" className="section-wrap">
           <div className="section-inner text-center">
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.35rem 0.85rem', borderRadius: '999px', background: 'rgba(37, 99, 235, 0.08)', color: '#2563eb', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.85rem' }}>
-              <i className="fa-solid fa-file-circle-check" aria-hidden="true" />
-              <span>Verified Study Material</span>
-            </div>
             <h2 className="section-heading">{siteContent.pdfSectionHeading}</h2>
             <p className="section-subtext">
               {siteContent.pdfSectionSubheading}
@@ -1006,10 +994,6 @@ export default function Home() {
       {/* ── Real Aspirant FAQs (Fluid Accordion) ── */}
       <section id="faqs" className="section-wrap">
         <div className="section-inner text-center">
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.35rem 0.85rem', borderRadius: '999px', background: 'rgba(37, 99, 235, 0.08)', color: '#2563eb', fontSize: '0.82rem', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '0.85rem' }}>
-            <i className="fa-solid fa-circle-question" aria-hidden="true" />
-            <span>Aspirant Clarifications</span>
-          </div>
           <h2 className="section-heading">Frequently Asked Questions</h2>
           <p className="section-subtext">
             Clear answers to common questions about copy checking, schedules, and study material.
