@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { API_URL, getAdminSession, setAdminSession, clearAdminSession } from '@/lib/api';
+import ThemeToggle from '@/components/ThemeToggle';
 import './admin.css';
 
 // ── Minimalist Professional SVG Icons (No Emojis) ───────────────────────────
@@ -1342,7 +1343,12 @@ export default function AdminPanel() {
           </button>
         </nav>
 
-        <button className="admin-lock-btn" onClick={handleLogout}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0.25rem', marginTop: 'auto' }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'inherit' }}>Appearance</span>
+          <ThemeToggle />
+        </div>
+
+        <button className="admin-lock-btn" onClick={handleLogout} style={{ marginTop: '0.5rem' }}>
           <IconLogOut size={15} />
           <span>Lock Session</span>
         </button>

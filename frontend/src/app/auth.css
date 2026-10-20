@@ -308,3 +308,95 @@
     padding-bottom: 1rem;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Pure Black Dark Mode Support for Auth & Registration Pages
+   ══════════════════════════════════════════════════════════════ */
+html.dark .auth-page {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+html.dark .auth-card {
+  background: #0a0a0a !important;
+  border-color: #1f2937 !important;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.8), 0 4px 12px -2px rgba(0, 0, 0, 0.6) !important;
+}
+
+html.dark .auth-brand-header {
+  border-bottom-color: #171717 !important;
+}
+
+html.dark .auth-brand-title {
+  color: #ffffff !important;
+}
+
+html.dark .auth-brand-badge {
+  color: #60a5fa !important;
+}
+
+html.dark .auth-title {
+  color: #ffffff !important;
+}
+
+html.dark .auth-subtitle {
+  color: #94a3b8 !important;
+}
+
+html.dark .auth-back {
+  color: #94a3b8 !important;
+}
+
+html.dark .auth-back:hover {
+  color: #60a5fa !important;
+  background: #111827 !important;
+}
+
+html.dark .auth-field label {
+  color: #e2e8f0 !important;
+}
+
+html.dark .auth-input,
+html.dark .auth-select {
+  background: #050505 !important;
+  border-color: #374151 !important;
+  color: #ffffff !important;
+}
+
+html.dark .auth-input::placeholder {
+  color: #64748b !important;
+}
+
+html.dark .auth-input:focus,
+html.dark .auth-select:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+}
+
+html.dark .auth-input-icon {
+  color: #94a3b8 !important;
+}
+
+html.dark .select-chevron,
+html.dark .eye-toggle-btn {
+  color: #94a3b8 !important;
+}
+
+html.dark .eye-toggle-btn:hover {
+  color: #ffffff !important;
+  background: #111827 !important;
+}
+
+html.dark .auth-footer-nav {
+  color: #94a3b8 !important;
+}
+
+html.dark .auth-footer-nav a {
+  color: #60a5fa !important;
+}
+
+html.dark .auth-error {
+  background: rgba(185, 28, 28, 0.2) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #fca5a5 !important;
+}

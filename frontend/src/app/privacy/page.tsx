@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import ThemeToggle from '@/components/ThemeToggle';
 import '../legal.css';
 
 const DEFAULT_PRIVACY = {
@@ -45,9 +46,12 @@ export default function PrivacyPolicyPage() {
           />
           <div style={{ fontSize: '1.05rem', fontWeight: 800, color: '#111827' }}>Indrajeet Sir</div>
         </Link>
-        <Link href="/" className="back-link">
-          ← Back to Home
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <ThemeToggle />
+          <Link href="/" className="back-link">
+            ← Back to Home
+          </Link>
+        </div>
       </nav>
 
       <header className="legal-header">

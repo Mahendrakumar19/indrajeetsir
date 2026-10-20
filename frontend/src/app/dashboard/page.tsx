@@ -12,6 +12,7 @@ import {
   touchStudentActivity,
   StudentUser,
 } from '@/lib/api';
+import ThemeToggle from '@/components/ThemeToggle';
 import './dashboard.css';
 
 // ── Minimalist SVG Vector Icons (Zero Emojis) ───────────────────────────────
@@ -611,7 +612,8 @@ export default function StudentDashboard() {
               {tab === 'profile' && 'Student Profile & Preferences'}
             </h1>
           </div>
-          <div className="dash-top-actions">
+          <div className="dash-top-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <ThemeToggle />
             <button
               onClick={() => setTab('profile')}
               className="dash-avatar-btn"

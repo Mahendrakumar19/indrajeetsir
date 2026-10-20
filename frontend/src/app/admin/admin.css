@@ -1368,6 +1368,38 @@ h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
   flex-direction: column;
   gap: 0.85rem;
   background: #fcfdfe;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+
+.admin-chat-feed::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-chat-feed::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-chat-feed::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+.admin-chat-feed::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
+
+html.dark .admin-chat-feed {
+  scrollbar-color: rgba(75, 85, 99, 0.6) transparent;
+}
+
+html.dark .admin-chat-feed::-webkit-scrollbar-thumb {
+  background: rgba(55, 65, 81, 0.8);
+}
+
+html.dark .admin-chat-feed::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.9);
 }
 
 .admin-chat-empty {
@@ -1559,3 +1591,443 @@ h1, h2, h3, h4, h5, h6, .admin-brand-title, .kpi-val {
   transition: background 0.15s;
 }
 .btn-send-admin:hover { background: #1d4ed8; }
+
+/* ══════════════════════════════════════════════════════════════
+   Admin Console — Pure Black Dark Mode Support
+   ══════════════════════════════════════════════════════════════ */
+html.dark .admin,
+html.dark .admin-root,
+html.dark .admin-main,
+html.dark .admin-lock {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* Lock / Sign In screen */
+html.dark .lock-box {
+  background: #0a0a0a !important;
+  border: 1px solid #1f2937 !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9) !important;
+  color: #ffffff !important;
+}
+
+html.dark .lock-badge {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+  color: #60a5fa !important;
+}
+
+html.dark .lock-icon-wrap {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+}
+
+html.dark .lock-box h2,
+html.dark .lock-title {
+  color: #ffffff !important;
+}
+
+html.dark .lock-box p,
+html.dark .lock-desc {
+  color: #94a3b8 !important;
+}
+
+html.dark .login-field label {
+  color: #e2e8f0 !important;
+}
+
+html.dark .login-input-wrap input {
+  background: #050505 !important;
+  border-color: #374151 !important;
+  color: #ffffff !important;
+}
+
+html.dark .login-input-wrap input:focus {
+  border-color: #3b82f6 !important;
+  background: #050505 !important;
+}
+
+html.dark .login-input-icon,
+html.dark .eye-btn {
+  color: #94a3b8 !important;
+}
+
+html.dark .eye-btn:hover {
+  background: #111827 !important;
+  color: #ffffff !important;
+}
+
+html.dark .login-options-row,
+html.dark .remember-label {
+  color: #cbd5e1 !important;
+}
+
+html.dark .demo-credentials-pill {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+  color: #cbd5e1 !important;
+}
+
+html.dark .demo-credentials-pill strong {
+  color: #ffffff !important;
+}
+
+html.dark .lock-back-wrap {
+  border-top-color: #171717 !important;
+}
+
+html.dark .lock-back {
+  color: #94a3b8 !important;
+}
+
+html.dark .lock-back:hover {
+  color: #60a5fa !important;
+}
+
+/* Admin Sidebar */
+html.dark .admin-sidebar {
+  background: #000000 !important;
+  border-right-color: #171717 !important;
+}
+
+html.dark .admin-brand {
+  border-bottom-color: #171717 !important;
+}
+
+html.dark .brand-name {
+  color: #ffffff !important;
+}
+
+html.dark .brand-sub {
+  color: #60a5fa !important;
+}
+
+html.dark .admin-logo:hover {
+  background: #0a0a0a !important;
+}
+
+html.dark .anav {
+  color: #94a3b8 !important;
+  background: transparent !important;
+}
+
+html.dark .anav:hover {
+  background: #111827 !important;
+  color: #ffffff !important;
+}
+
+html.dark .anav.active {
+  background: #111827 !important;
+  color: #60a5fa !important;
+  box-shadow: inset 3px 0 0 #3b82f6 !important;
+}
+
+html.dark .anav-count {
+  background: #1f2937 !important;
+  color: #cbd5e1 !important;
+}
+
+html.dark .anav.active .anav-count {
+  background: #1e3a8a !important;
+  color: #93c5fd !important;
+}
+
+html.dark .admin-lock-btn {
+  background: #0a0a0a !important;
+  border-color: #1f2937 !important;
+  color: #f87171 !important;
+}
+
+html.dark .admin-lock-btn:hover {
+  background: #111827 !important;
+  border-color: #7f1d1d !important;
+  color: #ef4444 !important;
+}
+
+/* Mobile Header */
+html.dark .admin-mobile-header {
+  background: #000000 !important;
+  border-bottom-color: #171717 !important;
+}
+
+html.dark .admin-mobile-brand-title {
+  color: #ffffff !important;
+}
+
+html.dark .admin-mobile-toggle-btn {
+  background: #111827 !important;
+  color: #ffffff !important;
+  border-color: #1f2937 !important;
+}
+
+/* Headers & KPI Cards */
+html.dark .admin-page-header h1 {
+  color: #ffffff !important;
+}
+
+html.dark .admin-page-header p {
+  color: #94a3b8 !important;
+}
+
+html.dark .kpi-card,
+html.dark .admin-card,
+html.dark .table-card,
+html.dark .action-toolbar,
+html.dark .banner-card,
+html.dark .banner-card-body,
+html.dark .admin-panel,
+html.dark .admin-table-wrap,
+html.dark .admin-chat-wrap,
+html.dark .admin-chat-box,
+html.dark .modal-content {
+  background: #0a0a0a !important;
+  border-color: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+html.dark .kpi-card-label {
+  color: #94a3b8 !important;
+}
+
+html.dark .kpi-card-val {
+  color: #ffffff !important;
+}
+
+html.dark .search-input-wrap input {
+  background: #050505 !important;
+  border-color: #374151 !important;
+  color: #ffffff !important;
+}
+
+html.dark .search-input-wrap input:focus {
+  border-color: #3b82f6 !important;
+}
+
+html.dark .search-icon {
+  color: #94a3b8 !important;
+}
+
+html.dark .filter-btn {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+  color: #94a3b8 !important;
+}
+
+html.dark .filter-btn:hover {
+  background: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+html.dark .filter-btn.active {
+  background: #1e40af !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+/* Data Tables */
+html.dark .admin-table th {
+  background: #050505 !important;
+  color: #94a3b8 !important;
+  border-bottom-color: #1f2937 !important;
+}
+
+html.dark .admin-table td {
+  border-bottom-color: #1f2937 !important;
+  color: #e2e8f0 !important;
+}
+
+html.dark .admin-table tr:hover td {
+  background: #111827 !important;
+}
+
+html.dark .admin-card h2,
+html.dark .admin-card h3,
+html.dark .modal-content h3 {
+  color: #ffffff !important;
+}
+
+html.dark .form-group label {
+  color: #e2e8f0 !important;
+}
+
+html.dark .form-group input,
+html.dark .form-group textarea,
+html.dark .form-group select,
+html.dark .admin-input,
+html.dark .admin-select,
+html.dark .admin-textarea,
+html.dark .composer-input-row input,
+html.dark .composer-target-select select {
+  background: #050505 !important;
+  border-color: #374151 !important;
+  color: #ffffff !important;
+}
+
+html.dark .form-group input:focus,
+html.dark .form-group textarea:focus,
+html.dark .form-group select:focus,
+html.dark .admin-input:focus,
+html.dark .composer-input-row input:focus {
+  border-color: #3b82f6 !important;
+}
+
+html.dark .modal-close-btn {
+  background: #111827 !important;
+  color: #ffffff !important;
+}
+
+html.dark .modal-close-btn:hover {
+  background: #1f2937 !important;
+}
+
+/* Admin Mentorship Chat */
+html.dark .admin-chat-feed {
+  background: #050505 !important;
+}
+
+html.dark .admin-chat-composer {
+  background: #0a0a0a !important;
+  border-top-color: #1f2937 !important;
+}
+
+html.dark .composer-target-select {
+  color: #94a3b8 !important;
+}
+
+html.dark .admin-chat-date-divider::before {
+  background: #1f2937 !important;
+}
+
+html.dark .admin-chat-date-divider span {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+  color: #94a3b8 !important;
+}
+
+html.dark .admin-chat-bubble.student-sender {
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+  color: #ffffff !important;
+}
+
+html.dark .admin-chat-bubble.admin-sender {
+  background: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+html.dark .chat-filter-chip {
+  background: #0a0a0a !important;
+  border: 1px solid #1f2937 !important;
+  color: #94a3b8 !important;
+}
+
+html.dark .chat-filter-chip:hover {
+  background: #111827 !important;
+  color: #ffffff !important;
+}
+
+html.dark .chat-filter-chip.active {
+  background: #1e40af !important;
+  color: #ffffff !important;
+  border-color: #3b82f6 !important;
+}
+
+html.dark .action-btn-sm.edit {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+  color: #60a5fa !important;
+}
+
+html.dark .action-btn-sm.unblock {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+  color: #60a5fa !important;
+}
+
+/* Secondary Button in Dark Mode */
+html.dark .btn-secondary-admin {
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+  color: #ffffff !important;
+}
+
+html.dark .btn-secondary-admin:hover {
+  background: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+/* Table Text & Inline Elements in Dark Mode */
+html.dark .admin-table td div[style*="color: #0f172a"],
+html.dark .admin-table td div[style*="color:#0f172a"],
+html.dark .admin-table td span[style*="color: #334155"],
+html.dark .admin-table td span[style*="color:#334155"],
+html.dark h2[style*="color: #0f172a"],
+html.dark h3[style*="color: #0f172a"] {
+  color: #ffffff !important;
+}
+
+html.dark .admin-table td div[style*="color: #64748b"],
+html.dark .admin-table td div[style*="color:#64748b"],
+html.dark .admin-table td[style*="color: #64748b"],
+html.dark p[style*="color: #64748b"] {
+  color: #94a3b8 !important;
+}
+
+/* Category & Module Cards */
+html.dark .category-card,
+html.dark .category-toggle-card,
+html.dark .catalog-course-card,
+html.dark .notification-log-card {
+  background: #0a0a0a !important;
+  border-color: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+/* Status Pill Authentic Colors in Dark Mode */
+html.dark .status-pill.verified,
+html.dark .status-pill.success,
+html.dark .status-pill.active {
+  background: rgba(5, 150, 105, 0.2) !important;
+  color: #34d399 !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+}
+
+html.dark .status-pill.blocked,
+html.dark .status-pill.failed {
+  background: rgba(220, 38, 38, 0.2) !important;
+  color: #f87171 !important;
+  border-color: rgba(248, 113, 113, 0.3) !important;
+}
+
+html.dark .status-pill.pending,
+html.dark .status-pill.refunded {
+  background: rgba(217, 119, 6, 0.2) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+/* Action Buttons inside Table in Dark Mode */
+html.dark .action-btn-sm.verify {
+  background: rgba(5, 150, 105, 0.2) !important;
+  color: #34d399 !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+}
+
+html.dark .action-btn-sm.block {
+  background: rgba(220, 38, 38, 0.2) !important;
+  color: #f87171 !important;
+  border-color: rgba(248, 113, 113, 0.3) !important;
+}
+
+html.dark .action-btn-sm.refund {
+  background: rgba(217, 119, 6, 0.2) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+html.dark .action-btn-sm.delete {
+  background: rgba(225, 29, 72, 0.2) !important;
+  color: #fb7185 !important;
+  border-color: rgba(251, 113, 133, 0.3) !important;
+}
+

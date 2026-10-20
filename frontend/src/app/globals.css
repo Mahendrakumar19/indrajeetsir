@@ -27,6 +27,40 @@ body {
   width: 100%;
   position: relative;
   line-height: 1.6;
+  transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Seamless Theme Switching Animation ── */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-delay: 0s !important;
+}
+
+html.dark,
+html.dark body {
+  background: #000000 !important;
+  color: #f8fafc !important;
+}
+
+/* Jo text light mode me dark/black tha, dark mode me clean white/light ho jayega */
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6 {
+  color: #ffffff !important;
+}
+
+html.dark strong,
+html.dark b {
+  color: #ffffff !important;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -47,3 +81,4 @@ img {
   max-width: 100%;
   display: block;
 }
+

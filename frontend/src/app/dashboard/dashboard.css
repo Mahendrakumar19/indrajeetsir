@@ -816,6 +816,38 @@ h1, h2, h3, h4, h5, h6, .dash-header-title, .dash-brand-name, .dash-stat-val {
   flex-direction: column;
   gap: 0.85rem;
   background: #f8fafc;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.7);
+}
+
+html.dark .chat-messages {
+  scrollbar-color: rgba(75, 85, 99, 0.6) transparent;
+}
+
+html.dark .chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(55, 65, 81, 0.8);
+}
+
+html.dark .chat-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 114, 128, 0.9);
 }
 
 .chat-msg-row {
@@ -1482,3 +1514,389 @@ input:checked + .slider:before {
     min-height: 440px;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Student Dashboard — Pure Black Dark Mode (#000000 / #0a0a0a)
+   ══════════════════════════════════════════════════════════════ */
+html.dark .dash {
+  background: #000000 !important;
+}
+
+html.dark .dash-sidebar {
+  background: #000000 !important;
+  border-right-color: #171717 !important;
+}
+
+html.dark .dash-logo:hover {
+  background: #0a0a0a !important;
+}
+
+html.dark .dash-app-name,
+html.dark .dash-brand-title {
+  color: #ffffff !important;
+}
+
+html.dark .dash-app-sub {
+  color: #60a5fa !important;
+}
+
+html.dark .dash-nav-btn {
+  color: #94a3b8 !important;
+  background: transparent !important;
+}
+
+html.dark .dash-nav-btn:hover {
+  background: #111827 !important;
+  color: #f8fafc !important;
+}
+
+html.dark .dash-nav-btn.active {
+  background: #111827 !important;
+  color: #60a5fa !important;
+  border: 1px solid #1f2937 !important;
+}
+
+html.dark .dash-user {
+  background: #050505 !important;
+  border-top-color: #171717 !important;
+}
+
+html.dark .dash-user-avatar-initials {
+  background: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+html.dark .dash-user-name {
+  color: #ffffff !important;
+}
+
+html.dark .dash-user-info {
+  color: #94a3b8 !important;
+}
+
+html.dark .dash-logout-btn {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  color: #f87171 !important;
+}
+
+html.dark .dash-logout-btn:hover {
+  background: #1e293b !important;
+  color: #ef4444 !important;
+}
+
+html.dark .dash-top-bar {
+  background: rgba(0, 0, 0, 0.95) !important;
+  border-bottom-color: #171717 !important;
+}
+
+html.dark .dash-main-title {
+  color: #ffffff !important;
+}
+
+html.dark .dash-sub-title {
+  color: #60a5fa !important;
+}
+
+html.dark .dash-avatar-btn {
+  background: #0a0a0a !important;
+  border: 1px solid #1f2937 !important;
+  color: #ffffff !important;
+}
+
+html.dark .dash-avatar-btn:hover {
+  background: #111827 !important;
+  border-color: #374151 !important;
+}
+
+html.dark .avatar-label-desktop {
+  color: #ffffff !important;
+}
+
+html.dark .dash-card,
+html.dark .course-banner-card,
+html.dark .stat-card,
+html.dark .class-card,
+html.dark .profile-card,
+html.dark .hero-session-card,
+html.dark .metric-tile,
+html.dark .schedule-row-card,
+html.dark .guidelines-card,
+html.dark .profile-hero-card,
+html.dark .settings-card,
+html.dark .helpdesk-card,
+html.dark .signout-card,
+html.dark .profile-form-card,
+html.dark .chat-wrap,
+html.dark .chat-box {
+  background: #0a0a0a !important;
+  border-color: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+/* Enrolled Course Banner in Dark Mode */
+html.dark .course-banner-icon {
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+  color: #60a5fa !important;
+}
+
+html.dark .course-banner-title {
+  color: #ffffff !important;
+}
+
+html.dark .status-tag-info {
+  color: #94a3b8 !important;
+}
+
+
+/* Profile Tab Specifics */
+html.dark .profile-hero-info h2,
+html.dark .settings-card h3,
+html.dark .helpdesk-card h3,
+html.dark .signout-title,
+html.dark .setting-title,
+html.dark .profile-form-card h3 {
+  color: #ffffff !important;
+}
+
+html.dark .profile-hero-email,
+html.dark .setting-desc,
+html.dark .helpdesk-card p,
+html.dark .signout-desc,
+html.dark .profile-form-card label {
+  color: #cbd5e1 !important;
+}
+
+html.dark .profile-bio-box {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+  color: #e2e8f0 !important;
+}
+
+html.dark .btn-edit-profile,
+html.dark .btn-cancel-profile,
+html.dark .btn-help-email {
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+  color: #ffffff !important;
+}
+
+html.dark .btn-edit-profile:hover,
+html.dark .btn-cancel-profile:hover,
+html.dark .btn-help-email:hover {
+  background: #1f2937 !important;
+}
+
+html.dark .profile-form-card input,
+html.dark .profile-form-card select,
+html.dark .profile-form-card textarea {
+  background: #000000 !important;
+  border-color: #374151 !important;
+  color: #ffffff !important;
+}
+
+/* Chat Tab Specifics */
+html.dark .chat-header-bar {
+  background: #050505 !important;
+  border-bottom: 1px solid #171717 !important;
+}
+
+html.dark .chat-teacher-name {
+  color: #ffffff !important;
+}
+
+html.dark .chat-teacher-status {
+  color: #94a3b8 !important;
+}
+
+html.dark .chat-messages {
+  background: #000000 !important;
+}
+
+html.dark .chat-date-divider span {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+  color: #94a3b8 !important;
+}
+
+html.dark .msg-admin .msg-text {
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+  color: #ffffff !important;
+}
+
+html.dark .msg-student .msg-text {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html.dark .chat-msg.msg-admin,
+html.dark .chat-msg.msg-student {
+  background: transparent !important;
+}
+
+html.dark .msg-name {
+  color: #94a3b8 !important;
+}
+
+html.dark .msg-time {
+  color: #94a3b8 !important;
+}
+
+html.dark .chat-input {
+  background: #050505 !important;
+  border-top: 1px solid #1f2937 !important;
+}
+
+html.dark .chat-input input {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+html.dark .chat-input input::placeholder {
+  color: #64748b !important;
+}
+
+html.dark .chat-attach-btn,
+html.dark .btn-refresh-small {
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+  color: #cbd5e1 !important;
+}
+
+html.dark .chat-attached-banner {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+/* Classes Tab Specifics */
+html.dark .btn-refresh {
+  background: #0a0a0a !important;
+  border: 1px solid #1f2937 !important;
+  color: #ffffff !important;
+}
+
+html.dark .btn-refresh:hover {
+  background: #111827 !important;
+}
+
+html.dark .filter-pill {
+  background: #0a0a0a !important;
+  border: 1px solid #1f2937 !important;
+  color: #94a3b8 !important;
+}
+
+html.dark .filter-pill:hover {
+  background: #111827 !important;
+  color: #ffffff !important;
+}
+
+html.dark .filter-pill.active {
+  background: #1e3a8a !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+html.dark .schedule-empty-card,
+html.dark .dash-empty {
+  background: #0a0a0a !important;
+  border: 1px solid #1f2937 !important;
+  color: #94a3b8 !important;
+}
+
+html.dark .schedule-empty-card h4,
+html.dark .dash-empty h3 {
+  color: #ffffff !important;
+}
+
+html.dark .schedule-empty-card p,
+html.dark .dash-empty p {
+  color: #94a3b8 !important;
+}
+
+html.dark .empty-vector-wrap {
+  background: #111827 !important;
+  color: #60a5fa !important;
+}
+
+/* Metric and Guideline specifics */
+html.dark .metric-icon.blue {
+  background: #111827 !important;
+  color: #60a5fa !important;
+}
+
+html.dark .metric-icon.orange {
+  background: #1a0f0a !important;
+  color: #f97316 !important;
+}
+
+html.dark .metric-label {
+  color: #94a3b8 !important;
+}
+
+html.dark .metric-value {
+  color: #ffffff !important;
+}
+
+html.dark .metric-sub {
+  color: #94a3b8 !important;
+}
+
+html.dark .schedule-title,
+html.dark .guideline-title {
+  color: #ffffff !important;
+}
+
+html.dark .guideline-desc {
+  color: #94a3b8 !important;
+}
+
+html.dark .guideline-icon.blue { background: #111827 !important; color: #60a5fa !important; }
+html.dark .guideline-icon.green { background: #064e3b !important; color: #34d399 !important; }
+html.dark .guideline-icon.orange { background: #1a0f0a !important; color: #f97316 !important; }
+
+html.dark .dash-card h2,
+html.dark .dash-card h3,
+html.dark .stat-val,
+html.dark .profile-section-title,
+html.dark .class-title,
+html.dark .hero-session-title {
+  color: #ffffff !important;
+}
+
+html.dark .stat-label,
+html.dark .class-meta-item,
+html.dark .hero-session-desc {
+  color: #94a3b8 !important;
+}
+
+html.dark .dash-section-header h3 {
+  color: #94a3b8 !important;
+}
+
+html.dark .dash-link-action {
+  color: #60a5fa !important;
+}
+
+html.dark .mobile-dock {
+  background: #000000 !important;
+  border-top-color: #171717 !important;
+}
+
+html.dark .mobile-dock-nav {
+  background: #000000 !important;
+  border-top-color: #171717 !important;
+}
+
+html.dark .mobile-dock-item {
+  color: #94a3b8 !important;
+}
+
+html.dark .mobile-dock-item.active {
+  color: #60a5fa !important;
+  background: #111827 !important;
+}
+
+

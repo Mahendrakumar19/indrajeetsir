@@ -365,79 +365,92 @@ export default function Home() {
       {/* ── Modular Header ── */}
       <Header />
 
-      {/* ── 3D Hero Section ── */}
-      <section id="top" className="hero">
-        <div className="hero-content">
-          <h1>{siteContent.heroHeading}</h1>
-          <p className="hero-desc">{siteContent.heroSubheading}</p>
-          <div className="hero-btns">
-            <a href="#courses" className="btn-primary lg">
-              <i className="fa-solid fa-graduation-cap" style={{ marginRight: '0.5rem' }} aria-hidden="true" />
-              <span>View Programs & Fees</span>
-            </a>
-            <button className="btn-outline lg" onClick={() => setShowBookModal(true)}>
-              <i className="fa-solid fa-phone" style={{ marginRight: '0.5rem' }} aria-hidden="true" />
-              <span>Request Callback</span>
-            </button>
-          </div>
-          <div className="hero-stats-3d">
-            <div className="stat-card-3d">
-              <i className="fa-solid fa-book-bookmark" style={{ color: '#2563eb', fontSize: '1.2rem', marginBottom: '0.45rem', display: 'block' }} aria-hidden="true" />
-              <strong>{siteContent.stat1Number}</strong>
-              <span>{siteContent.stat1Label}</span>
-            </div>
-            <div className="stat-card-3d">
-              <i className="fa-solid fa-file-signature" style={{ color: '#2563eb', fontSize: '1.2rem', marginBottom: '0.45rem', display: 'block' }} aria-hidden="true" />
-              <strong>{siteContent.stat2Number}</strong>
-              <span>{siteContent.stat2Label}</span>
-            </div>
-            <div className="stat-card-3d">
-              <i className="fa-solid fa-chalkboard-user" style={{ color: '#2563eb', fontSize: '1.2rem', marginBottom: '0.45rem', display: 'block' }} aria-hidden="true" />
-              <strong>{siteContent.stat3Number}</strong>
-              <span>{siteContent.stat3Label}</span>
+      {/* ── Full-Width Cinematic Hero Showcase ── */}
+      <section id="top" className="cinematic-hero-section">
+        {/* Grand Showcase Banner */}
+        <div className="hero-banner-container">
+          <div className="hero-banner-card">
+            <div className="hero-banner-frame">
+              <Image
+                src="/hero-banner.png"
+                alt="Indrajeet Sir - One-to-One Mentorship for Complete UPSC & State PCS Preparation"
+                width={2000}
+                height={968}
+                quality={98}
+                priority
+                className="hero-banner-img"
+              />
+              <div className="hero-banner-glass-glow" />
             </div>
           </div>
         </div>
 
-        {/* 3D Mentor Card (Landscape) */}
-        <div className="hero-img-wrap">
-          <div className="mentor-card-3d">
-            <div className="mentor-img-frame">
-              <Image
-                src="/indrajeet-sir.jpg"
-                alt="Indrajeet Sir - 1:1 UPSC & State PCS Mentorship"
-                width={640}
-                height={360}
-                quality={95}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%' }}
-                className="mentor-img"
-                priority
-              />
-              <div className="mentor-live-floating-badge">
-                <span className="live-green-pulse" />
-                <span>Direct Mentorship</span>
+        {/* Hero Actions, Pitch & Interactive Stats Bar */}
+        <div className="hero-showcase-bottom">
+          <div className="hero-showcase-lead">
+            <h1>{siteContent.heroHeading}</h1>
+            <p className="hero-desc">{siteContent.heroSubheading}</p>
+          </div>
+
+          <div className="hero-btns hero-btns-center">
+            <a href="#courses" className="btn-primary lg">
+              <i className="fa-solid fa-graduation-cap" style={{ marginRight: '0.55rem' }} aria-hidden="true" />
+              <span>Explore Programs & Fees</span>
+            </a>
+            <button className="btn-outline lg" onClick={() => setShowBookModal(true)}>
+              <i className="fa-solid fa-phone" style={{ marginRight: '0.55rem' }} aria-hidden="true" />
+              <span>Request Direct Callback</span>
+            </button>
+          </div>
+
+          <div className="hero-stats-showcase">
+            <div className="stat-card-showcase">
+              <div className="stat-icon-wrap">
+                <i className="fa-solid fa-book-bookmark" aria-hidden="true" />
+              </div>
+              <div className="stat-info">
+                <strong>{siteContent.stat1Number}</strong>
+                <span>{siteContent.stat1Label}</span>
               </div>
             </div>
-            <div className="mentor-card-footer">
-              <div className="mentor-footer-headline">
-                <strong>Indrajeet Sir</strong>
-                <span>Former Faculty at Top Delhi Institutes • 10+ Yrs UPSC Mentorship</span>
+            <div className="stat-card-showcase">
+              <div className="stat-icon-wrap">
+                <i className="fa-solid fa-file-signature" aria-hidden="true" />
               </div>
-              <div className="mentor-chips-row">
-                <span className="mentor-tag-chip">
-                  <i className="fa-solid fa-pen-nib" style={{ marginRight: '0.35rem', color: '#2563eb' }} aria-hidden="true" />
-                  GS 1–4 Mains
-                </span>
-                <span className="mentor-tag-chip">
-                  <i className="fa-solid fa-check-double" style={{ marginRight: '0.35rem', color: '#2563eb' }} aria-hidden="true" />
-                  Personal Copy Checking
-                </span>
-                <span className="mentor-tag-chip">
-                  <i className="fa-solid fa-video" style={{ marginRight: '0.35rem', color: '#2563eb' }} aria-hidden="true" />
-                  Targeted Strategy
-                </span>
+              <div className="stat-info">
+                <strong>{siteContent.stat2Number}</strong>
+                <span>{siteContent.stat2Label}</span>
               </div>
             </div>
+            <div className="stat-card-showcase">
+              <div className="stat-icon-wrap">
+                <i className="fa-solid fa-chalkboard-user" aria-hidden="true" />
+              </div>
+              <div className="stat-info">
+                <strong>{siteContent.stat3Number}</strong>
+                <span>{siteContent.stat3Label}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Single Direct Browse Anchor Pills (Clean & Minimal) ── */}
+          <div className="quick-category-pills-bar">
+            <a href="#courses" className="category-pill-chip">
+              <i className="fa-solid fa-graduation-cap" aria-hidden="true" />
+              <span>Programs & Fees</span>
+            </a>
+            <a href="#about" className="category-pill-chip">
+              <i className="fa-solid fa-shield-halved" aria-hidden="true" />
+              <span>Direct Mentorship</span>
+            </a>
+            <a href="#framework" className="category-pill-chip">
+              <i className="fa-solid fa-microscope" aria-hidden="true" />
+              <span>Copy Evaluation</span>
+            </a>
+            <a href="#faq" className="category-pill-chip">
+              <i className="fa-solid fa-circle-question" aria-hidden="true" />
+              <span>FAQs</span>
+            </a>
           </div>
         </div>
       </section>
@@ -445,10 +458,27 @@ export default function Home() {
       {/* ── Authentic Mentorship Architecture ── */}
       <section id="about" className="section-wrap">
         <div className="section-inner text-center">
-          <h2 className="section-heading">{siteContent.aboutHeading}</h2>
-          <p className="section-subtext">
-            {siteContent.aboutSubheading}
-          </p>
+          {/* ── Clean Section Header ── */}
+          <div className="positioning-authority-strip">
+            <h2 className="section-heading">{siteContent.aboutHeading}</h2>
+            <p className="section-subtext">
+              {siteContent.aboutSubheading}
+            </p>
+            <div className="authority-features-row">
+              <div className="authority-feature-tag">
+                <i className="fa-solid fa-graduation-cap" aria-hidden="true" />
+                <span>10+ Years Dedicated UPSC Mentorship</span>
+              </div>
+              <div className="authority-feature-tag">
+                <i className="fa-solid fa-chalkboard-user" aria-hidden="true" />
+                <span>Ex-Faculty at Top Delhi Institutes</span>
+              </div>
+              <div className="authority-feature-tag">
+                <i className="fa-solid fa-pen-nib" aria-hidden="true" />
+                <span>Personal Copy Checking</span>
+              </div>
+            </div>
+          </div>
 
           <div className="comparison-grid">
             {/* The Bulk Coaching Dilemma */}
@@ -531,7 +561,7 @@ export default function Home() {
       </section>
 
       {/* ── Educative Graphic 1: 3-Stage UPSC Mentorship Architecture ── */}
-      <section id="architecture" className="section-wrap" style={{ background: 'rgba(255, 255, 255, 0.45)' }}>
+      <section id="architecture" className="section-wrap">
         <div className="section-inner text-center">
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', padding: '0.35rem 0.85rem', borderRadius: '999px', background: 'rgba(37, 99, 235, 0.08)', color: '#2563eb', fontSize: '0.82rem', fontWeight: 800, letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: '0.85rem' }}>
             <i className="fa-solid fa-graduation-cap" aria-hidden="true" />
@@ -626,7 +656,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="edu-card-deliverable" style={{ color: '#1e40af', background: '#eff6ff', borderColor: '#bfdbfe' }}>
+                <div className="edu-card-deliverable edu-deliverable-boost">
                   <i className="fa-solid fa-award" aria-hidden="true" />
                   <span>Deliverable: +40 to +60 Marks Mains Boost</span>
                 </div>
@@ -829,21 +859,50 @@ export default function Home() {
           </p>
 
           <div className="courses-grid-3d">
-            {courses.map((course, idx) => (
-              <div key={course.id} className={`pricing-card-3d ${idx === 0 ? 'featured' : ''}`}>
-                <div>
-                  <div className="pricing-title-wrap">
-                    <h3>{course.title}</h3>
-                    <p className="pricing-desc-text">
-                      {course.description || 'Comprehensive mentorship with Indrajeet Sir, direct Mains evaluation, and live interactive classes.'}
-                    </p>
-                  </div>
-                  <div className="pricing-fee-block">
-                    <span className="currency-sym">₹</span>
-                    <span className="amount-val">{Number(course.price).toLocaleString('en-IN')}</span>
-                    <span className="fee-tenure">/ full course</span>
-                  </div>
-                  <ul className="features-checklist">
+            {courses.map((course, idx) => {
+              const currentPrice = Number(course.price) || 0;
+              // Realistic baseline original fee (approx 2.5x to showcase 60%+ direct mentorship savings vs Karol Bagh offline coaching)
+              const originalPrice = Math.round(currentPrice * 2.5);
+              const discountPercent = Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
+
+              return (
+                <div key={course.id} className={`pricing-card-3d ${idx === 0 ? 'featured' : ''}`}>
+                  <div>
+                    {/* Top Status & Savings Badges */}
+                    <div className="pricing-card-badges-row">
+                      <span className="live-batch-status-chip">
+                        <span className="live-green-pulse" />
+                        <span>Admissions Open • 2026-27</span>
+                      </span>
+                      {discountPercent > 0 && (
+                        <span className="discount-save-tag">
+                          Save {discountPercent}% vs Offline
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="pricing-title-wrap">
+                      <h3>{course.title}</h3>
+                      <p className="pricing-desc-text">
+                        {course.description || 'Comprehensive mentorship with Indrajeet Sir, direct Mains evaluation, and live interactive classes.'}
+                      </p>
+                    </div>
+
+                    <div className="pricing-fee-block">
+                      <div className="price-main-col">
+                        <div className="price-strike-row">
+                          <span className="original-price-strike">₹{originalPrice.toLocaleString('en-IN')}</span>
+                          <span className="discount-percent-pill">{discountPercent}% OFF</span>
+                        </div>
+                        <div className="price-active-row">
+                          <span className="currency-sym">₹</span>
+                          <span className="amount-val">{currentPrice.toLocaleString('en-IN')}</span>
+                          <span className="fee-tenure">/ full batch access</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <ul className="features-checklist">
                     <li>
                       <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
                       <span>Live interactive strategy masterclasses with Indrajeet Sir</span>
@@ -874,7 +933,8 @@ export default function Home() {
                   <span>Enroll Now — ₹{Number(course.price).toLocaleString('en-IN')}</span>
                 </button>
               </div>
-            ))}
+            );
+          })}
           </div>
         </div>
       </section>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { API_URL, setStudentSession } from '@/lib/api';
+import ThemeToggle from '@/components/ThemeToggle';
 import '../auth.css';
 
 function IconUser({ size = 18 }: { size?: number }) {
@@ -162,9 +163,12 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <Link href="/" className="auth-back">
-          <IconArrowLeft /> Back to Homepage
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+          <Link href="/" className="auth-back" style={{ marginBottom: 0 }}>
+            <IconArrowLeft /> Back to Homepage
+          </Link>
+          <ThemeToggle />
+        </div>
 
         {/* Clean Academy Brand Header */}
         <div className="auth-brand-header">

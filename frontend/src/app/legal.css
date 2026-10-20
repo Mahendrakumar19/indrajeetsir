@@ -151,3 +151,93 @@
     font-size: 0.98rem;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Pure Black Dark Mode Support for Legal & Policy Pages
+   ══════════════════════════════════════════════════════════════ */
+html.dark .legal-page {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+html.dark .legal-nav-bar {
+  background: #000000 !important;
+  border-bottom: 1px solid #171717 !important;
+}
+
+html.dark .legal-nav-bar .nav-brand div {
+  color: #ffffff !important;
+}
+
+html.dark .back-link {
+  color: #60a5fa !important;
+}
+
+html.dark .legal-header {
+  background: #000000 !important;
+  border-bottom: 1px solid #171717 !important;
+}
+
+html.dark .legal-badge {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+  color: #60a5fa !important;
+}
+
+html.dark .legal-header h1 {
+  color: #ffffff !important;
+}
+
+html.dark .legal-date {
+  color: #94a3b8 !important;
+}
+
+html.dark .legal-container {
+  color: #ffffff !important;
+}
+
+html.dark .legal-container h2 {
+  color: #ffffff !important;
+  border-bottom-color: #1f2937 !important;
+}
+
+html.dark .legal-container h3 {
+  color: #ffffff !important;
+}
+
+html.dark .legal-container p,
+html.dark .legal-container li {
+  color: #e2e8f0 !important;
+}
+
+html.dark .legal-callout {
+  background: #0a0a0a !important;
+  border-left-color: #3b82f6 !important;
+  border: 1px solid #1f2937 !important;
+  border-left-width: 4px !important;
+  color: #ffffff !important;
+}
+
+html.dark .legal-callout strong {
+  color: #60a5fa !important;
+}
+
+html.dark .legal-contact-card {
+  background: #0a0a0a !important;
+  border-color: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+html.dark .legal-contact-card h3 {
+  color: #ffffff !important;
+}
+
+html.dark .legal-contact-card p {
+  color: #cbd5e1 !important;
+}
+
+html.dark .legal-page footer {
+  background: #000000 !important;
+  border-top-color: #171717 !important;
+  color: #94a3b8 !important;
+}

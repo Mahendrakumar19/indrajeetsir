@@ -10,11 +10,16 @@ export default function Header() {
   const [student, setStudent] = useState<StudentUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     setStudent(getStudentSession());
     setIsAdmin(getAdminSession());
+
+    // Check if dark mode is active
+    const isDark = document.documentElement.classList.contains('dark');
+    setIsDarkMode(isDark);
 
     // Listen to storage events so changes in other tabs or actions update the header immediately
     const handleStorageChange = () => {
@@ -25,6 +30,18 @@ export default function Header() {
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+
+  const toggleTheme = () => {
+    const nextDark = !isDarkMode;
+    setIsDarkMode(nextDark);
+    if (nextDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   const closeMenu = () => setMobileMenuOpen(false);
 
@@ -54,6 +71,20 @@ export default function Header() {
 
         {/* Navigation Actions */}
         <div className="nav-actions">
+          {/* Theme Toggle Button */}
+          <button
+            type="button"
+            className="btn-theme-toggle"
+            onClick={toggleTheme}
+            aria-label={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {isDarkMode ? (
+              <i className="fa-solid fa-sun" style={{ color: '#f59e0b', fontSize: '1rem' }} aria-hidden="true" />
+            ) : (
+              <i className="fa-solid fa-moon" style={{ color: '#475569', fontSize: '1rem' }} aria-hidden="true" />
+            )}
+          </button>
           {mounted && student ? (
             <Link href="/dashboard" className="btn-nav-dashboard" title={`Logged in as ${student.name} (${student.email})`}>
               <i className="fa-solid fa-user-graduate" aria-hidden="true" />
@@ -124,6 +155,24 @@ export default function Header() {
           </nav>
           <div className="mobile-nav-divider" />
           <div className="mobile-nav-actions">
+            <button
+              type="button"
+              className="btn-mobile-login"
+              style={{ justifyContent: 'center', background: 'transparent', cursor: 'pointer', marginBottom: '0.4rem' }}
+              onClick={toggleTheme}
+            >
+              {isDarkMode ? (
+                <>
+                  <i className="fa-solid fa-sun" style={{ color: '#f59e0b', marginRight: '0.5rem' }} aria-hidden="true" />
+                  <span>Switch to Light Mode</span>
+                </>
+              ) : (
+                <>
+                  <i className="fa-solid fa-moon" style={{ color: '#475569', marginRight: '0.5rem' }} aria-hidden="true" />
+                  <span>Switch to Dark Mode</span>
+                </>
+              )}
+            </button>
             {mounted && student ? (
               <Link href="/dashboard" className="btn-mobile-dashboard" onClick={closeMenu}>
                 <i className="fa-solid fa-user-graduate" aria-hidden="true" />
