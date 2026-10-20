@@ -397,6 +397,19 @@ export default function Home() {
               <i className="fa-solid fa-graduation-cap" style={{ marginRight: '0.55rem' }} aria-hidden="true" />
               <span>Explore Programs & Fees</span>
             </a>
+            <a
+              href="https://play.google.com/store/apps/details?id=com.nighwantech.indrajeetsir"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-playstore-hero"
+              title="Download Indrajeet Sir UPSC App on Google Play Store"
+            >
+              <i className="fa-brands fa-google-play" style={{ color: '#00C9FF', fontSize: '1.25rem' }} aria-hidden="true" />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.15 }}>
+                <span style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.04em', opacity: 0.85 }}>GET IT ON</span>
+                <span style={{ fontSize: '0.98rem', fontWeight: 800 }}>Google Play</span>
+              </div>
+            </a>
             <button className="btn-outline lg" onClick={() => setShowBookModal(true)}>
               <i className="fa-solid fa-phone" style={{ marginRight: '0.55rem' }} aria-hidden="true" />
               <span>Request Direct Callback</span>
@@ -1172,13 +1185,23 @@ export default function Home() {
                 <span>Go to My Dashboard →</span>
               </Link>
               <a
+                href="https://play.google.com/store/apps/details?id=com.nighwantech.indrajeetsir"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary full"
+                style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.65rem', background: '#0f172a' }}
+              >
+                <i className="fa-brands fa-google-play" style={{ fontSize: '1.2rem', color: '#00C9FF' }} aria-hidden="true" />
+                <span>Get App on Google Play Store</span>
+              </a>
+              <a
                 href="/indrajeet-sir-app.apk"
                 download
                 className="btn-outline full"
                 style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
               >
                 <i className="fa-brands fa-android" style={{ fontSize: '1.2rem', color: '#16a34a' }} aria-hidden="true" />
-                <span>Download Android App (.apk)</span>
+                <span>Download Direct APK (.apk)</span>
               </a>
               <button
                 type="button"
