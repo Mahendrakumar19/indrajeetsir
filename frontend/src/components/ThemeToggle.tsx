@@ -1,20 +1,35 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore } from 'react';
+
+function subscribe(callback: () => void) {
+  window.addEventListener('storage', callback);
+  return () => window.removeEventListener('storage', callback);
+}
+
+function getSnapshot() {
+  if (typeof document === 'undefined') return false;
+  return document.documentElement.classList.contains('dark');
+}
+
+function getServerSnapshot() {
+  return false;
+}
 
 export default function ThemeToggle({ className = '' }: { className?: string }) {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const isDarkModeSnapshot = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const isMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+  const [localDark, setLocalDark] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    setMounted(true);
-    const isDark = document.documentElement.classList.contains('dark');
-    setIsDarkMode(isDark);
-  }, []);
+  const isDarkMode = localDark !== null ? localDark : isDarkModeSnapshot;
 
   const toggleTheme = () => {
     const nextDark = !isDarkMode;
-    setIsDarkMode(nextDark);
+    setLocalDark(nextDark);
 
     // Add temporary smooth transition class to root
     document.documentElement.classList.add('theme-transitioning');
@@ -32,7 +47,7 @@ export default function ThemeToggle({ className = '' }: { className?: string }) 
     }, 400);
   };
 
-  if (!mounted) {
+  if (!isMounted) {
     return (
       <div
         className={className}
