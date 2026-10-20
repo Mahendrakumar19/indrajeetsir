@@ -60,32 +60,6 @@ export default function Footer() {
               <i className="fa-solid fa-envelope" style={{ color: '#64748b', fontSize: '1.05rem', flexShrink: 0 }} aria-hidden="true" />
               <a href="mailto:indrajeet.visionias@gmail.com" style={{ color: 'inherit', textDecoration: 'none' }}>indrajeet.visionias@gmail.com</a>
             </p>
-            <div style={{ marginTop: '0.75rem', marginBottom: '0.5rem' }}>
-              <a
-                href="https://play.google.com/store/apps/details?id=com.nighwantech.indrajeetsir"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.55rem',
-                  padding: '0.5rem 0.85rem',
-                  borderRadius: '10px',
-                  background: '#0f172a',
-                  color: '#ffffff',
-                  textDecoration: 'none',
-                  border: '1px solid #334155',
-                  transition: 'transform 0.15s ease',
-                }}
-                title="Download from Google Play Store"
-              >
-                <i className="fa-brands fa-google-play" style={{ color: '#00C9FF', fontSize: '1.15rem' }} aria-hidden="true" />
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.1 }}>
-                  <span style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#94a3b8' }}>Get it on</span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>Google Play</span>
-                </div>
-              </a>
-            </div>
             <p style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginTop: '0.5rem', fontSize: '0.85rem', color: '#94a3b8' }}>
               <i className="fa-solid fa-location-dot" style={{ color: '#94a3b8', fontSize: '1rem', flexShrink: 0 }} aria-hidden="true" />
               <span>Delhi, India • Mon–Sat, 9 AM – 8 PM IST</span>

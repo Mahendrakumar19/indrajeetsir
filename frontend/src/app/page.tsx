@@ -397,19 +397,6 @@ export default function Home() {
               <i className="fa-solid fa-graduation-cap" style={{ marginRight: '0.55rem' }} aria-hidden="true" />
               <span>Explore Programs & Fees</span>
             </a>
-            <a
-              href="https://play.google.com/store/apps/details?id=com.nighwantech.indrajeetsir"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-playstore-hero"
-              title="Download Indrajeet Sir UPSC App on Google Play Store"
-            >
-              <i className="fa-brands fa-google-play" style={{ color: '#00C9FF', fontSize: '1.25rem' }} aria-hidden="true" />
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: 1.15 }}>
-                <span style={{ fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.04em', opacity: 0.85 }}>GET IT ON</span>
-                <span style={{ fontSize: '0.98rem', fontWeight: 800 }}>Google Play</span>
-              </div>
-            </a>
             <button className="btn-outline lg" onClick={() => setShowBookModal(true)}>
               <i className="fa-solid fa-phone" style={{ marginRight: '0.55rem' }} aria-hidden="true" />
               <span>Request Direct Callback</span>
@@ -1035,6 +1022,138 @@ export default function Home() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Dedicated Mobile Application Showcase Section ── */}
+      <section id="download-app" className="section-wrap app-showcase-section">
+        <div className="app-showcase-card">
+          <div className="app-showcase-grid">
+            <div className="app-showcase-content">
+              <span className="app-showcase-badge">
+                <i className="fa-brands fa-android" style={{ color: '#22c55e', marginRight: '0.45rem' }} aria-hidden="true" />
+                OFFICIAL MOBILE APPLICATION
+              </span>
+              <h2 className="app-showcase-title">
+                Learn, Submit Copies &amp; Attend Live Sessions On The Go
+              </h2>
+              <p className="app-showcase-desc">
+                Install the official <strong>Indrajeet Sir UPSC Mentorship</strong> Android App directly from Google Play Store. Access 1:1 answer evaluation updates, live classroom broadcasts, handwritten evaluation PDFs, and daily mentorship alerts right on your phone.
+              </p>
+
+              <div className="app-feature-bullets">
+                <div className="app-bullet-item">
+                  <div className="app-bullet-icon">
+                    <i className="fa-solid fa-bell" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <strong>Instant Live Class Reminders</strong>
+                    <span>Receive 10-minute alerts before 1:1 strategy calls &amp; masterclasses.</span>
+                  </div>
+                </div>
+                <div className="app-bullet-item">
+                  <div className="app-bullet-icon">
+                    <i className="fa-solid fa-comments" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <strong>Direct Doubt Desk with Indrajeet Sir</strong>
+                    <span>Chat in real-time, submit Mains handwritten sheets, and review audio feedback.</span>
+                  </div>
+                </div>
+                <div className="app-bullet-item">
+                  <div className="app-bullet-icon">
+                    <i className="fa-solid fa-file-pdf" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <strong>Offline PDF Study Material</strong>
+                    <span>Download curated GS 1–4 micro-notes, brochures, and model answer copies.</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="app-download-cta-row">
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.nighwantech.indrajeetsir"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-playstore-large"
+                  title="Install from Google Play Store"
+                >
+                  <i className="fa-brands fa-google-play" style={{ color: '#00C9FF', fontSize: '1.85rem' }} aria-hidden="true" />
+                  <div className="btn-playstore-text">
+                    <span className="btn-playstore-sub">GET IT ON</span>
+                    <span className="btn-playstore-main">Google Play</span>
+                  </div>
+                </a>
+
+                <a
+                  href="/indrajeet-sir-app.apk"
+                  download
+                  className="btn-direct-apk"
+                  title="Direct Download APK File"
+                >
+                  <i className="fa-solid fa-download" aria-hidden="true" />
+                  <span>Download .APK Package (v1.0.1)</span>
+                </a>
+              </div>
+
+              <div className="app-security-note">
+                <i className="fa-solid fa-shield-check" style={{ color: '#10b981' }} aria-hidden="true" />
+                <span>Verified by Google Play Protect • Android 8.0 and above</span>
+              </div>
+            </div>
+
+            <div className="app-showcase-visual">
+              <div className="app-mockup-frame">
+                <div className="app-mockup-header">
+                  <div className="app-mockup-camera" />
+                  <div className="app-mockup-speaker" />
+                </div>
+                <div className="app-mockup-screen">
+                  <div className="app-screen-topbar">
+                    <div className="app-screen-brand">
+                      <Image
+                        src="/logo.png"
+                        alt="Indrajeet Sir Logo"
+                        width={28}
+                        height={28}
+                        style={{ borderRadius: '8px' }}
+                      />
+                      <div>
+                        <div className="app-screen-title">Indrajeet Sir</div>
+                        <div className="app-screen-sub">UPSC Mentorship App</div>
+                      </div>
+                    </div>
+                    <span className="app-screen-status">LIVE</span>
+                  </div>
+
+                  <div className="app-screen-card">
+                    <div className="app-screen-card-tag">UPCOMING LIVE MENTORSHIP</div>
+                    <div className="app-screen-card-title">GS Mains Answer Evaluation &amp; Strategy</div>
+                    <div className="app-screen-card-time">Today • 07:00 PM IST</div>
+                    <div className="app-screen-badge-join">Tap to Join Session</div>
+                  </div>
+
+                  <div className="app-screen-chat-preview">
+                    <div className="app-screen-bubble mentor">
+                      <span className="bubble-author">Indrajeet Sir</span>
+                      <p>Your GS 2 Governance copy has been reviewed. Focus on value addition in conclusion.</p>
+                    </div>
+                    <div className="app-screen-bubble student">
+                      <p>Thank you Sir! Implementing points in next draft.</p>
+                    </div>
+                  </div>
+
+                  <div className="app-screen-bottom-nav">
+                    <span className="app-nav-icon active"><i className="fa-solid fa-house" /></span>
+                    <span className="app-nav-icon"><i className="fa-solid fa-video" /></span>
+                    <span className="app-nav-icon"><i className="fa-solid fa-comments" /></span>
+                    <span className="app-nav-icon"><i className="fa-solid fa-user" /></span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

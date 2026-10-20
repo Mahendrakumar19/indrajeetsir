@@ -65,6 +65,7 @@ export default function Header() {
           <a href="#top">Home</a>
           <a href="#about">About</a>
           <a href="#courses">Courses</a>
+          <a href="#download-app">Mobile App</a>
           <a href="#faqs">FAQs</a>
           <a href="#contact">Contact</a>
         </nav>
@@ -143,6 +144,10 @@ export default function Header() {
             <a href="#courses" onClick={closeMenu}>
               <i className="fa-solid fa-book-open" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
               Courses & Fees
+            </a>
+            <a href="#download-app" onClick={closeMenu}>
+              <i className="fa-brands fa-google-play" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
+              Download Mobile App
             </a>
             <a href="#faqs" onClick={closeMenu}>
               <i className="fa-solid fa-circle-question" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
