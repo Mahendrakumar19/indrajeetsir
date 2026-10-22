@@ -9,3 +9,8 @@ node_modules/
 *.jks
 *.keystore
 key.properties
+
+# Android release binaries
+*.apk
+*.aab
+frontend/public/*.apk
