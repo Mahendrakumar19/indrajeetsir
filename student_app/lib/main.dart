@@ -432,7 +432,7 @@ class _EduAppState extends State<EduApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Indrajeet Sir UPSC',
+      title: 'Indrajeet Sir',
       debugShowCheckedModeBanner: false,
       themeMode: _themeMode,
       theme: ThemeData(
@@ -472,11 +472,7 @@ class _EduAppState extends State<EduApp> {
         ),
       ),
       home: _isCheckingSession
-          ? const Scaffold(
-              body: Center(
-                child: CupertinoActivityIndicator(radius: 16),
-              ),
-            )
+          ? const SplashScreen()
           : _activeSessionProfile != null
               ? MainNavigation(
                   onThemeToggle: _toggleTheme,
@@ -498,6 +494,98 @@ class _EduAppState extends State<EduApp> {
 }
 
 // ============================================================================
+// BRANDED SPLASH SCREEN: INDRAJEET SIR
+// ============================================================================
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF000000) : const Color(0xFFF8FAFC),
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Spacer(),
+              // Premium Logo Glow Box
+              Container(
+                width: 108,
+                height: 108,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFF2563EB), width: 3),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF2563EB).withValues(alpha: isDark ? 0.45 : 0.25),
+                      blurRadius: 32,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    width: 108,
+                    height: 108,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: const Color(0xFF2563EB),
+                      child: const Center(
+                        child: Icon(CupertinoIcons.person_fill, size: 52, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 28),
+
+              // Application Name
+              Text(
+                'Indrajeet Sir',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.6,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              Text(
+                'Mentorship & Live Classroom Portal',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                ),
+              ),
+
+              const Spacer(),
+
+              // Loading Indicator & Trust Footer
+              const CupertinoActivityIndicator(radius: 14),
+              const SizedBox(height: 16),
+              Text(
+                'Securing Connection...',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+                  letterSpacing: 0.2,
+                ),
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 // 1. APPLE iOS LOGIN SCREEN
 // ============================================================================
 class LoginScreen extends StatefulWidget {
@@ -615,7 +703,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 24),
 
                 const Text(
-                  'Indrajeet Sir UPSC',
+                  'Indrajeet Sir',
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
