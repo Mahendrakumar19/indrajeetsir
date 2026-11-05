@@ -50,11 +50,12 @@ export default function Footer() {
           <div>
             <h4 className="footer-col-title">Navigation</h4>
             <ul className="footer-links-list">
-              <li><a href="#top">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#courses">Courses</a></li>
-              <li><a href="#faqs">FAQs</a></li>
-              <li><a href="#contact">Contact</a></li>
+              <li><Link href="/">Home</Link></li>
+              <li><Link href="/about">About</Link></li>
+              <li><Link href="/courses">Courses</Link></li>
+              <li><Link href="/results">Results</Link></li>
+              <li><Link href="/resources">Resources</Link></li>
+              <li><Link href="/faqs">FAQs</Link></li>
             </ul>
           </div>
 
@@ -69,14 +70,36 @@ export default function Footer() {
           </div>
 
           <div className="footer-contact-block">
-            <h4 className="footer-col-title">Contact Desk</h4>
+            <h4 className="footer-col-title">Connect &amp; Desk</h4>
+            <p style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginBottom: '0.65rem' }}>
+              <i className="fa-brands fa-youtube" style={{ color: '#dc2626', fontSize: '1.25rem', flexShrink: 0 }} aria-hidden="true" />
+              <a
+                href="https://www.youtube.com/@indrajeetsir_upsc"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#dc2626', fontWeight: 600, textDecoration: 'none' }}
+              >
+                YouTube: @indrajeetsir_upsc
+              </a>
+            </p>
+            <p style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginBottom: '0.65rem' }}>
+              <i className="fa-brands fa-instagram" style={{ color: '#e1306c', fontSize: '1.25rem', flexShrink: 0 }} aria-hidden="true" />
+              <a
+                href="https://www.instagram.com/indrajeetsir_upsc"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#e1306c', fontWeight: 600, textDecoration: 'none' }}
+              >
+                Instagram: @indrajeetsir_upsc
+              </a>
+            </p>
             <p style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginBottom: '0.65rem' }}>
               <i className="fa-brands fa-telegram" style={{ color: '#0088cc', fontSize: '1.25rem', flexShrink: 0 }} aria-hidden="true" />
               <a
                 href={siteContent.telegramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: '#0088cc', fontWeight: 700, textDecoration: 'none' }}
+                style={{ color: '#0088cc', fontWeight: 600, textDecoration: 'none' }}
               >
                 Telegram: {siteContent.telegramHandle}
               </a>

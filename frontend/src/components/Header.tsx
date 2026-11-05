@@ -62,11 +62,12 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <nav className="nav-links">
-          <a href="#top">Home</a>
-          <a href="#about">About</a>
-          <a href="#courses">Courses</a>
-          <a href="#faqs">FAQs</a>
-          <a href="#contact">Contact</a>
+          <Link href="/">Home</Link>
+          <Link href="/about">About</Link>
+          <Link href="/courses">Courses</Link>
+          <Link href="/results">Results</Link>
+          <Link href="/resources">Resources</Link>
+          <Link href="/faqs">FAQs</Link>
         </nav>
 
         {/* Navigation Actions */}
@@ -102,10 +103,10 @@ export default function Header() {
             </Link>
           )}
 
-          <a href="#courses" className="btn-primary btn-nav-enroll btn-nav-enroll-desktop">
+          <Link href="/courses" className="btn-primary btn-nav-enroll btn-nav-enroll-desktop">
             <i className="fa-solid fa-graduation-cap" style={{ marginRight: '0.45rem', fontSize: '0.95rem' }} aria-hidden="true" />
             <span>Enroll Now</span>
-          </a>
+          </Link>
 
           {/* Mobile Hamburger Toggle Button */}
           <button
@@ -128,30 +129,30 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="mobile-nav-drawer">
           <nav className="mobile-nav-links">
-            <a href="#top" onClick={closeMenu}>
+            <Link href="/" onClick={closeMenu}>
               <i className="fa-solid fa-house" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
               Home
-            </a>
-            <a href="#about" onClick={closeMenu}>
+            </Link>
+            <Link href="/about" onClick={closeMenu}>
               <i className="fa-solid fa-compass" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
               About Mentorship
-            </a>
-            <a href="#results" onClick={closeMenu}>
+            </Link>
+            <Link href="/courses" onClick={closeMenu}>
+              <i className="fa-solid fa-book-open" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
+              Courses &amp; Fees
+            </Link>
+            <Link href="/results" onClick={closeMenu}>
               <i className="fa-solid fa-trophy" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
               Our Results
-            </a>
-            <a href="#courses" onClick={closeMenu}>
-              <i className="fa-solid fa-book-open" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
-              Courses & Fees
-            </a>
-            <a href="#faqs" onClick={closeMenu}>
+            </Link>
+            <Link href="/resources" onClick={closeMenu}>
+              <i className="fa-solid fa-file-pdf" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
+              Free Resources
+            </Link>
+            <Link href="/faqs" onClick={closeMenu}>
               <i className="fa-solid fa-circle-question" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
               FAQs
-            </a>
-            <a href="#contact" onClick={closeMenu}>
-              <i className="fa-solid fa-headset" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
-              Contact Desk
-            </a>
+            </Link>
           </nav>
           <div className="mobile-nav-divider" />
           <div className="mobile-nav-actions">
@@ -189,10 +190,10 @@ export default function Header() {
                 <span>Student Portal Login</span>
               </Link>
             )}
-            <a href="#courses" className="btn-primary full" onClick={closeMenu}>
+            <Link href="/courses" className="btn-primary full" onClick={closeMenu}>
               <i className="fa-solid fa-graduation-cap" style={{ marginRight: '0.45rem' }} aria-hidden="true" />
               Enroll Now
-            </a>
+            </Link>
           </div>
         </div>
       )}

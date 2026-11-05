@@ -364,64 +364,64 @@ interface FaqItem {
 const DEFAULT_FAQS: FaqItem[] = [
   {
     id: 'faq-1',
-    q: 'Kitne din mentorship chalegi?',
-    a: '365+1 day (1 year)',
+    q: 'What is the duration of the mentorship program?',
+    a: '365+1 days (1 full year of continuous guidance).',
   },
   {
     id: 'faq-2',
-    q: 'Fees installment me pay kar sakte hain?',
-    a: 'Yes',
+    q: 'Is an installment facility available for fee payment?',
+    a: 'Yes, flexible installment options are available.',
   },
   {
     id: 'faq-3',
-    q: 'Mentor kaun hoga aur copy kaun check karega?',
-    a: 'Indrajeet Sir khud',
+    q: 'Who will mentor students and evaluate answer copies?',
+    a: 'Indrajeet Sir personally guides students and evaluates every copy.',
   },
   {
     id: 'faq-4',
-    q: 'Kya Mains mentorship me Test Series hai?',
-    a: 'Yes',
+    q: 'Does the Mains Mentorship include a Test Series?',
+    a: 'Yes, an evaluated Mains test series is included.',
   },
   {
     id: 'faq-5',
-    q: 'Kya Prelims mentorship me Test Series hai?',
-    a: 'Yes',
+    q: 'Does the Prelims Mentorship include Mock Tests?',
+    a: 'Yes, comprehensive Prelims mock tests with solutions are included.',
   },
   {
     id: 'faq-6',
-    q: 'PYQ me kya karate hain?',
-    a: 'Trend analysis, solve, syllabus mapping',
+    q: 'What does the PYQ module cover?',
+    a: 'In-depth trend analysis, theme-wise solving, and direct syllabus mapping.',
   },
   {
     id: 'faq-7',
-    q: 'Target daily, weekly ya monthly milte hain?',
-    a: 'Weekly',
+    q: 'Are preparation targets assigned daily, weekly, or monthly?',
+    a: 'Targets are structured on a clear weekly basis.',
   },
   {
     id: 'faq-8',
-    q: 'Kya weekly target track hota hai?',
-    a: 'Yes',
+    q: 'Is student progress on weekly targets actively tracked?',
+    a: 'Yes, milestone completion and performance are tracked weekly.',
   },
   {
     id: 'faq-9',
-    q: 'Kya sirf Prelims ya sirf Mains ka mentorship join kar sakte hain?',
-    a: 'Yes',
+    q: 'Can aspirants enroll exclusively for Prelims or Mains?',
+    a: 'Yes, stage-specific mentorship (Prelims or Mains only) is available.',
   },
   {
     id: 'faq-10',
-    q: 'Mentorship Foundation Course ke sath ya baad join kar sakte hain?',
-    a: 'Dono me hi kar sakte lekin batch separate',
-  }
+    q: 'Can mentorship be joined alongside or after a Foundation Course?',
+    a: 'Yes, you can join at either stage. Dedicated, separate batches are conducted for each.',
+  },
 ];
 
 const DEFAULT_SITE_CONTENT = {
   heroBadge: 'Ex-VisionIAS Faculty',
-  heroHeading: 'Sabhi exam ka ek process hota hai aur usi ko dhyan me rakhte hue humne ek process design kiya h jiske pillars:',
-  heroPillar1: '600+ topic short notes',
-  heroPillar2: 'depth pyq analysis',
-  heroPillar3: 'toppers copy analysis',
-  heroPillar4: 'answer writing skill',
-  heroPillar5: 'one-one personal mentorship',
+  heroHeading: 'Every exam has a process, and keeping that in mind, we have designed a structured methodology built on 5 core pillars:',
+  heroPillar1: '600+ Topic Short Notes',
+  heroPillar2: 'In-Depth PYQ Analysis',
+  heroPillar3: "Toppers' Copy Analysis",
+  heroPillar4: 'Answer Writing Skills',
+  heroPillar5: '1-on-1 Personal Mentorship',
   dhoniQuote: 'I have always believed that the process is more important than the result. The result is just a by-product of the process. If you take care of the process, the results will follow.',
   dhoniAuthor: 'MS Dhoni',
   dhoniTag: 'Our Mentorship Philosophy',
@@ -444,9 +444,9 @@ const DEFAULT_SITE_CONTENT = {
   mentorPillar2Title: 'Reverse Engineering Method',
   mentorPillar2Desc: 'Solving Prelims & Mains questions by deconstructing past UPSC trends and mapping themes to high-yield notes.',
   mentorPillar3Title: 'Main Focus on "Process"',
-  mentorPillar3Desc: 'UPSC me selection result ke peeche bhagne se nahi, daily process (answer writing + discipline) master karne se banta hai.',
-  mentorPillar4Title: 'Direct 1-on-1 Teacher Access',
-  mentorPillar4Desc: 'Har Mains copy Indrajeet Sir personally check karte hain. Actionable marginal remarks on structure, flow and presentation.',
+  mentorPillar3Desc: 'Success in UPSC comes from mastering the daily process (answer writing + discipline), not anxiety over the end result.',
+  mentorPillar4Title: 'Direct Teacher Access',
+  mentorPillar4Desc: 'Every Mains answer copy is personally evaluated by Indrajeet Sir with actionable line-by-line feedback.',
   coursesHeading: 'Mentorship Batches & Fees',
   // coursesSubheading: 'Transparent course fees. Login credentials and Android application access are delivered immediately after enrollment.',
   resultsHeading: 'Aspirants Mentored by Indrajeet Sir',
@@ -500,6 +500,7 @@ export default function AdminPanel() {
   const [siteContent, setSiteContent] = useState(DEFAULT_SITE_CONTENT);
 
   // 0.1 PDF Study Material Resources State (Editable & Uploadable)
+  const [callbackLeads, setCallbackLeads] = useState<Array<{ id: string; name: string; phone: string; timestamp: string }>>([]);
   const [faqs, setFaqs] = useState<FaqItem[]>(DEFAULT_FAQS);
   const [pdfList, setPdfList] = useState<Array<{
     id: string;
@@ -691,7 +692,7 @@ export default function AdminPanel() {
             updated = true;
           }
           // Always enforce authentic Process Pillars & Headline if old or missing
-          if (!parsed.heroHeading || !parsed.heroHeading.includes('Sabhi exam ka ek process hota hai')) {
+          if (!parsed.heroHeading || parsed.heroHeading.includes('Sabhi exam ka ek process') || !parsed.heroHeading.includes('Every exam has a process')) {
             parsed.heroHeading = DEFAULT_SITE_CONTENT.heroHeading;
             parsed.heroPillar1 = DEFAULT_SITE_CONTENT.heroPillar1;
             parsed.heroPillar2 = DEFAULT_SITE_CONTENT.heroPillar2;
@@ -740,7 +741,7 @@ export default function AdminPanel() {
       if (savedFaqs) {
         try {
           const parsed = JSON.parse(savedFaqs);
-          if (Array.isArray(parsed) && parsed.length >= 10 && parsed[0]?.a === '365+1 day (1 year)') {
+          if (Array.isArray(parsed) && parsed.length >= 10 && parsed[0]?.a?.includes('full year')) {
             setFaqs(parsed);
           } else {
             setFaqs(DEFAULT_FAQS);
@@ -761,6 +762,13 @@ export default function AdminPanel() {
 
       const savedDisclaimer = localStorage.getItem('indrajeet_disclaimer_content');
       if (savedDisclaimer) setDisclaimerContent((prev) => ({ ...prev, ...JSON.parse(savedDisclaimer) }));
+
+      const savedLeads = localStorage.getItem('indrajeet_callback_leads');
+      if (savedLeads) {
+        try {
+          setCallbackLeads(JSON.parse(savedLeads));
+        } catch {}
+      }
     } catch {
       // ignore parse errors
     }
@@ -3479,6 +3487,108 @@ export default function AdminPanel() {
                     Save & Publish Live
                   </button>
                 </div>
+              </div>
+
+              {/* Card 10: Callback Leads & Aspirant Inquiries */}
+              <div className="admin-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
+                      Callback Leads &amp; Inquiries ({callbackLeads.length})
+                    </h3>
+                    <p style={{ margin: '0.25rem 0 0', fontSize: '0.86rem', color: '#64748b' }}>
+                      Aspirant phone numbers submitted on the website (&ldquo;Crack UPSC with our Expert Guidance&rdquo; banner and Hero buttons).
+                    </p>
+                  </div>
+                  {callbackLeads.length > 0 && (
+                    <button
+                      type="button"
+                      className="btn-outline-admin"
+                      onClick={() => {
+                        if (confirm('Clear all callback leads?')) {
+                          setCallbackLeads([]);
+                          localStorage.removeItem('indrajeet_callback_leads');
+                        }
+                      }}
+                      style={{ color: '#dc2626', borderColor: '#fca5a5' }}
+                    >
+                      Clear All Leads
+                    </button>
+                  )}
+                </div>
+
+                {callbackLeads.length === 0 ? (
+                  <div style={{ padding: '2rem 1rem', textAlign: 'center', color: '#94a3b8', background: '#f8fafc', borderRadius: '10px' }}>
+                    No callback requests yet. Any inquiry submitted on the website will instantly appear here.
+                  </div>
+                ) : (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                      <thead>
+                        <tr style={{ background: '#f1f5f9', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>
+                          <th style={{ padding: '0.75rem 1rem' }}>Date &amp; Time</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Lead Name / Type</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Phone Number</th>
+                          <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {callbackLeads.map((lead, idx) => (
+                          <tr key={lead.id || idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                            <td style={{ padding: '0.75rem 1rem', color: '#64748b' }}>
+                              {lead.timestamp ? new Date(lead.timestamp).toLocaleString('en-IN') : 'Recent'}
+                            </td>
+                            <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>
+                              {lead.name || 'Quick Lead'}
+                            </td>
+                            <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: '#2563eb' }}>
+                              {lead.phone}
+                            </td>
+                            <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
+                              <a
+                                href={`https://wa.me/${(lead.phone || '').replace(/[^0-9]/g, '')}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '0.35rem',
+                                  background: '#25D366',
+                                  color: '#fff',
+                                  padding: '0.35rem 0.75rem',
+                                  borderRadius: '6px',
+                                  fontSize: '0.8rem',
+                                  fontWeight: 600,
+                                  textDecoration: 'none',
+                                  marginRight: '0.5rem',
+                                }}
+                              >
+                                WhatsApp
+                              </a>
+                              <a
+                                href={`tel:${lead.phone}`}
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '0.35rem',
+                                  background: '#2563eb',
+                                  color: '#fff',
+                                  padding: '0.35rem 0.75rem',
+                                  borderRadius: '6px',
+                                  fontSize: '0.8rem',
+                                  fontWeight: 600,
+                                  textDecoration: 'none',
+                                }}
+                              >
+                                Call
+                              </a>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
               
 

@@ -3926,27 +3926,22 @@ html.dark .app-feature-body p,
 }
 
 .mentor-visual-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(180deg, transparent 65%, rgba(15, 23, 42, 0.75) 100%);
+  display: none;
+}
+
+.mentor-caption-plate {
+  margin-top: 0.65rem;
+  padding: 0.35rem 0.5rem 0.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.2rem;
 }
 
 .mentor-floating-card {
-  position: absolute;
-  bottom: 16px;
-  left: 16px;
-  right: 16px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  border-radius: 14px;
-  padding: 0.85rem 1.1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  z-index: 10001 !important;
+  display: none;
 }
 
 .mentor-card-avatar {
@@ -3964,16 +3959,17 @@ html.dark .app-feature-body p,
 
 .mentor-card-name {
   display: block;
-  font-size: 0.96rem;
+  font-size: 1.12rem;
   font-weight: 850;
   color: #0f172a;
+  letter-spacing: -0.01em;
 }
 
 .mentor-card-sub {
   display: block;
-  font-size: 0.74rem;
-  font-weight: 650;
-  color: #0f172a;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
 }
 
 /* Mentorship 4-Pillars Grid */
@@ -4438,6 +4434,11 @@ html.dark .mentor-card-name,
   color: #ffffff !important;
 }
 
+html.dark .mentor-card-sub,
+.dark .mentor-card-sub {
+  color: #94a3b8 !important;
+}
+
 html.dark .mentor-pillar-card,
 .dark .mentor-pillar-card {
   background: #0a0a0a !important;
@@ -4814,46 +4815,106 @@ html.dark .features-checklist li,
 }
 
 
-/* ── Hero Dhoni Quote: Under CTA Buttons in Hero Column ── */
+/* ── Hero Dhoni Quote: Clean, Elegant & Seamlessly Blended ── */
 .hero-dhoni-quote-wrap {
   margin-top: 1.5rem !important;
-  background: #f8fafc !important;
+  background: #ffffff !important;
   border: 1px solid #e2e8f0 !important;
-  border-left: 3px solid #2563eb !important;
-  border-radius: 10px !important;
-  padding: 0.85rem 1.15rem !important;
+  border-left: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  padding: 1.15rem 1.45rem !important;
   width: 100% !important;
+  position: relative !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.04) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.55rem !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.hero-dhoni-quote-wrap:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.07) !important;
+}
+
+.quote-corner-icon {
+  font-size: 1.25rem !important;
+  color: #3b82f6 !important;
+  opacity: 0.75 !important;
+  margin-bottom: 0.1rem !important;
 }
 
 .hero-dhoni-quote-text {
   font-family: inherit !important;
-  font-size: 0.92rem !important;
-  font-style: normal !important;
+  font-size: 0.96rem !important;
+  font-style: italic !important;
   font-weight: 500 !important;
-  color: #334155 !important;
-  line-height: 1.55 !important;
-  margin: 0 0 0.35rem 0 !important;
+  color: #1e293b !important;
+  line-height: 1.6 !important;
+  margin: 0 !important;
 }
 
 .hero-dhoni-quote-footer {
   display: flex !important;
   align-items: center !important;
-  gap: 0.5rem !important;
+  gap: 0.55rem !important;
   font-size: 0.82rem !important;
   flex-wrap: wrap !important;
+  margin-top: 0.15rem !important;
+}
+
+.quote-author-name {
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+
+.quote-author-divider {
+  color: #94a3b8 !important;
+}
+
+.quote-author-tag {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  padding: 0.2rem 0.55rem !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  font-size: 0.74rem !important;
+  font-style: normal !important;
 }
 
 /* Dark mode for hero quote */
 html.dark .hero-dhoni-quote-wrap,
 .dark .hero-dhoni-quote-wrap {
-  background: #0f172a !important;
-  border: 1px solid #1e293b !important;
-  border-left: 3px solid #3b82f6 !important;
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+  border-left-color: #1f2937 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+}
+
+html.dark .quote-corner-icon,
+.dark .quote-corner-icon {
+  color: #60a5fa !important;
 }
 
 html.dark .hero-dhoni-quote-text,
 .dark .hero-dhoni-quote-text {
   color: #cbd5e1 !important;
+}
+
+html.dark .quote-author-name,
+.dark .quote-author-name {
+  color: #f8fafc !important;
+}
+
+html.dark .quote-author-divider,
+.dark .quote-author-divider {
+  color: #475569 !important;
+}
+
+html.dark .quote-author-tag,
+.dark .quote-author-tag {
+  background: #1e293b !important;
+  color: #94a3b8 !important;
 }
 
 /* ── Flashing Animations Completely Removed ── */
@@ -5068,5 +5129,470 @@ html.dark .topper-image-fallback,
     grid-template-columns: 1fr !important;
     max-width: 360px !important;
     gap: 1.5rem !important;
+  }
+}
+
+
+/* ── Inner Pages Common Layout ─────────────────────────────────────────────── */
+.inner-page-header {
+  padding: 6.5rem 1.5rem 2.5rem;
+  text-align: center;
+  background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.08) 0%, transparent 70%);
+}
+
+.inner-page-title {
+  font-size: 2.5rem;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+}
+
+.inner-page-subtitle {
+  font-size: 1.05rem;
+  color: #475569;
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+html.dark .inner-page-header,
+.dark .inner-page-header {
+  background: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 70%);
+}
+
+html.dark .inner-page-title,
+.dark .inner-page-title {
+  color: #ffffff !important;
+}
+
+html.dark .inner-page-subtitle,
+.dark .inner-page-subtitle {
+  color: #94a3b8 !important;
+}
+
+
+/* ── Portal Explore Grid on Clean Homepage ──────────────────────────────────── */
+.portal-explore-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.portal-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.75rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  text-decoration: none;
+  color: inherit;
+}
+
+.portal-card:hover {
+  transform: translateY(-4px);
+  border-color: #cbd5e1;
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.08);
+}
+
+.portal-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: 1.25rem;
+}
+
+.portal-card-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.portal-card-desc {
+  font-size: 0.92rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+  flex-grow: 1;
+}
+
+.portal-card-link {
+  font-size: 0.92rem;
+  font-weight: 750;
+  color: #2563eb;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.portal-card:hover .portal-card-link {
+  color: #1d4ed8;
+}
+
+html.dark .portal-card,
+.dark .portal-card {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+}
+
+html.dark .portal-card:hover,
+.dark .portal-card:hover {
+  border-color: #334155 !important;
+}
+
+html.dark .portal-card-icon,
+.dark .portal-card-icon {
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+}
+
+html.dark .portal-card-title,
+.dark .portal-card-title {
+  color: #f8fafc !important;
+}
+
+html.dark .portal-card-desc,
+.dark .portal-card-desc {
+  color: #94a3b8 !important;
+}
+
+html.dark .portal-card-link,
+.dark .portal-card-link {
+  color: #38bdf8 !important;
+}
+
+/* ── Callback Lead Banner (As per user design) ── */
+.lead-banner-section {
+  padding-top: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+.lead-banner-card {
+  max-width: 1080px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%);
+  border: 1px solid #bae6fd;
+  border-radius: 20px;
+  padding: 2.5rem 2.85rem;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  align-items: center;
+  gap: 2.5rem;
+  box-shadow: 0 10px 30px -5px rgba(2, 132, 199, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.lead-banner-title {
+  font-size: 2.1rem;
+  font-weight: 850;
+  color: #1e3a8a;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  margin: 0 0 0.5rem 0;
+}
+
+.lead-banner-subtitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #2563eb;
+  margin: 0 0 0.65rem 0;
+}
+
+.lead-banner-terms {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin: 0 0 1.5rem 0;
+}
+
+.lead-banner-terms a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.lead-banner-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 440px;
+}
+
+.lead-input-wrap {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0 0.85rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lead-input-wrap:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.lead-input-prefix {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #64748b;
+  padding-right: 0.75rem;
+  border-right: 1px solid #e2e8f0;
+  user-select: none;
+}
+
+.lead-input-field {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.85rem 0.85rem;
+  font-size: 1rem;
+  color: #0f172a;
+  outline: none;
+}
+
+.lead-input-field::placeholder {
+  color: #94a3b8;
+}
+
+.lead-submit-btn {
+  background: #eab308;
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 750;
+  padding: 0.95rem 1.6rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35);
+  text-align: center;
+}
+
+.lead-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(217, 119, 6, 0.45);
+}
+
+.lead-submit-btn:active {
+  transform: translateY(0);
+}
+
+.lead-banner-success {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  color: #15803d;
+  font-size: 0.95rem;
+  font-weight: 650;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+}
+
+.lead-banner-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lead-banner-illustration {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.05));
+}
+
+/* Dark Mode */
+html.dark .lead-banner-card,
+.dark .lead-banner-card {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+  border-color: #334155 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark .lead-banner-title,
+.dark .lead-banner-title {
+  color: #f1f5f9 !important;
+}
+
+html.dark .lead-banner-subtitle,
+.dark .lead-banner-subtitle {
+  color: #60a5fa !important;
+}
+
+html.dark .lead-banner-terms,
+.dark .lead-banner-terms {
+  color: #94a3b8 !important;
+}
+
+html.dark .lead-input-wrap,
+.dark .lead-input-wrap {
+  background: #0b1120 !important;
+  border-color: #334155 !important;
+}
+
+html.dark .lead-input-prefix,
+.dark .lead-input-prefix {
+  color: #94a3b8 !important;
+  border-color: #334155 !important;
+}
+
+html.dark .lead-input-field,
+.dark .lead-input-field {
+  color: #f8fafc !important;
+}
+
+/* ── Social Hub Cards (Dr. Shivin Style) ── */
+.social-channels-section {
+  padding-top: 1rem;
+  padding-bottom: 3.5rem;
+}
+
+.social-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.social-hub-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.4rem 1.6rem;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.social-hub-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  border-color: #cbd5e1;
+}
+
+.social-hub-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #0f172a;
+  text-align: center;
+  padding-bottom: 0.65rem;
+}
+
+.social-hub-divider {
+  width: 100%;
+  height: 1px;
+  background: #0f172a;
+  opacity: 0.85;
+  margin-bottom: 1rem;
+}
+
+.social-hub-body {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding-top: 0.2rem;
+}
+
+.social-hub-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.55rem;
+}
+
+.social-hub-icon.yt-icon {
+  background: #ff0000;
+  color: #ffffff;
+}
+
+.social-hub-icon.insta-icon {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: #ffffff;
+}
+
+.social-hub-icon.tg-icon {
+  background: #0088cc;
+  border-radius: 50%;
+  color: #ffffff;
+}
+
+.social-hub-text {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.social-hub-text strong {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.social-hub-text span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Dark Mode */
+html.dark .social-hub-card,
+.dark .social-hub-card {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark .social-hub-label,
+.dark .social-hub-label {
+  color: #cbd5e1 !important;
+}
+
+html.dark .social-hub-divider,
+.dark .social-hub-divider {
+  background: #334155 !important;
+}
+
+html.dark .social-hub-text strong,
+.dark .social-hub-text strong {
+  color: #f8fafc !important;
+}
+
+html.dark .social-hub-text span,
+.dark .social-hub-text span {
+  color: #94a3b8 !important;
+}
+
+/* Responsive */
+@media (max-width: 860px) {
+  .social-cards-grid {
+    grid-template-columns: 1fr;
+    max-width: 420px;
   }
 }
