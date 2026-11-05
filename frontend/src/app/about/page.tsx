@@ -37,7 +37,7 @@ export default function AboutPage() {
         const saved = localStorage.getItem('indrajeet_site_content');
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (parsed.sirCard1Val === 'Ex-VisionIAS' || !parsed.sirCard1Val?.includes('Mains')) {
+          if (parsed.sirCard1Val === 'VisionIAS' || !parsed.sirCard1Val?.includes('Mains')) {
             delete parsed.aboutSirHeading;
             delete parsed.sirCard1Val;
             delete parsed.sirCard1Desc;

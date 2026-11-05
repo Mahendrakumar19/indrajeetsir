@@ -11,14 +11,15 @@ import './home.css';
 export default function Home() {
   const [siteContent, setSiteContent] = useState({
     // 1. Hero Section & Process Pillars
-    heroBadge: 'Ex-VisionIAS Faculty',
+    heroBadge: 'VisionIAS Faculty',
+    heroImage: '/indrajeet-sir-hero.jpg',
     heroHeading: 'Every exam has a process, and keeping that in mind, we have designed a structured methodology built on 5 core pillars:',
     heroPillar1: '600+ Topic Short Notes',
     heroPillar2: 'In-Depth PYQ Analysis',
     heroPillar3: "Toppers' Copy Analysis",
     heroPillar4: 'Answer Writing Skills',
     heroPillar5: '1-on-1 Personal Mentorship',
-    dhoniQuote: 'I have always believed that the process is more important than the result. The result is just a by-product of the process. If you take care of the process, the results will follow.',
+    dhoniQuote: 'The process is more important than the results. If you take care of the process, results will follow.',
     dhoniAuthor: 'MS Dhoni',
     dhoniTag: 'Our Mentorship Philosophy',
 
@@ -146,7 +147,6 @@ export default function Home() {
 
             {/* Mentorship Philosophy Quote */}
             <div className="hero-dhoni-quote-wrap">
-              <i className="fa-solid fa-quote-left quote-corner-icon" aria-hidden="true" />
               <p className="hero-dhoni-quote-text">
                 &ldquo;{siteContent.dhoniQuote}&rdquo;
               </p>
@@ -163,25 +163,26 @@ export default function Home() {
             <div className="mentor-visual-card">
               <div className="mentor-visual-frame">
                 <Image
-                  src="/indrajeet-sir-hero.jpg"
+                  src={siteContent.heroImage || '/indrajeet-sir-hero.jpg'}
                   alt="Indrajeet Sir - 1-on-1 Mentorship for UPSC CSE"
                   width={819}
                   height={1024}
                   priority
+                  unoptimized={Boolean(siteContent.heroImage?.startsWith('data:') || siteContent.heroImage?.startsWith('http'))}
                   quality={95}
                   className="mentor-visual-img"
                 />
                 {/* Floating Seal & Badge */}
                 <div className="mentor-floating-tag top-right">
                   <i className="fa-solid fa-shield-halved" aria-hidden="true" />
-                  <span>{siteContent.heroBadge || 'Ex-VisionIAS Faculty'}</span>
+                  <span>{siteContent.heroBadge || 'VisionIAS Faculty'}</span>
                 </div>
               </div>
 
               {/* Mentor Name Plate Below Photo */}
               <div className="mentor-caption-plate">
                 <span className="mentor-card-name">Indrajeet Sir</span>
-                <span className="mentor-card-sub">UPSC CSE Mentor • Ex-VisionIAS Faculty</span>
+                <span className="mentor-card-sub">UPSC CSE Mentor • VisionIAS Faculty</span>
               </div>
             </div>
           </div>

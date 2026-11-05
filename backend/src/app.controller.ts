@@ -701,6 +701,7 @@ export class AppController {
             features: fallback?.features || [],
             validity: fallback?.validity || '1 Year',
             tag: fallback?.tag || 'Mentorship Batch',
+            thumbnail: c.thumbnail || fallback?.thumbnail,
             liveClassesCount: c._count?.liveClasses || 0,
             enrollmentsCount: c._count?.enrollments || 0,
           };
@@ -735,7 +736,7 @@ export class AppController {
   }
 
   @Post('courses')
-  async createCourse(@Body() body: { title: string; description?: string; price?: number; instructor?: string; features?: string[]; validity?: string; tag?: string }) {
+  async createCourse(@Body() body: { title: string; description?: string; price?: number; instructor?: string; features?: string[]; validity?: string; tag?: string; thumbnail?: string }) {
     try {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
@@ -748,6 +749,7 @@ export class AppController {
           title: body.title,
           description: body.description,
           price: Number(body.price) || 0,
+          thumbnail: body.thumbnail,
           instructor: body.instructor || 'Indrajeet Sir',
           published: true,
           organizationId: org.id,
@@ -762,11 +764,11 @@ export class AppController {
   }
 
   @Post('courses/:id')
-  async updateCoursePost(@Param('id') id: string, @Body() body: { title?: string; description?: string; price?: number; features?: string[]; validity?: string; tag?: string }) {
+  async updateCoursePost(@Param('id') id: string, @Body() body: { title?: string; description?: string; price?: number; features?: string[]; validity?: string; tag?: string; thumbnail?: string }) {
     return this.updateCourse(id, body);
   }
 
-  async updateCourse(id: string, body: { title?: string; description?: string; price?: number; features?: string[]; validity?: string; tag?: string }) {
+  async updateCourse(id: string, body: { title?: string; description?: string; price?: number; features?: string[]; validity?: string; tag?: string; thumbnail?: string }) {
     try {
       const updated = await this.prisma.course.update({
         where: { id },
@@ -774,6 +776,7 @@ export class AppController {
           title: body.title ?? undefined,
           description: body.description ?? undefined,
           price: body.price !== undefined ? Number(body.price) : undefined,
+          thumbnail: body.thumbnail ?? undefined,
         },
       });
       return { success: true, course: updated };
@@ -786,6 +789,7 @@ export class AppController {
         if (body.features !== undefined) c.features = body.features;
         if (body.validity !== undefined) c.validity = body.validity;
         if (body.tag !== undefined) c.tag = body.tag;
+        if (body.thumbnail !== undefined) c.thumbnail = body.thumbnail;
         return { success: true, course: c };
       }
       return { success: false, message: 'Course not found' };

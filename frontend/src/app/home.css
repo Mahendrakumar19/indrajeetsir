@@ -2111,6 +2111,56 @@ html.dark .btn-pdf-view i,
   }
 }
 
+/* ── Floating WhatsApp Button (Icon-Only Floating Action Button) ── */
+.whatsapp-float-btn {
+  position: fixed !important;
+  bottom: 26px !important;
+  right: 26px !important;
+  width: 58px !important;
+  height: 58px !important;
+  background: #25D366 !important;
+  color: #ffffff !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 32px !important;
+  text-decoration: none !important;
+  box-shadow: 0 10px 25px -4px rgba(37, 211, 102, 0.55), 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  z-index: 999999 !important;
+  cursor: pointer !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease !important;
+}
+
+.whatsapp-float-btn i {
+  color: #ffffff !important;
+  font-size: 32px !important;
+  line-height: 1 !important;
+  display: block !important;
+}
+
+.whatsapp-float-btn:hover {
+  transform: scale(1.1) translateY(-3px) !important;
+  box-shadow: 0 14px 32px -4px rgba(37, 211, 102, 0.7), 0 6px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+.whatsapp-float-btn:active {
+  transform: scale(0.96) !important;
+}
+
+@media (max-width: 640px) {
+  .whatsapp-float-btn {
+    bottom: 20px !important;
+    right: 18px !important;
+    width: 52px !important;
+    height: 52px !important;
+    font-size: 28px !important;
+  }
+  .whatsapp-float-btn i {
+    font-size: 28px !important;
+  }
+}
+
 /* ── Floating WhatsApp FAB ──────────────────────────────── */
 .whatsapp-fab {
   position: fixed;
@@ -4820,15 +4870,15 @@ html.dark .features-checklist li,
   margin-top: 1.5rem !important;
   background: #ffffff !important;
   border: 1px solid #e2e8f0 !important;
-  border-left: 1px solid #e2e8f0 !important;
-  border-radius: 14px !important;
+  border-left: 4px solid #2563eb !important;
+  border-radius: 12px !important;
   padding: 1.15rem 1.45rem !important;
   width: 100% !important;
   position: relative !important;
   box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.04) !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 0.55rem !important;
+  gap: 0.65rem !important;
   transition: transform 0.2s ease, box-shadow 0.2s ease !important;
 }
 
@@ -4837,17 +4887,9 @@ html.dark .features-checklist li,
   box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.07) !important;
 }
 
-.quote-corner-icon {
-  font-size: 1.25rem !important;
-  color: #3b82f6 !important;
-  opacity: 0.75 !important;
-  margin-bottom: 0.1rem !important;
-}
-
 .hero-dhoni-quote-text {
   font-family: inherit !important;
-  font-size: 0.96rem !important;
-  font-style: italic !important;
+  font-size: 0.98rem !important;
   font-weight: 500 !important;
   color: #1e293b !important;
   line-height: 1.6 !important;
@@ -4858,9 +4900,8 @@ html.dark .features-checklist li,
   display: flex !important;
   align-items: center !important;
   gap: 0.55rem !important;
-  font-size: 0.82rem !important;
+  font-size: 0.85rem !important;
   flex-wrap: wrap !important;
-  margin-top: 0.15rem !important;
 }
 
 .quote-author-name {
@@ -4873,12 +4914,12 @@ html.dark .features-checklist li,
 }
 
 .quote-author-tag {
-  background: #f1f5f9 !important;
-  color: #475569 !important;
-  padding: 0.2rem 0.55rem !important;
-  border-radius: 6px !important;
-  font-weight: 600 !important;
-  font-size: 0.74rem !important;
+  background: none !important;
+  color: #64748b !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-weight: 500 !important;
+  font-size: 0.85rem !important;
   font-style: normal !important;
 }
 
@@ -4887,13 +4928,8 @@ html.dark .hero-dhoni-quote-wrap,
 .dark .hero-dhoni-quote-wrap {
   background: #111827 !important;
   border-color: #1f2937 !important;
-  border-left-color: #1f2937 !important;
+  border-left-color: #3b82f6 !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
-}
-
-html.dark .quote-corner-icon,
-.dark .quote-corner-icon {
-  color: #60a5fa !important;
 }
 
 html.dark .hero-dhoni-quote-text,
@@ -4908,11 +4944,14 @@ html.dark .quote-author-name,
 
 html.dark .quote-author-divider,
 .dark .quote-author-divider {
-  color: #475569 !important;
+  color: #64748b !important;
 }
 
 html.dark .quote-author-tag,
 .dark .quote-author-tag {
+  background: none !important;
+  color: #94a3b8 !important;
+}
   background: #1e293b !important;
   color: #94a3b8 !important;
 }
@@ -5456,6 +5495,36 @@ html.dark .lead-input-prefix,
 html.dark .lead-input-field,
 .dark .lead-input-field {
   color: #f8fafc !important;
+}
+
+/* Course Card Image Box */
+.course-card-thumb-wrap {
+  width: 100%;
+  height: 190px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  position: relative;
+}
+
+.course-card-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.pricing-card-3d:hover .course-card-thumb-img {
+  transform: scale(1.03);
+}
+
+html.dark .course-card-thumb-wrap,
+.dark .course-card-thumb-wrap {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
 }
 
 /* ── Social Hub Cards (Dr. Shivin Style) ── */

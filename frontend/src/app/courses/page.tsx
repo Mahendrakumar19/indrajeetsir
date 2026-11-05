@@ -19,6 +19,7 @@ interface Course {
   features?: string[];
   validity?: string;
   tag?: string;
+  thumbnail?: string;
 }
 
 interface RazorpayResponse {
@@ -308,6 +309,16 @@ export default function CoursesPage() {
               return (
                 <div key={course.id} className="pricing-card-3d">
                   <div>
+                    {course.thumbnail ? (
+                      <div className="course-card-thumb-wrap">
+                        <img
+                          src={course.thumbnail}
+                          alt={course.title}
+                          className="course-card-thumb-img"
+                        />
+                      </div>
+                    ) : null}
+
                     <div className="pricing-title-wrap">
                       <h3>{course.title}</h3>
                       <p className="pricing-desc-text">

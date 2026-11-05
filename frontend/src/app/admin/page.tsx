@@ -210,6 +210,7 @@ interface CourseItem {
   features?: string[];
   validity?: string;
   tag?: string;
+  thumbnail?: string;
 }
 
 interface LiveClassItem {
@@ -415,14 +416,15 @@ const DEFAULT_FAQS: FaqItem[] = [
 ];
 
 const DEFAULT_SITE_CONTENT = {
-  heroBadge: 'Ex-VisionIAS Faculty',
+  heroBadge: 'VisionIAS Faculty',
+  heroImage: '/indrajeet-sir-hero.jpg',
   heroHeading: 'Every exam has a process, and keeping that in mind, we have designed a structured methodology built on 5 core pillars:',
   heroPillar1: '600+ Topic Short Notes',
   heroPillar2: 'In-Depth PYQ Analysis',
   heroPillar3: "Toppers' Copy Analysis",
   heroPillar4: 'Answer Writing Skills',
   heroPillar5: '1-on-1 Personal Mentorship',
-  dhoniQuote: 'I have always believed that the process is more important than the result. The result is just a by-product of the process. If you take care of the process, the results will follow.',
+  dhoniQuote: 'The process is more important than the results. If you take care of the process, results will follow.',
   dhoniAuthor: 'MS Dhoni',
   dhoniTag: 'Our Mentorship Philosophy',
   aboutSirHeading: 'About Indrajeet Sir',
@@ -573,7 +575,7 @@ export default function AdminPanel() {
 
   // 5. LMS Courses State
     const [courses, setCourses] = useState<CourseItem[]>(DEFAULT_COURSES);
-  const [courseForm, setCourseForm] = useState({ title: '', description: '', price: '4500', tag: '', validity: '', features: '' });
+  const [courseForm, setCourseForm] = useState({ title: '', description: '', price: '4500', tag: '', validity: '', features: '', thumbnail: '' });
   const [courseSaving, setCourseSaving] = useState(false);
   const [editCourseModal, setEditCourseModal] = useState<CourseItem | null>(null);
   const [editCourseFeatures, setEditCourseFeatures] = useState('');
@@ -1232,6 +1234,7 @@ export default function AdminPanel() {
       tag: courseForm.tag || 'Mentorship Batch',
       validity: courseForm.validity || '1 Year',
       features: courseForm.features.split('\n').map((s) => s.trim()).filter(Boolean),
+      thumbnail: courseForm.thumbnail || undefined,
       instructor: 'Indrajeet Sir',
       published: true,
     };
@@ -1248,7 +1251,7 @@ export default function AdminPanel() {
           try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
           return next;
         });
-        setCourseForm({ title: '', description: '', price: '4500', tag: '', validity: '', features: '' });
+        setCourseForm({ title: '', description: '', price: '4500', tag: '', validity: '', features: '', thumbnail: '' });
         setCourseSaving(false);
         triggerAlert(`Course "${newCourse.title}" published successfully.`);
       });
@@ -1262,6 +1265,7 @@ export default function AdminPanel() {
       ...editCourseModal,
       price: Number(editCourseModal.price) || 0,
       features: editCourseFeatures.split('\n').map((s) => s.trim()).filter(Boolean),
+      thumbnail: editCourseModal.thumbnail || undefined,
     };
     try {
       await fetch(`${API_URL}/courses/${updated.id}`, {
@@ -2490,6 +2494,63 @@ export default function AdminPanel() {
                       />
                     </div>
                   </div>
+                  <div className="form-group" style={{ background: '#f8fafc', padding: '1rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                    <label style={{ fontWeight: 700, display: 'block', marginBottom: '0.35rem' }}>Course Cover Image / Thumbnail</label>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                      {courseForm.thumbnail && (
+                        <div style={{ width: '80px', height: '60px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #cbd5e1', position: 'relative' }}>
+                          <img src={courseForm.thumbnail} alt="Thumbnail preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                      )}
+                      <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="admin-file-input"
+                          style={{ padding: '0.35rem', width: '100%' }}
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const formData = new FormData();
+                              formData.append('file', file);
+                              const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
+                              const json = await res.json();
+                              if (json.success && json.url) {
+                                setCourseForm((prev) => ({ ...prev, thumbnail: json.url }));
+                                return;
+                              }
+                            } catch {}
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              const dataUrl = event.target?.result as string;
+                              if (dataUrl) setCourseForm((prev) => ({ ...prev, thumbnail: dataUrl }));
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                        />
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                          <input
+                            type="text"
+                            placeholder="Or enter image URL (e.g. /uploads/... or https://...)"
+                            value={courseForm.thumbnail}
+                            onChange={(e) => setCourseForm({ ...courseForm, thumbnail: e.target.value })}
+                            style={{ fontSize: '0.82rem', padding: '0.4rem 0.6rem', flex: 1 }}
+                          />
+                          {courseForm.thumbnail && (
+                            <button
+                              type="button"
+                              className="btn-outline-admin"
+                              style={{ padding: '0.35rem 0.6rem', fontSize: '0.75rem', color: '#dc2626' }}
+                              onClick={() => setCourseForm((prev) => ({ ...prev, thumbnail: '' }))}
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <div className="form-group">
                     <label>Features & Bullet Points (One per line)</label>
                     <textarea
@@ -2706,14 +2767,101 @@ export default function AdminPanel() {
                   1. Hero Section Headline & 5 Core Process Pillars
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
-                  Controls the primary landing banner headline and the 5 battle-tested process pillars.
+                  Controls the primary landing banner headline, mentor portrait photo, and the 5 battle-tested process pillars.
                 </p>
+
+                {/* Hero Portrait Photo Manager */}
+                <div style={{ marginBottom: '1.5rem', padding: '1.15rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                  <label style={{ fontWeight: 800, fontSize: '0.95rem', display: 'block', marginBottom: '0.25rem', color: '#0f172a' }}>
+                    Mentor Portrait Photo (Indrajeet Sir)
+                  </label>
+                  <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '1rem' }}>
+                    Upload a new photo for Indrajeet Sir. It will update live on the homepage hero section.
+                  </p>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+                    {/* Live Thumbnail Preview */}
+                    <div style={{ width: '100px', height: '125px', borderRadius: '10px', overflow: 'hidden', border: '2px solid #cbd5e1', background: '#0f172a', flexShrink: 0, position: 'relative' }}>
+                      <img
+                        src={siteContent.heroImage || '/indrajeet-sir-hero.jpg'}
+                        alt="Hero Preview"
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </div>
+
+                    <div style={{ flex: 1, minWidth: '240px', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                      <div>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '0.25rem' }}>
+                          Upload New Photo File (JPG, PNG, WebP)
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          className="admin-file-input"
+                          style={{ padding: '0.4rem', width: '100%' }}
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+
+                            try {
+                              const formData = new FormData();
+                              formData.append('file', file);
+                              const res = await fetch('/api/upload-image', {
+                                method: 'POST',
+                                body: formData,
+                              });
+                              const json = await res.json();
+                              if (json.success && json.url) {
+                                setSiteContent((prev) => ({ ...prev, heroImage: json.url }));
+                                triggerAlert('New photo uploaded successfully! Click "Save & Publish Live" to confirm.');
+                                return;
+                              }
+                            } catch {}
+
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              const dataUrl = event.target?.result as string;
+                              if (dataUrl) {
+                                setSiteContent((prev) => ({ ...prev, heroImage: dataUrl }));
+                                triggerAlert('Photo loaded! Click "Save & Publish Live" to confirm.');
+                              }
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                        <div style={{ flex: 1 }}>
+                          <input
+                            type="text"
+                            placeholder="Or paste direct image URL (/indrajeet-sir-hero.jpg)"
+                            value={siteContent.heroImage || ''}
+                            onChange={(e) => setSiteContent({ ...siteContent, heroImage: e.target.value })}
+                            style={{ fontSize: '0.82rem', padding: '0.45rem 0.65rem', width: '100%', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          className="btn-outline-admin"
+                          style={{ fontSize: '0.8rem', padding: '0.45rem 0.75rem' }}
+                          onClick={() => {
+                            setSiteContent((prev) => ({ ...prev, heroImage: '/indrajeet-sir-hero.jpg' }));
+                            triggerAlert('Reset to default photo. Click "Save & Publish Live".');
+                          }}
+                        >
+                          Reset Default
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div className="form-group" style={{ marginBottom: '1rem' }}>
                   <label>Mentor Portrait Seal Badge</label>
                   <input
                     type="text"
                     value={siteContent.heroBadge || ''}
-                    placeholder="e.g. Ex-VisionIAS Faculty"
+                    placeholder="e.g. VisionIAS Faculty"
                     onChange={(e) => setSiteContent({ ...siteContent, heroBadge: e.target.value })}
                   />
                   <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Appears as a floating verified tag on Indrajeet Sir&apos;s portrait.</span>
@@ -3159,6 +3307,90 @@ export default function AdminPanel() {
                             });
                           }}
                         />
+                      </div>
+
+                      {/* Course Cover Image Box */}
+                      <div className="form-group" style={{ marginBottom: '0.75rem', background: '#f8fafc', padding: '0.85rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.35rem' }}>Course Cover Image / Thumbnail</label>
+                        <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                          {course.thumbnail && (
+                            <div style={{ width: '70px', height: '52px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #cbd5e1', position: 'relative' }}>
+                              <img src={course.thumbnail} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            </div>
+                          )}
+                          <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="admin-file-input"
+                              style={{ padding: '0.3rem', width: '100%', fontSize: '0.8rem' }}
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                try {
+                                  const formData = new FormData();
+                                  formData.append('file', file);
+                                  const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
+                                  const json = await res.json();
+                                  if (json.success && json.url) {
+                                    setCourses((prev) => {
+                                      const next = prev.map((c) => (c.id === course.id ? { ...c, thumbnail: json.url } : c));
+                                      try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
+                                      return next;
+                                    });
+                                    triggerAlert('Course image uploaded successfully.');
+                                    return;
+                                  }
+                                } catch {}
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                  const dataUrl = event.target?.result as string;
+                                  if (dataUrl) {
+                                    setCourses((prev) => {
+                                      const next = prev.map((c) => (c.id === course.id ? { ...c, thumbnail: dataUrl } : c));
+                                      try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
+                                      return next;
+                                    });
+                                    triggerAlert('Course image set.');
+                                  }
+                                };
+                                reader.readAsDataURL(file);
+                              }}
+                            />
+                            <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                              <input
+                                type="text"
+                                placeholder="Or enter image URL"
+                                value={course.thumbnail || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setCourses((prev) => {
+                                    const next = prev.map((c) => (c.id === course.id ? { ...c, thumbnail: val } : c));
+                                    try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
+                                    return next;
+                                  });
+                                }}
+                                style={{ fontSize: '0.8rem', padding: '0.35rem 0.5rem', flex: 1 }}
+                              />
+                              {course.thumbnail && (
+                                <button
+                                  type="button"
+                                  className="btn-outline-admin"
+                                  style={{ padding: '0.3rem 0.5rem', fontSize: '0.72rem', color: '#dc2626' }}
+                                  onClick={() => {
+                                    setCourses((prev) => {
+                                      const next = prev.map((c) => (c.id === course.id ? { ...c, thumbnail: '' } : c));
+                                      try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
+                                      return next;
+                                    });
+                                  }}
+                                >
+                                  Remove
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
                       <div className="form-group" style={{ margin: 0 }}>
@@ -4221,6 +4453,67 @@ export default function AdminPanel() {
                   }
                   required
                 />
+              </div>
+
+              {/* Course Thumbnail Box */}
+              <div className="form-group" style={{ background: '#f8fafc', padding: '0.85rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.35rem' }}>Course Cover Image / Thumbnail</label>
+                <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  {editCourseModal.thumbnail && (
+                    <div style={{ width: '70px', height: '52px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #cbd5e1', position: 'relative' }}>
+                      <img src={editCourseModal.thumbnail} alt={editCourseModal.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  )}
+                  <div style={{ flex: 1, minWidth: '200px', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="admin-file-input"
+                      style={{ padding: '0.3rem', width: '100%', fontSize: '0.8rem' }}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          const formData = new FormData();
+                          formData.append('file', file);
+                          const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
+                          const json = await res.json();
+                          if (json.success && json.url) {
+                            setEditCourseModal((prev) => (prev ? { ...prev, thumbnail: json.url } : null));
+                            return;
+                          }
+                        } catch {}
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          const dataUrl = event.target?.result as string;
+                          if (dataUrl) {
+                            setEditCourseModal((prev) => (prev ? { ...prev, thumbnail: dataUrl } : null));
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                    <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        placeholder="Or enter image URL"
+                        value={editCourseModal.thumbnail || ''}
+                        onChange={(e) => setEditCourseModal({ ...editCourseModal, thumbnail: e.target.value })}
+                        style={{ fontSize: '0.8rem', padding: '0.35rem 0.5rem', flex: 1 }}
+                      />
+                      {editCourseModal.thumbnail && (
+                        <button
+                          type="button"
+                          className="btn-outline-admin"
+                          style={{ padding: '0.3rem 0.5rem', fontSize: '0.72rem', color: '#dc2626' }}
+                          onClick={() => setEditCourseModal({ ...editCourseModal, thumbnail: '' })}
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="form-group">
