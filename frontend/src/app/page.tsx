@@ -1,5 +1,64 @@
 'use client';
 
+interface FaqItem {
+  id: string;
+  q: string;
+  a: string;
+}
+
+const DEFAULT_FAQS: FaqItem[] = [
+  {
+    id: 'faq-1',
+    q: 'Kitne din mentorship chalegi?',
+    a: '365+1 day (1 year)',
+  },
+  {
+    id: 'faq-2',
+    q: 'Fees installment me pay kar sakte hain?',
+    a: 'Yes',
+  },
+  {
+    id: 'faq-3',
+    q: 'Mentor kaun hoga aur copy kaun check karega?',
+    a: 'Indrajeet Sir khud',
+  },
+  {
+    id: 'faq-4',
+    q: 'Kya Mains mentorship me Test Series hai?',
+    a: 'Yes',
+  },
+  {
+    id: 'faq-5',
+    q: 'Kya Prelims mentorship me Test Series hai?',
+    a: 'Yes',
+  },
+  {
+    id: 'faq-6',
+    q: 'PYQ me kya karate hain?',
+    a: 'Trend analysis, solve, syllabus mapping',
+  },
+  {
+    id: 'faq-7',
+    q: 'Target daily, weekly ya monthly milte hain?',
+    a: 'Weekly',
+  },
+  {
+    id: 'faq-8',
+    q: 'Kya weekly target track hota hai?',
+    a: 'Yes',
+  },
+  {
+    id: 'faq-9',
+    q: 'Kya sirf Prelims ya sirf Mains ka mentorship join kar sakte hain?',
+    a: 'Yes',
+  },
+  {
+    id: 'faq-10',
+    q: 'Mentorship Foundation Course ke sath ya baad join kar sakte hain?',
+    a: 'Dono me hi kar sakte lekin batch separate',
+  }
+];
+
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -15,6 +74,9 @@ interface Course {
   price: number;
   instructor?: string;
   published?: boolean;
+  features?: string[];
+  validity?: string;
+  tag?: string;
 }
 
 interface RazorpayResponse {
@@ -33,21 +95,105 @@ declare global {
   }
 }
 
+function sortCoursesInOrder(list: Course[]): Course[] {
+  return [...list].sort((a, b) => {
+    const getIdx = (c: Course) => {
+      const t = (c.title || '').trim().toLowerCase();
+      if (t.includes('after') && t.includes('foundation')) return 0;
+      if (t.includes('mains') && t.includes('comprehensive')) return 1;
+      if (t.includes('prelims') && t.includes('targeted')) return 2;
+      if (t.includes('parallel') && t.includes('foundation')) return 3;
+      if (t.includes('short notes')) return 4;
+      return 99;
+    };
+    return getIdx(a) - getIdx(b);
+  });
+}
+
 export default function Home() {
   const [courses, setCourses] = useState<Course[]>([
     {
       id: 'c-1',
-      title: 'Comprehensive UPSC CSE Mentorship 2026-27',
-      description: 'Personal guidance with Indrajeet Sir, live interactive strategy sessions, and line-by-line answer evaluation.',
-      price: 4999,
+      title: '1 Year Full Mentorship for UPSC 2027 (After Foundation Course)',
+      description: 'Complete 3-Stage Prelims, Mains, and Interview guidance with 1-on-1 personal mentorship by Indrajeet Sir.',
+      price: 24000,
       instructor: 'Indrajeet Sir',
+      features: [
+        'Prelims: High-yield Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions',
+        'Mains: Short Note Making, Deep PYQ Trend Analysis, Toppers Copy Analysis, 16 Evaluated Tests',
+        'Weekly Strategy Sessions & 1-on-1 Personal Mentorship by Indrajeet Sir',
+        'Interview: Complete Personality Development, Book Reading Habits & Newspaper Analysis',
+        'Validity: 1 Year • Complete 3-Stage Support (Pre + Mains + Interview)',
+      ],
+      validity: '1 Year',
+      tag: 'Complete Mentorship (Post-FC)',
     },
     {
       id: 'c-2',
-      title: 'GS Paper 3 & Ethics Special Masterclass Batch',
-      description: 'Targeted preparation for Economy, Science & Tech, Environment, and Ethics Case Studies.',
-      price: 2999,
+      title: 'UPSC Mains 2027 Comprehensive Mentorship',
+      description: 'Targeted Mains score maximization with personal copy evaluation and structure improvement by Indrajeet Sir.',
+      price: 18000,
       instructor: 'Indrajeet Sir',
+      features: [
+        'High-Yield Mains Short Note Making Framework',
+        'Deep PYQ Trend Analysis & Theme Mapping',
+        'Toppers Copy In-Depth Structure & Presentation Analysis',
+        '16 Evaluated Tests with Line-by-Line Feedback from Sir',
+        'Weekly Diagnostic Sessions & 1-on-1 Mentorship by Indrajeet Sir',
+        'Validity: 4 - 5 Months',
+      ],
+      validity: '4–5 Months',
+      tag: 'Mains Score Booster',
+    },
+    {
+      id: 'c-3',
+      title: 'UPSC Prelims 2027 Targeted Program',
+      description: 'Build rigorous elimination skills, concise revision notes, and solve 5,000+ targeted practice questions.',
+      price: 10000,
+      instructor: 'Indrajeet Sir',
+      features: [
+        'Micro Notes Making & Core Conceptual Clarity across Standard Books',
+        'PYQ+ Strategy (Pattern Recognition & Options Elimination Tactics)',
+        '20 Comprehensive Mock Tests with Micro Diagnostics',
+        'Total 5,000+ Curated Practice Questions with Detailed Explanations',
+        'Weekly Target Tracking & Negative Marking Reduction Roadmap',
+        'Validity: 5 - 6 Months',
+      ],
+      validity: '5–6 Months',
+      tag: 'Prelims Special',
+    },
+    {
+      id: 'c-4',
+      title: '1 Year Full Mentorship for UPSC 2027 / 2028 (Parallel with Foundation Course)',
+      description: 'Align and strengthen your preparation alongside your ongoing foundation course (Note: We do not provide foundation lectures).',
+      price: 30000,
+      instructor: 'Indrajeet Sir',
+      features: [
+        'Complete 3-Stage Support: Prelims + Mains + Interview Mentorship',
+        'Prelims: Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions',
+        'Mains: Short Note Making, PYQ Trend Analysis, Toppers Copy Analysis, 16 Tests',
+        'Weekly Diagnostic Sessions & 1-on-1 Personal Mentorship by Indrajeet Sir',
+        'Interview: Personality Development, Book Reading Habit & Daily Newspaper Analysis',
+        'Validity: 18 Months (Extended Mentorship Support)',
+      ],
+      validity: '18 Months',
+      tag: 'Foundation Parallel Batch',
+    },
+    {
+      id: 'c-5',
+      title: 'UPSC Mains Short Notes Making',
+      description: 'Master the methodology of condensing vast GS 1–4 syllabus into high-yield micro notes.',
+      price: 4500,
+      instructor: 'Indrajeet Sir',
+      features: [
+        'Step-by-step Framework for 600+ UPSC Mains Core Topics',
+        'Condensing Standard Books, NCERTs & Current Affairs into Revision Snippets',
+        'Data Points, Committee Reports, Diagrams & Case Laws Integration',
+        'Model Short Notes Samples & Templates',
+        'Validity: 2 Months',
+      ],
+      validity: '2 Months',
+      tag: 'Short Notes Framework',
     },
   ]);
 
@@ -74,53 +220,117 @@ export default function Home() {
     tag: string;
     size: string;
     fileUrl: string;
-  }>>([]);
+  }>>([
+    {
+      id: 'pdf-1',
+      title: 'UPSC 2027 Master Micro-Syllabus & 600+ Topic Blueprint',
+      description: 'Topic-wise breakdown of GS Paper 1, 2, 3 and 4 with direct PYQ trend tags and core keywords.',
+      tag: 'Syllabus Blueprint',
+      size: '2.4 MB',
+      fileUrl: '/api/upload-pdf',
+    },
+    {
+      id: 'pdf-2',
+      title: 'Indrajeet Sir Model Evaluated Mains Answer Copy (GS 2 & Ethics)',
+      description: 'Real evaluated copies with Intro-Body-Conclusion framework, 2nd ARC citations, and case law value addition.',
+      tag: 'Model Copies',
+      size: '3.8 MB',
+      fileUrl: '/api/upload-pdf',
+    },
+    {
+      id: 'pdf-3',
+      title: 'Prelims PYQ Reverse Engineering Framework & Theme Mapping',
+      description: 'Strategic guide on how past 10-year UPSC questions predict upcoming themes and option-elimination tactics.',
+      tag: 'PYQ Strategy',
+      size: '1.9 MB',
+      fileUrl: '/api/upload-pdf',
+    },
+  ]);
 
-  // Dynamic Site Content (Editable via Admin Panel)
+    // Dynamic Site Content (Editable via Admin Panel)
   const [siteContent, setSiteContent] = useState({
-    heroHeading: 'UPSC CSE is cracked on Answer Writing & Discipline, not endless lectures.',
-    heroSubheading: 'UPSC CSE is cracked on answer writing and daily discipline rather than endless passive lectures. Get direct personal guidance by Indrajeet Sir with line-by-line Mains copy checking, weekly personal strategy reviews, and high-yield GS 1–4 study notes.',
-    stat1Number: '600+',
-    stat1Label: 'Mains Micro Notes',
-    stat2Number: '16 Tests',
-    stat2Label: 'Checked Personally',
-    stat3Number: 'Private',
-    stat3Label: 'Strategy Sessions',
-    aboutHeading: 'No Outsourced Checking. Direct Teacher Accountability.',
-    aboutSubheading: 'In UPSC CSE preparation, endless passive lectures create a false illusion of progress. True mastery is built when disciplined answer writing is rigorously evaluated and personally cracked through consistent diagnosis.',
-    dhoniQuote: 'The process is more important than the results. If you take care of the process, results will follow.',
+    // 1. Hero Section & Process Pillars
+    heroBadge: 'Ex-VisionIAS Faculty',
+    heroHeading: 'Sabhi exam ka ek process hota hai aur usi ko dhyan me rakhte hue humne ek process design kiya h jiske pillars:',
+    heroPillar1: '600+ topic short notes',
+    heroPillar2: 'depth pyq analysis',
+    heroPillar3: 'toppers copy analysis',
+    heroPillar4: 'answer writing skill',
+    heroPillar5: 'one-one personal mentorship',
+    dhoniQuote: 'I have always believed that the process is more important than the result. The result is just a by-product of the process. If you take care of the process, the results will follow.',
     dhoniAuthor: 'MS Dhoni',
-    pdfSectionHeading: 'Important Study Material & Resource PDFs',
-    pdfSectionSubheading: 'Download verified syllabus blueprints, official brochures, model answer evaluations, and strategic notes prepared by Indrajeet Sir.',
-    contactDeskHeading: 'Have Questions About Preparation Strategy?',
-    contactDeskSubheading: "Talk directly with Indrajeet Sir's mentorship desk to discuss your attempt year and study plan.",
+    dhoniTag: 'Our Mentorship Philosophy',
+
+    // 2. Section 1: About Indrajeet Sir (5 Credential Highlights)
+    aboutSirHeading: 'About Indrajeet Sir',
+    sirCard1Val: '4 UPSC Mains Written',
+    sirCard1Desc: 'Personal exam battlefield experience across GS 1–4, Essay, and optional papers.',
+    sirCard2Val: '7+ Years Experience',
+    sirCard2Desc: 'Dedicated coaching & 1-on-1 mentorship experience guiding UPSC & State PCS aspirants.',
+    sirCard3Val: '500+ Aspirants Mentored',
+    sirCard3Desc: 'Consistent track record of helping mentees transform their answer writing and crack ranks.',
+    sirCard4Val: 'VisionIAS Faculty',
+    sirCard4Desc: 'Expert faculty for Polity & Governance with deep syllabus and trend analysis.',
+    sirCard5Val: 'LLB, Law Faculty (DU)',
+    sirCard5Desc: 'Strong legal and constitutional foundation from Faculty of Law, University of Delhi.',
+
+    // 3. Section 2: About The Mentorship (4 Core Pillars)
+    aboutMentorshipHeading: 'About The Mentorship',
+    mentorPillar1Title: 'Weekly Sessions by Indrajeet Sir',
+    mentorPillar1Desc: 'Direct 1-on-1 strategy sessions with Indrajeet Sir to review weekly targets, syllabus coverage, and psychological clarity.',
+    mentorPillar2Title: 'Reverse Engineering Method',
+    mentorPillar2Desc: 'Solving Prelims & Mains questions by deconstructing past UPSC trends and mapping themes to high-yield notes.',
+    mentorPillar3Title: 'Main Focus on "Process"',
+    mentorPillar3Desc: 'UPSC me selection result ke peeche bhagne se nahi, daily process (answer writing + discipline) master karne se banta hai.',
+    mentorPillar4Title: 'Direct 1-on-1 Teacher Access',
+    mentorPillar4Desc: 'Har Mains copy Indrajeet Sir personally check karte hain. Actionable marginal remarks on structure, flow and presentation.',
+
+    // 4. Batches & Courses Section
+    coursesHeading: 'Mentorship Batches & Fees',
+    // coursesSubheading: 'Transparent course fees. Login credentials and Android application access are delivered immediately after enrollment.',
+
+    // 5. Mentored Aspirants (3 Showcase Cards)
+    resultsHeading: 'Aspirants Mentored by Indrajeet Sir',
+    resultsSubheading: '',
+    result1Name: 'Jatin Parashar (IRS) UPSC 2022',
+    result1Image: '/toppers/jatin-parashar.jpg',
+    result2Name: 'Kritika Mishra (IAS) UPSC 2023',
+    result2Image: '/toppers/kritika-mishra.jpg',
+    result3Name: 'Devesh Parashar (IPS) UPSC 2024',
+    result3Image: '/toppers/devesh-parashar.jpg',
+
+    // 6. Free PDFs & Study Material Section
+    pdfSectionHeading: 'Important Study Material & Resource PDFs (Free Access)',
+    pdfSectionSubheading: 'Download verified syllabus blueprints, model answer copies, official brochures, and reverse-engineered PYQ frameworks prepared by Indrajeet Sir.',
+
+    // 7. Mobile App Showcase Section
+    appTitle: 'Learn, Submit Copies & Attend Live Sessions On The Go',
+    appDesc: 'Install the official Indrajeet Sir UPSC Mentorship Android App directly from Google Play Store. Access 1:1 answer evaluation updates, live classroom broadcasts, handwritten evaluation PDFs, and daily mentorship alerts right on your phone.',
+    appPlayStoreUrl: 'https://play.google.com/store/apps/details?id=com.nighwantech.indrajeetsir',
+    appBullet1Title: 'Instant Live Class Reminders',
+    appBullet1Desc: 'Receive 10-minute alerts before 1:1 strategy calls & masterclasses.',
+    appBullet2Title: 'Direct Doubt with Indrajeet Sir',
+    appBullet2Desc: 'Chat in real-time, submit Mains handwritten sheets, and review feedback.',
+    appBullet3Title: 'Offline PDF Study Material',
+    appBullet3Desc: 'Download curated GS 1–4 micro-notes, brochures, and model answer copies.',
+
+    // FAQs Section Header
+    faqsHeading: 'Frequently Asked Questions',
+    faqsSubheading: 'Clear answers to common questions about copy checking, schedules, and study material.',
+
+    // 8. Contact Desk & Official Channels
+    contactDeskHeading: 'Have Questions About Batch, Attempt Year or Strategy?',
+    contactDeskSubheading: "Talk directly with Indrajeet Sir's mentorship desk to choose the right batch for your UPSC attempt.",
     telegramHandle: '@Indrajeetsir_UPSC',
     telegramUrl: 'https://t.me/Indrajeetsir_UPSC',
-    phoneDisplay: '+91 98734 86158',
-    phoneTel: '+919873486158',
-    whatsappDisplay: '+91 98734 86158',
-    whatsappUrl: 'https://wa.me/919873486158',
+    phoneDisplay: '+91 97099 92093',
+    phoneTel: '+919709992093',
+    whatsappDisplay: '+91 97099 92093',
+    whatsappUrl: 'https://wa.me/919709992093',
     contactEmail: 'indrajeet.visionias@gmail.com',
   });
 
-  const faqs = [
-    {
-      q: 'Mains answer copies kaun check karta hai?',
-      a: 'Har ek copy Indrajeet Sir personally evaluate karte hain. Hum koi third-party evaluator ya outsourced intern appoint nahi karte, taaki aapko direct structure improvement aur actionable feedback mile.',
-    },
-    {
-      q: 'Personal strategy sessions kab schedule hote hain?',
-      a: 'Enrollment ke baad aapko direct calendar booking link milta hai. Har session private video call hota hai jisme aapka study schedule, answer analysis aur weekly preparation roadmap review hota hai.',
-    },
-    {
-      q: 'GS 1–4 ke notes kis format me milte hain?',
-      a: 'Student portal aur mobile application me 600+ point-wise, high-yield micro notes milte hain. Ye static syllabus aur contemporary value additions ko combine karke exam-oriented format me banaye gaye hain.',
-    },
-    {
-      q: 'Payment complete hone ke baad access kaise milega?',
-      a: 'Online payment complete hote hi aapke email par Student ID, password aur Indrajeet Sir UPSC Mobile App ka download link turant deliver ho jata hai.',
-    },
-  ];
+  const [faqs, setFaqs] = useState<FaqItem[]>(DEFAULT_FAQS);
 
   // Fetch courses and live website content
   useEffect(() => {
@@ -143,16 +353,55 @@ export default function Home() {
             parsed.heroSubheading = parsed.heroSubheading.replace('weekly 1:1 strategy reviews', 'weekly personal strategy reviews');
             updated = true;
           }
+          if (!parsed.result1Name || !parsed.result1Name.includes('Jatin')) {
+            parsed.result1Name = 'Jatin Parashar (IRS) UPSC 2022';
+            parsed.result2Name = 'Kritika Mishra (IAS) UPSC 2023';
+            parsed.result3Name = 'Devesh Parashar (IPS) UPSC 2024';
+            updated = true;
+          }
+          if (!parsed.heroHeading || !parsed.heroHeading.includes('Sabhi exam ka ek process hota hai')) {
+            parsed.heroHeading = 'Sabhi exam ka ek process hota hai aur usi ko dhyan me rakhte hue humne ek process design kiya h jiske pillars:';
+            parsed.heroPillar1 = '600+ topic short notes';
+            parsed.heroPillar2 = 'depth pyq analysis';
+            parsed.heroPillar3 = 'toppers copy analysis';
+            parsed.heroPillar4 = 'answer writing skill';
+            parsed.heroPillar5 = 'one-one personal mentorship';
+            updated = true;
+          }
           if (updated) {
             try { localStorage.setItem('indrajeet_site_content', JSON.stringify(parsed)); } catch {}
           }
           setSiteContent((prev) => ({ ...prev, ...parsed }));
+        }
+        const savedCourses = localStorage.getItem('indrajeet_courses');
+        if (savedCourses) {
+          const parsed = JSON.parse(savedCourses);
+          if (Array.isArray(parsed)) {
+            const clean = parsed.filter(c => c.price !== 4999 && c.price !== 2999 && !c.title.includes('GS Paper 3') && !c.title.includes('Ethics Special'));
+            if (clean.length >= 5) {
+              setCourses(sortCoursesInOrder(clean));
+            }
+          }
         }
         const savedPdfs = localStorage.getItem('indrajeet_pdf_list');
         if (savedPdfs) {
           const parsed = JSON.parse(savedPdfs);
           if (Array.isArray(parsed) && parsed.length > 0) {
             setPdfList(parsed);
+          }
+        }
+        const savedFaqs = localStorage.getItem('indrajeet_faqs');
+        if (savedFaqs) {
+          try {
+            const parsed = JSON.parse(savedFaqs);
+            if (Array.isArray(parsed) && parsed.length >= 10 && parsed[0]?.a === '365+1 day (1 year)') {
+              setFaqs(parsed);
+            } else {
+              setFaqs(DEFAULT_FAQS);
+              try { localStorage.setItem('indrajeet_faqs', JSON.stringify(DEFAULT_FAQS)); } catch {}
+            }
+          } catch {
+            setFaqs(DEFAULT_FAQS);
           }
         }
       } catch {
@@ -163,8 +412,11 @@ export default function Home() {
     fetch(`${API_URL}/courses`)
       .then(r => r.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setCourses(data);
+        if (Array.isArray(data)) {
+          const clean = data.filter(c => c.price !== 4999 && c.price !== 2999 && !c.title.includes('GS Paper 3') && !c.title.includes('Ethics Special'));
+          if (clean.length >= 5) {
+            setCourses(sortCoursesInOrder(clean));
+          }
         }
       })
       .catch(() => {});
@@ -238,7 +490,7 @@ export default function Home() {
             contact: studentPhone,
           },
           theme: {
-            color: '#2563eb',
+            color: '#0f172a',
           },
           handler: async (response: RazorpayResponse) => {
             await verifyPaymentAndFinish({
@@ -355,528 +607,208 @@ export default function Home() {
 
   return (
     <div className="site">
-      {/* ── 3D Fluid Ambient Atmosphere ── */}
-      <div className="fluid-bg-container" aria-hidden="true">
-        <div className="fluid-orb fluid-orb-1" />
-        <div className="fluid-orb fluid-orb-2" />
-        <div className="fluid-orb fluid-orb-3" />
-      </div>
-
       {/* ── Modular Header ── */}
       <Header />
 
-      {/* ── Full-Width Cinematic Hero Showcase ── */}
-      <section id="top" className="cinematic-hero-section">
-        {/* Grand Showcase Banner */}
-        <div className="hero-banner-container">
-          <div className="hero-banner-card">
-            <div className="hero-banner-frame">
-              <Image
-                src="/hero-banner.png"
-                alt="Indrajeet Sir - One-to-One Mentorship for Complete UPSC & State PCS Preparation"
-                width={2000}
-                height={968}
-                quality={98}
-                priority
-                className="hero-banner-img"
-              />
-              <div className="hero-banner-glass-glow" />
-            </div>
-          </div>
-        </div>
+      {/* ── Indrajeet Sir Hero Section ── */}
+      <section id="top" className="indrajeet-hero-section">
+        <div className="indrajeet-hero-container">
+          {/* Left Column: Mission, Process Pitch, Dhoni Quote & CTAs */}
+          <div className="indrajeet-hero-content">
+            <h1 className="indrajeet-hero-title">
+              {siteContent.heroHeading}
+            </h1>
 
-        {/* Hero Actions, Pitch & Interactive Stats Bar */}
-        <div className="hero-showcase-bottom">
-          <div className="hero-showcase-lead">
-            <h1>{siteContent.heroHeading}</h1>
-            <p className="hero-desc">{siteContent.heroSubheading}</p>
-          </div>
-
-          <div className="hero-btns hero-btns-center">
-            <a href="#courses" className="btn-primary lg">
-              <i className="fa-solid fa-graduation-cap" style={{ marginRight: '0.55rem' }} aria-hidden="true" />
-              <span>Explore Programs & Fees</span>
-            </a>
-            <button className="btn-outline lg" onClick={() => setShowBookModal(true)}>
-              <i className="fa-solid fa-phone" style={{ marginRight: '0.55rem' }} aria-hidden="true" />
-              <span>Request Direct Callback</span>
-            </button>
-          </div>
-
-          <div className="hero-stats-showcase">
-            <div className="stat-card-showcase">
-              <div className="stat-icon-wrap">
-                <i className="fa-solid fa-book-bookmark" aria-hidden="true" />
+            {/* 5 Core Process Pillars Strip */}
+            <div className="process-pillars-strip">
+              <div className="process-pillar-item">
+                <i className="fa-solid fa-file-lines" aria-hidden="true" />
+                <span>{siteContent.heroPillar1}</span>
               </div>
-              <div className="stat-info">
-                <strong>{siteContent.stat1Number}</strong>
-                <span>{siteContent.stat1Label}</span>
+              <div className="process-pillar-item">
+                <i className="fa-solid fa-chart-line" aria-hidden="true" />
+                <span>{siteContent.heroPillar2}</span>
+              </div>
+              <div className="process-pillar-item">
+                <i className="fa-solid fa-award" aria-hidden="true" />
+                <span>{siteContent.heroPillar3}</span>
+              </div>
+              <div className="process-pillar-item">
+                <i className="fa-solid fa-pen-nib" aria-hidden="true" />
+                <span>{siteContent.heroPillar4}</span>
+              </div>
+              <div className="process-pillar-item">
+                <i className="fa-solid fa-user-graduate" aria-hidden="true" />
+                <span>{siteContent.heroPillar5}</span>
               </div>
             </div>
-            <div className="stat-card-showcase">
-              <div className="stat-icon-wrap">
-                <i className="fa-solid fa-file-signature" aria-hidden="true" />
-              </div>
-              <div className="stat-info">
-                <strong>{siteContent.stat2Number}</strong>
-                <span>{siteContent.stat2Label}</span>
-              </div>
+
+
+            {/* Direct CTAs */}
+            <div className="indrajeet-hero-actions">
+              <a href="#courses" className="btn-primary lg">
+                <i className="fa-solid fa-graduation-cap" style={{ marginRight: '0.55rem' }} aria-hidden="true" />
+                <span>Explore Batches & Fees</span>
+              </a>
+              <button className="btn-outline lg" onClick={() => setShowBookModal(true)}>
+                <i className="fa-solid fa-phone" style={{ marginRight: '0.55rem' }} aria-hidden="true" />
+                <span>Request Direct Callback</span>
+              </button>
             </div>
-            <div className="stat-card-showcase">
-              <div className="stat-icon-wrap">
-                <i className="fa-solid fa-chalkboard-user" aria-hidden="true" />
-              </div>
-              <div className="stat-info">
-                <strong>{siteContent.stat3Number}</strong>
-                <span>{siteContent.stat3Label}</span>
+
+            {/* Mentorship Philosophy Quote (Normal Highlighted) */}
+            <div className="hero-dhoni-quote-wrap">
+              <p className="hero-dhoni-quote-text">
+                &ldquo;{siteContent.dhoniQuote}&rdquo;
+              </p>
+              <div className="hero-dhoni-quote-footer">
+                <span className="quote-author-name">— {siteContent.dhoniAuthor}</span>
+                <span className="quote-author-divider">•</span>
+                <span className="quote-author-tag">{siteContent.dhoniTag}</span>
               </div>
             </div>
           </div>
 
-          {/* ── Single Direct Browse Anchor Pills (Clean & Minimal) ── */}
-          <div className="quick-category-pills-bar">
-            <a href="#courses" className="category-pill-chip">
-              <i className="fa-solid fa-graduation-cap" aria-hidden="true" />
-              <span>Programs & Fees</span>
-            </a>
-            <a href="#about" className="category-pill-chip">
-              <i className="fa-solid fa-shield-halved" aria-hidden="true" />
-              <span>Direct Mentorship</span>
-            </a>
-            <a href="#framework" className="category-pill-chip">
-              <i className="fa-solid fa-microscope" aria-hidden="true" />
-              <span>Copy Evaluation</span>
-            </a>
-            <a href="#faq" className="category-pill-chip">
-              <i className="fa-solid fa-circle-question" aria-hidden="true" />
-              <span>FAQs</span>
-            </a>
+          {/* Right Column: High-Impact Mentor Portrait Card */}
+          <div className="indrajeet-hero-visual">
+            <div className="mentor-visual-card">
+              <div className="mentor-visual-frame">
+                <Image
+                  src="/indrajeet-sir-hero.png"
+                  alt="Indrajeet Sir - 1-on-1 Mentorship for UPSC CSE"
+                  width={980}
+                  height={1440}
+                  priority
+                  quality={95}
+                  className="mentor-visual-img"
+                />
+                <div className="mentor-visual-overlay" />
+                
+                {/* Floating Seal & Badge */}
+                <div className="mentor-floating-tag top-right">
+                  <i className="fa-solid fa-shield-halved" aria-hidden="true" />
+                  <span>{siteContent.heroBadge || 'Ex-VisionIAS Faculty'}</span>
+                </div>
+
+
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── Authentic Mentorship Architecture ── */}
+      {/* ── Section 1: About Indrajeet Sir ── */}
       <section id="about" className="section-wrap">
         <div className="section-inner text-center">
-          {/* ── Clean Section Header ── */}
-          <div className="positioning-authority-strip">
-            <h2 className="section-heading">{siteContent.aboutHeading}</h2>
-            <p className="section-subtext">
-              {siteContent.aboutSubheading}
-            </p>
-            <div className="authority-features-row">
-              <div className="authority-feature-tag">
-                <i className="fa-solid fa-graduation-cap" aria-hidden="true" />
-                <span>10+ Years Dedicated UPSC Mentorship</span>
-              </div>
-              <div className="authority-feature-tag">
-                <i className="fa-solid fa-chalkboard-user" aria-hidden="true" />
-                <span>Ex-Faculty at Top Delhi Institutes</span>
-              </div>
-              <div className="authority-feature-tag">
+          <h2 className="section-heading" style={{ marginBottom: "2.5rem" }}>{siteContent.aboutSirHeading}</h2>
+
+          <div className="sir-profile-highlights-grid">
+            <div className="sir-stat-card">
+              <div className="sir-stat-icon">
                 <i className="fa-solid fa-pen-nib" aria-hidden="true" />
-                <span>Personal Copy Checking</span>
               </div>
-            </div>
-          </div>
-
-          <div className="comparison-grid">
-            {/* The Bulk Coaching Dilemma */}
-            <div className="problem-card">
-              <h3>
-                <i className="fa-solid fa-triangle-exclamation" style={{ color: '#ef4444', marginRight: '0.5rem' }} aria-hidden="true" />
-                <span>The Bulk Coaching Problem</span>
-              </h3>
-              <ul className="problem-list">
-                <li>
-                  <span className="cross-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <i className="fa-solid fa-xmark" aria-hidden="true" />
-                  </span>
-                  <span>400+ students packed into a single batch with zero individual attention or strategy diagnosis.</span>
-                </li>
-                <li>
-                  <span className="cross-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <i className="fa-solid fa-xmark" aria-hidden="true" />
-                  </span>
-                  <span>Answer copies checked after 3–4 weeks by junior interns or outsourced evaluation contractors.</span>
-                </li>
-                <li>
-                  <span className="cross-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <i className="fa-solid fa-xmark" aria-hidden="true" />
-                  </span>
-                  <span>Generic scorecards with no actionable remarks on how to improve introduction, arguments, or conclusion.</span>
-                </li>
-                <li>
-                  <span className="cross-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <i className="fa-solid fa-xmark" aria-hidden="true" />
-                  </span>
-                  <span>Students spend months watching lectures without ever building real 3-hour answer writing stamina.</span>
-                </li>
-              </ul>
+              <div className="sir-stat-val">{siteContent.sirCard1Val}</div>
+              <p className="sir-stat-desc">{siteContent.sirCard1Desc}</p>
             </div>
 
-            {/* Indrajeet Sir's Direct Mentorship Approach */}
-            <div className="solution-card">
-              <h3>
-                <i className="fa-solid fa-shield-halved" style={{ color: '#2563eb', marginRight: '0.5rem' }} aria-hidden="true" />
-                <span>Indrajeet Sir&apos;s Direct Mentorship</span>
-              </h3>
-              <ul className="solution-list">
-                <li>
-                  <span className="check-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <i className="fa-solid fa-check" aria-hidden="true" />
-                  </span>
-                  <span><strong>Personal Copy Checking:</strong> Every Mains answer is evaluated directly by Indrajeet Sir with actionable remarks.</span>
-                </li>
-                <li>
-                  <span className="check-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <i className="fa-solid fa-check" aria-hidden="true" />
-                  </span>
-                  <span><strong>Weekly Private Strategy Calls:</strong> Diagnostic video sessions to review your weekly study timetable and fix preparation gaps.</span>
-                </li>
-                <li>
-                  <span className="check-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <i className="fa-solid fa-check" aria-hidden="true" />
-                  </span>
-                  <span><strong>600+ Topic Micro Notes:</strong> Concise, high-yield revision material across GS-1, GS-2, GS-3, and GS-4.</span>
-                </li>
-                <li>
-                  <span className="check-icon" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <i className="fa-solid fa-check" aria-hidden="true" />
-                  </span>
-                  <span><strong>16 Structured Tests:</strong> Phased test series (Mini, Sectional & Full-length) with model answers and marks improvement roadmap.</span>
-                </li>
-              </ul>
+            <div className="sir-stat-card">
+              <div className="sir-stat-icon">
+                <i className="fa-solid fa-award" aria-hidden="true" />
+              </div>
+              <div className="sir-stat-val">{siteContent.sirCard2Val}</div>
+              <p className="sir-stat-desc">{siteContent.sirCard2Desc}</p>
             </div>
-          </div>
 
-          {/* Dhoni Quote 3D Card */}
-          <div className="quote-card-3d">
-            <blockquote>
-              &ldquo;{siteContent.dhoniQuote}&rdquo;
-              <span className="quote-author">— {siteContent.dhoniAuthor}</span>
-            </blockquote>
+            <div className="sir-stat-card">
+              <div className="sir-stat-icon">
+                <i className="fa-solid fa-users" aria-hidden="true" />
+              </div>
+              <div className="sir-stat-val">{siteContent.sirCard3Val}</div>
+              <p className="sir-stat-desc">{siteContent.sirCard3Desc}</p>
+            </div>
+
+            <div className="sir-stat-card">
+              <div className="sir-stat-icon">
+                <i className="fa-solid fa-landmark" aria-hidden="true" />
+              </div>
+              <div className="sir-stat-val">{siteContent.sirCard4Val}</div>
+              <p className="sir-stat-desc">{siteContent.sirCard4Desc}</p>
+            </div>
+
+            <div className="sir-stat-card">
+              <div className="sir-stat-icon">
+                <i className="fa-solid fa-scale-balanced" aria-hidden="true" />
+              </div>
+              <div className="sir-stat-val">{siteContent.sirCard5Val}</div>
+              <p className="sir-stat-desc">{siteContent.sirCard5Desc}</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── Educative Graphic 1: 3-Stage UPSC Mentorship Architecture ── */}
-      <section id="architecture" className="section-wrap">
+      {/* ── Section 2: About The Mentorship ── */}
+      <section id="mentorship" className="section-wrap" style={{ paddingTop: '2rem' }}>
         <div className="section-inner text-center">
-          <h2 className="section-heading">3-Stage UPSC Mentorship Architecture</h2>
-          <p className="section-subtext">
-            A battle-tested progression model transforming raw aspirants into rank-ready civil servants through phased diagnosis, feedback, and accountability.
-          </p>
+          <h2 className="section-heading" style={{ marginBottom: "2.5rem" }}>{siteContent.aboutMentorshipHeading}</h2>
 
-          <div className="edu-architecture-wrap">
-            <div className="edu-stages-grid">
-              {/* Stage 1 */}
-              <div className="edu-stage-card">
-                <div className="edu-stage-header">
-                  <span className="edu-stage-badge">
-                    <i className="fa-solid fa-compass" aria-hidden="true" />
-                    <span>Stage 01</span>
-                  </span>
-                  <span className="edu-stage-num">01</span>
-                </div>
-                <h3>Prelims Elimination &amp; Static Foundation</h3>
-                <p className="edu-stage-desc">
-                  Building micro-level conceptual clarity across NCERTs and standard reference books with rigorous PYQ pattern extraction.
-                </p>
-
-                <div className="edu-infographic-box">
-                  <div className="edu-diagram-item">
-                    <span className="edu-diagram-icon edu-icon-blue">
-                      <i className="fa-solid fa-filter" aria-hidden="true" />
-                    </span>
-                    <span>10-Year PYQ Elimination Tactics</span>
-                  </div>
-                  <div className="edu-diagram-item">
-                    <span className="edu-diagram-icon edu-icon-emerald">
-                      <i className="fa-solid fa-layer-group" aria-hidden="true" />
-                    </span>
-                    <span>High-Yield Theme Mapping</span>
-                  </div>
-                  <div className="edu-diagram-item">
-                    <span className="edu-diagram-icon edu-icon-amber">
-                      <i className="fa-solid fa-clock-rotate-left" aria-hidden="true" />
-                    </span>
-                    <span>Negative Marking Diagnostic</span>
-                  </div>
-                  <div className="edu-metric-bar">
-                    <div className="edu-metric-fill" style={{ width: '85%' }} />
-                  </div>
-                </div>
-
-                <div className="edu-card-deliverable">
-                  <i className="fa-solid fa-circle-check" aria-hidden="true" />
-                  <span>Deliverable: 100% Core Syllabus Mastery</span>
-                </div>
-              </div>
-
-              {/* Stage 2 */}
-              <div className="edu-stage-card" style={{ borderColor: 'rgba(37, 99, 235, 0.4)', boxShadow: '0 12px 35px -6px rgba(37, 99, 235, 0.12)' }}>
-                <div className="edu-stage-header">
-                  <span className="edu-stage-badge" style={{ background: '#2563eb', color: '#ffffff', borderColor: '#1d4ed8' }}>
-                    <i className="fa-solid fa-pen-fancy" aria-hidden="true" />
-                    <span>Stage 02 • Core Focus</span>
-                  </span>
-                  <span className="edu-stage-num" style={{ color: '#93c5fd' }}>02</span>
-                </div>
-                <h3>Mains GS 1–4 &amp; Essay Answer Diagnosis</h3>
-                <p className="edu-stage-desc">
-                  Line-by-line copy evaluation personally conducted by Indrajeet Sir. Structural formatting, committee citations, and value addition.
-                </p>
-
-                <div className="edu-infographic-box">
-                  <div className="edu-diagram-item">
-                    <span className="edu-diagram-icon edu-icon-indigo">
-                      <i className="fa-solid fa-pen-nib" aria-hidden="true" />
-                    </span>
-                    <span>Direct Copy Evaluation by Sir</span>
-                  </div>
-                  <div className="edu-diagram-item">
-                    <span className="edu-diagram-icon edu-icon-emerald">
-                      <i className="fa-solid fa-chart-line" aria-hidden="true" />
-                    </span>
-                    <span>Intro-Body-Conclusion Structuring</span>
-                  </div>
-                  <div className="edu-diagram-item">
-                    <span className="edu-diagram-icon edu-icon-blue">
-                      <i className="fa-solid fa-diagram-project" aria-hidden="true" />
-                    </span>
-                    <span>Flowcharts &amp; Case Laws Integration</span>
-                  </div>
-                  <div className="edu-metric-bar">
-                    <div className="edu-metric-fill" style={{ width: '95%', background: 'linear-gradient(90deg, #2563eb, #10b981)' }} />
-                  </div>
-                </div>
-
-                <div className="edu-card-deliverable edu-deliverable-boost">
-                  <i className="fa-solid fa-award" aria-hidden="true" />
-                  <span>Deliverable: +40 to +60 Marks Mains Boost</span>
-                </div>
-              </div>
-
-              {/* Stage 3 */}
-              <div className="edu-stage-card">
-                <div className="edu-stage-header">
-                  <span className="edu-stage-badge">
-                    <i className="fa-solid fa-user-tie" aria-hidden="true" />
-                    <span>Stage 03</span>
-                  </span>
-                  <span className="edu-stage-num">03</span>
-                </div>
-                <h3>Personality Test &amp; Interview Board Guidance</h3>
-                <p className="edu-stage-desc">
-                  Detailed Application Form (DAF) line-by-line audit, contemporary policy analysis, and personal mock interview debrief with Indrajeet Sir.
-                </p>
-
-                <div className="edu-infographic-box">
-                  <div className="edu-diagram-item">
-                    <span className="edu-diagram-icon edu-icon-amber">
-                      <i className="fa-solid fa-id-card" aria-hidden="true" />
-                    </span>
-                    <span>DAF In-Depth Scrutiny &amp; Questions</span>
-                  </div>
-                  <div className="edu-diagram-item">
-                    <span className="edu-diagram-icon edu-icon-blue">
-                      <i className="fa-solid fa-comments" aria-hidden="true" />
-                    </span>
-                    <span>Situational Crisis Decision-Making</span>
-                  </div>
-                  <div className="edu-diagram-item">
-                    <span className="edu-diagram-icon edu-icon-emerald">
-                      <i className="fa-solid fa-video" aria-hidden="true" />
-                    </span>
-                    <span>Interview Simulation &amp; Personality Audit</span>
-                  </div>
-                  <div className="edu-metric-bar">
-                    <div className="edu-metric-fill" style={{ width: '90%' }} />
-                  </div>
-                </div>
-
-                <div className="edu-card-deliverable">
-                  <i className="fa-solid fa-circle-check" aria-hidden="true" />
-                  <span>Deliverable: Final Service Selection Mindset</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ── Educative Graphic 2: Authentic Evaluated Mains Copy Showcase ── */}
-          <div className="mains-copy-graphic-wrap">
-            <div className="mains-copy-header">
-              <div>
-                <span className="mains-copy-badge">
-                  <i className="fa-solid fa-microscope" aria-hidden="true" />
-                  <span>Live Evaluation Diagnostic</span>
-                </span>
-                <h3 style={{ fontSize: '1.45rem', fontWeight: 850, marginTop: '0.45rem', color: '#0f172a' }}>
-                  How Indrajeet Sir Personally Evaluates Your Answers
-                </h3>
-              </div>
-              <div className="mains-mentor-seal">
-                <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', fontSize: '1.1rem' }} aria-hidden="true" />
-                <span>Line-by-Line Copy Checking • Zero Outsourcing</span>
-              </div>
-            </div>
-
-            <div className="mains-copy-grid">
-              {/* Lined Answer Sheet Mockup */}
-              <div className="upsc-sheet-mockup">
-                <div className="upsc-sheet-margin" />
-                <div className="upsc-question-box">
-                  Q. &ldquo;Examine the constitutional role of statutory watchdogs in preserving federal integrity in India.&rdquo; (15 Marks, 250 Words)
-                </div>
-                <div className="upsc-student-answer-excerpt">
-                  <span className="answer-line">
-                    Statutory and Constitutional watchdogs like <span className="answer-highlight">CAG (Art 148) and Finance Commission (Art 280)</span> play a crucial balancing role...
-                    <span className="critique-callout">
-                      <i className="fa-solid fa-check" aria-hidden="true" /> Good Articles Cited
-                    </span>
-                  </span>
-                  <span className="answer-line" style={{ marginTop: '0.65rem' }}>
-                    However, fiscal friction between Centre and States has increased due to cess and surcharges...
-                    <span className="critique-callout tip">
-                      <i className="fa-solid fa-lightbulb" aria-hidden="true" /> Add 2nd ARC Flowchart
-                    </span>
-                  </span>
-                  <span className="answer-line" style={{ marginTop: '0.65rem' }}>
-                    <span className="answer-highlight">Way Forward:</span> Strengthening inter-state council consultations and institutionalizing tax devotions.
-                  </span>
-                </div>
-              </div>
-
-              {/* Feedback Breakdown Panel */}
-              <div className="mains-feedback-panel">
-                <div className="feedback-card-item">
-                  <div className="feedback-card-title" style={{ color: '#16a34a' }}>
-                    <i className="fa-solid fa-circle-check" aria-hidden="true" />
-                    <span>Content Strengths Identified</span>
-                  </div>
-                  <p className="feedback-card-text">
-                    Accurate constitutional articles referenced in introduction. Direct addressing of core question directive (&ldquo;Examine&rdquo;).
-                  </p>
-                </div>
-
-                <div className="feedback-card-item">
-                  <div className="feedback-card-title" style={{ color: '#dc2626' }}>
-                    <i className="fa-solid fa-circle-exclamation" aria-hidden="true" />
-                    <span>Structure &amp; Value Addition Remarks</span>
-                  </div>
-                  <p className="feedback-card-text">
-                    Divide body into 3 clear pillars: Legislative, Fiscal, and Dispute Resolution. Citing Sarkaria &amp; Punchhi Commission reports will fetch +2 marks.
-                  </p>
-                </div>
-
-                <div className="scorecard-banner">
-                  <div>
-                    <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#94a3b8', fontWeight: 800, letterSpacing: '0.05em' }}>
-                      Diagnostic Marks Given
-                    </div>
-                    <div className="scorecard-marks">
-                      <span className="scorecard-val">8.5</span>
-                      <span className="scorecard-total">/ 15 Marks</span>
-                    </div>
-                  </div>
-                  <span className="scorecard-gain">
-                    <i className="fa-solid fa-arrow-trend-up" style={{ marginRight: '0.35rem' }} aria-hidden="true" />
-                    +3.5 Marks Potential
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ── Educative Graphic 3: 4-Pillar Daily Mentorship Clock (Workflow) ── */}
-          <div className="daily-pipeline-grid">
-            <div className="pipeline-step-card">
-              <span className="pipeline-time-badge">
-                <i className="fa-regular fa-clock" aria-hidden="true" />
-                <span>08:00 AM IST</span>
-              </span>
-              <div className="pipeline-icon-box">
-                <i className="fa-solid fa-paper-plane" aria-hidden="true" />
-              </div>
-              <h4>1. Daily Question Prompt</h4>
-              <p>Curated GS Mains questions delivered daily via the Student App aligned with the weekly study roadmap.</p>
-            </div>
-
-            <div className="pipeline-step-card">
-              <span className="pipeline-time-badge">
-                <i className="fa-regular fa-clock" aria-hidden="true" />
-                <span>02:00 PM IST</span>
-              </span>
-              <div className="pipeline-icon-box">
-                <i className="fa-solid fa-cloud-arrow-up" aria-hidden="true" />
-              </div>
-              <h4>2. Aspirant Copy Upload</h4>
-              <p>Upload your handwritten answer PDF scan through the mobile app or web portal in under 15 seconds.</p>
-            </div>
-
-            <div className="pipeline-step-card">
-              <span className="pipeline-time-badge">
-                <i className="fa-regular fa-clock" aria-hidden="true" />
-                <span>08:00 PM IST</span>
-              </span>
-              <div className="pipeline-icon-box">
-                <i className="fa-solid fa-user-check" aria-hidden="true" />
-              </div>
-              <h4>3. Line-by-Line Copy Return</h4>
-              <p>Indrajeet Sir personally reviews and marks your copy with actionable margins, model structure, and audio critique.</p>
-            </div>
-
-            <div className="pipeline-step-card">
-              <span className="pipeline-time-badge" style={{ background: '#dcfce7', color: '#15803d', borderColor: '#bbf7d0' }}>
+          <div className="mentorship-pillars-grid">
+            <div className="mentor-pillar-card">
+              <div className="pillar-icon-box">
                 <i className="fa-solid fa-calendar-check" aria-hidden="true" />
-                <span>Weekly Session</span>
-              </span>
-              <div className="pipeline-icon-box" style={{ background: '#ecfdf5', color: '#10b981' }}>
-                <i className="fa-solid fa-headset" aria-hidden="true" />
               </div>
-              <h4>4. Weekly Personal Strategy Review</h4>
-              <p>Private video consultation to diagnose mental focus, timetable lags, and roadmap improvements for the upcoming week.</p>
+              <h3>{siteContent.mentorPillar1Title}</h3>
+              <p>{siteContent.mentorPillar1Desc}</p>
+            </div>
+
+            <div className="mentor-pillar-card">
+              <div className="pillar-icon-box">
+                <i className="fa-solid fa-arrows-spin" aria-hidden="true" />
+              </div>
+              <h3>{siteContent.mentorPillar2Title}</h3>
+              <p>{siteContent.mentorPillar2Desc}</p>
+            </div>
+
+            <div className="mentor-pillar-card">
+              <div className="pillar-icon-box">
+                <i className="fa-solid fa-bullseye" aria-hidden="true" />
+              </div>
+              <h3>{siteContent.mentorPillar3Title}</h3>
+              <p>{siteContent.mentorPillar3Desc}</p>
+            </div>
+
+            <div className="mentor-pillar-card">
+              <div className="pillar-icon-box">
+                <i className="fa-solid fa-handshake" aria-hidden="true" />
+              </div>
+              <h3>{siteContent.mentorPillar4Title}</h3>
+              <p>{siteContent.mentorPillar4Desc}</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* ── Courses & Pricing Section (3D Depth) ── */}
-      <section id="courses" className="section-wrap" style={{ background: 'rgba(255, 255, 255, 0.6)' }}>
+      <section id="courses" className="section-wrap" >
         <div className="section-inner text-center">
-          <h2 className="section-heading">Mentorship Batches &amp; Fees</h2>
-          <p className="section-subtext">
-            Transparent course fees. Login credentials and Android application access are delivered immediately after enrollment.
-          </p>
+          <h2 className="section-heading">{siteContent.coursesHeading}</h2>
+          {/* <p className="section-subtext">
+            {siteContent.coursesSubheading || 'Transparent course fees. Login credentials and Android application access are delivered immediately after enrollment.'}
+          </p> */}
 
           <div className="courses-grid-3d">
-            {courses.map((course, idx) => {
+            {courses.map((course) => {
               const currentPrice = Number(course.price) || 0;
               // Realistic baseline original fee (approx 2.5x to showcase 60%+ direct mentorship savings vs Karol Bagh offline coaching)
               const originalPrice = Math.round(currentPrice * 2.5);
               const discountPercent = Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
 
               return (
-                <div key={course.id} className={`pricing-card-3d ${idx === 0 ? 'featured' : ''}`}>
+                <div key={course.id} className="pricing-card-3d">
                   <div>
-                    {/* Top Status & Savings Badges */}
-                    <div className="pricing-card-badges-row">
-                      <span className="live-batch-status-chip">
-                        <span className="live-green-pulse" />
-                        <span>Admissions Open • 2026-27</span>
-                      </span>
-                      {discountPercent > 0 && (
-                        <span className="discount-save-tag">
-                          Save {discountPercent}% vs Offline
-                        </span>
-                      )}
-                    </div>
-
                     <div className="pricing-title-wrap">
                       <h3>{course.title}</h3>
                       <p className="pricing-desc-text">
-                        {course.description || 'Comprehensive mentorship with Indrajeet Sir, direct Mains evaluation, and live interactive classes.'}
+                        {course.description || 'Comprehensive mentorship with Indrajeet Sir, direct Mains evaluation, and weekly strategy sessions.'}
                       </p>
                     </div>
 
@@ -889,114 +821,324 @@ export default function Home() {
                         <div className="price-active-row">
                           <span className="currency-sym">₹</span>
                           <span className="amount-val">{currentPrice.toLocaleString('en-IN')}</span>
-                          <span className="fee-tenure">/ full batch access</span>
+                          <span className="fee-tenure">/ {course.validity || 'batch access'}</span>
                         </div>
                       </div>
                     </div>
 
                     <ul className="features-checklist">
-                    <li>
-                      <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
-                      <span>Live interactive strategy masterclasses with Indrajeet Sir</span>
-                    </li>
-                    <li>
-                      <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
-                      <span>Direct Mains answer writing evaluation &amp; feedback</span>
-                    </li>
-                    <li>
-                      <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
-                      <span>600+ Topic-wise short notes for GS 1 to 4</span>
-                    </li>
-                    <li>
-                      <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
-                      <span>16 Evaluated tests (Mini, Sectional &amp; Full-length)</span>
-                    </li>
-                    <li>
-                      <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
-                      <span>Direct WhatsApp &amp; Call doubt clearing desk</span>
-                    </li>
-                  </ul>
+                      {course.features && course.features.length > 0 ? (
+                        course.features.map((feat, fIdx) => (
+                          <li key={fIdx}>
+                            <i className="fa-solid fa-circle-check" style={{ color: '#0f172a', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
+                            <span>{feat}</span>
+                          </li>
+                        ))
+                      ) : (
+                        <>
+                          <li>
+                            <i className="fa-solid fa-circle-check" style={{ color: '#0f172a', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
+                            <span>Direct Mains answer writing evaluation &amp; feedback by Indrajeet Sir</span>
+                          </li>
+                          <li>
+                            <i className="fa-solid fa-circle-check" style={{ color: '#0f172a', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
+                            <span>600+ Topic-wise short notes for GS 1 to 4</span>
+                          </li>
+                          <li>
+                            <i className="fa-solid fa-circle-check" style={{ color: '#0f172a', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
+                            <span>Weekly Diagnostic Strategy &amp; Doubt Clearing Sessions</span>
+                          </li>
+                        </>
+                      )}
+                    </ul>
+                  </div>
+                  <button
+                    className="btn-primary full lg"
+                    onClick={() => handleStartEnrollment(course)}
+                  >
+                    <i className="fa-solid fa-bolt" style={{ marginRight: '0.45rem' }} aria-hidden="true" />
+                    <span>Enroll Now — ₹{Number(course.price).toLocaleString('en-IN')}</span>
+                  </button>
                 </div>
-                <button
-                  className="btn-primary full lg"
-                  onClick={() => handleStartEnrollment(course)}
-                >
-                  <i className="fa-solid fa-bolt" style={{ marginRight: '0.45rem' }} aria-hidden="true" />
-                  <span>Enroll Now — ₹{Number(course.price).toLocaleString('en-IN')}</span>
-                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Our Results Section ── */}
+      <section id="results" className="section-wrap" >
+        <div className="section-inner text-center">
+          <h2 className="section-heading">{siteContent.resultsHeading}</h2>
+          {siteContent.resultsSubheading ? (
+            <p className="section-subtext">{siteContent.resultsSubheading}</p>
+          ) : null}
+
+          <div className="topper-mentored-grid">
+            {/* 1. Jatin Parashar (IRS) UPSC 2022 */}
+            <div className="topper-mentored-card">
+              <div className="topper-image-frame">
+                <Image
+                  src="/toppers/jatin-parashar.jpg"
+                  alt="Jatin Parashar (IRS) UPSC 2022"
+                  width={400}
+                  height={480}
+                  className="topper-photo"
+                  priority
+                />
               </div>
-            );
-          })}
+              <h3 className="topper-name-label">{siteContent.result1Name || 'Jatin Parashar (IRS) UPSC 2022'}</h3>
+            </div>
+
+            {/* 2. Kritika Mishra (IAS) UPSC 2023 */}
+            <div className="topper-mentored-card">
+              <div className="topper-image-frame">
+                <Image
+                  src="/toppers/kritika-mishra.jpg"
+                  alt="Kritika Mishra (IAS) UPSC 2023"
+                  width={400}
+                  height={480}
+                  className="topper-photo"
+                  priority
+                />
+              </div>
+              <h3 className="topper-name-label">{siteContent.result2Name || 'Kritika Mishra (IAS) UPSC 2023'}</h3>
+            </div>
+
+            {/* 3. Devesh Parashar (IPS) UPSC 2024 */}
+            <div className="topper-mentored-card">
+              <div className="topper-image-frame">
+                <Image
+                  src="/toppers/devesh-parashar.jpg"
+                  alt="Devesh Parashar (IPS) UPSC 2024"
+                  width={400}
+                  height={480}
+                  className="topper-photo"
+                  priority
+                />
+              </div>
+              <h3 className="topper-name-label">{siteContent.result3Name || 'Devesh Parashar (IPS) UPSC 2024'}</h3>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── Important PDFs & Study Material Section (Only displays when uploaded) ── */}
-      {pdfList.length > 0 && (
-        <section id="resources" className="section-wrap">
-          <div className="section-inner text-center">
-            <h2 className="section-heading">{siteContent.pdfSectionHeading}</h2>
-            <p className="section-subtext">
-              {siteContent.pdfSectionSubheading}
-            </p>
+      {/* ── Free Study Material & Resource PDFs Section (Directly Under Courses) ── */}
+      <section id="resources" className="section-wrap" >
+        <div className="section-inner text-center">
+          <h2 className="section-heading">{siteContent.pdfSectionHeading}</h2>
+          <p className="section-subtext">
+            {siteContent.pdfSectionSubheading}
+          </p>
 
-            <div className="pdf-grid-3d">
-              {pdfList.map((item) => (
-                <div key={item.id} className="pdf-card-3d">
-                  <div>
-                    <div className="pdf-card-header">
-                      <div className="pdf-icon-badge">
-                        <i className="fa-solid fa-file-pdf" style={{ fontSize: '1.4rem', color: '#dc2626' }} aria-hidden="true" />
-                      </div>
-                      <span className="pdf-tag-pill">{item.tag}</span>
+          <div className="pdf-grid-3d">
+            {pdfList.map((item) => (
+              <div key={item.id} className="pdf-card-3d">
+                <div>
+                  <div className="pdf-card-header">
+                    <div className="pdf-icon-badge">
+                      <i className="fa-solid fa-file-pdf" style={{ fontSize: '1.4rem', color: '#dc2626' }} aria-hidden="true" />
                     </div>
-                    <h3>{item.title}</h3>
-                    <p className="pdf-card-desc">{item.description}</p>
+                    </div>
+                  <h3>{item.title}</h3>
+                  <p className="pdf-card-desc">{item.description}</p>
+                </div>
+
+                <div className="pdf-card-footer">
+                  <div className="pdf-meta-info">
+                    <span className="pdf-meta-pages">PDF Document</span>
+                    <span className="pdf-meta-sub">{item.size} • Free Access</span>
                   </div>
-
-                  <div className="pdf-card-footer">
-                    <div className="pdf-meta-info">
-                      <span className="pdf-meta-pages">PDF Document</span>
-                      <span className="pdf-meta-sub">{item.size} • Free Access</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <a
-                        href={item.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-pdf-download"
-                        style={{ background: 'transparent', color: '#2563eb', border: '1px solid #2563eb', boxShadow: 'none' }}
-                        title={`Open ${item.title} in new tab`}
-                      >
-                        <i className="fa-solid fa-arrow-up-right-from-square" style={{ marginRight: '0.35rem' }} aria-hidden="true" />
-                        <span>Open Tab</span>
-                      </a>
-                      <a
-                        href={item.fileUrl}
-                        download
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-pdf-download"
-                        title={`Download ${item.title}`}
-                      >
-                        <i className="fa-solid fa-download" style={{ marginRight: '0.35rem' }} aria-hidden="true" />
-                        <span>Download</span>
-                      </a>
-                    </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <a
+                      href={item.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-pdf-view"
+                      title={`Open ${item.title} in new tab`}
+                    >
+                      <i className="fa-solid fa-arrow-up-right-from-square" aria-hidden="true" />
+                      <span>View</span>
+                    </a>
+                    <a
+                      href={item.fileUrl}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-pdf-download"
+                      title={`Download ${item.title}`}
+                    >
+                      <i className="fa-solid fa-download" style={{ marginRight: '0.35rem' }} aria-hidden="true" />
+                      <span>Download</span>
+                    </a>
                   </div>
                 </div>
-              ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Dedicated Mobile Application Showcase Section ── */}
+      <section id="download-app" className="section-wrap app-showcase-section">
+        <div className="app-showcase-card">
+          <div className="app-showcase-grid">
+            {/* Left Content Column */}
+            <div className="app-showcase-content">
+              <h2 className="app-showcase-title">
+                {siteContent.appTitle || 'Indrajeet Sir UPSC Mentorship App'}
+              </h2>
+
+              <p className="app-showcase-desc">
+                Access your personalized UPSC CSE mentorship directly from your phone. Receive live classroom session alerts, submit Mains answer sheets for line-by-line checking, and download high-yield GS revision notes.
+              </p>
+
+              <div className="app-feature-list">
+                <div className="app-feature-row">
+                  <div className="app-feature-icon">
+                    <i className="fa-solid fa-bell" aria-hidden="true" />
+                  </div>
+                  <div className="app-feature-body">
+                    <strong>{siteContent.appBullet1Title || '10-Minute Live Class Reminders'}</strong>
+                    <p>{siteContent.appBullet1Desc || 'Receive timely alerts before 1:1 strategy calls and batch masterclasses.'}</p>
+                  </div>
+                </div>
+
+                <div className="app-feature-row">
+                  <div className="app-feature-icon">
+                    <i className="fa-solid fa-comments" aria-hidden="true" />
+                  </div>
+                  <div className="app-feature-body">
+                    <strong>{siteContent.appBullet2Title || 'Direct Doubt & Copy Evaluation'}</strong>
+                    <p>{siteContent.appBullet2Desc || 'Submit handwritten answer sheets and review personalized feedback from Indrajeet Sir.'}</p>
+                  </div>
+                </div>
+
+                <div className="app-feature-row">
+                  <div className="app-feature-icon">
+                    <i className="fa-solid fa-file-pdf" aria-hidden="true" />
+                  </div>
+                  <div className="app-feature-body">
+                    <strong>{siteContent.appBullet3Title || 'Offline GS Micro-Notes & Models'}</strong>
+                    <p>{siteContent.appBullet3Desc || 'Download concise 1–2 page revision frameworks and model answer copies anytime.'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="app-download-area">
+                <a
+                  href={siteContent.appPlayStoreUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-playstore-link"
+                  title="Get it on Google Play"
+                >
+                  <Image
+                    src="/google-play.svg"
+                    alt="Get it on Google Play"
+                    width={190}
+                    height={56}
+                    style={{ height: '52px', width: 'auto', display: 'block' }}
+                  />
+                </a>
+                <div className="app-download-subtext">
+                  <i className="fa-solid fa-shield-check" aria-hidden="true" />
+                  <span>Verified Google Play Store App • Android 8.0 &amp; Above</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Visual: Clean Phone Mockup with Equal Height */}
+            <div className="app-showcase-visual">
+              <div className="app-mockup-frame">
+                {/* Speaker & Camera Bar */}
+                <div className="app-mockup-header">
+                  <div className="app-mockup-speaker" />
+                  <div className="app-mockup-camera" />
+                </div>
+
+                {/* Clean Screen Interface */}
+                <div className="app-mockup-screen">
+                  {/* Status Bar */}
+                  <div className="app-screen-status-bar">
+                    <span className="screen-time">09:41</span>
+                    <div className="screen-status-icons">
+                      <i className="fa-solid fa-signal" />
+                      <i className="fa-solid fa-wifi" />
+                      <i className="fa-solid fa-battery-full" />
+                    </div>
+                  </div>
+
+                  {/* App Bar */}
+                  <div className="app-screen-topbar">
+                    <div className="app-screen-brand">
+                      <Image
+                        src="/logo.png"
+                        alt="Indrajeet Sir Logo"
+                        width={30}
+                        height={30}
+                        style={{ borderRadius: '50%' }}
+                      />
+                      <div>
+                        <div className="app-screen-title">Indrajeet Sir</div>
+                        <div className="app-screen-sub">Mentorship Portal</div>
+                      </div>
+                    </div>
+                    <span className="app-screen-status">LIVE</span>
+                  </div>
+
+                  {/* Active Live Class Card */}
+                  <div className="app-screen-card">
+                    <div className="app-screen-card-tag">TODAY&apos;S 1:1 STRATEGY CALL</div>
+                    <div className="app-screen-card-title">GS Mains Answer Evaluation &amp; Strategy</div>
+                    <div className="app-screen-card-time">
+                      <i className="fa-regular fa-clock" /> 07:00 PM • Personalized Slot
+                    </div>
+                    <div className="app-screen-badge-join">
+                      <i className="fa-solid fa-video" /> Join Live Classroom
+                    </div>
+                  </div>
+
+                  {/* Copy Evaluation Notification */}
+                  <div className="app-screen-eval-card">
+                    <div className="eval-icon">
+                      <i className="fa-solid fa-file-pdf" />
+                    </div>
+                    <div className="eval-details">
+                      <div className="eval-title">GS2_Governance_Checked.pdf</div>
+                      <div className="eval-meta">Evaluated with Sir&apos;s handwritten notes</div>
+                    </div>
+                  </div>
+
+                  {/* Direct Mentorship Chat */}
+                  <div className="app-screen-chat-preview">
+                    <div className="app-screen-bubble mentor">
+                      <span className="bubble-author">Indrajeet Sir</span>
+                      <p>Your copy is evaluated. Structure is solid; we will review conclusions during our call.</p>
+                    </div>
+                  </div>
+
+                  {/* Bottom Navigation */}
+                  <div className="app-screen-bottom-nav">
+                    <span className="app-nav-icon active"><i className="fa-solid fa-house" /></span>
+                    <span className="app-nav-icon"><i className="fa-solid fa-graduation-cap" /></span>
+                    <span className="app-nav-icon"><i className="fa-solid fa-comments" /></span>
+                    <span className="app-nav-icon"><i className="fa-solid fa-gear" /></span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* ── Real Aspirant FAQs (Fluid Accordion) ── */}
       <section id="faqs" className="section-wrap">
         <div className="section-inner text-center">
-          <h2 className="section-heading">Frequently Asked Questions</h2>
+          <h2 className="section-heading">{siteContent.faqsHeading || 'Frequently Asked Questions'}</h2>
           <p className="section-subtext">
-            Clear answers to common questions about copy checking, schedules, and study material.
+            {siteContent.faqsSubheading || 'Clear answers to common questions about copy checking, schedules, and study material.'}
           </p>
 
           <div className="faq-container">
@@ -1022,138 +1164,6 @@ export default function Home() {
                 </div>
               );
             })}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Dedicated Mobile Application Showcase Section ── */}
-      <section id="download-app" className="section-wrap app-showcase-section">
-        <div className="app-showcase-card">
-          <div className="app-showcase-grid">
-            <div className="app-showcase-content">
-              <span className="app-showcase-badge">
-                <i className="fa-brands fa-android" style={{ color: '#22c55e', marginRight: '0.45rem' }} aria-hidden="true" />
-                OFFICIAL MOBILE APPLICATION
-              </span>
-              <h2 className="app-showcase-title">
-                Learn, Submit Copies &amp; Attend Live Sessions On The Go
-              </h2>
-              <p className="app-showcase-desc">
-                Install the official <strong>Indrajeet Sir UPSC Mentorship</strong> Android App directly from Google Play Store. Access 1:1 answer evaluation updates, live classroom broadcasts, handwritten evaluation PDFs, and daily mentorship alerts right on your phone.
-              </p>
-
-              <div className="app-feature-bullets">
-                <div className="app-bullet-item">
-                  <div className="app-bullet-icon">
-                    <i className="fa-solid fa-bell" aria-hidden="true" />
-                  </div>
-                  <div>
-                    <strong>Instant Live Class Reminders</strong>
-                    <span>Receive 10-minute alerts before 1:1 strategy calls &amp; masterclasses.</span>
-                  </div>
-                </div>
-                <div className="app-bullet-item">
-                  <div className="app-bullet-icon">
-                    <i className="fa-solid fa-comments" aria-hidden="true" />
-                  </div>
-                  <div>
-                    <strong>Direct Doubt Desk with Indrajeet Sir</strong>
-                    <span>Chat in real-time, submit Mains handwritten sheets, and review audio feedback.</span>
-                  </div>
-                </div>
-                <div className="app-bullet-item">
-                  <div className="app-bullet-icon">
-                    <i className="fa-solid fa-file-pdf" aria-hidden="true" />
-                  </div>
-                  <div>
-                    <strong>Offline PDF Study Material</strong>
-                    <span>Download curated GS 1–4 micro-notes, brochures, and model answer copies.</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="app-download-cta-row">
-                <a
-                  href="https://play.google.com/store/apps/details?id=com.nighwantech.indrajeetsir"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-playstore-large"
-                  title="Install from Google Play Store"
-                >
-                  <i className="fa-brands fa-google-play" style={{ color: '#00C9FF', fontSize: '1.85rem' }} aria-hidden="true" />
-                  <div className="btn-playstore-text">
-                    <span className="btn-playstore-sub">GET IT ON</span>
-                    <span className="btn-playstore-main">Google Play</span>
-                  </div>
-                </a>
-
-                <a
-                  href="/indrajeet-sir-app.apk"
-                  download
-                  className="btn-direct-apk"
-                  title="Direct Download APK File"
-                >
-                  <i className="fa-solid fa-download" aria-hidden="true" />
-                  <span>Download .APK Package (v1.0.1)</span>
-                </a>
-              </div>
-
-              <div className="app-security-note">
-                <i className="fa-solid fa-shield-check" style={{ color: '#10b981' }} aria-hidden="true" />
-                <span>Verified by Google Play Protect • Android 8.0 and above</span>
-              </div>
-            </div>
-
-            <div className="app-showcase-visual">
-              <div className="app-mockup-frame">
-                <div className="app-mockup-header">
-                  <div className="app-mockup-camera" />
-                  <div className="app-mockup-speaker" />
-                </div>
-                <div className="app-mockup-screen">
-                  <div className="app-screen-topbar">
-                    <div className="app-screen-brand">
-                      <Image
-                        src="/logo.png"
-                        alt="Indrajeet Sir Logo"
-                        width={28}
-                        height={28}
-                        style={{ borderRadius: '8px' }}
-                      />
-                      <div>
-                        <div className="app-screen-title">Indrajeet Sir</div>
-                        <div className="app-screen-sub">UPSC Mentorship App</div>
-                      </div>
-                    </div>
-                    <span className="app-screen-status">LIVE</span>
-                  </div>
-
-                  <div className="app-screen-card">
-                    <div className="app-screen-card-tag">UPCOMING LIVE MENTORSHIP</div>
-                    <div className="app-screen-card-title">GS Mains Answer Evaluation &amp; Strategy</div>
-                    <div className="app-screen-card-time">Today • 07:00 PM IST</div>
-                    <div className="app-screen-badge-join">Tap to Join Session</div>
-                  </div>
-
-                  <div className="app-screen-chat-preview">
-                    <div className="app-screen-bubble mentor">
-                      <span className="bubble-author">Indrajeet Sir</span>
-                      <p>Your GS 2 Governance copy has been reviewed. Focus on value addition in conclusion.</p>
-                    </div>
-                    <div className="app-screen-bubble student">
-                      <p>Thank you Sir! Implementing points in next draft.</p>
-                    </div>
-                  </div>
-
-                  <div className="app-screen-bottom-nav">
-                    <span className="app-nav-icon active"><i className="fa-solid fa-house" /></span>
-                    <span className="app-nav-icon"><i className="fa-solid fa-video" /></span>
-                    <span className="app-nav-icon"><i className="fa-solid fa-comments" /></span>
-                    <span className="app-nav-icon"><i className="fa-solid fa-user" /></span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -1298,7 +1308,7 @@ export default function Home() {
               <Link
                 href="/dashboard"
                 className="btn-primary full"
-                style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: '#1d4ed8' }}
+                style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: '#0f172a' }}
               >
                 <i className="fa-solid fa-user-graduate" style={{ fontSize: '1rem' }} aria-hidden="true" />
                 <span>Go to My Dashboard →</span>
@@ -1307,20 +1317,15 @@ export default function Home() {
                 href="https://play.google.com/store/apps/details?id=com.nighwantech.indrajeetsir"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-primary full"
-                style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.65rem', background: '#0f172a' }}
+                style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0.25rem 0' }}
               >
-                <i className="fa-brands fa-google-play" style={{ fontSize: '1.2rem', color: '#00C9FF' }} aria-hidden="true" />
-                <span>Get App on Google Play Store</span>
-              </a>
-              <a
-                href="/indrajeet-sir-app.apk"
-                download
-                className="btn-outline full"
-                style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-              >
-                <i className="fa-brands fa-android" style={{ fontSize: '1.2rem', color: '#16a34a' }} aria-hidden="true" />
-                <span>Download Direct APK (.apk)</span>
+                <Image
+                  src="/google-play.svg"
+                  alt="Get it on Google Play"
+                  width={180}
+                  height={54}
+                  style={{ height: '48px', width: 'auto' }}
+                />
               </a>
               <button
                 type="button"

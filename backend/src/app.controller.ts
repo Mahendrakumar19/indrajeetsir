@@ -66,19 +66,91 @@ let fallbackLiveClasses: any[] = [];
 let fallbackCourses: any[] = [
   {
     id: 'c-1',
-    title: '1:1 Comprehensive UPSC Mentorship 2026-27',
-    description: 'Personalized 1:1 guidance with Indrajeet Sir, Mains answer evaluation, and dedicated live sessions.',
-    price: 4999,
+    title: '1 Year Full Mentorship for UPSC 2027 (After Foundation Course)',
+    description: 'Complete 3-Stage Prelims, Mains, and Interview guidance with 1-on-1 personal mentorship by Indrajeet Sir.',
+    price: 24000,
     instructor: 'Indrajeet Sir',
     published: true,
+    features: [
+      'Prelims: High-yield Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions',
+      'Mains: Short Note Making, Deep PYQ Trend Analysis, Toppers Copy Analysis, 16 Evaluated Tests',
+      'Weekly Strategy Sessions & 1-on-1 Personal Mentorship by Indrajeet Sir',
+      'Interview: Complete Personality Development, Book Reading Habits & Newspaper Analysis',
+      'Validity: 1 Year • Complete 3-Stage Support (Pre + Mains + Interview)',
+    ],
+    validity: '1 Year',
+    tag: 'Complete Mentorship (Post-FC)',
   },
   {
     id: 'c-2',
-    title: 'GS Paper 3 & Ethics Special Masterclass Batch',
-    description: 'Targeted preparation for Economy, Science & Tech, Environment, and Ethics Case Studies.',
-    price: 2999,
+    title: 'UPSC Mains 2027 Comprehensive Mentorship',
+    description: 'Targeted Mains score maximization with personal copy evaluation and structure improvement by Indrajeet Sir.',
+    price: 18000,
     instructor: 'Indrajeet Sir',
     published: true,
+    features: [
+      'High-Yield Mains Short Note Making Framework',
+      'Deep PYQ Trend Analysis & Theme Mapping',
+      'Toppers Copy In-Depth Structure & Presentation Analysis',
+      '16 Evaluated Tests with Line-by-Line Feedback from Sir',
+      'Weekly Diagnostic Sessions & 1-on-1 Mentorship by Indrajeet Sir',
+      'Validity: 4 - 5 Months',
+    ],
+    validity: '4–5 Months',
+    tag: 'Mains Score Booster',
+  },
+  {
+    id: 'c-3',
+    title: 'UPSC Prelims 2027 Targeted Program',
+    description: 'Build rigorous elimination skills, concise revision notes, and solve 5,000+ targeted practice questions.',
+    price: 10000,
+    instructor: 'Indrajeet Sir',
+    published: true,
+    features: [
+      'Micro Notes Making & Core Conceptual Clarity across Standard Books',
+      'PYQ+ Strategy (Pattern Recognition & Options Elimination Tactics)',
+      '20 Comprehensive Mock Tests with Micro Diagnostics',
+      'Total 5,000+ Curated Practice Questions with Detailed Explanations',
+      'Weekly Target Tracking & Negative Marking Reduction Roadmap',
+      'Validity: 5 - 6 Months',
+    ],
+    validity: '5–6 Months',
+    tag: 'Prelims Special',
+  },
+  {
+    id: 'c-4',
+    title: '1 Year Full Mentorship for UPSC 2027 / 2028 (Parallel with Foundation Course)',
+    description: 'Align and strengthen your preparation alongside your ongoing foundation course (Note: We do not provide foundation lectures).',
+    price: 30000,
+    instructor: 'Indrajeet Sir',
+    published: true,
+    features: [
+      'Complete 3-Stage Support: Prelims + Mains + Interview Mentorship',
+      'Prelims: Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions',
+      'Mains: Short Note Making, PYQ Trend Analysis, Toppers Copy Analysis, 16 Tests',
+      'Weekly Diagnostic Sessions & 1-on-1 Personal Mentorship by Indrajeet Sir',
+      'Interview: Personality Development, Book Reading Habit & Daily Newspaper Analysis',
+      'Validity: 18 Months (Extended Mentorship Support)',
+    ],
+    validity: '18 Months',
+    tag: 'Foundation Parallel Batch',
+  },
+  {
+    id: 'c-5',
+    title: 'UPSC Mains Short Notes Making',
+    description: 'Master the methodology of condensing vast GS 1–4 syllabus into high-yield micro notes.',
+    price: 4500,
+    instructor: 'Indrajeet Sir',
+    published: true,
+    features: [
+      'Step-by-step Framework for 600+ UPSC Mains Core Topics',
+      'Condensing Standard Books, NCERTs & Current Affairs into Revision Snippets',
+      'Data Points, Committee Reports, Diagrams & Case Laws Integration',
+      'Model Short Notes Samples & Templates',
+      'Validity: 2 Months',
+    ],
+    validity: '2 Months',
+    tag: 'Short Notes Framework',
   },
 ];
 
@@ -572,24 +644,98 @@ export class AppController {
         },
         orderBy: { createdAt: 'desc' },
       });
-      if (courses.length > 0) {
-        return courses.map((c: any) => ({
-          id: c.id,
-          title: c.title,
-          description: c.description,
-          price: c.price || 0,
-          instructor: c.instructor || 'Indrajeet Sir',
-          published: c.published,
-          liveClassesCount: c._count?.liveClasses || 0,
-          enrollmentsCount: c._count?.enrollments || 0,
-        }));
+
+      // 1. Detect & purge old legacy dummy courses from database
+      const hasLegacy = courses.some((c: any) =>
+        c.title.includes('GS Paper 3') ||
+        c.title.includes('Ethics Special') ||
+        c.price === 4999 ||
+        c.price === 2999
+      );
+
+      if (hasLegacy) {
+        try {
+          await this.prisma.course.deleteMany({
+            where: {
+              OR: [
+                { title: { contains: 'GS Paper 3' } },
+                { title: { contains: 'Ethics Special' } },
+                { price: 4999 },
+                { price: 2999 },
+              ],
+            },
+          });
+        } catch {}
+      }
+
+      const validCourses = courses.filter((c: any) =>
+        !c.title.includes('GS Paper 3') &&
+        !c.title.includes('Ethics Special') &&
+        c.price !== 4999 &&
+        c.price !== 2999
+      );
+
+      if (validCourses.length >= 5) {
+        const sortedCourses = validCourses.sort((a: any, b: any) => {
+          const getOrder = (c: any) => {
+            const t = (c.title || '').toLowerCase();
+            if (t.includes('after') && t.includes('foundation')) return 1;
+            if (t.includes('mains') && t.includes('comprehensive')) return 2;
+            if (t.includes('prelims') && t.includes('targeted')) return 3;
+            if (t.includes('parallel') && t.includes('foundation')) return 4;
+            if (t.includes('short notes')) return 5;
+            return 99;
+          };
+          return getOrder(a) - getOrder(b);
+        });
+
+        return sortedCourses.map((c: any) => {
+          const fallback = fallbackCourses.find((fc) => fc.id === c.id || fc.title === c.title);
+          return {
+            id: c.id,
+            title: c.title,
+            description: c.description || fallback?.description,
+            price: c.price || fallback?.price || 0,
+            instructor: c.instructor || 'Indrajeet Sir',
+            published: c.published,
+            features: fallback?.features || [],
+            validity: fallback?.validity || '1 Year',
+            tag: fallback?.tag || 'Mentorship Batch',
+            liveClassesCount: c._count?.liveClasses || 0,
+            enrollmentsCount: c._count?.enrollments || 0,
+          };
+        });
+      }
+
+      // 2. Ensure all 5 authentic courses exist in DB
+      let org = await this.prisma.organization.findFirst();
+      if (!org) {
+        org = await this.prisma.organization.create({
+          data: { name: 'Indrajeet Sir UPSC Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
+        });
+      }
+
+      for (const fc of fallbackCourses) {
+        const existing = await this.prisma.course.findFirst({ where: { title: fc.title } });
+        if (!existing) {
+          await this.prisma.course.create({
+            data: {
+              title: fc.title,
+              description: fc.description,
+              price: fc.price,
+              instructor: fc.instructor || 'Indrajeet Sir',
+              published: true,
+              organizationId: org.id,
+            },
+          }).catch(() => null);
+        }
       }
     } catch {}
     return fallbackCourses;
   }
 
   @Post('courses')
-  async createCourse(@Body() body: { title: string; description?: string; price?: number; instructor?: string }) {
+  async createCourse(@Body() body: { title: string; description?: string; price?: number; instructor?: string; features?: string[]; validity?: string; tag?: string }) {
     try {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
@@ -616,11 +762,11 @@ export class AppController {
   }
 
   @Post('courses/:id')
-  async updateCoursePost(@Param('id') id: string, @Body() body: { title?: string; description?: string; price?: number }) {
+  async updateCoursePost(@Param('id') id: string, @Body() body: { title?: string; description?: string; price?: number; features?: string[]; validity?: string; tag?: string }) {
     return this.updateCourse(id, body);
   }
 
-  async updateCourse(id: string, body: { title?: string; description?: string; price?: number }) {
+  async updateCourse(id: string, body: { title?: string; description?: string; price?: number; features?: string[]; validity?: string; tag?: string }) {
     try {
       const updated = await this.prisma.course.update({
         where: { id },
@@ -637,6 +783,9 @@ export class AppController {
         if (body.title !== undefined) c.title = body.title;
         if (body.description !== undefined) c.description = body.description;
         if (body.price !== undefined) c.price = Number(body.price);
+        if (body.features !== undefined) c.features = body.features;
+        if (body.validity !== undefined) c.validity = body.validity;
+        if (body.tag !== undefined) c.tag = body.tag;
         return { success: true, course: c };
       }
       return { success: false, message: 'Course not found' };

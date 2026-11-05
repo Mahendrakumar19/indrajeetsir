@@ -30,7 +30,7 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
-    qualities: [75, 98],
+    qualities: [75, 95, 98],
   },
   async redirects() {
     return [

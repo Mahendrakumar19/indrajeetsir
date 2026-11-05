@@ -205,6 +205,11 @@ interface CourseItem {
   title: string;
   description?: string;
   price: number;
+  instructor?: string;
+  published?: boolean;
+  features?: string[];
+  validity?: string;
+  tag?: string;
 }
 
 interface LiveClassItem {
@@ -221,6 +226,13 @@ const DUMMY_IDS = new Set([
   'usr_1', 'usr_2', 'usr_3', 'usr_4', 'usr_5', 'usr_6',
   'TXN 4821', 'TXN 4822', 'TXN 4823', 'TXN 4824', 'TXN 4825', 'TXN 4826',
   'NOTIF-101', 'NOTIF-102', 'NOTIF-103',
+]);
+
+const DUMMY_COURSE_TITLES = new Set([
+  '1:1 Comprehensive UPSC Mentorship 2026-27',
+  'GS Paper 3 & Ethics Special Masterclass Batch',
+  '1:1 Mentorship Program — UPSC 2027 Complete Guidance',
+  'UPSC Mentorship Course',
 ]);
 
 const INITIAL_BANNERS: AppBanner[] = [
@@ -253,6 +265,219 @@ const INITIAL_BANNERS: AppBanner[] = [
   },
 ];
 
+const DEFAULT_COURSES: CourseItem[] = [
+  {
+    id: 'c-1',
+    title: '1 Year Full Mentorship for UPSC 2027 (After Foundation Course)',
+    description: 'Complete 3-Stage Prelims, Mains, and Interview guidance with 1-on-1 personal mentorship by Indrajeet Sir.',
+    price: 24000,
+    instructor: 'Indrajeet Sir',
+    published: true,
+    features: [
+      'Prelims: High-yield Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions',
+      'Mains: Short Note Making, Deep PYQ Trend Analysis, Toppers Copy Analysis, 16 Evaluated Tests',
+      'Weekly Strategy Sessions & 1-on-1 Personal Mentorship by Indrajeet Sir',
+      'Interview: Complete Personality Development, Book Reading Habits & Newspaper Analysis',
+      'Validity: 1 Year • Complete 3-Stage Support (Pre + Mains + Interview)',
+    ],
+    validity: '1 Year',
+    tag: 'Complete Mentorship (Post-FC)',
+  },
+  {
+    id: 'c-2',
+    title: 'UPSC Mains 2027 Comprehensive Mentorship',
+    description: 'Targeted Mains score maximization with personal copy evaluation and structure improvement by Indrajeet Sir.',
+    price: 18000,
+    instructor: 'Indrajeet Sir',
+    published: true,
+    features: [
+      'High-Yield Mains Short Note Making Framework',
+      'Deep PYQ Trend Analysis & Theme Mapping',
+      'Toppers Copy In-Depth Structure & Presentation Analysis',
+      '16 Evaluated Tests with Line-by-Line Feedback from Sir',
+      'Weekly Diagnostic Sessions & 1-on-1 Mentorship by Indrajeet Sir',
+      'Validity: 4 - 5 Months',
+    ],
+    validity: '4–5 Months',
+    tag: 'Mains Score Booster',
+  },
+  {
+    id: 'c-3',
+    title: 'UPSC Prelims 2027 Targeted Program',
+    description: 'Build rigorous elimination skills, concise revision notes, and solve 5,000+ targeted practice questions.',
+    price: 10000,
+    instructor: 'Indrajeet Sir',
+    published: true,
+    features: [
+      'Micro Notes Making & Core Conceptual Clarity across Standard Books',
+      'PYQ+ Strategy (Pattern Recognition & Options Elimination Tactics)',
+      '20 Comprehensive Mock Tests with Micro Diagnostics',
+      'Total 5,000+ Curated Practice Questions with Detailed Explanations',
+      'Weekly Target Tracking & Negative Marking Reduction Roadmap',
+      'Validity: 5 - 6 Months',
+    ],
+    validity: '5–6 Months',
+    tag: 'Prelims Special',
+  },
+  {
+    id: 'c-4',
+    title: '1 Year Full Mentorship for UPSC 2027 / 2028 (Parallel with Foundation Course)',
+    description: 'Align and strengthen your preparation alongside your ongoing foundation course (Note: We do not provide foundation lectures).',
+    price: 30000,
+    instructor: 'Indrajeet Sir',
+    published: true,
+    features: [
+      'Complete 3-Stage Support: Prelims + Mains + Interview Mentorship',
+      'Prelims: Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions',
+      'Mains: Short Note Making, PYQ Trend Analysis, Toppers Copy Analysis, 16 Tests',
+      'Weekly Diagnostic Sessions & 1-on-1 Personal Mentorship by Indrajeet Sir',
+      'Interview: Personality Development, Book Reading Habit & Daily Newspaper Analysis',
+      'Validity: 18 Months (Extended Mentorship Support)',
+    ],
+    validity: '18 Months',
+    tag: 'Foundation Parallel Batch',
+  },
+  {
+    id: 'c-5',
+    title: 'UPSC Mains Short Notes Making',
+    description: 'Master the methodology of condensing vast GS 1–4 syllabus into high-yield micro notes.',
+    price: 4500,
+    instructor: 'Indrajeet Sir',
+    published: true,
+    features: [
+      'Step-by-step Framework for 600+ UPSC Mains Core Topics',
+      'Reverse Engineering of PYQs into Micro-Diagrams & Frameworks',
+      'Toppers Copy Deconstruction for Keyword Density',
+      'Valid for 2 Months with Direct Guidance',
+    ],
+    validity: '2 Months',
+    tag: 'Notes Making Framework',
+  },
+];
+
+interface FaqItem {
+  id: string;
+  q: string;
+  a: string;
+}
+
+const DEFAULT_FAQS: FaqItem[] = [
+  {
+    id: 'faq-1',
+    q: 'Kitne din mentorship chalegi?',
+    a: '365+1 day (1 year)',
+  },
+  {
+    id: 'faq-2',
+    q: 'Fees installment me pay kar sakte hain?',
+    a: 'Yes',
+  },
+  {
+    id: 'faq-3',
+    q: 'Mentor kaun hoga aur copy kaun check karega?',
+    a: 'Indrajeet Sir khud',
+  },
+  {
+    id: 'faq-4',
+    q: 'Kya Mains mentorship me Test Series hai?',
+    a: 'Yes',
+  },
+  {
+    id: 'faq-5',
+    q: 'Kya Prelims mentorship me Test Series hai?',
+    a: 'Yes',
+  },
+  {
+    id: 'faq-6',
+    q: 'PYQ me kya karate hain?',
+    a: 'Trend analysis, solve, syllabus mapping',
+  },
+  {
+    id: 'faq-7',
+    q: 'Target daily, weekly ya monthly milte hain?',
+    a: 'Weekly',
+  },
+  {
+    id: 'faq-8',
+    q: 'Kya weekly target track hota hai?',
+    a: 'Yes',
+  },
+  {
+    id: 'faq-9',
+    q: 'Kya sirf Prelims ya sirf Mains ka mentorship join kar sakte hain?',
+    a: 'Yes',
+  },
+  {
+    id: 'faq-10',
+    q: 'Mentorship Foundation Course ke sath ya baad join kar sakte hain?',
+    a: 'Dono me hi kar sakte lekin batch separate',
+  }
+];
+
+const DEFAULT_SITE_CONTENT = {
+  heroBadge: 'Ex-VisionIAS Faculty',
+  heroHeading: 'Sabhi exam ka ek process hota hai aur usi ko dhyan me rakhte hue humne ek process design kiya h jiske pillars:',
+  heroPillar1: '600+ topic short notes',
+  heroPillar2: 'depth pyq analysis',
+  heroPillar3: 'toppers copy analysis',
+  heroPillar4: 'answer writing skill',
+  heroPillar5: 'one-one personal mentorship',
+  dhoniQuote: 'I have always believed that the process is more important than the result. The result is just a by-product of the process. If you take care of the process, the results will follow.',
+  dhoniAuthor: 'MS Dhoni',
+  dhoniTag: 'Our Mentorship Philosophy',
+  aboutSirHeading: 'About Indrajeet Sir',
+  aboutSirSubheading: '',
+  sirCard1Val: '4 UPSC Mains Written',
+  sirCard1Desc: 'Personal exam battlefield experience across GS 1–4, Essay, and optional papers.',
+  sirCard2Val: '7+ Years Experience',
+  sirCard2Desc: 'Dedicated coaching & 1-on-1 mentorship experience guiding UPSC & State PCS aspirants.',
+  sirCard3Val: '500+ Aspirants Mentored',
+  sirCard3Desc: 'Consistent track record of helping mentees transform their answer writing and crack ranks.',
+  sirCard4Val: 'VisionIAS Faculty',
+  sirCard4Desc: 'Expert faculty for Polity & Governance with deep syllabus and trend analysis.',
+  sirCard5Val: 'LLB, Law Faculty (DU)',
+  sirCard5Desc: 'Strong legal and constitutional foundation from Faculty of Law, University of Delhi.',
+  aboutMentorHeading: 'About The Mentorship',
+  aboutMentorSubheading: '',
+  mentorPillar1Title: 'Weekly Sessions by Indrajeet Sir',
+  mentorPillar1Desc: 'Direct 1-on-1 strategy sessions with Indrajeet Sir to review weekly targets, syllabus coverage, and psychological clarity.',
+  mentorPillar2Title: 'Reverse Engineering Method',
+  mentorPillar2Desc: 'Solving Prelims & Mains questions by deconstructing past UPSC trends and mapping themes to high-yield notes.',
+  mentorPillar3Title: 'Main Focus on "Process"',
+  mentorPillar3Desc: 'UPSC me selection result ke peeche bhagne se nahi, daily process (answer writing + discipline) master karne se banta hai.',
+  mentorPillar4Title: 'Direct 1-on-1 Teacher Access',
+  mentorPillar4Desc: 'Har Mains copy Indrajeet Sir personally check karte hain. Actionable marginal remarks on structure, flow and presentation.',
+  coursesHeading: 'Mentorship Batches & Fees',
+  // coursesSubheading: 'Transparent course fees. Login credentials and Android application access are delivered immediately after enrollment.',
+  resultsHeading: 'Aspirants Mentored by Indrajeet Sir',
+  resultsSubheading: '',
+  result1Name: 'Jatin Parashar (IRS) UPSC 2022',
+  result2Name: 'Kritika Mishra (IAS) UPSC 2023',
+  result3Name: 'Devesh Parashar (IPS) UPSC 2024',
+  pdfSectionHeading: 'Important Study Material & Resource PDFs (Free Access)',
+  pdfSectionSubheading: 'Download verified syllabus blueprints, model answer copies, official brochures, and reverse-engineered PYQ frameworks prepared by Indrajeet Sir.',
+  appTitle: 'Learn, Submit Copies & Attend Live Sessions On The Go',
+  appDesc: 'Install the official Indrajeet Sir UPSC Mentorship Android App directly from Google Play Store. Access 1:1 answer evaluation updates, live classroom broadcasts, handwritten evaluation PDFs, and daily mentorship alerts right on your phone.',
+  appPlayStoreUrl: 'https://play.google.com/store/apps/details?id=com.nighwantech.indrajeetsir',
+  appBullet1Title: 'Instant Live Class Reminders',
+  appBullet1Desc: 'Receive 10-minute alerts before 1:1 strategy calls & masterclasses.',
+  appBullet2Title: 'Direct Doubt with Indrajeet Sir',
+  appBullet2Desc: 'Chat in real-time, submit Mains handwritten sheets, and review feedback.',
+  appBullet3Title: 'Offline PDF Study Material',
+  appBullet3Desc: 'Download curated GS 1–4 micro-notes, brochures, and model answer copies.',
+  faqsHeading: 'Frequently Asked Questions',
+  faqsSubheading: 'Clear answers to common questions about copy checking, schedules, and study material.',
+  contactDeskHeading: 'Have Questions About Batch, Attempt Year or Strategy?',
+  contactDeskSubheading: "Talk directly with Indrajeet Sir's mentorship desk to choose the right batch for your UPSC attempt.",
+  telegramHandle: '@Indrajeetsir_UPSC',
+  telegramUrl: 'https://t.me/Indrajeetsir_UPSC',
+  phoneDisplay: '+91 97099 92093',
+  phoneTel: '+919709992093',
+  whatsappDisplay: '+91 97099 92093',
+  whatsappUrl: 'https://wa.me/919709992093',
+  contactEmail: 'indrajeet.visionias@gmail.com',
+};
+
 export default function AdminPanel() {
   const [mounted, setMounted] = useState(false);
   const [auth, setAuth] = useState(false);
@@ -272,33 +497,10 @@ export default function AdminPanel() {
   const [actionSuccess, setActionSuccess] = useState('');
 
   // 0. Website Live Content Editor State
-  const [siteContent, setSiteContent] = useState({
-    heroHeading: 'UPSC CSE is cracked on Answer Writing & Discipline, not endless lectures.',
-    heroSubheading: 'UPSC CSE is cracked on answer writing and daily discipline rather than endless passive lectures. Get direct personal guidance by Indrajeet Sir with line-by-line Mains copy checking, weekly personal strategy reviews, and high-yield GS 1–4 study notes.',
-    stat1Number: '600+',
-    stat1Label: 'Mains Micro Notes',
-    stat2Number: '16 Tests',
-    stat2Label: 'Checked Personally',
-    stat3Number: 'Private',
-    stat3Label: 'Strategy Sessions',
-    aboutHeading: 'No Outsourced Checking. Direct Teacher Accountability.',
-    aboutSubheading: 'In UPSC CSE preparation, endless passive lectures create a false illusion of progress. True mastery is built when disciplined answer writing is rigorously evaluated and personally cracked through consistent diagnosis.',
-    dhoniQuote: 'The process is more important than the results. If you take care of the process, results will follow.',
-    dhoniAuthor: 'MS Dhoni',
-    pdfSectionHeading: 'Important Study Material & Resource PDFs',
-    pdfSectionSubheading: 'Download verified syllabus blueprints, official brochures, model answer evaluations, and strategic notes prepared by Indrajeet Sir.',
-    contactDeskHeading: 'Have Questions About Preparation Strategy?',
-    contactDeskSubheading: "Talk directly with Indrajeet Sir's mentorship desk to discuss your attempt year and study plan.",
-    telegramHandle: '@Indrajeetsir_UPSC',
-    telegramUrl: 'https://t.me/Indrajeetsir_UPSC',
-    phoneDisplay: '+91 98734 86158',
-    phoneTel: '+919873486158',
-    whatsappDisplay: '+91 98734 86158',
-    whatsappUrl: 'https://wa.me/919873486158',
-    contactEmail: 'indrajeet.visionias@gmail.com',
-  });
+  const [siteContent, setSiteContent] = useState(DEFAULT_SITE_CONTENT);
 
   // 0.1 PDF Study Material Resources State (Editable & Uploadable)
+  const [faqs, setFaqs] = useState<FaqItem[]>(DEFAULT_FAQS);
   const [pdfList, setPdfList] = useState<Array<{
     id: string;
     title: string;
@@ -369,10 +571,11 @@ export default function AdminPanel() {
   const [sendingNotif, setSendingNotif] = useState(false);
 
   // 5. LMS Courses State
-  const [courses, setCourses] = useState<CourseItem[]>([]);
-  const [courseForm, setCourseForm] = useState({ title: '', description: '', price: '4999' });
+    const [courses, setCourses] = useState<CourseItem[]>(DEFAULT_COURSES);
+  const [courseForm, setCourseForm] = useState({ title: '', description: '', price: '4500', tag: '', validity: '', features: '' });
   const [courseSaving, setCourseSaving] = useState(false);
   const [editCourseModal, setEditCourseModal] = useState<CourseItem | null>(null);
+  const [editCourseFeatures, setEditCourseFeatures] = useState('');
   const [editCourseSaving, setEditCourseSaving] = useState(false);
 
   // 6. LMS Live Classes State
@@ -451,33 +654,103 @@ export default function AdminPanel() {
         }
       }
 
+      // 1. Courses Sync from localStorage & purge legacy dummy courses
+      const savedCourses = localStorage.getItem('indrajeet_courses');
+      if (savedCourses) {
+        try {
+          const parsed = JSON.parse(savedCourses);
+          const clean = Array.isArray(parsed)
+            ? parsed.filter((c: CourseItem) => !DUMMY_COURSE_TITLES.has(c.title) && c.price !== 4999 && c.price !== 2999)
+            : [];
+          if (clean.length >= 5) {
+            setCourses(clean);
+          } else {
+            setCourses(DEFAULT_COURSES);
+            localStorage.setItem('indrajeet_courses', JSON.stringify(DEFAULT_COURSES));
+          }
+        } catch {
+          setCourses(DEFAULT_COURSES);
+        }
+      } else {
+        setCourses(DEFAULT_COURSES);
+        localStorage.setItem('indrajeet_courses', JSON.stringify(DEFAULT_COURSES));
+      }
+
+      // 2. Site Content Sync & Sanitization from localStorage
       const savedSiteContent = localStorage.getItem('indrajeet_site_content');
       if (savedSiteContent) {
-        const parsed = JSON.parse(savedSiteContent);
-        let updated = false;
-        if (parsed.telegramHandle === '@Indrajeet_UPSC' || parsed.telegramHandle === '@IndrajeetSir_UPSC') {
-          parsed.telegramHandle = '@Indrajeetsir_UPSC';
-          parsed.telegramUrl = 'https://t.me/Indrajeetsir_UPSC';
-          updated = true;
+        try {
+          const parsed = JSON.parse(savedSiteContent);
+          let updated = false;
+
+          // Always enforce authentic Toppers if old or missing
+          if (!parsed.result1Name || !parsed.result1Name.includes('Jatin')) {
+            parsed.result1Name = DEFAULT_SITE_CONTENT.result1Name;
+            parsed.result2Name = DEFAULT_SITE_CONTENT.result2Name;
+            parsed.result3Name = DEFAULT_SITE_CONTENT.result3Name;
+            updated = true;
+          }
+          // Always enforce authentic Process Pillars & Headline if old or missing
+          if (!parsed.heroHeading || !parsed.heroHeading.includes('Sabhi exam ka ek process hota hai')) {
+            parsed.heroHeading = DEFAULT_SITE_CONTENT.heroHeading;
+            parsed.heroPillar1 = DEFAULT_SITE_CONTENT.heroPillar1;
+            parsed.heroPillar2 = DEFAULT_SITE_CONTENT.heroPillar2;
+            parsed.heroPillar3 = DEFAULT_SITE_CONTENT.heroPillar3;
+            parsed.heroPillar4 = DEFAULT_SITE_CONTENT.heroPillar4;
+            parsed.heroPillar5 = DEFAULT_SITE_CONTENT.heroPillar5;
+            updated = true;
+          }
+          if (!parsed.coursesHeading) {
+            parsed.coursesHeading = DEFAULT_SITE_CONTENT.coursesHeading;
+            // parsed.coursesSubheading = DEFAULT_SITE_CONTENT.coursesSubheading;
+            updated = true;
+          }
+          if (parsed.telegramHandle === '@Indrajeet_UPSC' || parsed.telegramHandle === '@IndrajeetSir_UPSC') {
+            parsed.telegramHandle = '@Indrajeetsir_UPSC';
+            parsed.telegramUrl = 'https://t.me/Indrajeetsir_UPSC';
+            updated = true;
+          }
+          if (parsed.stat3Number === '1:1 Private' || parsed.stat3Number === '1:1') {
+            parsed.stat3Number = 'Private';
+            updated = true;
+          }
+          if (parsed.heroSubheading && parsed.heroSubheading.includes('weekly 1:1 strategy reviews')) {
+            parsed.heroSubheading = parsed.heroSubheading.replace('weekly 1:1 strategy reviews', 'weekly personal strategy reviews');
+            updated = true;
+          }
+          if (updated) {
+            try { localStorage.setItem('indrajeet_site_content', JSON.stringify(parsed)); } catch {}
+          }
+          setSiteContent((prev) => ({ ...DEFAULT_SITE_CONTENT, ...prev, ...parsed }));
+        } catch {
+          setSiteContent(DEFAULT_SITE_CONTENT);
         }
-        if (parsed.stat3Number === '1:1 Private' || parsed.stat3Number === '1:1') {
-          parsed.stat3Number = 'Private';
-          updated = true;
-        }
-        if (parsed.heroSubheading && parsed.heroSubheading.includes('weekly 1:1 strategy reviews')) {
-          parsed.heroSubheading = parsed.heroSubheading.replace('weekly 1:1 strategy reviews', 'weekly personal strategy reviews');
-          updated = true;
-        }
-        if (updated) {
-          try { localStorage.setItem('indrajeet_site_content', JSON.stringify(parsed)); } catch {}
-        }
-        setSiteContent((prev) => ({ ...prev, ...parsed }));
+      } else {
+        setSiteContent(DEFAULT_SITE_CONTENT);
+        localStorage.setItem('indrajeet_site_content', JSON.stringify(DEFAULT_SITE_CONTENT));
       }
 
       const savedPdfs = localStorage.getItem('indrajeet_pdf_list');
       if (savedPdfs) {
         const parsed = JSON.parse(savedPdfs);
         if (Array.isArray(parsed) && parsed.length > 0) setPdfList(parsed);
+      }
+
+      const savedFaqs = localStorage.getItem('indrajeet_faqs');
+      if (savedFaqs) {
+        try {
+          const parsed = JSON.parse(savedFaqs);
+          if (Array.isArray(parsed) && parsed.length >= 10 && parsed[0]?.a === '365+1 day (1 year)') {
+            setFaqs(parsed);
+          } else {
+            setFaqs(DEFAULT_FAQS);
+            try { localStorage.setItem('indrajeet_faqs', JSON.stringify(DEFAULT_FAQS)); } catch {}
+          }
+        } catch {
+          setFaqs(DEFAULT_FAQS);
+        }
+      } else {
+        setFaqs(DEFAULT_FAQS);
       }
 
       const savedTerms = localStorage.getItem('indrajeet_terms_content');
@@ -526,6 +799,18 @@ export default function AdminPanel() {
       localStorage.setItem('indrajeet_site_content', JSON.stringify(siteContent));
     }
   }, [siteContent, mounted]);
+
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('indrajeet_courses', JSON.stringify(courses));
+    }
+  }, [courses, mounted]);
+
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem('indrajeet_faqs', JSON.stringify(faqs));
+    }
+  }, [faqs, mounted]);
 
   useEffect(() => {
     if (mounted) {
@@ -604,8 +889,28 @@ export default function AdminPanel() {
       // Fetch Real-Time LMS courses & classes
       fetch(`${API_URL}/courses`)
         .then((r) => r.json())
-        .then((d) => setCourses(Array.isArray(d) ? d : []))
-        .catch(() => setCourses([]));
+        .then((d) => {
+          if (Array.isArray(d)) {
+            const clean = d.filter((item: CourseItem) => !DUMMY_COURSE_TITLES.has(item.title) && item.price !== 4999 && item.price !== 2999);
+            if (clean.length >= 5) {
+              setCourses((prev) => {
+                return clean.map((item: CourseItem) => {
+                  const existing = prev.find((p) => p.id === item.id) || DEFAULT_COURSES.find((p) => p.id === item.id);
+                  return {
+                    ...item,
+                    features: Array.isArray(item.features) && item.features.length > 0 ? item.features : existing?.features || [],
+                    validity: item.validity || existing?.validity || '1 Year',
+                    tag: item.tag || existing?.tag || 'Mentorship Batch',
+                  };
+                });
+              });
+            } else {
+              setCourses(DEFAULT_COURSES);
+              localStorage.setItem('indrajeet_courses', JSON.stringify(DEFAULT_COURSES));
+            }
+          }
+        })
+        .catch(() => {});
 
       fetch(`${API_URL}/live-classes`)
         .then((r) => r.json())
@@ -912,10 +1217,15 @@ export default function AdminPanel() {
     if (!courseForm.title) return;
     setCourseSaving(true);
     const newCourse: CourseItem = {
-      id: `crs_${Date.now()}`,
+      id: `c-${Date.now()}`,
       title: courseForm.title,
       description: courseForm.description,
-      price: parseInt(courseForm.price) || 4999,
+      price: parseInt(courseForm.price) || 4500,
+      tag: courseForm.tag || 'Mentorship Batch',
+      validity: courseForm.validity || '1 Year',
+      features: courseForm.features.split('\n').map((s) => s.trim()).filter(Boolean),
+      instructor: 'Indrajeet Sir',
+      published: true,
     };
     fetch(`${API_URL}/courses`, {
       method: 'POST',
@@ -925,10 +1235,14 @@ export default function AdminPanel() {
       .then((r) => r.json())
       .catch(() => null)
       .finally(() => {
-        setCourses((prev) => [newCourse, ...prev]);
-        setCourseForm({ title: '', description: '', price: '4999' });
+        setCourses((prev) => {
+          const next = [newCourse, ...prev];
+          try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
+          return next;
+        });
+        setCourseForm({ title: '', description: '', price: '4500', tag: '', validity: '', features: '' });
         setCourseSaving(false);
-        triggerAlert(`Course "${newCourse.title}" published.`);
+        triggerAlert(`Course "${newCourse.title}" published successfully.`);
       });
   };
 
@@ -936,9 +1250,10 @@ export default function AdminPanel() {
     e.preventDefault();
     if (!editCourseModal || !editCourseModal.title.trim()) return;
     setEditCourseSaving(true);
-    const updated = {
+    const updated: CourseItem = {
       ...editCourseModal,
       price: Number(editCourseModal.price) || 0,
+      features: editCourseFeatures.split('\n').map((s) => s.trim()).filter(Boolean),
     };
     try {
       await fetch(`${API_URL}/courses/${updated.id}`, {
@@ -949,7 +1264,11 @@ export default function AdminPanel() {
     } catch {
       // offline fallback
     }
-    setCourses((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+    setCourses((prev) => {
+      const next = prev.map((c) => (c.id === updated.id ? updated : c));
+      try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
+      return next;
+    });
     setEditCourseSaving(false);
     setEditCourseModal(null);
     triggerAlert(`Course "${updated.title}" updated successfully.`);
@@ -957,7 +1276,11 @@ export default function AdminPanel() {
 
   const handleDeleteCourse = async (id: string, title: string) => {
     if (!window.confirm(`Are you sure you want to delete course "${title}"?`)) return;
-    setCourses((prev) => prev.filter((c) => c.id !== id));
+    setCourses((prev) => {
+      const next = prev.filter((c) => c.id !== id);
+      try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
+      return next;
+    });
     triggerAlert(`Course "${title}" removed.`);
     try {
       await fetch(`${API_URL}/courses/${id}`, { method: 'DELETE' });
@@ -2087,6 +2410,24 @@ export default function AdminPanel() {
                 <h1>Courses & Programs Catalog</h1>
                 <p>Manage mentorship programs, fee structures, and curriculum modules.</p>
               </div>
+              <button
+                type="button"
+                className="btn-primary-admin"
+                onClick={() => {
+                  setCourses(DEFAULT_COURSES);
+                  localStorage.setItem('indrajeet_courses', JSON.stringify(DEFAULT_COURSES));
+                  DEFAULT_COURSES.forEach((c) => {
+                    fetch(`${API_URL}/courses/${c.id}`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(c),
+                    }).catch(() => null);
+                  });
+                  triggerAlert('All 5 official mentorship courses successfully synchronized!');
+                }}
+              >
+                ↻ Load / Sync All 5 Batches
+              </button>
             </div>
 
             <div className="stacked-vertical-layout">
@@ -2112,13 +2453,42 @@ export default function AdminPanel() {
                       rows={3}
                     />
                   </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+                    <div className="form-group">
+                      <label>Fee (INR)</label>
+                      <input
+                        type="number"
+                        value={courseForm.price}
+                        onChange={(e) => setCourseForm({ ...courseForm, price: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Validity</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 2 Months, 1 Year"
+                        value={courseForm.validity}
+                        onChange={(e) => setCourseForm({ ...courseForm, validity: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Batch Tag</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Notes Making Framework"
+                        value={courseForm.tag}
+                        onChange={(e) => setCourseForm({ ...courseForm, tag: e.target.value })}
+                      />
+                    </div>
+                  </div>
                   <div className="form-group">
-                    <label>Fee (INR)</label>
-                    <input
-                      type="number"
-                      value={courseForm.price}
-                      onChange={(e) => setCourseForm({ ...courseForm, price: e.target.value })}
-                      required
+                    <label>Features & Bullet Points (One per line)</label>
+                    <textarea
+                      rows={4}
+                      placeholder="Enter each feature on a new line..."
+                      value={courseForm.features}
+                      onChange={(e) => setCourseForm({ ...courseForm, features: e.target.value })}
                     />
                   </div>
                   <button type="submit" className="btn-primary-admin" disabled={courseSaving}>
@@ -2162,7 +2532,10 @@ export default function AdminPanel() {
                             <div className="table-actions" style={{ justifyContent: 'flex-end' }}>
                               <button
                                 className="action-btn-sm edit"
-                                onClick={() => setEditCourseModal(c)}
+                                onClick={() => {
+                                  setEditCourseModal(c);
+                                  setEditCourseFeatures((c.features || []).join('\n'));
+                                }}
                                 title="Edit course details"
                               >
                                 Edit
@@ -2319,145 +2692,555 @@ export default function AdminPanel() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1rem' }}>
-              {/* Card 1: Hero Section */}
+              {/* Card 1: Hero Section Headline, 5 Process Pillars & Dhoni Quote */}
               <div className="admin-card">
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
-                  1. Hero Section Content
+                  1. Hero Section Headline & 5 Core Process Pillars
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
-                  Controls the primary landing banner headline and description.
+                  Controls the primary landing banner headline and the 5 battle-tested process pillars.
                 </p>
-                <div className="form-group">
-                  <label>Hero Headline</label>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label>Mentor Portrait Seal Badge</label>
                   <input
                     type="text"
+                    value={siteContent.heroBadge || ''}
+                    placeholder="e.g. Ex-VisionIAS Faculty"
+                    onChange={(e) => setSiteContent({ ...siteContent, heroBadge: e.target.value })}
+                  />
+                  <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Appears as a floating verified tag on Indrajeet Sir&apos;s portrait.</span>
+                </div>
+
+                <div className="form-group">
+                  <label>Hero Headline</label>
+                  <textarea
+                    rows={2}
                     value={siteContent.heroHeading}
                     onChange={(e) => setSiteContent({ ...siteContent, heroHeading: e.target.value })}
                   />
                 </div>
-                <div className="form-group">
-                  <label>Hero Subtitle / Description</label>
-                  <textarea
-                    rows={3}
-                    value={siteContent.heroSubheading}
-                    onChange={(e) => setSiteContent({ ...siteContent, heroSubheading: e.target.value })}
-                  />
-                </div>
-              </div>
 
-              {/* Card 2: 3D Metric Counters */}
-              <div className="admin-card">
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
-                  2. Hero Metric Counters (3 Key Highlights)
-                </h3>
-                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
-                  Highlighted stats displayed directly below the hero call to action.
-                </p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
-                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                    <div className="form-group" style={{ marginBottom: '0.6rem' }}>
-                      <label>Stat 1 Value</label>
+                <div style={{ marginTop: '1rem' }}>
+                  <label style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
+                    5 Core Process Pillars
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.8rem' }}>Pillar 1</label>
                       <input
                         type="text"
-                        value={siteContent.stat1Number}
-                        onChange={(e) => setSiteContent({ ...siteContent, stat1Number: e.target.value })}
+                        value={siteContent.heroPillar1}
+                        onChange={(e) => setSiteContent({ ...siteContent, heroPillar1: e.target.value })}
                       />
                     </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label>Stat 1 Label</label>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.8rem' }}>Pillar 2</label>
                       <input
                         type="text"
-                        value={siteContent.stat1Label}
-                        onChange={(e) => setSiteContent({ ...siteContent, stat1Label: e.target.value })}
+                        value={siteContent.heroPillar2}
+                        onChange={(e) => setSiteContent({ ...siteContent, heroPillar2: e.target.value })}
                       />
                     </div>
-                  </div>
-
-                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                    <div className="form-group" style={{ marginBottom: '0.6rem' }}>
-                      <label>Stat 2 Value</label>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.8rem' }}>Pillar 3</label>
                       <input
                         type="text"
-                        value={siteContent.stat2Number}
-                        onChange={(e) => setSiteContent({ ...siteContent, stat2Number: e.target.value })}
+                        value={siteContent.heroPillar3}
+                        onChange={(e) => setSiteContent({ ...siteContent, heroPillar3: e.target.value })}
                       />
                     </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label>Stat 2 Label</label>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.8rem' }}>Pillar 4</label>
                       <input
                         type="text"
-                        value={siteContent.stat2Label}
-                        onChange={(e) => setSiteContent({ ...siteContent, stat2Label: e.target.value })}
+                        value={siteContent.heroPillar4}
+                        onChange={(e) => setSiteContent({ ...siteContent, heroPillar4: e.target.value })}
                       />
                     </div>
-                  </div>
-
-                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                    <div className="form-group" style={{ marginBottom: '0.6rem' }}>
-                      <label>Stat 3 Value</label>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.8rem' }}>Pillar 5</label>
                       <input
                         type="text"
-                        value={siteContent.stat3Number}
-                        onChange={(e) => setSiteContent({ ...siteContent, stat3Number: e.target.value })}
-                      />
-                    </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label>Stat 3 Label</label>
-                      <input
-                        type="text"
-                        value={siteContent.stat3Label}
-                        onChange={(e) => setSiteContent({ ...siteContent, stat3Label: e.target.value })}
+                        value={siteContent.heroPillar5}
+                        onChange={(e) => setSiteContent({ ...siteContent, heroPillar5: e.target.value })}
                       />
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Card 3: About & MS Dhoni Quote */}
-              <div className="admin-card">
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
-                  3. Mentorship Philosophy & Quote Section
-                </h3>
-                <div className="form-group">
-                  <label>Philosophy Section Heading</label>
-                  <input
-                    type="text"
-                    value={siteContent.aboutHeading}
-                    onChange={(e) => setSiteContent({ ...siteContent, aboutHeading: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Philosophy Subtitle</label>
-                  <textarea
-                    rows={2}
-                    value={siteContent.aboutSubheading}
-                    onChange={(e) => setSiteContent({ ...siteContent, aboutSubheading: e.target.value })}
-                  />
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
+                <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
+                  <label style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>
+                    Mentorship Philosophy Quote (MS Dhoni)
+                  </label>
                   <div className="form-group">
                     <label>Quote Content</label>
-                    <input
-                      type="text"
+                    <textarea
+                      rows={2}
                       value={siteContent.dhoniQuote}
                       onChange={(e) => setSiteContent({ ...siteContent, dhoniQuote: e.target.value })}
                     />
                   </div>
-                  <div className="form-group">
-                    <label>Quote Author</label>
-                    <input
-                      type="text"
-                      value={siteContent.dhoniAuthor}
-                      onChange={(e) => setSiteContent({ ...siteContent, dhoniAuthor: e.target.value })}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="form-group">
+                      <label>Author</label>
+                      <input
+                        type="text"
+                        value={siteContent.dhoniAuthor}
+                        onChange={(e) => setSiteContent({ ...siteContent, dhoniAuthor: e.target.value })}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Tag / Subtitle</label>
+                      <input
+                        type="text"
+                        value={siteContent.dhoniTag}
+                        onChange={(e) => setSiteContent({ ...siteContent, dhoniTag: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Section 1 - About Indrajeet Sir (5 Credential Highlights) */}
+              <div className="admin-card">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
+                  2. About Indrajeet Sir (5 Credential Highlight Cards)
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
+                  Manages the heading and the 5 official credential cards showcasing Sir&apos;s background.
+                </p>
+                <div className="form-group">
+                  <label>Section Heading</label>
+                  <input
+                    type="text"
+                    value={siteContent.aboutSirHeading}
+                    onChange={(e) => setSiteContent({ ...siteContent, aboutSirHeading: e.target.value })}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.85rem', color: '#2563eb' }}>Card 1</label>
+                    <div className="form-group" style={{ margin: '0.4rem 0' }}>
+                      <input
+                        type="text"
+                        value={siteContent.sirCard1Val}
+                        onChange={(e) => setSiteContent({ ...siteContent, sirCard1Val: e.target.value })}
+                        placeholder="Card 1 Title"
+                      />
+                    </div>
+                    <textarea
+                      rows={2}
+                      value={siteContent.sirCard1Desc}
+                      onChange={(e) => setSiteContent({ ...siteContent, sirCard1Desc: e.target.value })}
+                      placeholder="Card 1 Description"
+                    />
+                  </div>
+
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.85rem', color: '#2563eb' }}>Card 2</label>
+                    <div className="form-group" style={{ margin: '0.4rem 0' }}>
+                      <input
+                        type="text"
+                        value={siteContent.sirCard2Val}
+                        onChange={(e) => setSiteContent({ ...siteContent, sirCard2Val: e.target.value })}
+                        placeholder="Card 2 Title"
+                      />
+                    </div>
+                    <textarea
+                      rows={2}
+                      value={siteContent.sirCard2Desc}
+                      onChange={(e) => setSiteContent({ ...siteContent, sirCard2Desc: e.target.value })}
+                      placeholder="Card 2 Description"
+                    />
+                  </div>
+
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.85rem', color: '#2563eb' }}>Card 3</label>
+                    <div className="form-group" style={{ margin: '0.4rem 0' }}>
+                      <input
+                        type="text"
+                        value={siteContent.sirCard3Val}
+                        onChange={(e) => setSiteContent({ ...siteContent, sirCard3Val: e.target.value })}
+                        placeholder="Card 3 Title"
+                      />
+                    </div>
+                    <textarea
+                      rows={2}
+                      value={siteContent.sirCard3Desc}
+                      onChange={(e) => setSiteContent({ ...siteContent, sirCard3Desc: e.target.value })}
+                      placeholder="Card 3 Description"
+                    />
+                  </div>
+
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.85rem', color: '#2563eb' }}>Card 4</label>
+                    <div className="form-group" style={{ margin: '0.4rem 0' }}>
+                      <input
+                        type="text"
+                        value={siteContent.sirCard4Val}
+                        onChange={(e) => setSiteContent({ ...siteContent, sirCard4Val: e.target.value })}
+                        placeholder="Card 4 Title"
+                      />
+                    </div>
+                    <textarea
+                      rows={2}
+                      value={siteContent.sirCard4Desc}
+                      onChange={(e) => setSiteContent({ ...siteContent, sirCard4Desc: e.target.value })}
+                      placeholder="Card 4 Description"
+                    />
+                  </div>
+
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.85rem', color: '#2563eb' }}>Card 5</label>
+                    <div className="form-group" style={{ margin: '0.4rem 0' }}>
+                      <input
+                        type="text"
+                        value={siteContent.sirCard5Val}
+                        onChange={(e) => setSiteContent({ ...siteContent, sirCard5Val: e.target.value })}
+                        placeholder="Card 5 Title"
+                      />
+                    </div>
+                    <textarea
+                      rows={2}
+                      value={siteContent.sirCard5Desc}
+                      onChange={(e) => setSiteContent({ ...siteContent, sirCard5Desc: e.target.value })}
+                      placeholder="Card 5 Description"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Card 4: Important PDFs Section */}
+              {/* Card 3: Section 2 - About The Mentorship (4 Core Pillars) */}
               <div className="admin-card">
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
-                  4. Important PDFs & Resource Material Section
+                  3. About The Mentorship (4 Core Pillar Cards)
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
+                  Controls the methodology cards explaining how Indrajeet Sir&apos;s mentorship system operates.
+                </p>
+                <div className="form-group">
+                  <label>Section Heading</label>
+                  <input
+                    type="text"
+                    value={siteContent.aboutMentorHeading}
+                    onChange={(e) => setSiteContent({ ...siteContent, aboutMentorHeading: e.target.value })}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.85rem', color: '#2563eb' }}>Pillar 1</label>
+                    <div className="form-group" style={{ margin: '0.4rem 0' }}>
+                      <input
+                        type="text"
+                        value={siteContent.mentorPillar1Title}
+                        onChange={(e) => setSiteContent({ ...siteContent, mentorPillar1Title: e.target.value })}
+                        placeholder="Pillar 1 Title"
+                      />
+                    </div>
+                    <textarea
+                      rows={2}
+                      value={siteContent.mentorPillar1Desc}
+                      onChange={(e) => setSiteContent({ ...siteContent, mentorPillar1Desc: e.target.value })}
+                      placeholder="Pillar 1 Description"
+                    />
+                  </div>
+
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.85rem', color: '#2563eb' }}>Pillar 2</label>
+                    <div className="form-group" style={{ margin: '0.4rem 0' }}>
+                      <input
+                        type="text"
+                        value={siteContent.mentorPillar2Title}
+                        onChange={(e) => setSiteContent({ ...siteContent, mentorPillar2Title: e.target.value })}
+                        placeholder="Pillar 2 Title"
+                      />
+                    </div>
+                    <textarea
+                      rows={2}
+                      value={siteContent.mentorPillar2Desc}
+                      onChange={(e) => setSiteContent({ ...siteContent, mentorPillar2Desc: e.target.value })}
+                      placeholder="Pillar 2 Description"
+                    />
+                  </div>
+
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.85rem', color: '#2563eb' }}>Pillar 3</label>
+                    <div className="form-group" style={{ margin: '0.4rem 0' }}>
+                      <input
+                        type="text"
+                        value={siteContent.mentorPillar3Title}
+                        onChange={(e) => setSiteContent({ ...siteContent, mentorPillar3Title: e.target.value })}
+                        placeholder="Pillar 3 Title"
+                      />
+                    </div>
+                    <textarea
+                      rows={2}
+                      value={siteContent.mentorPillar3Desc}
+                      onChange={(e) => setSiteContent({ ...siteContent, mentorPillar3Desc: e.target.value })}
+                      placeholder="Pillar 3 Description"
+                    />
+                  </div>
+
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.85rem', color: '#2563eb' }}>Pillar 4</label>
+                    <div className="form-group" style={{ margin: '0.4rem 0' }}>
+                      <input
+                        type="text"
+                        value={siteContent.mentorPillar4Title}
+                        onChange={(e) => setSiteContent({ ...siteContent, mentorPillar4Title: e.target.value })}
+                        placeholder="Pillar 4 Title"
+                      />
+                    </div>
+                    <textarea
+                      rows={2}
+                      value={siteContent.mentorPillar4Desc}
+                      onChange={(e) => setSiteContent({ ...siteContent, mentorPillar4Desc: e.target.value })}
+                      placeholder="Pillar 4 Description"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 4: Mentorship Batches & Courses (All 5 Programs Live in CMS) */}
+              <div className="admin-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.25rem', color: '#0f172a' }}>
+                      4. Mentorship Batches & Courses (All 5 Programs)
+                    </h3>
+                    <p style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                      Edit course titles, pricing, validity durations, and line-by-line bullet features directly here.
+                    </p>
+                  </div>
+                  <span className="status-pill verified">5 Courses Active</span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1.5rem', background: '#f8fafc', padding: '1rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.85rem' }}>Section Heading</label>
+                    <input
+                      type="text"
+                      value={siteContent.coursesHeading}
+                      onChange={(e) => setSiteContent({ ...siteContent, coursesHeading: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.85rem' }}>Section Subheading</label>
+                    {/* <input
+                      type="text"
+                      value={siteContent.coursesSubheading}
+                      onChange={(e) => setSiteContent({ ...siteContent, coursesSubheading: e.target.value })}
+                    /> */}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {courses.map((course, idx) => (
+                    <div
+                      key={course.id}
+                      style={{
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '12px',
+                        padding: '1.25rem',
+                        background: '#ffffff',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.6rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                          <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>
+                            Course {idx + 1}: {course.title}
+                          </span>
+                          {course.tag && (
+                            <span className="status-pill verified" style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem' }}>
+                              {course.tag}
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                          <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>
+                            ₹{course.price.toLocaleString('en-IN')}
+                          </span>
+                          <span className="status-pill pending" style={{ fontSize: '0.72rem' }}>
+                            ⏱ {course.validity || '1 Year'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                        <div className="form-group" style={{ margin: 0 }}>
+                          <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Course Title</label>
+                          <input
+                            type="text"
+                            value={course.title}
+                            onChange={(e) => {
+                              const newTitle = e.target.value;
+                              setCourses((prev) => {
+                                const next = prev.map((c) => (c.id === course.id ? { ...c, title: newTitle } : c));
+                                try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
+                                return next;
+                              });
+                            }}
+                          />
+                        </div>
+
+                        <div className="form-group" style={{ margin: 0 }}>
+                          <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Fee (INR)</label>
+                          <input
+                            type="number"
+                            value={course.price}
+                            onChange={(e) => {
+                              const newPrice = Number(e.target.value) || 0;
+                              setCourses((prev) => {
+                                const next = prev.map((c) => (c.id === course.id ? { ...c, price: newPrice } : c));
+                                try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
+                                return next;
+                              });
+                            }}
+                          />
+                        </div>
+
+                        <div className="form-group" style={{ margin: 0 }}>
+                          <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Validity</label>
+                          <input
+                            type="text"
+                            value={course.validity || ''}
+                            placeholder="e.g. 2 Months"
+                            onChange={(e) => {
+                              const newValidity = e.target.value;
+                              setCourses((prev) => {
+                                const next = prev.map((c) => (c.id === course.id ? { ...c, validity: newValidity } : c));
+                                try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
+                                return next;
+                              });
+                            }}
+                          />
+                        </div>
+
+                        <div className="form-group" style={{ margin: 0 }}>
+                          <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Batch Tag / Badge</label>
+                          <input
+                            type="text"
+                            value={course.tag || ''}
+                            placeholder="e.g. Notes Making Framework"
+                            onChange={(e) => {
+                              const newTag = e.target.value;
+                              setCourses((prev) => {
+                                const next = prev.map((c) => (c.id === course.id ? { ...c, tag: newTag } : c));
+                                try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
+                                return next;
+                              });
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Brief Description</label>
+                        <input
+                          type="text"
+                          value={course.description || ''}
+                          onChange={(e) => {
+                            const newDesc = e.target.value;
+                            setCourses((prev) => {
+                              const next = prev.map((c) => (c.id === course.id ? { ...c, description: newDesc } : c));
+                              try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
+                              return next;
+                            });
+                          }}
+                        />
+                      </div>
+
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                          <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>
+                            Curriculum Features & Key Highlights (One bullet per line)
+                          </label>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                            {Array.isArray(course.features) ? course.features.length : 0} bullets listed
+                          </span>
+                        </div>
+                        <textarea
+                          rows={4}
+                          value={Array.isArray(course.features) ? course.features.join('\n') : ''}
+                          placeholder="Enter each feature on a new line..."
+                          onChange={(e) => {
+                            const lines = e.target.value.split('\n');
+                            setCourses((prev) => {
+                              const next = prev.map((c) => (c.id === course.id ? { ...c, features: lines } : c));
+                              try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
+                              return next;
+                            });
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Card 5: Mentored Aspirants Section */}
+              <div className="admin-card">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
+                  5. Mentored Aspirants (3 Showcase Cards)
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
+                  Manage the names and titles displayed below each topper photo card.
+                </p>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label>Section Heading</label>
+                  <input
+                    type="text"
+                    value={siteContent.resultsHeading}
+                    onChange={(e) => setSiteContent({ ...siteContent, resultsHeading: e.target.value })}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.85rem', color: '#0f172a' }}>Person 1 (IRS)</label>
+                    <div className="form-group" style={{ margin: '0.4rem 0 0' }}>
+                      <input
+                        type="text"
+                        value={siteContent.result1Name}
+                        onChange={(e) => setSiteContent({ ...siteContent, result1Name: e.target.value })}
+                        placeholder="Jatin Parashar (IRS) UPSC 2022"
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.85rem', color: '#0f172a' }}>Person 2 (IAS)</label>
+                    <div className="form-group" style={{ margin: '0.4rem 0 0' }}>
+                      <input
+                        type="text"
+                        value={siteContent.result2Name}
+                        onChange={(e) => setSiteContent({ ...siteContent, result2Name: e.target.value })}
+                        placeholder="Kritika Mishra (IAS) UPSC 2023"
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ padding: '0.9rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.85rem', color: '#0f172a' }}>Person 3 (IPS)</label>
+                    <div className="form-group" style={{ margin: '0.4rem 0 0' }}>
+                      <input
+                        type="text"
+                        value={siteContent.result3Name}
+                        onChange={(e) => setSiteContent({ ...siteContent, result3Name: e.target.value })}
+                        placeholder="Devesh Parashar (IPS) UPSC 2024"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 6: Important PDFs Section */}
+              <div className="admin-card">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
+                  6. Important PDFs & Resource Material Section
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
                   Headline and description for the free study resources & brochure download cards.
@@ -2480,10 +3263,147 @@ export default function AdminPanel() {
                 </div>
               </div>
 
-              {/* Card 5: Contact Desk & Telegram Channels */}
+              {/* Card 7: Mobile Application Showcase */}
               <div className="admin-card">
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
-                  5. Contact Desk & Official Channels
+                  7. Mobile Application Showcase
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
+                  Controls the title, description, and Google Play Store link for the mobile app section.
+                </p>
+                <div className="form-group">
+                  <label>App Showcase Title</label>
+                  <input
+                    type="text"
+                    value={siteContent.appTitle}
+                    onChange={(e) => setSiteContent({ ...siteContent, appTitle: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>App Showcase Description</label>
+                  <textarea
+                    rows={2}
+                    value={siteContent.appDesc}
+                    onChange={(e) => setSiteContent({ ...siteContent, appDesc: e.target.value })}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Google Play Store URL</label>
+                  <input
+                    type="text"
+                    value={siteContent.appPlayStoreUrl}
+                    onChange={(e) => setSiteContent({ ...siteContent, appPlayStoreUrl: e.target.value })}
+                  />
+                </div>
+              </div>
+
+                            {/* Card 8: Frequently Asked Questions (FAQs) Manager */}
+              <div className="admin-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                      8. Frequently Asked Questions (FAQs) Manager ({faqs.length})
+                    </h3>
+                    <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '0.2rem 0 0' }}>
+                      Add, edit, or delete student doubts and mentorship FAQs displayed on the landing page.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-primary-admin"
+                    style={{ fontSize: '0.82rem', padding: '0.4rem 0.85rem' }}
+                    onClick={() => {
+                      const newFaq: FaqItem = {
+                        id: `faq-${Date.now()}`,
+                        q: 'Naya Sawal / New Question Title?',
+                        a: 'Yahan vistar se uttar likhein... / Detailed answer explanation.',
+                      };
+                      setFaqs([...faqs, newFaq]);
+                    }}
+                  >
+                    + Add New FAQ
+                  </button>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem', marginBottom: '1.25rem', background: '#f8fafc', padding: '0.9rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Section Heading</label>
+                    <input
+                      type="text"
+                      value={siteContent.faqsHeading || ''}
+                      onChange={(e) => setSiteContent({ ...siteContent, faqsHeading: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Section Subtitle</label>
+                    <input
+                      type="text"
+                      value={siteContent.faqsSubheading || ''}
+                      onChange={(e) => setSiteContent({ ...siteContent, faqsSubheading: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+                  {faqs.map((faq, idx) => (
+                    <div
+                      key={faq.id || idx}
+                      style={{
+                        padding: '1rem',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '10px',
+                        background: '#ffffff',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <span style={{ fontWeight: 800, fontSize: '0.88rem', color: '#0f172a' }}>
+                          FAQ #{idx + 1}
+                        </span>
+                        <button
+                          type="button"
+                          className="action-btn-sm delete"
+                          onClick={() => {
+                            if (window.confirm(`Delete FAQ #${idx + 1}?`)) {
+                              setFaqs(faqs.filter((_, i) => i !== idx));
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+
+                      <div className="form-group" style={{ marginBottom: '0.5rem' }}>
+                        <label style={{ fontSize: '0.78rem', fontWeight: 700 }}>Question (Hindi / English)</label>
+                        <input
+                          type="text"
+                          value={faq.q}
+                          onChange={(e) => {
+                            const newQ = e.target.value;
+                            setFaqs(faqs.map((f, i) => (i === idx ? { ...f, q: newQ } : f)));
+                          }}
+                        />
+                      </div>
+
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label style={{ fontSize: '0.78rem', fontWeight: 700 }}>Answer Explanation</label>
+                        <textarea
+                          rows={3}
+                          value={faq.a}
+                          onChange={(e) => {
+                            const newA = e.target.value;
+                            setFaqs(faqs.map((f, i) => (i === idx ? { ...f, a: newA } : f)));
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Card 9: Contact Desk & Telegram Channels */}
+              <div className="admin-card">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
+                  7. Contact Desk & Official Channels
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
                   Updates the contact card, phone dialers, and Telegram links across the website and footer.
@@ -2530,6 +3450,14 @@ export default function AdminPanel() {
                     />
                   </div>
                   <div className="form-group">
+                    <label>WhatsApp Display</label>
+                    <input
+                      type="text"
+                      value={siteContent.whatsappDisplay}
+                      onChange={(e) => setSiteContent({ ...siteContent, whatsappDisplay: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
                     <label>Official Email</label>
                     <input
                       type="email"
@@ -2552,6 +3480,7 @@ export default function AdminPanel() {
                   </button>
                 </div>
               </div>
+              
 
               {/* Card 6: PDF Study Material & Documents Manager */}
               <div className="admin-card">
@@ -2787,7 +3716,29 @@ export default function AdminPanel() {
                 </div>
               </div>
             </div>
-          </section>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <button
+                  type="button"
+                  className="btn-primary-admin"
+                  style={{ minWidth: '220px' }}
+                  onClick={() => {
+                    localStorage.setItem('indrajeet_site_content', JSON.stringify(siteContent));
+                    localStorage.setItem('indrajeet_courses', JSON.stringify(courses));
+                    localStorage.setItem('indrajeet_faqs', JSON.stringify(faqs));
+                    courses.forEach((c) => {
+                      fetch(`${API_URL}/courses/${c.id}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(c),
+                      }).catch(() => null);
+                    });
+                    triggerAlert('Website content & all 5 courses successfully saved and published live!');
+                  }}
+                >
+                  Save & Publish Live
+                </button>
+              </div>
+            </section>
         )}
 
         {/* ══════════════════════════════════════════════════════════════════════
@@ -3159,6 +4110,16 @@ export default function AdminPanel() {
                     setEditCourseModal({ ...editCourseModal, price: Number(e.target.value) || 0 })
                   }
                   required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Key Features / Highlights (One per line)</label>
+                <textarea
+                  rows={4}
+                  value={editCourseFeatures}
+                  onChange={(e) => setEditCourseFeatures(e.target.value)}
+                  placeholder="Enter features (one per line)..."
                 />
               </div>
 

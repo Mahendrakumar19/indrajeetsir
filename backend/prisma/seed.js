@@ -52,22 +52,62 @@ async function main() {
     },
   });
 
-  // 4. Ensure Official Course from Brochure
-  let officialCourse = await prisma.course.findFirst({
-    where: { title: '1:1 Mentorship Program — UPSC 2027 Complete Guidance' },
+  // 4. Clean up legacy dummy courses
+  await prisma.course.deleteMany({
+    where: {
+      OR: [
+        { title: { contains: 'GS Paper 3' } },
+        { title: { contains: 'Ethics Special' } },
+        { price: 4999 },
+        { price: 2999 },
+      ],
+    },
   });
-  if (!officialCourse) {
-    officialCourse = await prisma.course.create({
-      data: {
-        title: '1:1 Mentorship Program — UPSC 2027 Complete Guidance',
-        description: 'Complete 1:1 guidance by Indrajeet Sir covering Prelims foundation, Mains answer writing edge (600+ short notes topics, 16 tests), and Personality Test interview preparation with live Google Meet sessions.',
-        price: 4999,
-        instructor: 'Indrajeet Sir',
-        published: true,
-        organizationId: org.id,
-      },
-    });
-    console.log('Seeded official course:', officialCourse.title);
+
+  // 5. Ensure All 5 Authentic UPSC Mentorship Batches
+  const fiveCourses = [
+    {
+      title: '1 Year Full Mentorship for UPSC 2027 (After Foundation Course)',
+      description: 'Complete 3-Stage Prelims, Mains, and Interview guidance with 1-on-1 personal mentorship by Indrajeet Sir.',
+      price: 24000,
+    },
+    {
+      title: 'UPSC Mains 2027 Comprehensive Mentorship',
+      description: 'Targeted Mains score maximization with personal copy evaluation and structure improvement by Indrajeet Sir.',
+      price: 18000,
+    },
+    {
+      title: 'UPSC Prelims 2027 Targeted Program',
+      description: 'Build rigorous elimination skills, concise revision notes, and solve 5,000+ targeted practice questions.',
+      price: 10000,
+    },
+    {
+      title: '1 Year Full Mentorship for UPSC 2027 / 2028 (Parallel with Foundation Course)',
+      description: 'Align and strengthen your preparation alongside your ongoing foundation course (Note: We do not provide foundation lectures).',
+      price: 30000,
+    },
+    {
+      title: 'UPSC Mains Short Notes Making',
+      description: 'Master the methodology of condensing vast GS 1–4 syllabus into high-yield micro notes.',
+      price: 4500,
+    },
+  ];
+
+  for (const c of fiveCourses) {
+    const existing = await prisma.course.findFirst({ where: { title: c.title } });
+    if (!existing) {
+      await prisma.course.create({
+        data: {
+          title: c.title,
+          description: c.description,
+          price: c.price,
+          instructor: 'Indrajeet Sir',
+          published: true,
+          organizationId: org.id,
+        },
+      });
+      console.log('Seeded batch:', c.title);
+    }
   }
 }
 

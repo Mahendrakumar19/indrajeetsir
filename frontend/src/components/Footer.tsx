@@ -1,7 +1,32 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function Footer() {
+  const [siteContent, setSiteContent] = useState({
+    telegramHandle: '@Indrajeetsir_UPSC',
+    telegramUrl: 'https://t.me/Indrajeetsir_UPSC',
+    contactEmail: 'indrajeet.visionias@gmail.com',
+  });
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('indrajeet_site_content');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.telegramHandle || parsed.telegramUrl || parsed.contactEmail) {
+          setSiteContent((prev) => ({
+            telegramHandle: parsed.telegramHandle || prev.telegramHandle,
+            telegramUrl: parsed.telegramUrl || prev.telegramUrl,
+            contactEmail: parsed.contactEmail || prev.contactEmail,
+          }));
+        }
+      }
+    } catch {}
+  }, []);
+
   return (
     <footer className="footer-wrap">
       <div className="footer-container">
@@ -34,12 +59,12 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="footer-col-title">Legal & Security</h4>
+            <h4 className="footer-col-title">Legal &amp; Security</h4>
             <ul className="footer-links-list">
               <li><Link href="/privacy">Privacy Policy</Link></li>
               <li><Link href="/terms">Terms of Service</Link></li>
               <li><Link href="/terms#refund">Refund Policy</Link></li>
-              <li><Link href="/disclaimer">Disclaimers & Cookies</Link></li>
+              <li><Link href="/disclaimer">Disclaimers &amp; Cookies</Link></li>
             </ul>
           </div>
 
@@ -48,17 +73,19 @@ export default function Footer() {
             <p style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginBottom: '0.65rem' }}>
               <i className="fa-brands fa-telegram" style={{ color: '#0088cc', fontSize: '1.25rem', flexShrink: 0 }} aria-hidden="true" />
               <a
-                href="https://t.me/Indrajeetsir_UPSC"
+                href={siteContent.telegramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: '#0088cc', fontWeight: 700, textDecoration: 'none' }}
               >
-                Telegram: @Indrajeetsir_UPSC
+                Telegram: {siteContent.telegramHandle}
               </a>
             </p>
             <p style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginBottom: '0.65rem' }}>
               <i className="fa-solid fa-envelope" style={{ color: '#64748b', fontSize: '1.05rem', flexShrink: 0 }} aria-hidden="true" />
-              <a href="mailto:indrajeet.visionias@gmail.com" style={{ color: 'inherit', textDecoration: 'none' }}>indrajeet.visionias@gmail.com</a>
+              <a href={`mailto:${siteContent.contactEmail}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                {siteContent.contactEmail}
+              </a>
             </p>
             <p style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', marginTop: '0.5rem', fontSize: '0.85rem', color: '#94a3b8' }}>
               <i className="fa-solid fa-location-dot" style={{ color: '#94a3b8', fontSize: '1rem', flexShrink: 0 }} aria-hidden="true" />

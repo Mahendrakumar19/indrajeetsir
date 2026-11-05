@@ -62,10 +62,10 @@ export async function POST(req: NextRequest) {
         fileName: finalFileName,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('PDF upload error:', error);
     return NextResponse.json(
-      { success: false, message: error?.message || 'File upload failed' },
+      { success: false, message: error instanceof Error ? error.message : 'File upload failed' },
       { status: 500 }
     );
   }
