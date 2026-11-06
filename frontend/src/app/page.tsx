@@ -145,15 +145,38 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Mentorship Philosophy Quote */}
+            {/* Mentorship Philosophy Quote Card */}
             <div className="hero-dhoni-quote-wrap">
+              <span className="quote-bg-watermark" aria-hidden="true">&ldquo;</span>
+
+              <div className="quote-header-badge">
+                <span className="quote-sparkle-dot" />
+                <span className="quote-header-title">THE CORE PHILOSOPHY</span>
+                <span className="quote-badge-divider">•</span>
+                <span className="quote-header-sub">Mindset Behind The 5 Pillars</span>
+              </div>
+
               <p className="hero-dhoni-quote-text">
-                &ldquo;{siteContent.dhoniQuote}&rdquo;
+                <span className="quote-mark-char">&ldquo;</span>
+                {siteContent.dhoniQuote}
+                <span className="quote-mark-char">&rdquo;</span>
               </p>
+
               <div className="hero-dhoni-quote-footer">
-                <span className="quote-author-name">— {siteContent.dhoniAuthor}</span>
-                <span className="quote-author-divider">•</span>
-                <span className="quote-author-tag">{siteContent.dhoniTag}</span>
+                <div className="quote-author-profile">
+                  <div className="quote-avatar-chip">
+                    <span className="quote-avatar-num">#7</span>
+                  </div>
+                  <div className="quote-author-meta">
+                    <span className="quote-author-name">{siteContent.dhoniAuthor || 'MS Dhoni'}</span>
+                    <span className="quote-author-subtitle">World Cup Winning Captain</span>
+                  </div>
+                </div>
+
+                <div className="quote-compass-pill">
+                  <i className="fa-solid fa-compass" aria-hidden="true" />
+                  <span>{siteContent.dhoniTag || 'Our Mentorship Philosophy'}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -188,6 +211,14 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ── Hero Section Divider Line ── */}
+      <div className="hero-section-divider-wrap" aria-hidden="true">
+        <div className="hero-section-divider-line" />
+        <span className="hero-section-divider-badge">
+          <i className="fa-solid fa-diamond" />
+        </span>
+      </div>
 
       {/* ── Dedicated Mobile Application Showcase Section ── */}
       <section id="download-app" className="section-wrap app-showcase-section">
@@ -425,15 +456,20 @@ export default function Home() {
       {/* ── Direct Callback Modal ── */}
       {showBookModal && (
         <div className="modal-backdrop" onClick={() => setShowBookModal(false)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
-                Request Callback from Indrajeet Sir&apos;s Desk
-              </h3>
+          <div className="modal-box checkout-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="checkout-modal-header">
+              <div>
+                <span className="checkout-badge-pill">
+                  <i className="fa-solid fa-phone" aria-hidden="true" /> Priority Callback
+                </span>
+                <h3 className="checkout-course-title">
+                  Request Callback from Indrajeet Sir&apos;s Desk
+                </h3>
+              </div>
               <button
                 type="button"
+                className="checkout-modal-close"
                 onClick={() => setShowBookModal(false)}
-                style={{ background: 'none', border: 'none', fontSize: '1.4rem', color: '#64748b', cursor: 'pointer' }}
                 aria-label="Close modal"
               >
                 ✕
@@ -443,41 +479,47 @@ export default function Home() {
             {callbackSubmitted ? (
               <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
                 <div style={{ fontSize: '2.5rem', marginBottom: '0.6rem' }}>✅</div>
-                <h4 style={{ fontWeight: 800, color: '#16a34a', marginBottom: '0.4rem' }}>Request Received!</h4>
-                <p style={{ fontSize: '0.9rem', color: '#64748b' }}>Our desk counselor will call you back shortly on {callbackPhone}.</p>
+                <h4 style={{ fontWeight: 800, color: '#16a34a', marginBottom: '0.4rem', fontSize: '1.2rem' }}>Request Received!</h4>
+                <p style={{ fontSize: '0.92rem', color: '#64748b' }}>Our desk counselor will call you back shortly on <strong>{callbackPhone}</strong>.</p>
               </div>
             ) : (
-              <form onSubmit={handleCallbackSubmit}>
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#334155', marginBottom: '0.4rem' }}>
-                    Your Name *
+              <form onSubmit={handleCallbackSubmit} className="checkout-form">
+                <div className="checkout-field-group">
+                  <label className="checkout-field-label">
+                    Your Name <span className="req-star">*</span>
                   </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Enter your full name"
-                    value={callbackName}
-                    onChange={(e) => setCallbackName(e.target.value)}
-                    style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.92rem' }}
-                  />
+                  <div className="checkout-input-wrap">
+                    <i className="fa-solid fa-user checkout-input-icon" aria-hidden="true" />
+                    <input
+                      type="text"
+                      required
+                      placeholder="Enter your full name"
+                      value={callbackName}
+                      onChange={(e) => setCallbackName(e.target.value)}
+                      className="checkout-input"
+                    />
+                  </div>
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '1.4rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#334155', marginBottom: '0.4rem' }}>
-                    Contact Phone / WhatsApp Number *
+                <div className="checkout-field-group" style={{ marginBottom: '1.4rem' }}>
+                  <label className="checkout-field-label">
+                    Contact Phone / WhatsApp Number <span className="req-star">*</span>
                   </label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="e.g. 9876543210"
-                    value={callbackPhone}
-                    onChange={(e) => setCallbackPhone(e.target.value)}
-                    style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.92rem' }}
-                  />
+                  <div className="checkout-input-wrap">
+                    <i className="fa-solid fa-phone checkout-input-icon" aria-hidden="true" />
+                    <input
+                      type="tel"
+                      required
+                      placeholder="e.g. 9876543210"
+                      value={callbackPhone}
+                      onChange={(e) => setCallbackPhone(e.target.value)}
+                      className="checkout-input"
+                    />
+                  </div>
                 </div>
 
-                <button type="submit" className="btn-primary full lg" style={{ justifyContent: 'center' }}>
-                  <i className="fa-solid fa-phone" style={{ marginRight: '0.5rem' }} aria-hidden="true" />
+                <button type="submit" className="checkout-submit-btn">
+                  <i className="fa-solid fa-paper-plane" aria-hidden="true" />
                   <span>Submit Callback Request</span>
                 </button>
               </form>

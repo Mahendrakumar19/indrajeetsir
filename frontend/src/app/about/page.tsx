@@ -79,7 +79,7 @@ export default function AboutPage() {
           <h2 className="section-heading" style={{ marginBottom: '2.5rem' }}>{siteContent.aboutSirHeading}</h2>
 
           <div className="sir-profile-highlights-grid">
-            <div className="sir-stat-card">
+            <div className="sir-stat-card card-color-blue">
               <div className="sir-stat-icon">
                 <i className="fa-solid fa-pen-nib" aria-hidden="true" />
               </div>
@@ -87,7 +87,7 @@ export default function AboutPage() {
               <p className="sir-stat-desc">{siteContent.sirCard1Desc}</p>
             </div>
 
-            <div className="sir-stat-card">
+            <div className="sir-stat-card card-color-amber">
               <div className="sir-stat-icon">
                 <i className="fa-solid fa-award" aria-hidden="true" />
               </div>
@@ -95,7 +95,7 @@ export default function AboutPage() {
               <p className="sir-stat-desc">{siteContent.sirCard2Desc}</p>
             </div>
 
-            <div className="sir-stat-card">
+            <div className="sir-stat-card card-color-emerald">
               <div className="sir-stat-icon">
                 <i className="fa-solid fa-users" aria-hidden="true" />
               </div>
@@ -103,7 +103,7 @@ export default function AboutPage() {
               <p className="sir-stat-desc">{siteContent.sirCard3Desc}</p>
             </div>
 
-            <div className="sir-stat-card">
+            <div className="sir-stat-card card-color-purple">
               <div className="sir-stat-icon">
                 <i className="fa-solid fa-landmark" aria-hidden="true" />
               </div>
@@ -111,7 +111,7 @@ export default function AboutPage() {
               <p className="sir-stat-desc">{siteContent.sirCard4Desc}</p>
             </div>
 
-            <div className="sir-stat-card">
+            <div className="sir-stat-card card-color-teal">
               <div className="sir-stat-icon">
                 <i className="fa-solid fa-scale-balanced" aria-hidden="true" />
               </div>
@@ -128,7 +128,7 @@ export default function AboutPage() {
           <h2 className="section-heading" style={{ marginBottom: '2.5rem' }}>{siteContent.aboutMentorshipHeading}</h2>
 
           <div className="mentorship-pillars-grid">
-            <div className="mentor-pillar-card">
+            <div className="mentor-pillar-card pillar-color-blue">
               <div className="pillar-icon-box">
                 <i className="fa-solid fa-calendar-check" aria-hidden="true" />
               </div>
@@ -136,7 +136,7 @@ export default function AboutPage() {
               <p>{siteContent.mentorPillar1Desc}</p>
             </div>
 
-            <div className="mentor-pillar-card">
+            <div className="mentor-pillar-card pillar-color-indigo">
               <div className="pillar-icon-box">
                 <i className="fa-solid fa-arrows-spin" aria-hidden="true" />
               </div>
@@ -144,7 +144,7 @@ export default function AboutPage() {
               <p>{siteContent.mentorPillar2Desc}</p>
             </div>
 
-            <div className="mentor-pillar-card">
+            <div className="mentor-pillar-card pillar-color-amber">
               <div className="pillar-icon-box">
                 <i className="fa-solid fa-bullseye" aria-hidden="true" />
               </div>
@@ -152,7 +152,7 @@ export default function AboutPage() {
               <p>{siteContent.mentorPillar3Desc}</p>
             </div>
 
-            <div className="mentor-pillar-card">
+            <div className="mentor-pillar-card pillar-color-emerald">
               <div className="pillar-icon-box">
                 <i className="fa-solid fa-handshake" aria-hidden="true" />
               </div>

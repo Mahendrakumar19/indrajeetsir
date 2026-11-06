@@ -4865,76 +4865,230 @@ html.dark .features-checklist li,
 }
 
 
-/* ── Hero Dhoni Quote: Clean, Elegant & Seamlessly Blended ── */
+/* ── Hero Dhoni Quote: Premium Magazine-Grade Mentorship Card ── */
 .hero-dhoni-quote-wrap {
   margin-top: 1.5rem !important;
-  background: #ffffff !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 55%, #eff6ff 100%) !important;
   border: 1px solid #e2e8f0 !important;
   border-left: 4px solid #2563eb !important;
-  border-radius: 12px !important;
-  padding: 1.15rem 1.45rem !important;
+  border-radius: 16px !important;
+  padding: 1.35rem 1.6rem 1.25rem !important;
   width: 100% !important;
   position: relative !important;
-  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.04) !important;
+  overflow: hidden !important;
+  box-shadow: 0 10px 28px -6px rgba(37, 99, 235, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03) !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 0.65rem !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  gap: 0.75rem !important;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease !important;
 }
 
 .hero-dhoni-quote-wrap:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.07) !important;
+  box-shadow: 0 16px 36px -8px rgba(37, 99, 235, 0.14), 0 4px 12px rgba(0, 0, 0, 0.04) !important;
 }
 
+/* Background watermark quote */
+.quote-bg-watermark {
+  position: absolute !important;
+  right: 1.2rem !important;
+  bottom: -1.2rem !important;
+  font-family: "Georgia", "Times New Roman", serif !important;
+  font-size: 8rem !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+  color: #2563eb !important;
+  opacity: 0.05 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  z-index: 1 !important;
+}
+
+/* Micro-Header */
+.quote-header-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  color: #2563eb !important;
+  font-weight: 700 !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.quote-sparkle-dot {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  background: #2563eb !important;
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.6) !important;
+  display: inline-block !important;
+}
+
+.quote-header-title {
+  font-weight: 800 !important;
+  color: #1e40af !important;
+}
+
+.quote-badge-divider {
+  color: #cbd5e1 !important;
+}
+
+.quote-header-sub {
+  color: #64748b !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  font-size: 0.76rem !important;
+}
+
+/* Main Quote Text */
 .hero-dhoni-quote-text {
   font-family: inherit !important;
-  font-size: 0.98rem !important;
+  font-size: 1.05rem !important;
   font-weight: 500 !important;
-  color: #1e293b !important;
-  line-height: 1.6 !important;
+  color: #0f172a !important;
+  line-height: 1.65 !important;
   margin: 0 !important;
+  position: relative !important;
+  z-index: 2 !important;
 }
 
+.quote-mark-char {
+  color: #2563eb !important;
+  font-weight: 800 !important;
+  font-size: 1.2rem !important;
+  line-height: 0 !important;
+  margin: 0 2px !important;
+}
+
+/* Footer Section */
 .hero-dhoni-quote-footer {
   display: flex !important;
   align-items: center !important;
-  gap: 0.55rem !important;
-  font-size: 0.85rem !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
   flex-wrap: wrap !important;
+  padding-top: 0.4rem !important;
+  border-top: 1px solid rgba(226, 232, 240, 0.7) !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.quote-author-profile {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+}
+
+.quote-avatar-chip {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%) !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 900 !important;
+  font-size: 0.78rem !important;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3) !important;
+  border: 2px solid #ffffff !important;
+  flex-shrink: 0 !important;
+}
+
+.quote-avatar-num {
+  letter-spacing: -0.02em !important;
+}
+
+.quote-author-meta {
+  display: flex !important;
+  flex-direction: column !important;
+  line-height: 1.25 !important;
 }
 
 .quote-author-name {
-  font-weight: 700 !important;
+  font-weight: 800 !important;
   color: #0f172a !important;
+  font-size: 0.9rem !important;
 }
 
-.quote-author-divider {
-  color: #94a3b8 !important;
-}
-
-.quote-author-tag {
-  background: none !important;
+.quote-author-subtitle {
+  font-size: 0.72rem !important;
   color: #64748b !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
   font-weight: 500 !important;
-  font-size: 0.85rem !important;
-  font-style: normal !important;
+}
+
+.quote-compass-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.45rem !important;
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #e2e8f0 !important;
+  padding: 0.3rem 0.75rem !important;
+  border-radius: 9999px !important;
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+}
+
+.quote-compass-pill i {
+  color: #2563eb !important;
+  font-size: 0.82rem !important;
 }
 
 /* Dark mode for hero quote */
 html.dark .hero-dhoni-quote-wrap,
 .dark .hero-dhoni-quote-wrap {
-  background: #111827 !important;
+  background: linear-gradient(135deg, #111827 0%, #0f172a 60%, #172554 100%) !important;
   border-color: #1f2937 !important;
   border-left-color: #3b82f6 !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.6) !important;
+}
+
+html.dark .quote-bg-watermark,
+.dark .quote-bg-watermark {
+  color: #60a5fa !important;
+  opacity: 0.08 !important;
+}
+
+html.dark .quote-header-title,
+.dark .quote-header-title {
+  color: #60a5fa !important;
+}
+
+html.dark .quote-header-sub,
+.dark .quote-header-sub {
+  color: #94a3b8 !important;
+}
+
+html.dark .quote-sparkle-dot,
+.dark .quote-sparkle-dot {
+  background: #60a5fa !important;
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.7) !important;
 }
 
 html.dark .hero-dhoni-quote-text,
 .dark .hero-dhoni-quote-text {
-  color: #cbd5e1 !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark .quote-mark-char,
+.dark .quote-mark-char {
+  color: #60a5fa !important;
+}
+
+html.dark .hero-dhoni-quote-footer,
+.dark .hero-dhoni-quote-footer {
+  border-top-color: #1e293b !important;
+}
+
+html.dark .quote-avatar-chip,
+.dark .quote-avatar-chip {
+  border-color: #1e293b !important;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
 }
 
 html.dark .quote-author-name,
@@ -4942,15 +5096,21 @@ html.dark .quote-author-name,
   color: #f8fafc !important;
 }
 
-html.dark .quote-author-divider,
-.dark .quote-author-divider {
-  color: #64748b !important;
+html.dark .quote-author-subtitle,
+.dark .quote-author-subtitle {
+  color: #94a3b8 !important;
 }
 
-html.dark .quote-author-tag,
-.dark .quote-author-tag {
-  background: none !important;
-  color: #94a3b8 !important;
+html.dark .quote-compass-pill,
+.dark .quote-compass-pill {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+  border-color: #334155 !important;
+}
+
+html.dark .quote-compass-pill i,
+.dark .quote-compass-pill i {
+  color: #60a5fa !important;
 }
 
 /* ── Flashing Animations Completely Removed ── */
@@ -5494,16 +5654,17 @@ html.dark .lead-input-field,
   color: #f8fafc !important;
 }
 
-/* Course Card Image Box */
+/* ── Course Card Image Box & Sona Yadav / EdTech Style Catalog ── */
 .course-card-thumb-wrap {
   width: 100%;
-  height: 190px;
+  aspect-ratio: 16 / 9;
   border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.15rem;
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
   position: relative;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 }
 
 .course-card-thumb-img {
@@ -5511,17 +5672,108 @@ html.dark .lead-input-field,
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.3s ease;
+  transition: transform 0.35s ease;
 }
 
 .pricing-card-3d:hover .course-card-thumb-img {
-  transform: scale(1.03);
+  transform: scale(1.04);
+}
+
+.course-card-floating-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 750;
+  padding: 0.22rem 0.65rem;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.amount-val-blue {
+  font-size: 1.55rem;
+  font-weight: 850;
+  color: #2563eb;
+  letter-spacing: -0.02em;
+}
+
+.original-price-strike {
+  font-size: 1.05rem;
+  color: #94a3b8;
+  text-decoration: line-through;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.discount-percent-pill {
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+  margin-left: auto;
+}
+
+.fee-tenure-text {
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: #64748b;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.course-card-cta-wrap {
+  margin-top: 1.5rem;
+}
+
+.course-enroll-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 750 !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.course-enroll-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
 }
 
 html.dark .course-card-thumb-wrap,
 .dark .course-card-thumb-wrap {
   background: #0f172a !important;
   border-color: #1e293b !important;
+}
+
+html.dark .amount-val-blue,
+.dark .amount-val-blue {
+  color: #60a5fa !important;
+}
+
+html.dark .original-price-strike,
+.dark .original-price-strike {
+  color: #64748b !important;
+}
+
+html.dark .discount-percent-pill,
+.dark .discount-percent-pill {
+  background: rgba(22, 163, 74, 0.2) !important;
+  color: #4ade80 !important;
+}
+
+html.dark .fee-tenure-text,
+.dark .fee-tenure-text {
+  color: #94a3b8 !important;
 }
 
 /* ── Social Hub Cards (Dr. Shivin Style) ── */
@@ -5661,4 +5913,741 @@ html.dark .social-hub-text span,
     grid-template-columns: 1fr;
     max-width: 420px;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MODAL BACKDROP & PREMIUM CHECKOUT MODAL ARCHITECTURE
+   ══════════════════════════════════════════════════════════════════════════ */
+.modal-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(15, 23, 42, 0.78) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  z-index: 10000000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1.25rem !important;
+  overflow-y: auto !important;
+  animation: modalBackdropFadeIn 0.25s ease !important;
+}
+
+@keyframes modalBackdropFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-box {
+  background: #ffffff !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  border-radius: 20px !important;
+  padding: 2rem !important;
+  width: 100% !important;
+  max-width: 540px !important;
+  position: relative !important;
+  box-shadow: 0 25px 70px -15px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.04) !important;
+  animation: modalBoxPop 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  text-align: left !important;
+  max-height: 92vh !important;
+  overflow-y: auto !important;
+}
+
+@keyframes modalBoxPop {
+  0% { opacity: 0; transform: scale(0.96) translateY(12px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+html.dark .modal-box,
+.dark .modal-box {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+}
+
+/* ── Checkout Modal Card Specifics ── */
+.checkout-modal-card {
+  max-width: 520px !important;
+  padding: 1.85rem !important;
+}
+
+.checkout-modal-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  margin-bottom: 1.25rem !important;
+  gap: 1rem !important;
+}
+
+.checkout-badge-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  background: #eff6ff !important;
+  color: #2563eb !important;
+  border: 1px solid #bfdbfe !important;
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+  padding: 0.25rem 0.65rem !important;
+  border-radius: 9999px !important;
+  letter-spacing: 0.02em !important;
+  text-transform: uppercase !important;
+}
+
+html.dark .checkout-badge-pill,
+.dark .checkout-badge-pill {
+  background: rgba(37, 99, 235, 0.15) !important;
+  color: #60a5fa !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+.checkout-course-title {
+  font-size: 1.18rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  margin: 0.4rem 0 0 !important;
+  line-height: 1.4 !important;
+}
+
+html.dark .checkout-course-title,
+.dark .checkout-course-title {
+  color: #f8fafc !important;
+}
+
+.checkout-modal-close {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: #f1f5f9 !important;
+  border: none !important;
+  color: #64748b !important;
+  font-size: 1.1rem !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+}
+
+.checkout-modal-close:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html.dark .checkout-modal-close,
+.dark .checkout-modal-close {
+  background: #1e293b !important;
+  color: #94a3b8 !important;
+}
+
+html.dark .checkout-modal-close:hover,
+.dark .checkout-modal-close:hover {
+  background: #334155 !important;
+  color: #f8fafc !important;
+}
+
+/* ── Fee Summary Box ── */
+.checkout-fee-box {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  padding: 1.1rem 1.35rem !important;
+  margin-bottom: 1.3rem !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+
+html.dark .checkout-fee-box,
+.dark .checkout-fee-box {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+  border-color: #334155 !important;
+}
+
+.checkout-fee-label {
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: #64748b !important;
+  margin-bottom: 0.25rem !important;
+}
+
+html.dark .checkout-fee-label,
+.dark .checkout-fee-label {
+  color: #94a3b8 !important;
+}
+
+.checkout-fee-amount {
+  font-size: 1.75rem !important;
+  font-weight: 900 !important;
+  color: #0f172a !important;
+  line-height: 1 !important;
+}
+
+html.dark .checkout-fee-amount,
+.dark .checkout-fee-amount {
+  color: #f8fafc !important;
+}
+
+.checkout-instant-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  border: 1px solid rgba(22, 163, 74, 0.25) !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  padding: 0.35rem 0.75rem !important;
+  border-radius: 8px !important;
+}
+
+html.dark .checkout-instant-badge,
+.dark .checkout-instant-badge {
+  background: rgba(34, 197, 94, 0.15) !important;
+  color: #4ade80 !important;
+  border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+/* ── Checkout Form & Inputs ── */
+.checkout-form {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.checkout-field-group {
+  margin-bottom: 1rem !important;
+}
+
+.checkout-field-label {
+  display: block !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  color: #334155 !important;
+  margin-bottom: 0.35rem !important;
+}
+
+html.dark .checkout-field-label,
+.dark .checkout-field-label {
+  color: #cbd5e1 !important;
+}
+
+.req-star {
+  color: #ef4444 !important;
+  font-weight: 700 !important;
+  margin-left: 2px !important;
+}
+
+.checkout-input-wrap {
+  position: relative !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.checkout-input-icon {
+  position: absolute !important;
+  left: 1rem !important;
+  font-size: 0.88rem !important;
+  color: #94a3b8 !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+}
+
+.checkout-input,
+.checkout-select {
+  width: 100% !important;
+  height: 46px !important;
+  padding: 0.65rem 0.95rem 0.65rem 2.65rem !important;
+  border-radius: 10px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  font-size: 0.92rem !important;
+  font-family: inherit !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+.checkout-input:focus,
+.checkout-select:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16) !important;
+  outline: none !important;
+}
+
+html.dark .checkout-input,
+html.dark .checkout-select,
+.dark .checkout-input,
+.dark .checkout-select {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html.dark .checkout-input:focus,
+html.dark .checkout-select:focus,
+.dark .checkout-input:focus,
+.dark .checkout-select:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+}
+
+.checkout-grid-2 {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 0.85rem !important;
+  margin-bottom: 1.25rem !important;
+}
+
+@media (max-width: 520px) {
+  .checkout-grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.checkout-submit-btn {
+  width: 100% !important;
+  height: 50px !important;
+  border-radius: 12px !important;
+  border: none !important;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.6rem !important;
+  box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.45) !important;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s !important;
+}
+
+.checkout-submit-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 12px 26px -4px rgba(37, 99, 235, 0.55) !important;
+}
+
+.checkout-submit-btn:active {
+  transform: translateY(0) !important;
+}
+
+.checkout-submit-btn:disabled {
+  opacity: 0.7 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.checkout-trust-badge {
+  margin-top: 1rem !important;
+  text-align: center !important;
+  font-size: 0.74rem !important;
+  color: #64748b !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.4rem !important;
+  font-weight: 500 !important;
+}
+
+html.dark .checkout-trust-badge,
+.dark .checkout-trust-badge {
+  color: #94a3b8 !important;
+}
+
+.checkout-error-banner {
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca !important;
+  color: #dc2626 !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 10px !important;
+  font-size: 0.86rem !important;
+  margin-bottom: 1.1rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+html.dark .checkout-error-banner,
+.dark .checkout-error-banner {
+  background: rgba(220, 38, 38, 0.15) !important;
+  border-color: rgba(220, 38, 38, 0.35) !important;
+  color: #f87171 !important;
+}
+
+.checkout-credentials-box {
+  background: #f8fafc !important;
+  border: 1.5px dashed #cbd5e1 !important;
+  border-radius: 12px !important;
+  padding: 1.1rem !important;
+  margin-bottom: 1.4rem !important;
+  text-align: left !important;
+}
+
+html.dark .checkout-credentials-box,
+.dark .checkout-credentials-box {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+/* ── Hero Section Full-Bleed Divider Line ── */
+.hero-section-divider-wrap {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  z-index: 5 !important;
+  padding: 0 !important;
+  margin: 0.5rem 0 1.5rem !important;
+}
+
+.hero-section-divider-line {
+  width: 100% !important;
+  height: 1.5px !important;
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0) 0%,
+    rgba(203, 213, 225, 0.7) 15%,
+    #93c5fd 38%,
+    #2563eb 50%,
+    #93c5fd 62%,
+    rgba(203, 213, 225, 0.7) 85%,
+    rgba(226, 232, 240, 0) 100%
+  ) !important;
+  opacity: 0.85 !important;
+}
+
+.hero-section-divider-badge {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  background: #ffffff !important;
+  border: 1.5px solid #bfdbfe !important;
+  border-radius: 50% !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #2563eb !important;
+  font-size: 0.55rem !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15) !important;
+  z-index: 2 !important;
+}
+
+html.dark .hero-section-divider-line,
+.dark .hero-section-divider-line {
+  background: linear-gradient(
+    90deg,
+    rgba(15, 23, 42, 0) 0%,
+    rgba(51, 65, 85, 0.6) 15%,
+    #1d4ed8 38%,
+    #3b82f6 50%,
+    #1d4ed8 62%,
+    rgba(51, 65, 85, 0.6) 85%,
+    rgba(15, 23, 42, 0) 100%
+  ) !important;
+  opacity: 0.9 !important;
+}
+
+html.dark .hero-section-divider-badge,
+.dark .hero-section-divider-badge {
+  background: #0f172a !important;
+  border-color: #1e3a8a !important;
+  color: #60a5fa !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ABOUT PAGE: VIBRANT COLOR-CODED CREDENTIAL & MENTORSHIP PILLARS
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Indrajeet Sir 5 Credential Cards (Top Row) ── */
+.sir-stat-card {
+  position: relative !important;
+  overflow: hidden !important;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease !important;
+}
+
+.sir-stat-card::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 3.5px !important;
+  background: transparent !important;
+  transition: background 0.25s ease !important;
+}
+
+/* Card 1: Blue (4 UPSC Mains Written) */
+.sir-stat-card.card-color-blue::before,
+.sir-stat-card:nth-child(1)::before {
+  background: linear-gradient(90deg, #2563eb, #3b82f6) !important;
+}
+.sir-stat-card.card-color-blue .sir-stat-icon,
+.sir-stat-card:nth-child(1) .sir-stat-icon {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+  color: #1d4ed8 !important;
+  border: 1px solid #bfdbfe !important;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.12) !important;
+}
+.sir-stat-card.card-color-blue:hover,
+.sir-stat-card:nth-child(1):hover {
+  border-color: #93c5fd !important;
+  box-shadow: 0 14px 30px -8px rgba(37, 99, 235, 0.18) !important;
+}
+
+/* Card 2: Amber / Gold (7+ Years Experience) */
+.sir-stat-card.card-color-amber::before,
+.sir-stat-card:nth-child(2)::before {
+  background: linear-gradient(90deg, #d97706, #f59e0b) !important;
+}
+.sir-stat-card.card-color-amber .sir-stat-icon,
+.sir-stat-card:nth-child(2) .sir-stat-icon {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+  box-shadow: 0 4px 10px rgba(217, 119, 6, 0.12) !important;
+}
+.sir-stat-card.card-color-amber:hover,
+.sir-stat-card:nth-child(2):hover {
+  border-color: #fcd34d !important;
+  box-shadow: 0 14px 30px -8px rgba(217, 119, 6, 0.18) !important;
+}
+
+/* Card 3: Emerald / Green (500+ Students Mentored) */
+.sir-stat-card.card-color-emerald::before,
+.sir-stat-card:nth-child(3)::before {
+  background: linear-gradient(90deg, #059669, #10b981) !important;
+}
+.sir-stat-card.card-color-emerald .sir-stat-icon,
+.sir-stat-card:nth-child(3) .sir-stat-icon {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+  color: #047857 !important;
+  border: 1px solid #bbf7d0 !important;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.12) !important;
+}
+.sir-stat-card.card-color-emerald:hover,
+.sir-stat-card:nth-child(3):hover {
+  border-color: #86efac !important;
+  box-shadow: 0 14px 30px -8px rgba(16, 185, 129, 0.18) !important;
+}
+
+/* Card 4: Purple / Violet (Faculty at VisionIAS) */
+.sir-stat-card.card-color-purple::before,
+.sir-stat-card:nth-child(4)::before {
+  background: linear-gradient(90deg, #7c3aed, #8b5cf6) !important;
+}
+.sir-stat-card.card-color-purple .sir-stat-icon,
+.sir-stat-card:nth-child(4) .sir-stat-icon {
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%) !important;
+  color: #6d28d9 !important;
+  border: 1px solid #ddd6fe !important;
+  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.12) !important;
+}
+.sir-stat-card.card-color-purple:hover,
+.sir-stat-card:nth-child(4):hover {
+  border-color: #c4b5fd !important;
+  box-shadow: 0 14px 30px -8px rgba(124, 58, 237, 0.18) !important;
+}
+
+/* Card 5: Teal / Cyan (LLB from DU) */
+.sir-stat-card.card-color-teal::before,
+.sir-stat-card:nth-child(5)::before {
+  background: linear-gradient(90deg, #0891b2, #06b6d4) !important;
+}
+.sir-stat-card.card-color-teal .sir-stat-icon,
+.sir-stat-card:nth-child(5) .sir-stat-icon {
+  background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%) !important;
+  color: #0e7490 !important;
+  border: 1px solid #a5f3fc !important;
+  box-shadow: 0 4px 10px rgba(8, 145, 178, 0.12) !important;
+}
+.sir-stat-card.card-color-teal:hover,
+.sir-stat-card:nth-child(5):hover {
+  border-color: #67e8f9 !important;
+  box-shadow: 0 14px 30px -8px rgba(8, 145, 178, 0.18) !important;
+}
+
+/* Dark mode for Top Credential Cards */
+html.dark .sir-stat-card.card-color-blue .sir-stat-icon,
+html.dark .sir-stat-card:nth-child(1) .sir-stat-icon,
+.dark .sir-stat-card.card-color-blue .sir-stat-icon,
+.dark .sir-stat-card:nth-child(1) .sir-stat-icon {
+  background: rgba(37, 99, 235, 0.22) !important;
+  color: #60a5fa !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+html.dark .sir-stat-card.card-color-amber .sir-stat-icon,
+html.dark .sir-stat-card:nth-child(2) .sir-stat-icon,
+.dark .sir-stat-card.card-color-amber .sir-stat-icon,
+.dark .sir-stat-card:nth-child(2) .sir-stat-icon {
+  background: rgba(245, 158, 11, 0.22) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+}
+
+html.dark .sir-stat-card.card-color-emerald .sir-stat-icon,
+html.dark .sir-stat-card:nth-child(3) .sir-stat-icon,
+.dark .sir-stat-card.card-color-emerald .sir-stat-icon,
+.dark .sir-stat-card:nth-child(3) .sir-stat-icon {
+  background: rgba(16, 185, 129, 0.22) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+html.dark .sir-stat-card.card-color-purple .sir-stat-icon,
+html.dark .sir-stat-card:nth-child(4) .sir-stat-icon,
+.dark .sir-stat-card.card-color-purple .sir-stat-icon,
+.dark .sir-stat-card:nth-child(4) .sir-stat-icon {
+  background: rgba(139, 92, 246, 0.22) !important;
+  color: #a78bfa !important;
+  border-color: rgba(139, 92, 246, 0.4) !important;
+}
+
+html.dark .sir-stat-card.card-color-teal .sir-stat-icon,
+html.dark .sir-stat-card:nth-child(5) .sir-stat-icon,
+.dark .sir-stat-card.card-color-teal .sir-stat-icon,
+.dark .sir-stat-card:nth-child(5) .sir-stat-icon {
+  background: rgba(6, 182, 212, 0.22) !important;
+  color: #22d3ee !important;
+  border-color: rgba(6, 182, 212, 0.4) !important;
+}
+
+
+/* ── 2. Mentorship Pillars Cards (Bottom Row) ── */
+.mentor-pillar-card {
+  position: relative !important;
+  overflow: hidden !important;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease !important;
+}
+
+.mentor-pillar-card::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 4px !important;
+  background: transparent !important;
+  transition: background 0.25s ease !important;
+}
+
+/* Pillar 1: Blue (Weekly Sessions) */
+.mentor-pillar-card.pillar-color-blue::before,
+.mentor-pillar-card:nth-child(1)::before {
+  background: linear-gradient(90deg, #2563eb, #3b82f6) !important;
+}
+.mentor-pillar-card.pillar-color-blue .pillar-icon-box,
+.mentor-pillar-card:nth-child(1) .pillar-icon-box {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+  color: #1d4ed8 !important;
+  border: 1px solid #bfdbfe !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.14) !important;
+}
+.mentor-pillar-card.pillar-color-blue:hover,
+.mentor-pillar-card:nth-child(1):hover {
+  border-color: #93c5fd !important;
+  box-shadow: 0 16px 36px -8px rgba(37, 99, 235, 0.16) !important;
+}
+
+/* Pillar 2: Indigo / Purple (Reverse Engineering Method) */
+.mentor-pillar-card.pillar-color-indigo::before,
+.mentor-pillar-card:nth-child(2)::before {
+  background: linear-gradient(90deg, #4f46e5, #6366f1) !important;
+}
+.mentor-pillar-card.pillar-color-indigo .pillar-icon-box,
+.mentor-pillar-card:nth-child(2) .pillar-icon-box {
+  background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%) !important;
+  color: #4338ca !important;
+  border: 1px solid #c7d2fe !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.14) !important;
+}
+.mentor-pillar-card.pillar-color-indigo:hover,
+.mentor-pillar-card:nth-child(2):hover {
+  border-color: #a5b4fc !important;
+  box-shadow: 0 16px 36px -8px rgba(79, 70, 229, 0.16) !important;
+}
+
+/* Pillar 3: Amber / Gold (Main Focus on Process) */
+.mentor-pillar-card.pillar-color-amber::before,
+.mentor-pillar-card:nth-child(3)::before {
+  background: linear-gradient(90deg, #d97706, #f59e0b) !important;
+}
+.mentor-pillar-card.pillar-color-amber .pillar-icon-box,
+.mentor-pillar-card:nth-child(3) .pillar-icon-box {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.14) !important;
+}
+.mentor-pillar-card.pillar-color-amber:hover,
+.mentor-pillar-card:nth-child(3):hover {
+  border-color: #fcd34d !important;
+  box-shadow: 0 16px 36px -8px rgba(217, 119, 6, 0.16) !important;
+}
+
+/* Pillar 4: Emerald / Green (Direct Teacher Access) */
+.mentor-pillar-card.pillar-color-emerald::before,
+.mentor-pillar-card:nth-child(4)::before {
+  background: linear-gradient(90deg, #059669, #10b981) !important;
+}
+.mentor-pillar-card.pillar-color-emerald .pillar-icon-box,
+.mentor-pillar-card:nth-child(4) .pillar-icon-box {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+  color: #047857 !important;
+  border: 1px solid #bbf7d0 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.14) !important;
+}
+.mentor-pillar-card.pillar-color-emerald:hover,
+.mentor-pillar-card:nth-child(4):hover {
+  border-color: #86efac !important;
+  box-shadow: 0 16px 36px -8px rgba(16, 185, 129, 0.16) !important;
+}
+
+/* Dark mode for Mentorship Pillar Cards */
+html.dark .mentor-pillar-card.pillar-color-blue .pillar-icon-box,
+html.dark .mentor-pillar-card:nth-child(1) .pillar-icon-box,
+.dark .mentor-pillar-card.pillar-color-blue .pillar-icon-box,
+.dark .mentor-pillar-card:nth-child(1) .pillar-icon-box {
+  background: rgba(37, 99, 235, 0.22) !important;
+  color: #60a5fa !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+html.dark .mentor-pillar-card.pillar-color-indigo .pillar-icon-box,
+html.dark .mentor-pillar-card:nth-child(2) .pillar-icon-box,
+.dark .mentor-pillar-card.pillar-color-indigo .pillar-icon-box,
+.dark .mentor-pillar-card:nth-child(2) .pillar-icon-box {
+  background: rgba(79, 70, 229, 0.22) !important;
+  color: #818cf8 !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+html.dark .mentor-pillar-card.pillar-color-amber .pillar-icon-box,
+html.dark .mentor-pillar-card:nth-child(3) .pillar-icon-box,
+.dark .mentor-pillar-card.pillar-color-amber .pillar-icon-box,
+.dark .mentor-pillar-card:nth-child(3) .pillar-icon-box {
+  background: rgba(245, 158, 11, 0.22) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+}
+
+html.dark .mentor-pillar-card.pillar-color-emerald .pillar-icon-box,
+html.dark .mentor-pillar-card:nth-child(4) .pillar-icon-box,
+.dark .mentor-pillar-card.pillar-color-emerald .pillar-icon-box,
+.dark .mentor-pillar-card:nth-child(4) .pillar-icon-box {
+  background: rgba(16, 185, 129, 0.22) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
 }

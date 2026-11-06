@@ -12,11 +12,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate mime / extension
-    const originalName = file.name || 'portrait.jpg';
+    const originalName = file.name || 'image.jpg';
     const ext = path.extname(originalName).toLowerCase() || '.jpg';
-    if (!['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
+    if (!['.jpg', '.jpeg', '.png', '.webp', '.svg', '.gif'].includes(ext)) {
       return NextResponse.json(
-        { success: false, message: 'Only JPG, PNG, and WebP images are allowed' },
+        { success: false, message: 'Only JPG, PNG, WebP, SVG, and GIF images are allowed' },
         { status: 400 }
       );
     }

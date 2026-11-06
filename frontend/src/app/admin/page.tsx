@@ -133,6 +133,16 @@ function IconGlobe({ size = 16 }: { size?: number }) {
   );
 }
 
+function IconUpload({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="17 8 12 3 7 8" />
+      <line x1="12" x2="12" y1="3" y2="15" />
+    </svg>
+  );
+}
+
 function IconMessageSquare({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -274,6 +284,7 @@ const DEFAULT_COURSES: CourseItem[] = [
     price: 24000,
     instructor: 'Indrajeet Sir',
     published: true,
+    thumbnail: '/courses/course-1.svg',
     features: [
       'Prelims: High-yield Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions',
       'Mains: Short Note Making, Deep PYQ Trend Analysis, Toppers Copy Analysis, 16 Evaluated Tests',
@@ -291,6 +302,7 @@ const DEFAULT_COURSES: CourseItem[] = [
     price: 18000,
     instructor: 'Indrajeet Sir',
     published: true,
+    thumbnail: '/courses/course-2.svg',
     features: [
       'High-Yield Mains Short Note Making Framework',
       'Deep PYQ Trend Analysis & Theme Mapping',
@@ -309,6 +321,7 @@ const DEFAULT_COURSES: CourseItem[] = [
     price: 10000,
     instructor: 'Indrajeet Sir',
     published: true,
+    thumbnail: '/courses/course-3.svg',
     features: [
       'Micro Notes Making & Core Conceptual Clarity across Standard Books',
       'PYQ+ Strategy (Pattern Recognition & Options Elimination Tactics)',
@@ -327,6 +340,7 @@ const DEFAULT_COURSES: CourseItem[] = [
     price: 30000,
     instructor: 'Indrajeet Sir',
     published: true,
+    thumbnail: '/courses/course-4.svg',
     features: [
       'Complete 3-Stage Support: Prelims + Mains + Interview Mentorship',
       'Prelims: Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions',
@@ -345,6 +359,7 @@ const DEFAULT_COURSES: CourseItem[] = [
     price: 4500,
     instructor: 'Indrajeet Sir',
     published: true,
+    thumbnail: '/courses/course-5.svg',
     features: [
       'Step-by-step Framework for 600+ UPSC Mains Core Topics',
       'Reverse Engineering of PYQs into Micro-Diagrams & Frameworks',
@@ -666,7 +681,11 @@ export default function AdminPanel() {
             ? parsed.filter((c: CourseItem) => !DUMMY_COURSE_TITLES.has(c.title) && c.price !== 4999 && c.price !== 2999)
             : [];
           if (clean.length >= 5) {
-            setCourses(clean);
+            const enriched = clean.map((c: CourseItem, i: number) => ({
+              ...c,
+              thumbnail: c.thumbnail || DEFAULT_COURSES[i]?.thumbnail || `/courses/course-${(i % 5) + 1}.svg`,
+            }));
+            setCourses(enriched);
           } else {
             setCourses(DEFAULT_COURSES);
             localStorage.setItem('indrajeet_courses', JSON.stringify(DEFAULT_COURSES));
@@ -2495,10 +2514,15 @@ export default function AdminPanel() {
                     </div>
                   </div>
                   <div className="form-group" style={{ background: '#f8fafc', padding: '1rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-                    <label style={{ fontWeight: 700, display: 'block', marginBottom: '0.35rem' }}>Course Cover Image / Thumbnail</label>
+                    <label style={{ fontWeight: 700, display: 'block', marginBottom: '0.35rem' }}>
+                      Course Poster / Cover Banner (16:9 Aspect Ratio)
+                      <span style={{ fontWeight: 500, fontSize: '0.78rem', color: '#64748b', marginLeft: '0.5rem' }}>
+                        (Recommended: 1280×720 or 1920×1080 — Sona Ma&apos;am / EdTech Style)
+                      </span>
+                    </label>
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
                       {courseForm.thumbnail && (
-                        <div style={{ width: '80px', height: '60px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #cbd5e1', position: 'relative' }}>
+                        <div style={{ width: '110px', height: '62px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #cbd5e1', position: 'relative' }}>
                           <img src={courseForm.thumbnail} alt="Thumbnail preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
                       )}
@@ -2573,8 +2597,9 @@ export default function AdminPanel() {
                 <table className="admin-table">
                   <thead>
                     <tr>
-                      <th>Course Title</th>
-                      <th>Price</th>
+                      <th style={{ width: '130px' }}>Course Poster</th>
+                      <th>Course Title &amp; Details</th>
+                      <th>Fee</th>
                       <th>Status</th>
                       <th style={{ textAlign: 'right' }}>Actions</th>
                     </tr>
@@ -2582,7 +2607,7 @@ export default function AdminPanel() {
                   <tbody>
                     {courses.length === 0 ? (
                       <tr>
-                        <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                        <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
                           No custom courses created yet.
                         </td>
                       </tr>
@@ -2590,10 +2615,89 @@ export default function AdminPanel() {
                       courses.map((c) => (
                         <tr key={c.id}>
                           <td>
-                            <div style={{ fontWeight: 800 }}>{c.title}</div>
-                            <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{c.description}</div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', alignItems: 'flex-start' }}>
+                              <div style={{ width: '100px', height: '56px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #cbd5e1', background: '#f8fafc', position: 'relative' }}>
+                                {c.thumbnail ? (
+                                  <img src={c.thumbnail} alt={c.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.68rem', color: '#94a3b8', fontWeight: 600 }}>
+                                    No Image
+                                  </div>
+                                )}
+                              </div>
+                              <label
+                                className="btn-outline-admin"
+                                style={{
+                                  padding: '0.22rem 0.55rem',
+                                  fontSize: '0.72rem',
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '0.3rem',
+                                  borderRadius: '6px',
+                                  whiteSpace: 'nowrap',
+                                }}
+                                title="Change poster image from PC"
+                              >
+                                <IconUpload size={12} />
+                                <span>{c.thumbnail ? 'Change Image' : '+ Add Image'}</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  style={{ display: 'none' }}
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    try {
+                                      const formData = new FormData();
+                                      formData.append('file', file);
+                                      const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
+                                      const json = await res.json();
+                                      if (json.success && json.url) {
+                                        const updatedCourses = courses.map((item) =>
+                                          item.id === c.id ? { ...item, thumbnail: json.url } : item
+                                        );
+                                        setCourses(updatedCourses);
+                                        localStorage.setItem('indrajeet_courses', JSON.stringify(updatedCourses));
+                                        triggerAlert(`Poster image updated for "${c.title}"!`);
+                                        return;
+                                      }
+                                    } catch {}
+                                    const reader = new FileReader();
+                                    reader.onload = (event) => {
+                                      const dataUrl = event.target?.result as string;
+                                      if (dataUrl) {
+                                        const updatedCourses = courses.map((item) =>
+                                          item.id === c.id ? { ...item, thumbnail: dataUrl } : item
+                                        );
+                                        setCourses(updatedCourses);
+                                        localStorage.setItem('indrajeet_courses', JSON.stringify(updatedCourses));
+                                        triggerAlert(`Poster image updated for "${c.title}"!`);
+                                      }
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }}
+                                />
+                              </label>
+                            </div>
                           </td>
-                          <td style={{ fontWeight: 850 }}>₹{c.price.toLocaleString('en-IN')}</td>
+                          <td>
+                            <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.92rem' }}>{c.title}</div>
+                            <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.2rem', maxWidth: '380px' }}>{c.description}</div>
+                            <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.35rem', flexWrap: 'wrap' }}>
+                              {c.tag && (
+                                <span className="status-pill verified" style={{ fontSize: '0.68rem', padding: '0.12rem 0.45rem' }}>
+                                  {c.tag}
+                                </span>
+                              )}
+                              {c.validity && (
+                                <span className="status-pill pending" style={{ fontSize: '0.68rem', padding: '0.12rem 0.45rem' }}>
+                                  {c.validity}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td style={{ fontWeight: 850, fontSize: '0.95rem', color: '#0f172a' }}>₹{c.price.toLocaleString('en-IN')}</td>
                           <td>
                             <span className="status-pill verified">Live</span>
                           </td>
@@ -2605,7 +2709,7 @@ export default function AdminPanel() {
                                   setEditCourseModal(c);
                                   setEditCourseFeatures((c.features || []).join('\n'));
                                 }}
-                                title="Edit course details"
+                                title="Edit course details & poster"
                               >
                                 Edit
                               </button>
@@ -4456,11 +4560,16 @@ export default function AdminPanel() {
               </div>
 
               {/* Course Thumbnail Box */}
-              <div className="form-group" style={{ background: '#f8fafc', padding: '0.85rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.35rem' }}>Course Cover Image / Thumbnail</label>
+              <div className="form-group" style={{ background: '#f8fafc', padding: '0.9rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <label style={{ fontSize: '0.82rem', fontWeight: 700, display: 'block', marginBottom: '0.35rem' }}>
+                  Course Cover Image / Poster (16:9 Banner)
+                  <span style={{ fontWeight: 500, fontSize: '0.75rem', color: '#64748b', marginLeft: '0.5rem' }}>
+                    (Recommended: 1280×720 or 1920×1080)
+                  </span>
+                </label>
                 <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'center', flexWrap: 'wrap' }}>
                   {editCourseModal.thumbnail && (
-                    <div style={{ width: '70px', height: '52px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #cbd5e1', position: 'relative' }}>
+                    <div style={{ width: '100px', height: '56px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #cbd5e1', position: 'relative' }}>
                       <img src={editCourseModal.thumbnail} alt={editCourseModal.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   )}

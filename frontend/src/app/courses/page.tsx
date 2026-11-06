@@ -38,6 +38,21 @@ declare global {
   }
 }
 
+const DEFAULT_COURSE_THUMBNAILS: Record<string, string> = {
+  'c-1': '/courses/course-1.svg',
+  'c-2': '/courses/course-2.svg',
+  'c-3': '/courses/course-3.svg',
+  'c-4': '/courses/course-4.svg',
+  'c-5': '/courses/course-5.svg',
+};
+
+function enrichWithThumbnails(list: Course[]): Course[] {
+  return list.map((c, i) => ({
+    ...c,
+    thumbnail: c.thumbnail || DEFAULT_COURSE_THUMBNAILS[c.id] || `/courses/course-${(i % 5) + 1}.svg`,
+  }));
+}
+
 function sortCoursesInOrder(list: Course[]): Course[] {
   return [...list].sort((a, b) => {
     const getIdx = (c: Course) => {
@@ -61,6 +76,7 @@ export default function CoursesPage() {
       description: 'Complete 3-Stage Prelims, Mains, and Interview guidance with 1-on-1 personal mentorship by Indrajeet Sir.',
       price: 24000,
       instructor: 'Indrajeet Sir',
+      thumbnail: '/courses/course-1.svg',
       features: [
         'Prelims: High-yield Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions',
         'Mains: Short Note Making, Deep PYQ Trend Analysis, Toppers Copy Analysis, 16 Evaluated Tests',
@@ -75,6 +91,7 @@ export default function CoursesPage() {
       description: 'Master Mains answer writing precision, daily evaluations, and structured feedback from Indrajeet Sir.',
       price: 18000,
       instructor: 'Indrajeet Sir',
+      thumbnail: '/courses/course-2.svg',
       features: [
         '600+ Topic Short Note Making Framework for GS Paper 1, 2, 3, and 4',
         'Deep Trend Analysis of Last 12 Years UPSC Mains Questions',
@@ -90,6 +107,7 @@ export default function CoursesPage() {
       description: 'Eliminate option traps, master theme forecasting, and secure 110+ cutoff safety in UPSC Prelims.',
       price: 15000,
       instructor: 'Indrajeet Sir',
+      thumbnail: '/courses/course-3.svg',
       features: [
         'High-Yield Prelims Short Notes & Option Elimination Tactics',
         'PYQ+ Trend Forecasting (Mapping Past 10-Year Themes to Future Questions)',
@@ -105,6 +123,7 @@ export default function CoursesPage() {
       description: 'Designed for aspirants currently enrolled in coaching classes who need parallel personal guidance and accountability.',
       price: 28000,
       instructor: 'Indrajeet Sir',
+      thumbnail: '/courses/course-4.svg',
       features: [
         'Synchronized Study Schedules Parallel to Your Coaching Classroom',
         'Weekly Syllabus Coverage & Consistency Audits with Sir',
@@ -120,6 +139,7 @@ export default function CoursesPage() {
       description: 'Consolidate 10,000+ pages of bulky coaching material into concise 600+ micro-notes for lightning revision.',
       price: 9000,
       instructor: 'Indrajeet Sir',
+      thumbnail: '/courses/course-5.svg',
       features: [
         'Micro-Syllabus Breakdown of Every Single UPSC Mains Keyword',
         'Intro-Body-Conclusion Ready Templates & Value Addition Enriched (2nd ARC, Law Comm, Case Laws)',
@@ -159,7 +179,7 @@ export default function CoursesPage() {
         if (savedCourses) {
           const parsed = JSON.parse(savedCourses);
           if (Array.isArray(parsed) && parsed.length >= 5) {
-            setCourses(sortCoursesInOrder(parsed));
+            setCourses(sortCoursesInOrder(enrichWithThumbnails(parsed)));
           }
         }
       } catch {}
@@ -172,7 +192,7 @@ export default function CoursesPage() {
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data) && data.length >= 5) {
-          setCourses(sortCoursesInOrder(data));
+          setCourses(sortCoursesInOrder(enrichWithThumbnails(data)));
         }
       })
       .catch(() => {});
@@ -305,19 +325,22 @@ export default function CoursesPage() {
               const currentPrice = Number(course.price) || 0;
               const originalPrice = Math.round(currentPrice * 2.5);
               const discountPercent = Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
+              const posterSrc = course.thumbnail || DEFAULT_COURSE_THUMBNAILS[course.id] || '/courses/course-1.svg';
 
               return (
                 <div key={course.id} className="pricing-card-3d">
                   <div>
-                    {course.thumbnail ? (
-                      <div className="course-card-thumb-wrap">
-                        <img
-                          src={course.thumbnail}
-                          alt={course.title}
-                          className="course-card-thumb-img"
-                        />
-                      </div>
-                    ) : null}
+                    <div className="course-card-thumb-wrap">
+                      <img
+                        src={posterSrc}
+                        alt={course.title}
+                        className="course-card-thumb-img"
+                        loading="lazy"
+                      />
+                      {course.tag && (
+                        <span className="course-card-floating-badge">{course.tag}</span>
+                      )}
+                    </div>
 
                     <div className="pricing-title-wrap">
                       <h3>{course.title}</h3>
@@ -329,13 +352,13 @@ export default function CoursesPage() {
                     <div className="pricing-fee-block">
                       <div className="price-main-col">
                         <div className="price-strike-row">
+                          <span className="amount-val-blue">₹{currentPrice.toLocaleString('en-IN')}</span>
                           <span className="original-price-strike">₹{originalPrice.toLocaleString('en-IN')}</span>
                           <span className="discount-percent-pill">{discountPercent}% OFF</span>
                         </div>
-                        <div className="price-active-row">
-                          <span className="currency-sym">₹</span>
-                          <span className="amount-val">{currentPrice.toLocaleString('en-IN')}</span>
-                          <span className="fee-tenure">/ {course.validity || 'batch access'}</span>
+                        <div className="fee-tenure-text">
+                          <i className="fa-regular fa-calendar-check" style={{ marginRight: '0.4rem', color: '#2563eb' }} />
+                          <span>{course.validity || 'Batch Access'}</span>
                         </div>
                       </div>
                     </div>
@@ -344,35 +367,40 @@ export default function CoursesPage() {
                       {course.features && course.features.length > 0 ? (
                         course.features.map((feat, fIdx) => (
                           <li key={fIdx}>
-                            <i className="fa-solid fa-circle-check" style={{ color: '#0f172a', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
+                            <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
                             <span>{feat}</span>
                           </li>
                         ))
                       ) : (
                         <>
                           <li>
-                            <i className="fa-solid fa-circle-check" style={{ color: '#0f172a', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
+                            <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
                             <span>Direct Mains answer writing evaluation &amp; feedback by Indrajeet Sir</span>
                           </li>
                           <li>
-                            <i className="fa-solid fa-circle-check" style={{ color: '#0f172a', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
+                            <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
                             <span>600+ Topic-wise short notes for GS 1 to 4</span>
                           </li>
                           <li>
-                            <i className="fa-solid fa-circle-check" style={{ color: '#0f172a', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
+                            <i className="fa-solid fa-circle-check" style={{ color: '#2563eb', marginRight: '0.55rem', fontSize: '0.95rem', flexShrink: 0 }} aria-hidden="true" />
                             <span>Weekly Diagnostic Strategy &amp; Doubt Clearing Sessions</span>
                           </li>
                         </>
                       )}
                     </ul>
                   </div>
-                  <button
-                    className="btn-primary full lg"
-                    onClick={() => handleStartEnrollment(course)}
-                  >
-                    <i className="fa-solid fa-bolt" style={{ marginRight: '0.45rem' }} aria-hidden="true" />
-                    <span>Enroll Now — ₹{Number(course.price).toLocaleString('en-IN')}</span>
-                  </button>
+                  <div className="course-card-cta-wrap">
+                    <button
+                      className="btn-primary full lg course-enroll-btn"
+                      onClick={() => handleStartEnrollment(course)}
+                    >
+                      <span>Enroll Now — ₹{Number(course.price).toLocaleString('en-IN')}</span>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '0.45rem' }}>
+                        <line x1="7" y1="17" x2="17" y2="7"></line>
+                        <polyline points="7 7 17 7 17 17"></polyline>
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               );
             })}
@@ -383,121 +411,138 @@ export default function CoursesPage() {
       {/* ── Razorpay Checkout Student Modal ── */}
       {selectedCourse && (
         <div className="modal-backdrop" onClick={() => setSelectedCourse(null)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.2rem' }}>
+          <div className="modal-box checkout-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="checkout-modal-header">
               <div>
-                <span className="badge-pill" style={{ fontSize: '0.75rem', marginBottom: '0.35rem', display: 'inline-block' }}>
-                  Secure Admission
+                <span className="checkout-badge-pill">
+                  <i className="fa-solid fa-shield-halved" aria-hidden="true" /> Secure Admission
                 </span>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                <h3 className="checkout-course-title">
                   {selectedCourse.title}
                 </h3>
               </div>
               <button
                 type="button"
+                className="checkout-modal-close"
                 onClick={() => setSelectedCourse(null)}
-                style={{ background: 'none', border: 'none', fontSize: '1.4rem', color: '#64748b', cursor: 'pointer' }}
                 aria-label="Close dialog"
               >
                 ✕
               </button>
             </div>
 
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '0.9rem 1.1rem', marginBottom: '1.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="checkout-fee-box">
               <div>
-                <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>Total Payable Fee (All Inclusive)</div>
-                <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0f172a' }}>
+                <div className="checkout-fee-label">TOTAL PAYABLE FEE (ALL INCLUSIVE)</div>
+                <div className="checkout-fee-amount">
                   ₹{Number(selectedCourse.price).toLocaleString('en-IN')}
                 </div>
               </div>
-              <div style={{ fontSize: '0.82rem', color: '#16a34a', fontWeight: 700, background: '#dcfce7', padding: '0.3rem 0.65rem', borderRadius: '6px' }}>
-                Instant Access
+              <div className="checkout-instant-badge">
+                <i className="fa-solid fa-bolt" aria-hidden="true" /> Instant Access
               </div>
             </div>
 
             {paymentError && (
-              <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '0.75rem 1rem', borderRadius: '8px', fontSize: '0.88rem', marginBottom: '1rem' }}>
-                <i className="fa-solid fa-triangle-exclamation" style={{ marginRight: '0.45rem' }} aria-hidden="true" />
-                {paymentError}
+              <div className="checkout-error-banner">
+                <i className="fa-solid fa-triangle-exclamation" aria-hidden="true" />
+                <span>{paymentError}</span>
               </div>
             )}
 
-            <form onSubmit={handleCreateOrder}>
-              <div className="form-group" style={{ marginBottom: '0.9rem' }}>
-                <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#334155', marginBottom: '0.35rem' }}>
-                  Aspirant Full Name *
+            <form onSubmit={handleCreateOrder} className="checkout-form">
+              <div className="checkout-field-group">
+                <label className="checkout-field-label">
+                  Aspirant Full Name <span className="req-star">*</span>
                 </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Rahul Sharma"
-                  value={studentName}
-                  onChange={(e) => setStudentName(e.target.value)}
-                  style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.92rem' }}
-                />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: '0.9rem' }}>
-                <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#334155', marginBottom: '0.35rem' }}>
-                  Email Address (For Live Portal Login) *
-                </label>
-                <input
-                  type="email"
-                  required
-                  placeholder="e.g. rahul@gmail.com"
-                  value={studentEmail}
-                  onChange={(e) => setStudentEmail(e.target.value)}
-                  style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.92rem' }}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '1.2rem' }}>
-                <div className="form-group">
-                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#334155', marginBottom: '0.35rem' }}>
-                    Phone Number (WhatsApp)
-                  </label>
+                <div className="checkout-input-wrap">
+                  <i className="fa-solid fa-user checkout-input-icon" aria-hidden="true" />
                   <input
-                    type="tel"
-                    placeholder="e.g. 9876543210"
-                    value={studentPhone}
-                    onChange={(e) => setStudentPhone(e.target.value)}
-                    style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.92rem' }}
+                    type="text"
+                    required
+                    placeholder="e.g. Rahul Sharma"
+                    value={studentName}
+                    onChange={(e) => setStudentName(e.target.value)}
+                    className="checkout-input"
                   />
                 </div>
-                <div className="form-group">
-                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 700, color: '#334155', marginBottom: '0.35rem' }}>
+              </div>
+
+              <div className="checkout-field-group">
+                <label className="checkout-field-label">
+                  Email Address (For Live Portal Login) <span className="req-star">*</span>
+                </label>
+                <div className="checkout-input-wrap">
+                  <i className="fa-solid fa-envelope checkout-input-icon" aria-hidden="true" />
+                  <input
+                    type="email"
+                    required
+                    placeholder="e.g. rahul@gmail.com"
+                    value={studentEmail}
+                    onChange={(e) => setStudentEmail(e.target.value)}
+                    className="checkout-input"
+                  />
+                </div>
+              </div>
+
+              <div className="checkout-grid-2">
+                <div className="checkout-field-group" style={{ marginBottom: 0 }}>
+                  <label className="checkout-field-label">
+                    Phone Number (WhatsApp)
+                  </label>
+                  <div className="checkout-input-wrap">
+                    <i className="fa-solid fa-phone checkout-input-icon" aria-hidden="true" />
+                    <input
+                      type="tel"
+                      placeholder="e.g. 9876543210"
+                      value={studentPhone}
+                      onChange={(e) => setStudentPhone(e.target.value)}
+                      className="checkout-input"
+                    />
+                  </div>
+                </div>
+                <div className="checkout-field-group" style={{ marginBottom: 0 }}>
+                  <label className="checkout-field-label">
                     Target Attempt Year
                   </label>
-                  <select
-                    value={attemptYear}
-                    onChange={(e) => setAttemptYear(e.target.value)}
-                    style={{ width: '100%', padding: '0.7rem 0.9rem', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.92rem', background: '#ffffff' }}
-                  >
-                    <option value="2026">UPSC CSE 2026</option>
-                    <option value="2027">UPSC CSE 2027</option>
-                    <option value="2028">UPSC CSE 2028</option>
-                  </select>
+                  <div className="checkout-input-wrap">
+                    <i className="fa-solid fa-calendar-check checkout-input-icon" aria-hidden="true" />
+                    <select
+                      value={attemptYear}
+                      onChange={(e) => setAttemptYear(e.target.value)}
+                      className="checkout-select"
+                    >
+                      <option value="2026">UPSC CSE 2026</option>
+                      <option value="2027">UPSC CSE 2027</option>
+                      <option value="2028">UPSC CSE 2028</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={paymentLoading}
-                className="btn-primary full lg"
-                style={{ justifyContent: 'center' }}
+                className="checkout-submit-btn"
+                style={{ marginTop: '0.4rem' }}
               >
                 {paymentLoading ? (
                   <>
-                    <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '0.5rem' }} aria-hidden="true" />
+                    <i className="fa-solid fa-spinner fa-spin" aria-hidden="true" />
                     <span>Processing Payment...</span>
                   </>
                 ) : (
                   <>
-                    <i className="fa-solid fa-lock" style={{ marginRight: '0.5rem' }} aria-hidden="true" />
+                    <i className="fa-solid fa-lock" aria-hidden="true" />
                     <span>Proceed to Pay ₹{Number(selectedCourse.price).toLocaleString('en-IN')}</span>
                   </>
                 )}
               </button>
+
+              <div className="checkout-trust-badge">
+                <i className="fa-solid fa-shield-halved" aria-hidden="true" />
+                <span>256-Bit SSL Encrypted • Razorpay Certified • Instant Activation</span>
+              </div>
             </form>
           </div>
         </div>
@@ -517,15 +562,15 @@ export default function CoursesPage() {
               Welcome aboard! You are now enrolled in <strong>{enrolledCourseTitle}</strong>.
             </p>
 
-            <div style={{ background: '#f8fafc', border: '1.5px dashed #cbd5e1', borderRadius: '10px', padding: '1rem', marginBottom: '1.4rem', textAlign: 'left' }}>
+            <div className="checkout-credentials-box">
               <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                 Your Portal Login Credentials
               </div>
-              <div style={{ fontSize: '0.9rem', color: '#1e293b', marginBottom: '0.25rem' }}>
+              <div style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>
                 <strong>User ID / Email:</strong> {studentEmail}
               </div>
-              <div style={{ fontSize: '0.9rem', color: '#1e293b' }}>
-                <strong>Temporary Passcode:</strong> <code style={{ background: '#e2e8f0', padding: '0.15rem 0.4rem', borderRadius: '4px', fontWeight: 700 }}>{enrolledPassword}</code>
+              <div style={{ fontSize: '0.9rem' }}>
+                <strong>Temporary Passcode:</strong> <code style={{ background: 'rgba(100, 116, 139, 0.2)', padding: '0.15rem 0.4rem', borderRadius: '4px', fontWeight: 700 }}>{enrolledPassword}</code>
               </div>
             </div>
 
