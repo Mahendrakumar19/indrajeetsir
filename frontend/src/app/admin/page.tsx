@@ -2533,7 +2533,7 @@ export default function AdminPanel() {
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
                       {courseForm.thumbnail && (
                         <div style={{ width: '110px', height: '62px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #cbd5e1', position: 'relative' }}>
-                          <img src={courseForm.thumbnail} alt="Thumbnail preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <Image src={courseForm.thumbnail} alt="Thumbnail preview" fill unoptimized style={{ objectFit: 'cover' }} />
                         </div>
                       )}
                       <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
@@ -2628,7 +2628,7 @@ export default function AdminPanel() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', alignItems: 'flex-start' }}>
                               <div style={{ width: '100px', height: '56px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #cbd5e1', background: '#f8fafc', position: 'relative' }}>
                                 {c.thumbnail ? (
-                                  <img src={c.thumbnail} alt={c.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  <Image src={c.thumbnail} alt={c.title} fill unoptimized style={{ objectFit: 'cover' }} />
                                 ) : (
                                   <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.68rem', color: '#94a3b8', fontWeight: 600 }}>
                                     No Image
@@ -2896,10 +2896,12 @@ export default function AdminPanel() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
                     {/* Live Thumbnail Preview */}
                     <div style={{ width: '100px', height: '125px', borderRadius: '10px', overflow: 'hidden', border: '2px solid #cbd5e1', background: '#0f172a', flexShrink: 0, position: 'relative' }}>
-                      <img
+                      <Image
                         src={siteContent.heroImage || '/indrajeet-sir-hero.jpg'}
                         alt="Hero Preview"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        fill
+                        unoptimized
+                        style={{ objectFit: 'cover' }}
                       />
                     </div>
 
@@ -3429,7 +3431,7 @@ export default function AdminPanel() {
                         <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'center', flexWrap: 'wrap' }}>
                           {course.thumbnail && (
                             <div style={{ width: '70px', height: '52px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #cbd5e1', position: 'relative' }}>
-                              <img src={course.thumbnail} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              <Image src={course.thumbnail} alt={course.title} fill unoptimized style={{ objectFit: 'cover' }} />
                             </div>
                           )}
                           <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
@@ -4181,6 +4183,11 @@ export default function AdminPanel() {
                     localStorage.setItem('indrajeet_site_content', JSON.stringify(siteContent));
                     localStorage.setItem('indrajeet_courses', JSON.stringify(courses));
                     localStorage.setItem('indrajeet_faqs', JSON.stringify(faqs));
+                    fetch(`${API_URL}/faqs`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(faqs),
+                    }).catch(() => null);
                     courses.forEach((c) => {
                       fetch(`${API_URL}/courses/${c.id}`, {
                         method: 'POST',
@@ -4580,7 +4587,7 @@ export default function AdminPanel() {
                 <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'center', flexWrap: 'wrap' }}>
                   {editCourseModal.thumbnail && (
                     <div style={{ width: '100px', height: '56px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #cbd5e1', position: 'relative' }}>
-                      <img src={editCourseModal.thumbnail} alt={editCourseModal.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <Image src={editCourseModal.thumbnail} alt={editCourseModal.title} fill unoptimized style={{ objectFit: 'cover' }} />
                     </div>
                   )}
                   <div style={{ flex: 1, minWidth: '200px', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>

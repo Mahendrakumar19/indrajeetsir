@@ -13,6 +13,44 @@ import path from 'node:path';
 const DATA_DIR = path.join(process.cwd(), 'data');
 const MESSAGES_FILE = path.join(DATA_DIR, 'messages.json');
 const RESOURCES_FILE = path.join(DATA_DIR, 'resources.json');
+const FAQS_FILE = path.join(DATA_DIR, 'faqs.json');
+
+const INITIAL_FAQS = [
+  { id: 'faq-1', q: 'What is the duration of the mentorship program?', a: '365+1 days (1 full year of continuous guidance).' },
+  { id: 'faq-2', q: 'Is an installment facility available for fee payment?', a: 'Yes, flexible installment options are available.' },
+  { id: 'faq-3', q: 'Who will mentor students and evaluate answer copies?', a: 'Indrajeet Sir personally guides students and evaluates every copy.' },
+  { id: 'faq-4', q: 'Does the Mains Mentorship include a Test Series?', a: 'Yes, an evaluated Mains test series is included.' },
+  { id: 'faq-5', q: 'Does the Prelims Mentorship include Mock Tests?', a: 'Yes, comprehensive Prelims mock tests with solutions are included.' },
+  { id: 'faq-6', q: 'What does the PYQ module cover?', a: 'In-depth trend analysis, theme-wise solving, and direct syllabus mapping.' },
+  { id: 'faq-7', q: 'Are preparation targets assigned daily, weekly, or monthly?', a: 'Targets are structured on a clear weekly basis.' },
+  { id: 'faq-8', q: 'Is student progress on weekly targets actively tracked?', a: 'Yes, milestone completion and performance are tracked weekly.' },
+  { id: 'faq-9', q: 'Can aspirants enroll exclusively for Prelims or Mains?', a: 'Yes, stage-specific mentorship (Prelims or Mains only) is available.' },
+  { id: 'faq-10', q: 'Can mentorship be joined alongside or after a Foundation Course?', a: 'Yes, you can join at either stage. Dedicated, separate batches are conducted for each.' },
+];
+
+function loadPersistedFaqs(): any[] {
+  try {
+    if (fs.existsSync(FAQS_FILE)) {
+      const content = fs.readFileSync(FAQS_FILE, 'utf-8');
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (err) {
+    console.warn('⚠️ Could not load persisted faqs from disk:', err);
+  }
+  return INITIAL_FAQS;
+}
+
+function savePersistedFaqs(faqs: any[]): void {
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(FAQS_FILE, JSON.stringify(faqs, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('⚠️ Could not save faqs to disk:', err);
+  }
+}
+
+let fallbackFaqs = loadPersistedFaqs();
 
 function getNextAttemptYear(): string {
   return String(new Date().getFullYear() + 1);
@@ -903,6 +941,23 @@ export class AppController {
     fallbackResources = fallbackResources.filter(r => r.id !== id);
     savePersistedResources(fallbackResources);
     return { success: true };
+  }
+
+  // ── Mentorship FAQs ────────────────────────────────────────────────────────
+  @Get('faqs')
+  getFaqs() {
+    return fallbackFaqs;
+  }
+
+  @Post('faqs')
+  updateFaqs(@Body() body: any) {
+    if (Array.isArray(body)) {
+      fallbackFaqs = body;
+    } else if (body && Array.isArray(body.faqs)) {
+      fallbackFaqs = body.faqs;
+    }
+    savePersistedFaqs(fallbackFaqs);
+    return { success: true, count: fallbackFaqs.length, faqs: fallbackFaqs };
   }
 
   // ── Razorpay Payment & Automated Student Onboarding ─────────────────────────

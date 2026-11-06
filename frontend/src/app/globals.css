@@ -1,8 +1,9 @@
-/* globals.css — modern crisp ed-tech typography & resets with Inter and sans-serif */
+/* globals.css — modern crisp ed-tech typography with Plus Jakarta Sans */
 :root {
-  --font-inter: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  --font-main: var(--font-inter);
-  --font-display: var(--font-inter);
+  --font-jakarta: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-inter: var(--font-jakarta);
+  --font-main: var(--font-jakarta);
+  --font-display: var(--font-jakarta);
 }
 
 *, *::before, *::after {
@@ -16,12 +17,12 @@ html {
   scroll-behavior: smooth;
   overflow-x: hidden;
   width: 100%;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', var(--font-jakarta), sans-serif;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
 body {
-  font-family: var(--font-main), 'Inter', sans-serif;
+  font-family: var(--font-main), 'Plus Jakarta Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #ffffff;

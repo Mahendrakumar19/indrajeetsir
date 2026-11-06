@@ -107,6 +107,34 @@ class ApiService {
     return [];
   }
 
+  static List<Map<String, String>> cachedFaqs = [];
+
+  static Future<List<Map<String, String>>> fetchFaqs() async {
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/faqs'),
+      ).timeout(const Duration(seconds: 7));
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data is List && data.isNotEmpty) {
+          final list = data.map((item) {
+            final m = Map<String, dynamic>.from(item);
+            return {
+              'q': (m['q'] ?? '').toString(),
+              'a': (m['a'] ?? '').toString(),
+            };
+          }).where((f) => (f['q'] ?? '').isNotEmpty).toList();
+          if (list.isNotEmpty) {
+            cachedFaqs = list;
+            return list;
+          }
+        }
+      }
+    } catch (_) {}
+    return cachedFaqs;
+  }
+
   static Future<Map<String, dynamic>?> studentLogin(String email, String password) async {
     try {
       final res = await http.post(
@@ -2249,6 +2277,256 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
 }
 
 // ============================================================================
+// FREQUENTLY ASKED QUESTIONS (FAQS) INTERACTIVE MODAL
+// ============================================================================
+void showFaqModal(BuildContext context, {bool isDark = false}) {
+  final List<Map<String, String>> defaultFaqs = [
+    {
+      'q': 'What is the duration of the mentorship program?',
+      'a': '365+1 days (1 full year of continuous guidance).',
+    },
+    {
+      'q': 'Is an installment facility available for fee payment?',
+      'a': 'Yes, flexible installment options are available.',
+    },
+    {
+      'q': 'Who will mentor students and evaluate answer copies?',
+      'a': 'Indrajeet Sir personally guides students and evaluates every copy.',
+    },
+    {
+      'q': 'Does the Mains Mentorship include a Test Series?',
+      'a': 'Yes, an evaluated Mains test series is included.',
+    },
+    {
+      'q': 'Does the Prelims Mentorship include Mock Tests?',
+      'a': 'Yes, comprehensive Prelims mock tests with solutions are included.',
+    },
+    {
+      'q': 'What does the PYQ module cover?',
+      'a': 'In-depth trend analysis, theme-wise solving, and direct syllabus mapping.',
+    },
+    {
+      'q': 'Are preparation targets assigned daily, weekly, or monthly?',
+      'a': 'Targets are structured on a clear weekly basis.',
+    },
+    {
+      'q': 'Is student progress on weekly targets actively tracked?',
+      'a': 'Yes, milestone completion and performance are tracked weekly.',
+    },
+    {
+      'q': 'Can aspirants enroll exclusively for Prelims or Mains?',
+      'a': 'Yes, stage-specific mentorship (Prelims or Mains only) is available.',
+    },
+    {
+      'q': 'Can mentorship be joined alongside or after a Foundation Course?',
+      'a': 'Yes, you can join at either stage. Dedicated, separate batches are conducted for each.',
+    },
+  ];
+
+  final List<Map<String, String>> faqs = ApiService.cachedFaqs.isNotEmpty
+      ? List<Map<String, String>>.from(ApiService.cachedFaqs)
+      : List<Map<String, String>>.from(defaultFaqs);
+
+  int? expandedIndex = 0;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) => StatefulBuilder(
+      builder: (context, setSheetState) {
+        if (ApiService.cachedFaqs.isEmpty) {
+          ApiService.fetchFaqs().then((fresh) {
+            if (fresh.isNotEmpty && ctx.mounted) {
+              setSheetState(() {
+                faqs.clear();
+                faqs.addAll(fresh);
+              });
+            }
+          });
+        }
+        final dark = Theme.of(context).brightness == Brightness.dark;
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.85,
+          decoration: BoxDecoration(
+            color: dark ? const Color(0xFF1C1C1E) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 38,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: CupertinoColors.systemGrey4,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF6366F1).withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const FaIcon(FontAwesomeIcons.circleQuestion, size: 18, color: Color(0xFF6366F1)),
+                      ),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Frequently Asked Questions',
+                            style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w800),
+                          ),
+                          Text(
+                            '${faqs.length} Doubts Answered • Mentorship FAQs',
+                            style: const TextStyle(fontSize: 11, color: CupertinoColors.systemGrey, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    child: const Icon(CupertinoIcons.xmark_circle_fill, color: CupertinoColors.systemGrey),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Expanded(
+                child: ListView.separated(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: faqs.length,
+                  separatorBuilder: (_, __) => Divider(height: 12, color: IosTheme.separator(dark)),
+                  itemBuilder: (context, i) {
+                    final item = faqs[i];
+                    final isOpen = expandedIndex == i;
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: dark ? const Color(0xFF2C2C2E) : const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isOpen
+                              ? IosTheme.primaryBlue.withValues(alpha: 0.4)
+                              : (dark ? Colors.white12 : Colors.black.withValues(alpha: 0.04)),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              setSheetState(() {
+                                expandedIndex = isOpen ? null : i;
+                              });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Q${i + 1}.',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w800,
+                                      color: IosTheme.primaryBlue,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      item['q']!,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: dark ? Colors.white : const Color(0xFF0F172A),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Icon(
+                                    isOpen ? CupertinoIcons.chevron_up : CupertinoIcons.chevron_down,
+                                    size: 14,
+                                    color: CupertinoColors.systemGrey,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          if (isOpen)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: dark ? const Color(0xFF1E293B) : Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: dark ? Colors.white12 : Colors.black.withValues(alpha: 0.05)),
+                                ),
+                                child: Text(
+                                  item['a']!,
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    height: 1.45,
+                                    color: dark ? Colors.white70 : const Color(0xFF334155),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: CupertinoButton(
+                  color: const Color(0xFF25D366),
+                  borderRadius: BorderRadius.circular(12),
+                  padding: const EdgeInsets.symmetric(vertical: 11),
+                  onPressed: () {
+                    WebRedirectService.openUrl('https://wa.me/919709992093?text=Hello%20Indrajeet%20Sir%2C%20I%20have%20a%20doubt%20regarding%20mentorship%20batch.');
+                  },
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      FaIcon(FontAwesomeIcons.whatsapp, size: 16, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text(
+                        'Have more questions? Ask on WhatsApp Helpdesk',
+                        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
+}
+
+// ============================================================================
 // 3. HOME SCREEN (OVERVIEW) — CLEAN iOS HIG DESIGN
 // ============================================================================
 class HomeScreen extends StatefulWidget {
@@ -2411,8 +2689,9 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final coursesFuture = ApiService.fetchCourses();
       final resourcesFuture = ApiService.fetchResources();
+      final faqsFuture = ApiService.fetchFaqs();
 
-      final results = await Future.wait([coursesFuture, resourcesFuture]);
+      final results = await Future.wait([coursesFuture, resourcesFuture, faqsFuture]);
       final liveCourses = results[0];
       final liveResources = results[1];
 
@@ -3346,7 +3625,113 @@ class _HomeScreenState extends State<HomeScreen> {
                     _buildDhoniQuoteCard(context, isDark),
 
                     // ══════════════════════════════════════════════════════════
-                    // ── SECTION 6: LIVE CLASSROOM SCHEDULE & GUIDELINES ───────
+                    // ── SECTION 6: FREQUENTLY ASKED QUESTIONS (FAQS) ──────────
+                    // ══════════════════════════════════════════════════════════
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'FREQUENTLY ASKED QUESTIONS',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.6,
+                            color: CupertinoColors.systemGrey,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => showFaqModal(context, isDark: isDark),
+                          child: const Row(
+                            children: [
+                              Text(
+                                'View All (10)',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: IosTheme.primaryBlue,
+                                ),
+                              ),
+                              SizedBox(width: 2),
+                              Icon(CupertinoIcons.chevron_right, size: 12, color: IosTheme.primaryBlue),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    IosGlassCard(
+                      margin: const EdgeInsets.only(bottom: 24),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF6366F1).withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Center(
+                                  child: FaIcon(FontAwesomeIcons.circleQuestion, size: 18, color: Color(0xFF6366F1)),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Frequently Asked Questions (FAQs)',
+                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+                                    ),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      'Evaluation turnaround, schedules, test series & installment options',
+                                      style: TextStyle(fontSize: 11, color: CupertinoColors.systemGrey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          SizedBox(
+                            width: double.infinity,
+                            child: CupertinoButton(
+                              color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFEEF2FF),
+                              padding: const EdgeInsets.symmetric(vertical: 11),
+                              borderRadius: BorderRadius.circular(10),
+                              onPressed: () => showFaqModal(context, isDark: isDark),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    CupertinoIcons.question_circle_fill,
+                                    size: 15,
+                                    color: isDark ? Colors.white : const Color(0xFF4F46E5),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Read Mentorship FAQs & Answers →',
+                                    style: TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark ? Colors.white : const Color(0xFF4F46E5),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // ══════════════════════════════════════════════════════════
+                    // ── SECTION 7: LIVE CLASSROOM SCHEDULE & GUIDELINES ───────
                     // ══════════════════════════════════════════════════════════
                     const Padding(
                       padding: EdgeInsets.only(left: 4, bottom: 10),
@@ -5000,6 +5385,13 @@ class ProfileScreen extends StatelessWidget {
               padding: EdgeInsets.zero,
               child: Column(
                 children: [
+                  _buildSettingsTile(
+                    icon: FontAwesomeIcons.circleQuestion,
+                    color: const Color(0xFF6366F1),
+                    title: 'Frequently Asked Questions (FAQs)',
+                    onTap: () => showFaqModal(context, isDark: isDark),
+                  ),
+                  Divider(height: 1, indent: 56, color: IosTheme.separator(isDark)),
                   _buildSettingsTile(
                     icon: FontAwesomeIcons.globe,
                     color: const Color(0xFF10B981),
