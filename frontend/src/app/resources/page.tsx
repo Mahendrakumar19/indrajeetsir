@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import LeadBanner from '@/components/LeadBanner';
+import { API_URL } from '@/lib/api';
 import '@/app/home.css';
 
 interface PdfResource {
@@ -68,6 +69,16 @@ export default function ResourcesPage() {
 
     loadContent();
     window.addEventListener('storage', loadContent);
+
+    fetch(`${API_URL}/resources`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setPdfList(data);
+        }
+      })
+      .catch(() => {});
+
     return () => window.removeEventListener('storage', loadContent);
   }, []);
 

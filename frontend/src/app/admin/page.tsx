@@ -1394,6 +1394,13 @@ export default function AdminPanel() {
         setPdfList((prev) => [json.data, ...prev]);
         setPdfForm({ title: '', description: '', tag: 'Mains Notes', file: null });
         triggerAlert(`PDF "${json.data.title}" successfully uploaded as /uploads/${json.data.fileName}!`);
+        try {
+          fetch(`${API_URL}/resources`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(json.data),
+          }).catch(() => null);
+        } catch {}
       } else {
         alert(json.message || 'PDF upload failed.');
       }
@@ -1409,6 +1416,9 @@ export default function AdminPanel() {
     if (confirm(`Remove PDF resource "${title}" from public downloads?`)) {
       setPdfList((prev) => prev.filter((p) => p.id !== id));
       triggerAlert(`PDF "${title}" removed.`);
+      try {
+        fetch(`${API_URL}/resources/${id}`, { method: 'DELETE' }).catch(() => null);
+      } catch {}
     }
   };
 

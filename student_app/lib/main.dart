@@ -89,6 +89,22 @@ class ApiService {
     return [];
   }
 
+  static Future<List<Map<String, dynamic>>> fetchResources() async {
+    try {
+      final res = await http.get(
+        Uri.parse('$baseUrl/resources'),
+      ).timeout(const Duration(seconds: 7));
+
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data is List) {
+          return data.map((item) => Map<String, dynamic>.from(item)).toList();
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
+
   static Future<Map<String, dynamic>?> studentLogin(String email, String password) async {
     try {
       final res = await http.post(
@@ -1865,7 +1881,7 @@ class _MainNavigationState extends State<MainNavigation> {
 // ============================================================================
 // 3. HOME SCREEN (OVERVIEW) — CLEAN iOS HIG DESIGN
 // ============================================================================
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final VoidCallback onThemeToggle;
   final StudentProfile profile;
   final Map<String, dynamic>? upcomingClass;
@@ -1882,457 +1898,1212 @@ class HomeScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  State<HomeScreen> createState() => _HomeScreenState();
+}
 
-    return Scaffold(
-      body: SafeArea(
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            // iOS Large Title Header
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+class _HomeScreenState extends State<HomeScreen> {
+  List<Map<String, dynamic>> _courses = [];
+  List<Map<String, dynamic>> _resources = [];
+  bool _isLoading = true;
+
+  final List<Map<String, dynamic>> _defaultCoursesFallback = [
+    {
+      'id': 'c-1',
+      'title': '1 Year Full Mentorship for UPSC 2027 (After Foundation Course)',
+      'description': 'Complete 3-Stage Prelims, Mains, and Interview guidance with 1-on-1 personal mentorship by Indrajeet Sir.',
+      'price': 24000,
+      'originalPrice': 60000,
+      'discount': '60% OFF',
+      'validity': '365+1 Day (1 Year)',
+      'tag': 'Comprehensive Flagship',
+      'thumbnail': 'https://indrajeetsir.com/courses/course-1.svg',
+      'features': [
+        'Prelims: High-yield Notes, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions',
+        'Mains: Short Notes, Deep PYQ Trend Analysis, Toppers Copy, 16 Evaluated Tests',
+        'Weekly Strategy Sessions & 1-on-1 Personal Mentorship by Indrajeet Sir',
+        'Interview: Personality Development, Book Reading Habits & Newspaper Analysis',
+      ],
+    },
+    {
+      'id': 'c-2',
+      'title': 'Mains Mentorship 2026/2027 (Comprehensive GS & Answer Writing)',
+      'description': 'Master Mains answer writing precision, daily evaluations, and structured feedback from Indrajeet Sir.',
+      'price': 18000,
+      'originalPrice': 45000,
+      'discount': '60% OFF',
+      'validity': '4–5 Months',
+      'tag': 'Mains Intensive',
+      'thumbnail': 'https://indrajeetsir.com/courses/course-2.svg',
+      'features': [
+        '600+ Topic Short Note Making Framework for GS Paper 1, 2, 3, and 4',
+        'Deep Trend Analysis of Last 12 Years UPSC Mains Questions',
+        'Toppers Copy Structural & Presentation Reverse-Engineering',
+        '16 Evaluated Tests (Mini, Sectional & Full Length) with Line-by-Line Review',
+      ],
+    },
+    {
+      'id': 'c-3',
+      'title': 'Prelims Mentorship 2026 (Targeted Prelims Mastery & PYQ Reverse Engineering)',
+      'description': 'Eliminate option traps, master theme forecasting, and secure 110+ cutoff safety in UPSC Prelims.',
+      'price': 15000,
+      'originalPrice': 37500,
+      'discount': '60% OFF',
+      'validity': '5–6 Months',
+      'tag': 'Prelims Mastery',
+      'thumbnail': 'https://indrajeetsir.com/courses/course-3.svg',
+      'features': [
+        'High-Yield Prelims Short Notes & Option Elimination Tactics',
+        'PYQ+ Trend Forecasting (Mapping Past 10-Year Themes to Future Questions)',
+        '20 Full-Length Mock Tests with In-Depth Performance Analytics',
+        '5,000+ Topic-Wise High Probability Practice Questions',
+      ],
+    },
+    {
+      'id': 'c-4',
+      'title': 'Parallel Mentorship with Foundation Course (18 Months Extended Support)',
+      'description': 'Designed for aspirants currently enrolled in coaching classes who need parallel personal guidance and accountability.',
+      'price': 28000,
+      'originalPrice': 70000,
+      'discount': '60% OFF',
+      'validity': '18 Months',
+      'tag': 'Extended Parallel Support',
+      'thumbnail': 'https://indrajeetsir.com/courses/course-4.svg',
+      'features': [
+        'Synchronized Study Schedules Parallel to Your Coaching Classroom',
+        'Weekly Syllabus Coverage & Consistency Audits with Sir',
+        'Early Answer Writing Fundamentals & Keyword Placement Training',
+        'Full 18 Months Direct Mentor Access and Doubt Resolution',
+      ],
+    },
+    {
+      'id': 'c-5',
+      'title': 'Mains Short Notes Making Mentorship (GS 1, 2, 3 & 4 Ready Reckoners)',
+      'description': 'Consolidate 10,000+ pages of bulky coaching material into concise 600+ micro-notes for lightning revision.',
+      'price': 9000,
+      'originalPrice': 22500,
+      'discount': '60% OFF',
+      'validity': '2 Months',
+      'tag': 'Micro Notes Mastery',
+      'thumbnail': 'https://indrajeetsir.com/courses/course-5.svg',
+      'features': [
+        'Micro-Syllabus Breakdown of Every Single UPSC Mains Keyword',
+        'Intro-Body-Conclusion Ready Templates & Value Addition Enriched',
+        'Diagrams, Flowcharts, Data Points & Committee Recommendations Ready Reckoners',
+        'Weekly Submission Review & Template Refinement by Indrajeet Sir',
+      ],
+    },
+  ];
+
+  final List<Map<String, dynamic>> _defaultResourcesFallback = [
+    {
+      'id': 'pdf-1',
+      'title': 'UPSC 2027 Master Micro-Syllabus & 600+ Topic Blueprint',
+      'description': 'Topic-wise breakdown of GS Paper 1, 2, 3 and 4 with direct PYQ trend tags and core keywords.',
+      'tag': 'Micro-Syllabus',
+      'size': '2.4 MB',
+      'fileUrl': 'https://indrajeetsir.com/Course_Brochure_Indrajeet_Sir.pdf',
+    },
+    {
+      'id': 'pdf-2',
+      'title': 'Indrajeet Sir Model Evaluated Mains Answer Copy (GS 2 & Ethics)',
+      'description': 'Real evaluated copies with Intro-Body-Conclusion framework, 2nd ARC citations, and case law value addition.',
+      'tag': 'Model Copies',
+      'size': '3.8 MB',
+      'fileUrl': 'https://indrajeetsir.com/Course_Brochure_Indrajeet_Sir.pdf',
+    },
+    {
+      'id': 'pdf-3',
+      'title': 'Prelims PYQ Reverse Engineering Framework & Theme Mapping',
+      'description': 'Strategic guide on how past 10-year UPSC questions predict upcoming themes and option-elimination tactics.',
+      'tag': 'PYQ Strategy',
+      'size': '1.9 MB',
+      'fileUrl': 'https://indrajeetsir.com/Course_Brochure_Indrajeet_Sir.pdf',
+    },
+    {
+      'id': 'pdf-4',
+      'title': 'Official UPSC CSE Mentorship Brochure & Roadmap 2026-27',
+      'description': 'Complete program curriculum, 5-Pillar methodology, 16 test series timeline and mentor guidance framework.',
+      'tag': 'Official Brochure',
+      'size': '4.2 MB',
+      'fileUrl': 'https://indrajeetsir.com/Course_Brochure_Indrajeet_Sir.pdf',
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _courses = List.from(_defaultCoursesFallback);
+    _resources = List.from(_defaultResourcesFallback);
+    _loadHomeData();
+  }
+
+  Future<void> _loadHomeData() async {
+    try {
+      final coursesFuture = ApiService.fetchCourses();
+      final resourcesFuture = ApiService.fetchResources();
+
+      final results = await Future.wait([coursesFuture, resourcesFuture]);
+      final liveCourses = results[0];
+      final liveResources = results[1];
+
+      if (mounted) {
+        setState(() {
+          if (liveCourses.isNotEmpty) {
+            _courses = liveCourses;
+          }
+          if (liveResources.isNotEmpty) {
+            _resources = liveResources;
+          }
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Widget _buildBannerFallback(String title, String tag, bool isDark) {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [const Color(0xFF0F172A), const Color(0xFF1E293B), const Color(0xFF1E3A8A)]
+              : [const Color(0xFF1E3A8A), const Color(0xFF2563EB), const Color(0xFF3B82F6)],
+        ),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const FaIcon(FontAwesomeIcons.graduationCap, size: 14, color: Colors.white),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'INDRAJEET SIR UPSC MENTORSHIP',
+                style: TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white70,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              letterSpacing: -0.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCourseCard(BuildContext context, Map<String, dynamic> course, bool isDark) {
+    final price = course['price'] ?? 0;
+    final int origPrice = course['originalPrice'] != null
+        ? course['originalPrice']
+        : ((price is int ? price : int.tryParse(price.toString()) ?? 0) * 2.5).round();
+    final String discount = course['discount'] ?? '${((origPrice - (price is int ? price : 0)) / (origPrice > 0 ? origPrice : 1) * 100).round()}% OFF';
+    final String tag = course['tag'] ?? 'Flagship Batch';
+    final String validity = course['validity'] ?? 'Full Batch Access';
+    final String title = course['title'] ?? 'UPSC Mentorship Program';
+    final String description = course['description'] ?? 'Comprehensive personal guidance with Indrajeet Sir.';
+    final List<dynamic> features = course['features'] is List ? course['features'] : [];
+    final String? thumb = course['thumbnail'];
+
+    return IosGlassCard(
+      margin: const EdgeInsets.only(bottom: 18),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 16:9 Banner Box with Floating Badge
+          Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                height: 165,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                  border: Border.all(
+                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: thumb != null && thumb.startsWith('http') && !thumb.endsWith('.svg')
+                      ? Image.network(
+                          thumb,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _buildBannerFallback(title, tag, isDark),
+                        )
+                      : _buildBannerFallback(title, tag, isDark),
+                ),
+              ),
+              Positioned(
+                top: 10,
+                left: 10,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.82),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF10B981),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        tag.toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Title
+          Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 15.5,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.3,
+            ),
+          ),
+          const SizedBox(height: 5),
+
+          // Short Description
+          Text(
+            description,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12,
+              height: 1.4,
+              color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Price Row
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                '₹${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: IosTheme.primaryBlue,
+                  letterSpacing: -0.4,
+                ),
+              ),
+              const SizedBox(width: 8),
+              if (origPrice > 0)
+                Text(
+                  '₹${origPrice.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: CupertinoColors.systemGrey,
+                    decoration: TextDecoration.lineThrough,
+                  ),
+                ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  discount,
+                  style: const TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF059669),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+
+          // Validity Row
+          Row(
+            children: [
+              const Icon(CupertinoIcons.calendar, size: 12, color: CupertinoColors.systemGrey),
+              const SizedBox(width: 5),
+              Text(
+                validity,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: CupertinoColors.systemGrey,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Action Button
+          SizedBox(
+            width: double.infinity,
+            child: CupertinoButton(
+              color: IosTheme.primaryBlue,
+              padding: const EdgeInsets.symmetric(vertical: 11),
+              borderRadius: BorderRadius.circular(12),
+              onPressed: () => _showCourseDetailsSheet(context, course),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'View Curriculum & Enroll',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(width: 6),
+                  Icon(CupertinoIcons.arrow_up_right, size: 14, color: Colors.white),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResourceCard(BuildContext context, Map<String, dynamic> resource, bool isDark) {
+    final title = resource['title'] ?? 'UPSC Study Document';
+    final desc = resource['description'] ?? 'Free revision notes and frameworks prepared by Indrajeet Sir.';
+    final tag = resource['tag'] ?? 'Study Notes';
+    final size = resource['size'] ?? 'PDF';
+    final fileUrl = resource['fileUrl'] ?? 'https://indrajeetsir.com/Course_Brochure_Indrajeet_Sir.pdf';
+    final fullUrl = fileUrl.startsWith('http') ? fileUrl : 'https://indrajeetsir.com$fileUrl';
+
+    return IosGlassCard(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 44,
+            height: 48,
+            decoration: BoxDecoration(
+              color: const Color(0xFFEF4444).withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.25)),
+            ),
+            child: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FaIcon(FontAwesomeIcons.filePdf, size: 18, color: Color(0xFFEF4444)),
+                SizedBox(height: 2),
+                Text(
+                  'PDF',
+                  style: TextStyle(
+                    fontSize: 8,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFFDC2626),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'UPSC CSE ${profile.attemptYear.toUpperCase()}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.8,
-                              color: IosTheme.primaryBlue,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Welcome, ${profile.name.split(' ')[0]}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.6,
-                            ),
-                          ),
-                        ],
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: IosTheme.primaryBlue.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        tag,
+                        style: const TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w700,
+                          color: IosTheme.primaryBlue,
+                        ),
                       ),
                     ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '• $size',
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: CupertinoColors.systemGrey,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  desc,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11,
+                    height: 1.35,
+                    color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                CupertinoButton(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(8),
+                  minimumSize: Size.zero,
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: fullUrl));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            const Icon(CupertinoIcons.check_mark_circled_solid, color: Colors.white, size: 16),
+                            const SizedBox(width: 8),
+                            Expanded(child: Text('PDF Download Link Copied: $title')),
+                          ],
+                        ),
+                        backgroundColor: const Color(0xFF10B981),
+                        duration: const Duration(seconds: 3),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(CupertinoIcons.arrow_down_doc_fill, size: 12, color: IosTheme.primaryBlue),
+                      const SizedBox(width: 5),
+                      Text(
+                        'Copy / Open PDF',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: isDark ? Colors.white : IosTheme.primaryBlue,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCourseDetailsSheet(BuildContext context, Map<String, dynamic> course) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final title = course['title'] ?? 'Mentorship Batch';
+    final price = course['price'] ?? 0;
+    final validity = course['validity'] ?? '1 Year';
+    final List<dynamic> features = course['features'] is List ? course['features'] : [];
+    const webAdmissionUrl = 'https://indrajeetsir.com/courses';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: CupertinoColors.systemGrey4,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+                  ),
+                ),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  child: const Icon(CupertinoIcons.xmark_circle_fill, color: CupertinoColors.systemGrey),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Fee: ₹${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} • $validity Access',
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: IosTheme.primaryBlue),
+            ),
+            const SizedBox(height: 14),
+            const Text(
+              'Curriculum Features & Deliverables:',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: CupertinoColors.systemGrey),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: ListView.separated(
+                physics: const BouncingScrollPhysics(),
+                itemCount: features.length,
+                separatorBuilder: (_, __) => Divider(height: 16, color: IosTheme.separator(isDark)),
+                itemBuilder: (_, i) => Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(CupertinoIcons.checkmark_circle_fill, size: 16, color: Color(0xFF10B981)),
                     const SizedBox(width: 8),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CupertinoButton(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          onPressed: onThemeToggle,
-                          child: Container(
-                            width: 38,
-                            height: 38,
-                            decoration: BoxDecoration(
-                              color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.06),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Icon(
-                              isDark ? CupertinoIcons.sun_max_fill : CupertinoIcons.moon_fill,
-                              size: 18,
-                              color: isDark ? const Color(0xFFFFCC00) : IosTheme.systemIndigo,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        GestureDetector(
-                          onTap: () => onNavigateTab(3),
-                          child: Container(
-                            padding: const EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: IosTheme.primaryBlue, width: 2),
-                            ),
-                            child: CircleAvatar(
-                              radius: 19,
-                              backgroundColor: IosTheme.primaryBlue.withValues(alpha: 0.12),
-                              child: Text(profile.avatarDisplayEmoji, style: const TextStyle(fontSize: 19)),
-                            ),
-                          ),
-                        ),
-                      ],
+                    Expanded(
+                      child: Text(
+                        features[i].toString(),
+                        style: const TextStyle(fontSize: 12.5, height: 1.35),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-
-            // Content List
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 140),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  // Enrolled Course Status Banner
-                  IosGlassCard(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: IosTheme.primaryBlue.withValues(alpha: 0.35), width: 1.5),
-                          ),
-                          child: ClipOval(
-                            child: Image.asset(
-                              'assets/images/logo.png',
-                              width: 44,
-                              height: 44,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => const Icon(
-                                CupertinoIcons.book_fill,
-                                color: IosTheme.primaryBlue,
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: const Text(
-                                      'ENROLLED COURSE',
-                                      style: TextStyle(
-                                        fontSize: 9.5,
-                                        fontWeight: FontWeight.w800,
-                                        color: Color(0xFF059669),
-                                        letterSpacing: 0.4,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  const Text(
-                                    '• 10m Alerts Active',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: CupertinoColors.systemGrey,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                profile.enrolledCourse,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: IosTheme.separator(isDark)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(CupertinoIcons.info_circle_fill, size: 16, color: IosTheme.primaryBlue),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'All batch enrollments & GST receipts are processed securely at indrajeetsir.com/courses',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
                     ),
                   ),
-                  const SizedBox(height: 14),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: CupertinoButton.filled(
+                borderRadius: BorderRadius.circular(14),
+                onPressed: () {
+                  Clipboard.setData(const ClipboardData(text: webAdmissionUrl));
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Admission Portal Link Copied: https://indrajeetsir.com/courses'),
+                      backgroundColor: Color(0xFF10B981),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                },
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(CupertinoIcons.doc_on_clipboard, size: 16, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text(
+                      'Copy Portal Link & Enroll Online',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-                  // Official Website Course Admission Notice Card
-                  IosGlassCard(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const FaIcon(FontAwesomeIcons.globe, size: 16, color: Color(0xFF10B981)),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Program Admissions & Batches',
-                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'All course enrollments & fee payments happen on indrajeetsir.com',
-                                style: TextStyle(fontSize: 11, color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color),
-                              ),
-                            ],
-                          ),
-                        ),
-                        CupertinoButton(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          color: IosTheme.primaryBlue.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(10),
-                          onPressed: () => showWebsitePurchaseModal(context),
-                          child: const Text('View Batches', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: IosTheme.primaryBlue)),
-                        ),
-                      ],
+  Widget _buildDhoniQuoteCard(BuildContext context, bool isDark) {
+    return IosGlassCard(
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 28,
+                height: 28,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(colors: [Color(0xFF1E3A8A), Color(0xFF2563EB)]),
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Text(
+                    '#7',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
-                  const SizedBox(height: 14),
-
-                  // Upcoming Live Session Hero Card
-                  IosGlassCard(
-                    padding: const EdgeInsets.all(20),
-                    backgroundColor: isDark
-                        ? const Color(0xFF1E293B).withValues(alpha: 0.7)
-                        : const Color(0xFFEFF6FF),
-                    border: Border.all(
-                      color: IosTheme.primaryBlue.withValues(alpha: isDark ? 0.3 : 0.2),
-                      width: 1.2,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: upcomingClass != null ? IosTheme.primaryBlue : CupertinoColors.systemGrey,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(CupertinoIcons.circle_fill, size: 8, color: Colors.white),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    upcomingClass != null ? 'UPCOMING LIVE SESSION' : 'LIVE STATUS',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10.5,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Text(
-                              upcomingClass != null
-                                  ? '${upcomingClass!['date'] ?? 'Today'} • ${upcomingClass!['time'] ?? '7:00 PM'}'
-                                  : 'Awaiting Schedule',
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: CupertinoColors.systemGrey),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        Text(
-                          upcomingClass != null
-                              ? (upcomingClass!['title'] ?? 'Direct Mentorship Session')
-                              : 'No Live Sessions Scheduled Right Now',
-                          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.3),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          upcomingClass != null
-                              ? 'Interactive Live Strategy Class with Indrajeet Sir'
-                              : 'Live sessions will appear here automatically once scheduled by Indrajeet Sir.',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CupertinoButton(
-                                color: IosTheme.primaryBlue,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                borderRadius: BorderRadius.circular(14),
-                                onPressed: () => onNavigateTab(1),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const FaIcon(FontAwesomeIcons.video, size: 14, color: Colors.white),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      upcomingClass != null ? 'Join Live Classroom' : 'Open Classroom Schedule',
-                                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'MS Dhoni',
+                    style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800),
+                  ),
+                  Text(
+                    'Mentorship Mindset & Core Philosophy',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            '“The process is more important than the results. If you take care of the process, results will follow.”',
+            style: TextStyle(
+              fontSize: 13,
+              fontStyle: FontStyle.italic,
+              height: 1.45,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white70 : const Color(0xFF1E293B),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-                  // Live Session Quick Info Cards (2 cards, no horizontal overflow)
-                  Row(
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Scaffold(
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _loadHomeData,
+          color: IosTheme.primaryBlue,
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            slivers: [
+              // iOS Large Title Header
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: _buildMetricTile(
-                          context,
-                          title: 'NEXT LIVE CLASS',
-                          value: upcomingClass != null ? (upcomingClass!['time'] ?? 'Today') : 'None',
-                          subtitle: upcomingClass != null ? 'With Indrajeet Sir' : 'Awaiting Schedule',
-                          icon: FontAwesomeIcons.solidCirclePlay,
-                          color: IosTheme.primaryBlue,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'UPSC CSE ${widget.profile.attemptYear.toUpperCase()}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.8,
+                                color: IosTheme.primaryBlue,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Welcome, ${widget.profile.name.split(' ')[0]}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.6,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildMetricTile(
-                          context,
-                          title: 'SESSION FORMAT',
-                          value: 'Personalized',
-                          subtitle: 'Allotted Mentee',
-                          icon: FontAwesomeIcons.userGraduate,
-                          color: IosTheme.systemOrange,
-                        ),
+                      const SizedBox(width: 8),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            onPressed: widget.onThemeToggle,
+                            child: Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.06),
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                isDark ? CupertinoIcons.sun_max_fill : CupertinoIcons.moon_fill,
+                                size: 18,
+                                color: isDark ? const Color(0xFFFFCC00) : IosTheme.systemIndigo,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          GestureDetector(
+                            onTap: () => widget.onNavigateTab(3),
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: IosTheme.primaryBlue, width: 2),
+                              ),
+                              child: CircleAvatar(
+                                radius: 19,
+                                backgroundColor: IosTheme.primaryBlue.withValues(alpha: 0.12),
+                                child: Text(widget.profile.avatarDisplayEmoji, style: const TextStyle(fontSize: 19)),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                ),
+              ),
 
-                  // Section Title: Live Class Agenda
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4, bottom: 10),
-                    child: Text(
-                      'TODAY\'S LIVE CLASSROOM SCHEDULE',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.6,
-                        color: CupertinoColors.systemGrey,
-                      ),
-                    ),
-                  ),
-
-                  IosGlassCard(
-                    padding: upcomingClass != null ? EdgeInsets.zero : const EdgeInsets.all(20),
-                    child: upcomingClass != null
-                        ? Column(
-                            children: [
-                              _buildScheduleRow(
-                                context,
-                                time: upcomingClass!['time'] ?? 'Live',
-                                title: upcomingClass!['title'] ?? 'Mentorship Session',
-                                type: (upcomingClass!['assignedStudent'] ?? 'All Students').toString().toLowerCase().contains(profile.name.toLowerCase())
-                                    ? 'PERSONAL MENTEE SESSION'
-                                    : 'BATCH LIVE CLASS',
-                                isAssigned: true,
-                                onTap: () => onNavigateTab(1),
-                              ),
-                            ],
-                          )
-                        : Center(
-                            child: Column(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: IosTheme.primaryBlue.withValues(alpha: 0.1),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(CupertinoIcons.calendar, size: 28, color: IosTheme.primaryBlue),
+              // Content List
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 140),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    // Enrolled Course Status Banner
+                    IosGlassCard(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: IosTheme.primaryBlue.withValues(alpha: 0.35), width: 1.5),
+                            ),
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/images/logo.png',
+                                width: 44,
+                                height: 44,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => const Icon(
+                                  CupertinoIcons.book_fill,
+                                  color: IosTheme.primaryBlue,
+                                  size: 20,
                                 ),
-                                const SizedBox(height: 10),
-                                const Text(
-                                  'No Sessions Scheduled for Today',
-                                  style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: const Text(
+                                        'ENROLLED COURSE',
+                                        style: TextStyle(
+                                          fontSize: 9.5,
+                                          fontWeight: FontWeight.w800,
+                                          color: Color(0xFF059669),
+                                          letterSpacing: 0.4,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    const Text(
+                                      '• 10m Alerts Active',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: CupertinoColors.systemGrey,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'You will receive an alert 10 minutes before your allotted class starts.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
-                                  ),
+                                  widget.profile.enrolledCourse,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
                                 ),
                               ],
                             ),
                           ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Section Title: Live Class Readiness
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4, bottom: 10),
-                    child: Text(
-                      'LIVE CLASS GUIDELINES',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.6,
-                        color: CupertinoColors.systemGrey,
+                        ],
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 14),
 
-                  IosGlassCard(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
+                    // Upcoming Live Session Hero Card
+                    IosGlassCard(
+                      padding: const EdgeInsets.all(20),
+                      backgroundColor: isDark
+                          ? const Color(0xFF1E293B).withValues(alpha: 0.7)
+                          : const Color(0xFFEFF6FF),
+                      border: Border.all(
+                        color: IosTheme.primaryBlue.withValues(alpha: isDark ? 0.3 : 0.2),
+                        width: 1.2,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: widget.upcomingClass != null ? IosTheme.primaryBlue : CupertinoColors.systemGrey,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(CupertinoIcons.circle_fill, size: 8, color: Colors.white),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      widget.upcomingClass != null ? 'UPCOMING LIVE SESSION' : 'LIVE STATUS',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                widget.upcomingClass != null
+                                    ? '${widget.upcomingClass!['date'] ?? 'Today'} • ${widget.upcomingClass!['time'] ?? '7:00 PM'}'
+                                    : 'Awaiting Schedule',
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: CupertinoColors.systemGrey),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            widget.upcomingClass != null
+                                ? (widget.upcomingClass!['title'] ?? 'Direct Mentorship Session')
+                                : 'No Live Sessions Scheduled Right Now',
+                            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.3),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            widget.upcomingClass != null
+                                ? 'Interactive Live Strategy Class with Indrajeet Sir'
+                                : 'Live sessions will appear here automatically once scheduled by Indrajeet Sir.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CupertinoButton(
+                                  color: IosTheme.primaryBlue,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  borderRadius: BorderRadius.circular(14),
+                                  onPressed: () => widget.onNavigateTab(1),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const FaIcon(FontAwesomeIcons.video, size: 14, color: Colors.white),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        widget.upcomingClass != null ? 'Join Live Classroom' : 'Open Classroom Schedule',
+                                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // ══════════════════════════════════════════════════════════
+                    // ── SECTION 3: MENTORSHIP COURSES & PROGRAMS ──────────────
+                    // ══════════════════════════════════════════════════════════
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildGuidelineItem(
-                          context,
-                          icon: FontAwesomeIcons.headphones,
-                          color: IosTheme.primaryBlue,
-                          title: 'Audio & Microphone Ready',
-                          subtitle: 'Connect headphones with mic for smooth two-way live interaction with Indrajeet Sir.',
+                        const Text(
+                          'MENTORSHIP PROGRAMS & BATCHES',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.6,
+                            color: CupertinoColors.systemGrey,
+                          ),
                         ),
-                        Divider(height: 24, indent: 44, color: IosTheme.separator(isDark)),
-                        _buildGuidelineItem(
-                          context,
-                          icon: FontAwesomeIcons.wifi,
-                          color: IosTheme.systemGreen,
-                          title: 'Stable Connection Required',
-                          subtitle: 'Ensure high-speed Wi-Fi or 4G/5G connectivity for uninterrupted HD video stream.',
-                        ),
-                        Divider(height: 24, indent: 44, color: IosTheme.separator(isDark)),
-                        _buildGuidelineItem(
-                          context,
-                          icon: FontAwesomeIcons.bookOpen,
-                          color: IosTheme.systemOrange,
-                          title: 'Keep Notebooks Ready',
-                          subtitle: 'Keep your notes and questions handy during the live classroom interaction.',
+                        GestureDetector(
+                          onTap: () {
+                            Clipboard.setData(const ClipboardData(text: 'https://indrajeetsir.com/courses'));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Portal link copied: https://indrajeetsir.com/courses'),
+                                backgroundColor: Color(0xFF10B981),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          },
+                          child: const Row(
+                            children: [
+                              Text(
+                                'Web Portal',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: IosTheme.primaryBlue,
+                                ),
+                              ),
+                              SizedBox(width: 2),
+                              Icon(CupertinoIcons.arrow_up_right, size: 12, color: IosTheme.primaryBlue),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ]),
+                    const SizedBox(height: 4),
+                    Text(
+                      '1-on-1 strategy sessions, daily Mains evaluation & structured roadmaps',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Render Course Cards
+                    ..._courses.map((c) => _buildCourseCard(context, c, isDark)),
+
+                    const SizedBox(height: 12),
+
+                    // ══════════════════════════════════════════════════════════
+                    // ── SECTION 4: FREE STUDY MATERIAL & VALUE ADDITION NOTES ─
+                    // ══════════════════════════════════════════════════════════
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'FREE STUDY MATERIAL & NOTES',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.6,
+                            color: CupertinoColors.systemGrey,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            'FREE PDFS',
+                            style: TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF059669),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Curated micro-syllabus, PYQ reverse frameworks & model evaluated copies',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Render Free Resource Cards
+                    ..._resources.map((r) => _buildResourceCard(context, r, isDark)),
+
+                    const SizedBox(height: 18),
+
+                    // ══════════════════════════════════════════════════════════
+                    // ── SECTION 5: MS DHONI MENTORSHIP PHILOSOPHY ─────────────
+                    // ══════════════════════════════════════════════════════════
+                    _buildDhoniQuoteCard(context, isDark),
+
+                    // ══════════════════════════════════════════════════════════
+                    // ── SECTION 6: LIVE CLASSROOM SCHEDULE & GUIDELINES ───────
+                    // ══════════════════════════════════════════════════════════
+                    const Padding(
+                      padding: EdgeInsets.only(left: 4, bottom: 10),
+                      child: Text(
+                        'LIVE CLASS GUIDELINES',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.6,
+                          color: CupertinoColors.systemGrey,
+                        ),
+                      ),
+                    ),
+
+                    IosGlassCard(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          _buildGuidelineItem(
+                            context,
+                            icon: FontAwesomeIcons.headphones,
+                            color: IosTheme.primaryBlue,
+                            title: 'Audio & Microphone Ready',
+                            subtitle: 'Connect headphones with mic for smooth two-way live interaction with Indrajeet Sir.',
+                          ),
+                          Divider(height: 24, indent: 44, color: IosTheme.separator(isDark)),
+                          _buildGuidelineItem(
+                            context,
+                            icon: FontAwesomeIcons.wifi,
+                            color: IosTheme.systemGreen,
+                            title: 'Stable Connection Required',
+                            subtitle: 'Ensure high-speed Wi-Fi or 4G/5G connectivity for uninterrupted HD video stream.',
+                          ),
+                          Divider(height: 24, indent: 44, color: IosTheme.separator(isDark)),
+                          _buildGuidelineItem(
+                            context,
+                            icon: FontAwesomeIcons.bookOpen,
+                            color: IosTheme.systemOrange,
+                            title: 'Keep Notebooks Ready',
+                            subtitle: 'Keep your notes and questions handy during the live classroom interaction.',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ]),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

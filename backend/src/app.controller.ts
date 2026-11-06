@@ -9,9 +9,70 @@ import { RazorpayService } from './razorpay.service.js';
 import fs from 'node:fs';
 import path from 'node:path';
 
-// ─── Persistent Storage for Chat Messages on Disk ───────────────────────────
+// ─── Persistent Storage for Chat Messages & Resources on Disk ────────────────
 const DATA_DIR = path.join(process.cwd(), 'data');
 const MESSAGES_FILE = path.join(DATA_DIR, 'messages.json');
+const RESOURCES_FILE = path.join(DATA_DIR, 'resources.json');
+
+function loadPersistedResources(): any[] {
+  try {
+    if (fs.existsSync(RESOURCES_FILE)) {
+      const content = fs.readFileSync(RESOURCES_FILE, 'utf-8');
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (err) {
+    console.warn('⚠️ Could not load persisted resources from disk:', err);
+  }
+
+  const initial = [
+    {
+      id: 'pdf-1',
+      title: 'UPSC 2027 Master Micro-Syllabus & 600+ Topic Blueprint',
+      description: 'Topic-wise breakdown of GS Paper 1, 2, 3 and 4 with direct PYQ trend tags and core keywords.',
+      tag: 'Micro-Syllabus',
+      size: '2.4 MB',
+      fileUrl: 'https://indrajeetsir.com/Course_Brochure_Indrajeet_Sir.pdf',
+    },
+    {
+      id: 'pdf-2',
+      title: 'Indrajeet Sir Model Evaluated Mains Answer Copy (GS 2 & Ethics)',
+      description: 'Real evaluated copies with Intro-Body-Conclusion framework, 2nd ARC citations, and case law value addition.',
+      tag: 'Model Copies',
+      size: '3.8 MB',
+      fileUrl: 'https://indrajeetsir.com/Course_Brochure_Indrajeet_Sir.pdf',
+    },
+    {
+      id: 'pdf-3',
+      title: 'Prelims PYQ Reverse Engineering Framework & Theme Mapping',
+      description: 'Strategic guide on how past 10-year UPSC questions predict upcoming themes and option-elimination tactics.',
+      tag: 'PYQ Strategy',
+      size: '1.9 MB',
+      fileUrl: 'https://indrajeetsir.com/Course_Brochure_Indrajeet_Sir.pdf',
+    },
+    {
+      id: 'pdf-4',
+      title: 'Official UPSC CSE Mentorship Brochure & Roadmap 2026-27',
+      description: 'Complete program curriculum, 5-Pillar methodology, 16 test series timeline and mentor guidance framework.',
+      tag: 'Official Brochure',
+      size: '4.2 MB',
+      fileUrl: 'https://indrajeetsir.com/Course_Brochure_Indrajeet_Sir.pdf',
+    },
+  ];
+  savePersistedResources(initial);
+  return initial;
+}
+
+function savePersistedResources(resources: any[]) {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    fs.writeFileSync(RESOURCES_FILE, JSON.stringify(resources, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('⚠️ Could not save resources to disk:', err);
+  }
+}
 
 function loadPersistedMessages(): any[] {
   try {
@@ -71,6 +132,7 @@ let fallbackCourses: any[] = [
     price: 24000,
     instructor: 'Indrajeet Sir',
     published: true,
+    thumbnail: 'https://indrajeetsir.com/courses/course-1.svg',
     features: [
       'Prelims: High-yield Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions',
       'Mains: Short Note Making, Deep PYQ Trend Analysis, Toppers Copy Analysis, 16 Evaluated Tests',
@@ -88,6 +150,7 @@ let fallbackCourses: any[] = [
     price: 18000,
     instructor: 'Indrajeet Sir',
     published: true,
+    thumbnail: 'https://indrajeetsir.com/courses/course-2.svg',
     features: [
       'High-Yield Mains Short Note Making Framework',
       'Deep PYQ Trend Analysis & Theme Mapping',
@@ -103,9 +166,10 @@ let fallbackCourses: any[] = [
     id: 'c-3',
     title: 'UPSC Prelims 2027 Targeted Program',
     description: 'Build rigorous elimination skills, concise revision notes, and solve 5,000+ targeted practice questions.',
-    price: 10000,
+    price: 15000,
     instructor: 'Indrajeet Sir',
     published: true,
+    thumbnail: 'https://indrajeetsir.com/courses/course-3.svg',
     features: [
       'Micro Notes Making & Core Conceptual Clarity across Standard Books',
       'PYQ+ Strategy (Pattern Recognition & Options Elimination Tactics)',
@@ -121,9 +185,10 @@ let fallbackCourses: any[] = [
     id: 'c-4',
     title: '1 Year Full Mentorship for UPSC 2027 / 2028 (Parallel with Foundation Course)',
     description: 'Align and strengthen your preparation alongside your ongoing foundation course (Note: We do not provide foundation lectures).',
-    price: 30000,
+    price: 28000,
     instructor: 'Indrajeet Sir',
     published: true,
+    thumbnail: 'https://indrajeetsir.com/courses/course-4.svg',
     features: [
       'Complete 3-Stage Support: Prelims + Mains + Interview Mentorship',
       'Prelims: Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions',
@@ -137,11 +202,12 @@ let fallbackCourses: any[] = [
   },
   {
     id: 'c-5',
-    title: 'UPSC Mains Short Notes Making',
-    description: 'Master the methodology of condensing vast GS 1–4 syllabus into high-yield micro notes.',
-    price: 4500,
+    title: 'UPSC Mains Short Notes Making Mentorship',
+    description: 'Master the methodology of condensing vast GS 1–4 syllabus into high-yield micro notes for lightning revision.',
+    price: 9000,
     instructor: 'Indrajeet Sir',
     published: true,
+    thumbnail: 'https://indrajeetsir.com/courses/course-5.svg',
     features: [
       'Step-by-step Framework for 600+ UPSC Mains Core Topics',
       'Condensing Standard Books, NCERTs & Current Affairs into Revision Snippets',
@@ -154,6 +220,7 @@ let fallbackCourses: any[] = [
   },
 ];
 
+let fallbackResources: any[] = loadPersistedResources();
 let fallbackMessages: any[] = loadPersistedMessages();
 let fallbackPayments: any[] = [];
 let fallbackNotifications: any[] = [];
@@ -802,6 +869,35 @@ export class AppController {
       await this.prisma.course.delete({ where: { id } });
     } catch {}
     fallbackCourses = fallbackCourses.filter(c => c.id !== id);
+    return { success: true };
+  }
+
+  // ── Free Study Resources & Value Addition PDFs ─────────────────────────────
+  @Get('resources')
+  getResources() {
+    return fallbackResources;
+  }
+
+  @Post('resources')
+  addResource(@Body() body: { title: string; description?: string; tag?: string; size?: string; fileUrl: string; fileName?: string }) {
+    const resItem = {
+      id: `pdf-${Date.now()}`,
+      title: body.title,
+      description: body.description || '',
+      tag: body.tag || 'Study Material',
+      size: body.size || '2.5 MB',
+      fileUrl: body.fileUrl,
+      fileName: body.fileName,
+    };
+    fallbackResources.unshift(resItem);
+    savePersistedResources(fallbackResources);
+    return { success: true, resource: resItem };
+  }
+
+  @Delete('resources/:id')
+  deleteResource(@Param('id') id: string) {
+    fallbackResources = fallbackResources.filter(r => r.id !== id);
+    savePersistedResources(fallbackResources);
     return { success: true };
   }
 
