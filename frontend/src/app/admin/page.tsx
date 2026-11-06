@@ -1142,7 +1142,7 @@ export default function AdminPanel() {
           name: created.name,
           email: created.email,
           phone: created.phone,
-          attempt: '2026',
+          attempt: String(new Date().getFullYear() + 1),
         }),
       });
     } catch {

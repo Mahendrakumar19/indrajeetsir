@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import LeadBanner from '@/components/LeadBanner';
-import { API_URL, setStudentSession } from '@/lib/api';
+import { API_URL, getStudentSession, setStudentSession } from '@/lib/api';
 import '@/app/home.css';
 
 interface Course {
@@ -161,7 +161,7 @@ export default function CoursesPage() {
   const [studentName, setStudentName] = useState('');
   const [studentEmail, setStudentEmail] = useState('');
   const [studentPhone, setStudentPhone] = useState('');
-  const [attemptYear, setAttemptYear] = useState('2027');
+  const [attemptYear, setAttemptYear] = useState(String(new Date().getFullYear() + 1));
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState('');
   const [successModalOpen, setSuccessModalOpen] = useState(false);
@@ -199,6 +199,62 @@ export default function CoursesPage() {
 
     return () => window.removeEventListener('storage', loadContent);
   }, []);
+
+  // Restore session keys & process deep-link enrollment parameters from Mobile App
+  useEffect(() => {
+    // 1. Check existing student session in localStorage
+    const existing = getStudentSession();
+    if (existing) {
+      if (existing.name) setStudentName((prev) => prev || existing.name);
+      if (existing.email) setStudentEmail((prev) => prev || existing.email);
+      if (existing.phone) setStudentPhone((prev) => prev || existing.phone || '');
+      if (existing.attempt) setAttemptYear((prev) => prev || existing.attempt || String(new Date().getFullYear() + 1));
+    }
+
+    // 2. Read query params if redirected from mobile app
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlEmail = params.get('email');
+      const urlName = params.get('name');
+      const urlPhone = params.get('phone');
+      const urlAttempt = params.get('attempt') || params.get('attemptYear');
+      const urlOptional = params.get('optional') || params.get('optionalSubject');
+      const urlCourseId = params.get('courseId');
+      const urlCourseTitle = params.get('courseTitle');
+
+      if (urlEmail) {
+        setStudentEmail(urlEmail);
+        if (urlName) setStudentName(urlName);
+        if (urlPhone) setStudentPhone(urlPhone);
+        if (urlAttempt) setAttemptYear(urlAttempt);
+
+        // Keep session keys synced and preserved across mobile & website
+        setStudentSession({
+          id: existing?.id || `st-${Date.now()}`,
+          name: urlName || existing?.name || 'Aspirant',
+          email: urlEmail,
+          phone: urlPhone || existing?.phone || '',
+          attempt: urlAttempt || existing?.attempt || String(new Date().getFullYear() + 1),
+          optionalSubject: urlOptional || existing?.optionalSubject || '',
+        });
+        window.dispatchEvent(new Event('storage'));
+      }
+
+      // Automatically open checkout modal if a course was selected in mobile app
+      if (urlCourseId || urlCourseTitle) {
+        const targetId = urlCourseId?.toLowerCase();
+        const targetTitle = urlCourseTitle?.toLowerCase();
+        const matched = courses.find((c) => {
+          if (targetId && c.id.toLowerCase() === targetId) return true;
+          if (targetTitle && c.title.toLowerCase().includes(targetTitle)) return true;
+          return false;
+        });
+        if (matched) {
+          setSelectedCourse(matched);
+        }
+      }
+    }
+  }, [courses]);
 
   const handleStartEnrollment = (course: Course) => {
     setSelectedCourse(course);
@@ -337,9 +393,6 @@ export default function CoursesPage() {
                         className="course-card-thumb-img"
                         loading="lazy"
                       />
-                      {course.tag && (
-                        <span className="course-card-floating-badge">{course.tag}</span>
-                      )}
                     </div>
 
                     <div className="pricing-title-wrap">
@@ -512,9 +565,9 @@ export default function CoursesPage() {
                       onChange={(e) => setAttemptYear(e.target.value)}
                       className="checkout-select"
                     >
-                      <option value="2026">UPSC CSE 2026</option>
-                      <option value="2027">UPSC CSE 2027</option>
-                      <option value="2028">UPSC CSE 2028</option>
+                      <option value={String(new Date().getFullYear() + 1)}>UPSC CSE {new Date().getFullYear() + 1}</option>
+                      <option value={String(new Date().getFullYear() + 2)}>UPSC CSE {new Date().getFullYear() + 2}</option>
+                      <option value={String(new Date().getFullYear() + 3)}>UPSC CSE {new Date().getFullYear() + 3}</option>
                     </select>
                   </div>
                 </div>

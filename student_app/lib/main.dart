@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -323,7 +325,7 @@ class StudentProfile {
     name: json['name'] ?? 'Aspirant',
     email: json['email'] ?? '',
     phone: json['phone'] ?? '',
-    attemptYear: (json['attemptYear'] ?? json['attempt'] ?? '2027').toString(),
+    attemptYear: (json['attemptYear'] ?? json['attempt'] ?? (DateTime.now().year + 1).toString()).toString(),
     optionalSubject: json['optionalSubject'] ?? 'General Studies',
     bio: json['bio'] ?? 'UPSC CSE Aspirant • Mentored by Indrajeet Sir',
     avatarKey: json['avatarKey'] ?? 'ias_officer',
@@ -358,6 +360,98 @@ class SessionManager {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_sessionKey);
     } catch (_) {}
+  }
+}
+
+// ============================================================================
+// WEB REDIRECT & SESSION SYNCHRONIZATION SERVICE
+// ============================================================================
+class WebRedirectService {
+  static const MethodChannel _channel = MethodChannel('com.nighwantech.indrajeetsir/launcher');
+  static const String webBaseUrl = String.fromEnvironment(
+    'WEB_BASE_URL',
+    defaultValue: 'https://indrajeetsir.com',
+  );
+
+  static Future<bool> openUrl(String url) async {
+    try {
+      if (Platform.isAndroid) {
+        final bool? ok = await _channel.invokeMethod<bool>('launchUrl', {'url': url});
+        if (ok == true) return true;
+      } else if (Platform.isWindows) {
+        await Process.run('cmd', ['/c', 'start', '', url]);
+        return true;
+      } else if (Platform.isMacOS) {
+        await Process.run('open', [url]);
+        return true;
+      } else if (Platform.isLinux) {
+        await Process.run('xdg-open', [url]);
+        return true;
+      }
+    } catch (e) {
+      debugPrint('WebRedirectService.openUrl error: $e');
+    }
+    return false;
+  }
+
+  static String buildEnrollmentUrl({
+    required StudentProfile? profile,
+    String? courseId,
+    String? courseTitle,
+  }) {
+    final queryParams = <String, String>{};
+    if (profile != null) {
+      if (profile.name.isNotEmpty && profile.name != 'Aspirant') {
+        queryParams['name'] = profile.name;
+      }
+      if (profile.email.isNotEmpty) {
+        queryParams['email'] = profile.email;
+      }
+      if (profile.phone.isNotEmpty) {
+        queryParams['phone'] = profile.phone;
+      }
+      if (profile.attemptYear.isNotEmpty) {
+        queryParams['attempt'] = profile.attemptYear;
+      }
+      if (profile.optionalSubject.isNotEmpty) {
+        queryParams['optional'] = profile.optionalSubject;
+      }
+    }
+    if (courseId != null && courseId.isNotEmpty) {
+      queryParams['courseId'] = courseId;
+    }
+    if (courseTitle != null && courseTitle.isNotEmpty) {
+      queryParams['courseTitle'] = courseTitle;
+    }
+
+    final uri = Uri.parse('$webBaseUrl/courses').replace(
+      queryParameters: queryParams.isNotEmpty ? queryParams : null,
+    );
+    return uri.toString();
+  }
+
+  static Future<void> redirectToEnrollment(
+    BuildContext context, {
+    required StudentProfile? profile,
+    String? courseId,
+    String? courseTitle,
+  }) async {
+    final url = buildEnrollmentUrl(
+      profile: profile,
+      courseId: courseId,
+      courseTitle: courseTitle,
+    );
+    final launched = await openUrl(url);
+    if (!launched && context.mounted) {
+      Clipboard.setData(ClipboardData(text: url));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Opening portal in your browser...'),
+          backgroundColor: Color(0xFF10B981),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 }
 
@@ -465,7 +559,7 @@ class _EduAppState extends State<EduApp> {
     name: 'Aspirant',
     email: '',
     phone: '',
-    attemptYear: '2027',
+    attemptYear: (DateTime.now().year + 1).toString(),
     optionalSubject: 'General Studies',
     bio: 'UPSC CSE Aspirant • Mentored by Indrajeet Sir',
     avatarKey: 'ias_officer',
@@ -665,7 +759,13 @@ class SplashScreen extends StatelessWidget {
 // ============================================================================
 // OFFICIAL WEBSITE ENROLLMENT & PURCHASE MODAL
 // ============================================================================
-void showWebsitePurchaseModal(BuildContext context, {String? courseTitle, int? price}) {
+void showWebsitePurchaseModal(
+  BuildContext context, {
+  StudentProfile? profile,
+  String? courseTitle,
+  int? price,
+  String? courseId,
+}) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   showCupertinoModalPopup(
     context: context,
@@ -721,7 +821,7 @@ void showWebsitePurchaseModal(BuildContext context, {String? courseTitle, int? p
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
-                    'Batch Fee: ₹${price.toString().replaceAllMapped(RegExp(r'(\\d{1,3})(?=(\\d{3})+(?!\\d))'), (Match m) => '${m[1]},')}',
+                    'Batch Fee: ₹${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF10B981)),
                   ),
                 ),
@@ -754,7 +854,7 @@ void showWebsitePurchaseModal(BuildContext context, {String? courseTitle, int? p
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    '1. Visit: https://indrajeetsir.com/#courses\n2. Select your program and complete payment.\n3. Return to this app and log in with your email to attend live classes!',
+                    '1. We will redirect you securely to indrajeetsir.com with your profile session pre-filled.\n2. Complete payment on the portal.\n3. Return to this app to attend live sessions!',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -772,22 +872,20 @@ void showWebsitePurchaseModal(BuildContext context, {String? courseTitle, int? p
               child: CupertinoButton.filled(
                 borderRadius: BorderRadius.circular(14),
                 onPressed: () {
-                  Clipboard.setData(const ClipboardData(text: 'https://indrajeetsir.com/#courses'));
                   Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Portal link copied: https://indrajeetsir.com/#courses'),
-                      backgroundColor: Color(0xFF10B981),
-                      duration: Duration(seconds: 3),
-                    ),
+                  WebRedirectService.redirectToEnrollment(
+                    context,
+                    profile: profile,
+                    courseId: courseId,
+                    courseTitle: courseTitle,
                   );
                 },
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(CupertinoIcons.doc_on_clipboard, size: 18, color: Colors.white),
+                    Icon(CupertinoIcons.arrow_up_right_square_fill, size: 18, color: Colors.white),
                     SizedBox(width: 8),
-                    Text('Copy Website Link (indrajeetsir.com)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                    Text('Proceed to Website Enrollment', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
                   ],
                 ),
               ),
@@ -846,7 +944,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _regPasswordController = TextEditingController();
   final _regPhoneController = TextEditingController();
   final _regOptionalController = TextEditingController(text: 'Public Administration');
-  String _regAttemptYear = '2027';
+  String _regAttemptYear = (DateTime.now().year + 1).toString();
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -1264,7 +1362,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: CupertinoColors.systemGrey),
                               ),
                               const Spacer(),
-                              for (final yr in ['2026', '2027', '2028'])
+                              for (final yr in [
+                                (DateTime.now().year + 1).toString(),
+                                (DateTime.now().year + 2).toString(),
+                                (DateTime.now().year + 3).toString(),
+                              ])
                                 Padding(
                                   padding: const EdgeInsets.only(left: 6),
                                   child: GestureDetector(
@@ -1340,7 +1442,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Website Purchase Policy Notice
                 GestureDetector(
-                  onTap: () => showWebsitePurchaseModal(context),
+                  onTap: () => showWebsitePurchaseModal(
+                    context,
+                    profile: StudentProfile(
+                      name: _regNameController.text.trim().isEmpty ? 'Aspirant' : _regNameController.text.trim(),
+                      email: _regEmailController.text.trim(),
+                      phone: _regPhoneController.text.trim(),
+                      attemptYear: _regAttemptYear,
+                      optionalSubject: _regOptionalController.text.trim(),
+                      bio: 'UPSC CSE Aspirant • Mentored by Indrajeet Sir',
+                    ),
+                  ),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
@@ -1879,6 +1991,264 @@ class _MainNavigationState extends State<MainNavigation> {
 }
 
 // ============================================================================
+// IN-APP NATIVE PDF VIEWER SCREEN
+// ============================================================================
+class PdfViewerScreen extends StatefulWidget {
+  final String title;
+  final String url;
+
+  const PdfViewerScreen({
+    super.key,
+    required this.title,
+    required this.url,
+  });
+
+  @override
+  State<PdfViewerScreen> createState() => _PdfViewerScreenState();
+}
+
+class _PdfViewerScreenState extends State<PdfViewerScreen> {
+  static const MethodChannel _channel = MethodChannel('com.nighwantech.indrajeetsir/launcher');
+
+  bool _isLoading = true;
+  String? _errorMessage;
+  String? _localFilePath;
+  int _pageCount = 0;
+  final Map<int, Uint8List> _pageCache = {};
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _downloadAndOpenPdf();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _downloadAndOpenPdf() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _pageCache.clear();
+    });
+
+    try {
+      final uri = Uri.parse(widget.url);
+      final res = await http.get(uri).timeout(const Duration(seconds: 30));
+
+      if (res.statusCode != 200 || res.bodyBytes.isEmpty) {
+        throw Exception('Server returned status ${res.statusCode}');
+      }
+
+      final tempDir = Directory.systemTemp;
+      final fileName = 'doc_${widget.url.hashCode.abs()}.pdf';
+      final file = File('${tempDir.path}/$fileName');
+      await file.writeAsBytes(res.bodyBytes, flush: true);
+      _localFilePath = file.path;
+
+      if (Platform.isAndroid) {
+        final count = await _channel.invokeMethod<int>('getPdfPageCount', {'path': file.path});
+        if (count != null && count > 0) {
+          if (mounted) {
+            setState(() {
+              _pageCount = count;
+              _isLoading = false;
+            });
+          }
+          return;
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _pageCount = 1;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Unable to load PDF document: $e';
+        });
+      }
+    }
+  }
+
+  Future<Uint8List?> _getPageBytes(int index) async {
+    if (_pageCache.containsKey(index)) {
+      return _pageCache[index];
+    }
+    if (_localFilePath == null) return null;
+
+    try {
+      if (Platform.isAndroid) {
+        final bytes = await _channel.invokeMethod<Uint8List>('renderPdfPage', {
+          'path': _localFilePath,
+          'pageIndex': index,
+          'scale': 2.0,
+        });
+        if (bytes != null) {
+          _pageCache[index] = bytes;
+          return bytes;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error rendering page $index: $e');
+    }
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return CupertinoPageScaffold(
+      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFE2E8F0),
+      navigationBar: CupertinoNavigationBar(
+        backgroundColor: (isDark ? const Color(0xFF1C1C1E) : Colors.white).withValues(alpha: 0.95),
+        middle: Text(
+          widget.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 14.5,
+            fontWeight: FontWeight.w700,
+            color: isDark ? Colors.white : Colors.black,
+          ),
+        ),
+        trailing: _pageCount > 0
+            ? Text(
+                '$_pageCount Pages',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: IosTheme.primaryBlue,
+                ),
+              )
+            : null,
+      ),
+      child: SafeArea(
+        child: _buildContent(isDark),
+      ),
+    );
+  }
+
+  Widget _buildContent(bool isDark) {
+    if (_isLoading) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CupertinoActivityIndicator(radius: 14),
+            const SizedBox(height: 14),
+            Text(
+              'Opening PDF inside app...',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white70 : CupertinoColors.systemGrey,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(CupertinoIcons.exclamationmark_triangle_fill, color: Color(0xFFEF4444), size: 40),
+              const SizedBox(height: 12),
+              Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 13, height: 1.4),
+              ),
+              const SizedBox(height: 16),
+              CupertinoButton.filled(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                borderRadius: BorderRadius.circular(10),
+                onPressed: _downloadAndOpenPdf,
+                child: const Text('Try Again', style: TextStyle(fontWeight: FontWeight.w700)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      controller: _scrollController,
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      itemCount: _pageCount,
+      itemBuilder: (context, index) {
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(6),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: FutureBuilder<Uint8List?>(
+              future: _getPageBytes(index),
+              builder: (ctx, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data != null) {
+                  return InteractiveViewer(
+                    minScale: 1.0,
+                    maxScale: 3.5,
+                    child: Image.memory(
+                      snapshot.data!,
+                      fit: BoxFit.contain,
+                      filterQuality: FilterQuality.high,
+                    ),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Container(
+                    height: 380,
+                    color: Colors.white,
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'Page could not be rendered',
+                      style: TextStyle(color: CupertinoColors.systemGrey, fontSize: 12),
+                    ),
+                  );
+                }
+                return Container(
+                  height: 480,
+                  color: Colors.white,
+                  child: const Center(
+                    child: CupertinoActivityIndicator(),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ============================================================================
 // 3. HOME SCREEN (OVERVIEW) — CLEAN iOS HIG DESIGN
 // ============================================================================
 class HomeScreen extends StatefulWidget {
@@ -2077,46 +2447,14 @@ class _HomeScreenState extends State<HomeScreen> {
               : [const Color(0xFF1E3A8A), const Color(0xFF2563EB), const Color(0xFF3B82F6)],
         ),
       ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const FaIcon(FontAwesomeIcons.graduationCap, size: 14, color: Colors.white),
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                'INDRAJEET SIR UPSC MENTORSHIP',
-                style: TextStyle(
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white70,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              color: Colors.white,
-              letterSpacing: -0.2,
-            ),
-          ),
-        ],
+      child: Center(
+        child: Image.asset(
+          'assets/images/logo.png',
+          width: 50,
+          height: 50,
+          opacity: const AlwaysStoppedAnimation(0.25),
+          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+        ),
       ),
     );
   }
@@ -2140,73 +2478,34 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 16:9 Banner Box with Floating Badge
-          Stack(
-            children: [
-              Container(
-                width: double.infinity,
-                height: 165,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-                  border: Border.all(
-                    color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: thumb != null && thumb.startsWith('http') && !thumb.endsWith('.svg')
-                      ? Image.network(
-                          thumb,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildBannerFallback(title, tag, isDark),
-                        )
-                      : _buildBannerFallback(title, tag, isDark),
-                ),
+          // 16:9 Banner Box (Clean Image - No Overlay Pills)
+          Container(
+            width: double.infinity,
+            height: 165,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+              border: Border.all(
+                color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
               ),
-              Positioned(
-                top: 10,
-                left: 10,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.82),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF10B981),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        tag.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                          letterSpacing: 0.4,
-                        ),
-                      ),
-                    ],
-                  ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
                 ),
-              ),
-            ],
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: thumb != null && thumb.startsWith('http') && !thumb.endsWith('.svg')
+                  ? Image.network(
+                      thumb,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _buildBannerFallback(title, tag, isDark),
+                    )
+                  : _buildBannerFallback(title, tag, isDark),
+            ),
           ),
           const SizedBox(height: 14),
 
@@ -2335,133 +2634,133 @@ class _HomeScreenState extends State<HomeScreen> {
     final fileUrl = resource['fileUrl'] ?? 'https://indrajeetsir.com/Course_Brochure_Indrajeet_Sir.pdf';
     final fullUrl = fileUrl.startsWith('http') ? fileUrl : 'https://indrajeetsir.com$fileUrl';
 
-    return IosGlassCard(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 44,
-            height: 48,
-            decoration: BoxDecoration(
-              color: const Color(0xFFEF4444).withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.25)),
-            ),
-            child: const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FaIcon(FontAwesomeIcons.filePdf, size: 18, color: Color(0xFFEF4444)),
-                SizedBox(height: 2),
-                Text(
-                  'PDF',
-                  style: TextStyle(
-                    fontSize: 8,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFFDC2626),
-                  ),
-                ),
-              ],
-            ),
+    void openPdf() {
+      Navigator.push(
+        context,
+        CupertinoPageRoute(
+          builder: (ctx) => PdfViewerScreen(
+            title: title,
+            url: fullUrl,
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: IosTheme.primaryBlue.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        tag,
-                        style: const TextStyle(
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w700,
-                          color: IosTheme.primaryBlue,
-                        ),
-                      ),
+        ),
+      );
+    }
+
+    return GestureDetector(
+      onTap: openPdf,
+      child: IosGlassCard(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 44,
+              height: 48,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEF4444).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.25)),
+              ),
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FaIcon(FontAwesomeIcons.filePdf, size: 18, color: Color(0xFFEF4444)),
+                  SizedBox(height: 2),
+                  Text(
+                    'PDF',
+                    style: TextStyle(
+                      fontSize: 8,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFFDC2626),
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '• $size',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: CupertinoColors.systemGrey,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.2,
                   ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  desc,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11,
-                    height: 1.35,
-                    color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                CupertinoButton(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(8),
-                  minimumSize: Size.zero,
-                  onPressed: () {
-                    Clipboard.setData(ClipboardData(text: fullUrl));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Row(
-                          children: [
-                            const Icon(CupertinoIcons.check_mark_circled_solid, color: Colors.white, size: 16),
-                            const SizedBox(width: 8),
-                            Expanded(child: Text('PDF Download Link Copied: $title')),
-                          ],
-                        ),
-                        backgroundColor: const Color(0xFF10B981),
-                        duration: const Duration(seconds: 3),
-                      ),
-                    );
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      const Icon(CupertinoIcons.arrow_down_doc_fill, size: 12, color: IosTheme.primaryBlue),
-                      const SizedBox(width: 5),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: IosTheme.primaryBlue.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          tag,
+                          style: const TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w700,
+                            color: IosTheme.primaryBlue,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
                       Text(
-                        'Copy / Open PDF',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: isDark ? Colors.white : IosTheme.primaryBlue,
+                        '• $size',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: CupertinoColors.systemGrey,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    desc,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 11,
+                      height: 1.35,
+                      color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  CupertinoButton(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    color: IosTheme.primaryBlue.withValues(alpha: isDark ? 0.25 : 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                    minimumSize: Size.zero,
+                    onPressed: openPdf,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(CupertinoIcons.doc_text_fill, size: 12, color: IosTheme.primaryBlue),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Open PDF',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: isDark ? Colors.white : IosTheme.primaryBlue,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -2472,7 +2771,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final price = course['price'] ?? 0;
     final validity = course['validity'] ?? '1 Year';
     final List<dynamic> features = course['features'] is List ? course['features'] : [];
-    const webAdmissionUrl = 'https://indrajeetsir.com/courses';
 
     showModalBottomSheet(
       context: context,
@@ -2577,23 +2875,21 @@ class _HomeScreenState extends State<HomeScreen> {
               child: CupertinoButton.filled(
                 borderRadius: BorderRadius.circular(14),
                 onPressed: () {
-                  Clipboard.setData(const ClipboardData(text: webAdmissionUrl));
                   Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Admission Portal Link Copied: https://indrajeetsir.com/courses'),
-                      backgroundColor: Color(0xFF10B981),
-                      duration: Duration(seconds: 3),
-                    ),
+                  WebRedirectService.redirectToEnrollment(
+                    context,
+                    profile: widget.profile,
+                    courseId: course['id']?.toString(),
+                    courseTitle: title,
                   );
                 },
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(CupertinoIcons.doc_on_clipboard, size: 16, color: Colors.white),
+                    Icon(CupertinoIcons.arrow_up_right_square_fill, size: 16, color: Colors.white),
                     SizedBox(width: 8),
                     Text(
-                      'Copy Portal Link & Enroll Online',
+                      'Proceed to Official Enrollment',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                     ),
                   ],
@@ -2960,13 +3256,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Clipboard.setData(const ClipboardData(text: 'https://indrajeetsir.com/courses'));
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Portal link copied: https://indrajeetsir.com/courses'),
-                                backgroundColor: Color(0xFF10B981),
-                                duration: Duration(seconds: 3),
-                              ),
+                            WebRedirectService.redirectToEnrollment(
+                              context,
+                              profile: widget.profile,
                             );
                           },
                           child: const Row(
@@ -3684,10 +3976,11 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
                                 padding: const EdgeInsets.symmetric(vertical: 10),
                                 borderRadius: BorderRadius.circular(12),
                                 onPressed: () {
-                                  showWebsitePurchaseModal(
+                                  WebRedirectService.redirectToEnrollment(
                                     context,
+                                    profile: widget.profile,
+                                    courseId: crs['id']?.toString(),
                                     courseTitle: crs['title'],
-                                    price: crs['price'] is num ? (crs['price'] as num).toInt() : null,
                                   );
                                 },
                                 child: const Row(
@@ -4418,6 +4711,51 @@ class ProfileScreen extends StatelessWidget {
                           decoration: BoxDecoration(color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7), borderRadius: BorderRadius.circular(10)),
                           prefix: Padding(padding: const EdgeInsets.only(left: 10), child: Icon(CupertinoIcons.book, size: 18, color: isDark ? Colors.white70 : CupertinoColors.systemGrey)),
                           padding: const EdgeInsets.all(12),
+                        ),
+                        const SizedBox(height: 12),
+                        StatefulBuilder(
+                          builder: (context, setDialogState) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                children: [
+                                  const Text(
+                                    'Target Attempt: ',
+                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: CupertinoColors.systemGrey),
+                                  ),
+                                  const Spacer(),
+                                  for (final yr in [
+                                    (DateTime.now().year + 1).toString(),
+                                    (DateTime.now().year + 2).toString(),
+                                    (DateTime.now().year + 3).toString(),
+                                  ])
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 6),
+                                      child: GestureDetector(
+                                        onTap: () => setDialogState(() => selectedYear = yr),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                          decoration: BoxDecoration(
+                                            color: selectedYear == yr
+                                                ? IosTheme.primaryBlue
+                                                : (isDark ? const Color(0xFF2C2C2E) : const Color(0xFFE5E5EA)),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Text(
+                                            yr,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
+                                              color: selectedYear == yr ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 12),
                         CupertinoTextField(

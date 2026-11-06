@@ -14,6 +14,10 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 const MESSAGES_FILE = path.join(DATA_DIR, 'messages.json');
 const RESOURCES_FILE = path.join(DATA_DIR, 'resources.json');
 
+function getNextAttemptYear(): string {
+  return String(new Date().getFullYear() + 1);
+}
+
 function loadPersistedResources(): any[] {
   try {
     if (fs.existsSync(RESOURCES_FILE)) {

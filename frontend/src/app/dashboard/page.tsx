@@ -300,6 +300,24 @@ export default function StudentDashboard() {
   const lastTouchRef = useRef<number>(Date.now());
 
   useEffect(() => {
+    // Process session parameters passed from Mobile App redirection
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlEmail = params.get('email');
+      if (urlEmail) {
+        setStudentSession({
+          id: params.get('id') || `st-${Date.now()}`,
+          name: params.get('name') || 'Aspirant',
+          email: urlEmail,
+          phone: params.get('phone') || '',
+          attempt: params.get('attempt') || params.get('attemptYear') || String(new Date().getFullYear() + 1),
+          optionalSubject: params.get('optional') || params.get('optionalSubject') || '',
+          bio: params.get('bio') || 'UPSC CSE Aspirant • Mentored by Indrajeet Sir',
+        });
+        window.dispatchEvent(new Event('storage'));
+      }
+    }
+
     // 1. Initial 7-day inactivity check on page mount
     const session = getStudentSession();
     if (!session) {
@@ -1095,10 +1113,9 @@ export default function StudentDashboard() {
                       value={profileForm.attempt}
                       onChange={e => setProfileForm({ ...profileForm, attempt: e.target.value })}
                     >
-                      <option value="2025">UPSC CSE 2025</option>
-                      <option value="2026">UPSC CSE 2026</option>
-                      <option value="2027">UPSC CSE 2027</option>
-                      <option value="2028">UPSC CSE 2028</option>
+                      <option value={String(new Date().getFullYear() + 1)}>UPSC CSE {new Date().getFullYear() + 1}</option>
+                      <option value={String(new Date().getFullYear() + 2)}>UPSC CSE {new Date().getFullYear() + 2}</option>
+                      <option value={String(new Date().getFullYear() + 3)}>UPSC CSE {new Date().getFullYear() + 3}</option>
                     </select>
                   </div>
 
