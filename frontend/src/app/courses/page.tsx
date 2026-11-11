@@ -69,6 +69,20 @@ function sortCoursesInOrder(list: Course[]): Course[] {
   });
 }
 
+const loadRazorpayScript = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') return resolve(false);
+    if (window.Razorpay) return resolve(true);
+
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 export default function CoursesPage() {
   const [courses, setCourses] = useState<Course[]>([
     {
@@ -278,6 +292,11 @@ export default function CoursesPage() {
     setPaymentError('');
 
     try {
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded || !window.Razorpay) {
+        throw new Error('Could not load payment gateway. Please check your internet connection and try again.');
+      }
+
       const res = await fetch(`${API_URL}/payments/create-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

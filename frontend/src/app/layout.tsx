@@ -118,8 +118,6 @@ export default function RootLayout({
             `,
           }}
         />
-        {/* Razorpay Standard Web Checkout Script */}
-        <script src="https://checkout.razorpay.com/v1/checkout.js" async />
       </head>
       <body suppressHydrationWarning>{children}</body>
     </html>
