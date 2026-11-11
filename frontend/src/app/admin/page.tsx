@@ -2526,9 +2526,6 @@ export default function AdminPanel() {
                   <div className="form-group" style={{ background: '#f8fafc', padding: '1rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
                     <label style={{ fontWeight: 700, display: 'block', marginBottom: '0.35rem' }}>
                       Course Poster / Cover Banner (16:9 Aspect Ratio)
-                      <span style={{ fontWeight: 500, fontSize: '0.78rem', color: '#64748b', marginLeft: '0.5rem' }}>
-                        (Recommended: 1280×720 or 1920×1080 — Sona Ma&apos;am / EdTech Style)
-                      </span>
                     </label>
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
                       {courseForm.thumbnail && (
