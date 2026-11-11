@@ -79,12 +79,16 @@ export class RazorpayService {
         keyId: this.keyId,
       };
     } catch (err: any) {
-      console.error('❌ Razorpay API orders.create failed:', err);
+      console.error('❌ Razorpay API orders.create failed:', JSON.stringify(err, null, 2), err);
       const statusCode = err?.statusCode || err?.status;
+      const errorMsg = err?.error?.description || err?.message || JSON.stringify(err?.error || err);
       if (statusCode === 401) {
-        throw new UnauthorizedException(err?.error?.description || 'Razorpay authentication failed. Check API keys.');
+        throw new UnauthorizedException(`Razorpay auth failed (401): ${errorMsg}`);
       }
-      throw new InternalServerErrorException(err?.error?.description || 'Razorpay order creation failed.');
+      if (statusCode === 403) {
+        throw new InternalServerErrorException(`Razorpay access forbidden (403): ${errorMsg}. Check account activation & KYC on Razorpay Dashboard.`);
+      }
+      throw new InternalServerErrorException(`Razorpay order creation failed: ${errorMsg}`);
     }
   }
 
