@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Body, Param, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, Headers, BadRequestException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { PrismaService } from './prisma.service.js';
 import { AuthService } from './auth.service.js';
@@ -983,69 +983,111 @@ export class AppController {
     return fallbackPayments;
   }
 
-  @Post('payments/create-order')
-  async createPaymentOrder(@Body() body: { courseId: string; studentEmail: string; studentName?: string; studentPhone?: string }) {
+  @Post(['payments/create-order', 'api/create-order'])
+  async createPaymentOrder(@Body() body: {
+    courseId?: string;
+    studentEmail?: string;
+    studentName?: string;
+    studentPhone?: string;
+    amount?: number;
+    currency?: string;
+    receipt?: string;
+  }) {
     const emailClean = (body.studentEmail || '').trim().toLowerCase();
     let coursePrice = 4999;
     let courseTitle = 'UPSC Mentorship Course';
 
-    try {
-      const course = await this.prisma.course.findUnique({ where: { id: body.courseId } });
-      if (course) {
-        coursePrice = course.price > 0 ? course.price : 4999;
-        courseTitle = course.title;
+    if (typeof body.amount === 'number' && body.amount > 0) {
+      // If amount provided in paise or rupees
+      if (body.amount >= 100) {
+        // Assume amount in paise if >= 100
+        coursePrice = body.amount / 100;
+      } else {
+        coursePrice = body.amount;
       }
-    } catch {}
+    }
+
+    if (body.courseId) {
+      try {
+        const course = await this.prisma.course.findUnique({ where: { id: body.courseId } });
+        if (course) {
+          coursePrice = course.price > 0 ? course.price : coursePrice;
+          courseTitle = course.title;
+        }
+      } catch {}
+    }
 
     const orderData = await this.razorpay.createOrder({
       amountInRupees: coursePrice,
       courseId: body.courseId,
       studentEmail: emailClean,
+      currency: body.currency || 'INR',
+      receipt: body.receipt,
     });
 
-    try {
-      await this.prisma.payment.create({
-        data: {
-          orderId: orderData.orderId,
-          amount: coursePrice,
-          currency: 'INR',
-          status: 'CREATED',
-          userEmail: emailClean,
-          userName: body.studentName || 'Student',
-          userPhone: body.studentPhone || '',
-          courseId: body.courseId,
-        },
-      });
-    } catch {}
+    if (body.courseId && emailClean) {
+      try {
+        await this.prisma.payment.create({
+          data: {
+            orderId: orderData.orderId,
+            amount: coursePrice,
+            currency: orderData.currency,
+            status: 'CREATED',
+            userEmail: emailClean,
+            userName: body.studentName || 'Student',
+            userPhone: body.studentPhone || '',
+            courseId: body.courseId,
+          },
+        });
+      } catch {}
+    }
 
     return {
       success: true,
+      order_id: orderData.orderId,
       orderId: orderData.orderId,
       amount: orderData.amount,
       currency: orderData.currency,
       keyId: orderData.keyId,
+      key: orderData.keyId,
       courseTitle,
     };
   }
 
-  @Post('payments/verify')
+  @Post(['payments/verify', 'api/verify-payment'])
   async verifyPayment(@Body() body: {
-    orderId: string;
-    paymentId: string;
+    orderId?: string;
+    order_id?: string;
+    paymentId?: string;
+    payment_id?: string;
+    razorpayOrderId?: string;
+    razorpay_order_id?: string;
+    razorpayPaymentId?: string;
+    razorpay_payment_id?: string;
     signature?: string;
-    courseId: string;
-    studentName: string;
-    studentEmail: string;
+    razorpaySignature?: string;
+    razorpay_signature?: string;
+    courseId?: string;
+    studentName?: string;
+    studentEmail?: string;
     studentPhone?: string;
   }) {
+    const orderId = body.orderId || body.order_id || body.razorpayOrderId || body.razorpay_order_id || '';
+    const paymentId = body.paymentId || body.payment_id || body.razorpayPaymentId || body.razorpay_payment_id || '';
+    const signature = body.signature || body.razorpaySignature || body.razorpay_signature || '';
+
+    if (!orderId || !paymentId || !signature) {
+      throw new BadRequestException('Missing required fields: order_id, payment_id, and signature are required.');
+    }
+
     const isValid = this.razorpay.verifySignature({
-      orderId: body.orderId,
-      paymentId: body.paymentId,
-      signature: body.signature,
+      orderId,
+      paymentId,
+      signature,
     });
 
     if (!isValid) {
-      return { success: false, message: 'Invalid payment signature. Payment verification failed.' };
+      throw new BadRequestException('Invalid payment signature. Payment verification failed.');
     }
 
     const emailClean = (body.studentEmail || '').trim().toLowerCase();
@@ -1054,87 +1096,98 @@ export class AppController {
     try {
       // 1. Mark payment as SUCCESS
       await this.prisma.payment.upsert({
-        where: { orderId: body.orderId },
+        where: { orderId },
         update: {
-          paymentId: body.paymentId,
-          signature: body.signature,
+          paymentId,
+          signature,
           status: 'SUCCESS',
         },
         create: {
-          orderId: body.orderId,
-          paymentId: body.paymentId,
-          signature: body.signature,
+          orderId,
+          paymentId,
+          signature,
           status: 'SUCCESS',
           amount: 4999,
-          userEmail: emailClean,
-          userName: body.studentName,
-          userPhone: body.studentPhone,
-          courseId: body.courseId,
+          userEmail: emailClean || 'student@indrajeetsir.com',
+          userName: body.studentName || 'Student',
+          userPhone: body.studentPhone || '',
+          courseId: body.courseId || 'c-general',
         },
       });
 
-      // 2. Ensure Organization
-      let org = await this.prisma.organization.findFirst();
-      if (!org) {
-        org = await this.prisma.organization.create({
-          data: { name: 'Indrajeet Sir UPSC Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
-        });
-      }
+      // 2. Ensure Organization if enrolling student
+      if (emailClean && body.courseId) {
+        let org = await this.prisma.organization.findFirst();
+        if (!org) {
+          org = await this.prisma.organization.create({
+            data: { name: 'Indrajeet Sir UPSC Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
+          });
+        }
 
-      // 3. Find or Create Student User
-      let user = await this.prisma.user.findUnique({ where: { email: emailClean } });
-      const passwordHash = await this.auth.hashPassword(tempPassword);
+        // 3. Find or Create Student User
+        let user = await this.prisma.user.findUnique({ where: { email: emailClean } });
+        const passwordHash = await this.auth.hashPassword(tempPassword);
 
-      if (!user) {
-        user = await this.prisma.user.create({
-          data: {
-            email: emailClean,
-            name: body.studentName || 'Student',
-            password: passwordHash,
-            role: 'STUDENT',
-            phone: body.studentPhone || '',
-            organizationId: org.id,
-          },
-        });
-      }
+        if (!user) {
+          user = await this.prisma.user.create({
+            data: {
+              email: emailClean,
+              name: body.studentName || 'Student',
+              password: passwordHash,
+              role: 'STUDENT',
+              phone: body.studentPhone || '',
+              organizationId: org.id,
+            },
+          });
+        }
 
-      // 4. Enroll Student in Course
-      let courseTitle = 'UPSC 1:1 Mentorship';
-      try {
-        const course = await this.prisma.course.findUnique({ where: { id: body.courseId } });
-        if (course) courseTitle = course.title;
+        // 4. Enroll Student in Course
+        let courseTitle = 'UPSC 1:1 Mentorship';
+        try {
+          const course = await this.prisma.course.findUnique({ where: { id: body.courseId } });
+          if (course) courseTitle = course.title;
 
-        await this.prisma.enrollment.upsert({
-          where: {
-            userId_courseId: {
+          await this.prisma.enrollment.upsert({
+            where: {
+              userId_courseId: {
+                userId: user.id,
+                courseId: body.courseId,
+              },
+            },
+            update: {},
+            create: {
               userId: user.id,
               courseId: body.courseId,
+              organizationId: org.id,
             },
-          },
-          update: {},
-          create: {
-            userId: user.id,
-            courseId: body.courseId,
-            organizationId: org.id,
-          },
-        });
-      } catch {}
+          });
+        } catch {}
 
-      // 5. Send automated onboarding email with login credentials and download link
-      await this.mail.sendStudentOnboardingEmail({
-        email: emailClean,
-        name: body.studentName || user.name,
-        passwordPlain: tempPassword,
-        courseTitle,
-      });
+        // 5. Send automated onboarding email with login credentials and download link
+        try {
+          await this.mail.sendStudentOnboardingEmail({
+            email: emailClean,
+            name: body.studentName || user.name,
+            passwordPlain: tempPassword,
+            courseTitle,
+          });
+        } catch {}
+
+        return {
+          success: true,
+          message: 'Payment verified and mentorship enrollment activated.',
+          student: {
+            email: user.email,
+            name: user.name,
+          },
+        };
+      }
 
       return {
         success: true,
-        message: 'Payment verified and mentorship enrollment activated.',
-        student: {
-          email: user.email,
-          name: user.name,
-        },
+        message: 'Payment verified successfully.',
+        order_id: orderId,
+        payment_id: paymentId,
       };
     } catch (err: any) {
       console.error('Payment verification error:', err);

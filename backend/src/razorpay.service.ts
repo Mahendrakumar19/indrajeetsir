@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 
@@ -9,69 +9,97 @@ export class RazorpayService {
   private readonly keySecret: string;
 
   constructor() {
-    this.keyId = process.env.RAZORPAY_KEY_ID || 'rzp_test_indrajeet_sir_dummy_key';
-    this.keySecret = process.env.RAZORPAY_KEY_SECRET || 'indrajeet_razorpay_secret_12345';
+    this.keyId = process.env.RAZORPAY_KEY_ID || '';
+    this.keySecret = process.env.RAZORPAY_KEY_SECRET || '';
 
-    if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+    if (this.keyId && this.keySecret) {
       try {
         this.razorpay = new Razorpay({
           key_id: this.keyId,
           key_secret: this.keySecret,
         });
-        console.log('✅ RazorpayService: Initialized with live/test API keys');
+        console.log('✅ RazorpayService: Initialized successfully with credentials');
       } catch (err) {
-        console.warn('⚠️ RazorpayService: Fallback mode active:', (err as Error).message);
+        console.error('❌ RazorpayService: Failed to initialize Razorpay instance:', (err as Error).message);
       }
+    } else {
+      console.warn('⚠️ RazorpayService: Missing RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET in environment');
     }
   }
 
   async createOrder(params: {
-    amountInRupees: number;
-    courseId: string;
-    studentEmail: string;
+    amountInRupees?: number;
+    amountInPaise?: number;
+    courseId?: string;
+    studentEmail?: string;
+    currency?: string;
+    receipt?: string;
+    notes?: Record<string, string>;
   }): Promise<{ orderId: string; amount: number; currency: string; keyId: string }> {
-    const amountInPaise = Math.round(params.amountInRupees * 100);
-
-    if (this.razorpay) {
-      try {
-        const order = await this.razorpay.orders.create({
-          amount: amountInPaise,
-          currency: 'INR',
-          receipt: `rcpt_${Date.now()}`,
-          notes: {
-            courseId: params.courseId,
-            studentEmail: params.studentEmail,
-          },
-        });
-        return {
-          orderId: order.id,
-          amount: order.amount,
-          currency: order.currency,
-          keyId: this.keyId,
-        };
-      } catch (err) {
-        console.warn('⚠️ Razorpay live order creation failed, using resilient test order:', err);
-      }
+    let amountInPaise: number;
+    if (typeof params.amountInPaise === 'number') {
+      amountInPaise = Math.round(params.amountInPaise);
+    } else if (typeof params.amountInRupees === 'number') {
+      amountInPaise = Math.round(params.amountInRupees * 100);
+    } else {
+      throw new BadRequestException('Amount is required to create order.');
     }
 
-    // Resilient test order generation
-    const mockOrderId = `order_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    return {
-      orderId: mockOrderId,
-      amount: amountInPaise,
-      currency: 'INR',
-      keyId: this.keyId,
+    if (amountInPaise < 100) {
+      throw new BadRequestException('Amount must be at least 100 paise (₹1.00).');
+    }
+
+    const currency = params.currency || 'INR';
+    const receipt = params.receipt || `rcpt_${Date.now()}`;
+    const notes = {
+      ...(params.courseId ? { courseId: params.courseId } : {}),
+      ...(params.studentEmail ? { studentEmail: params.studentEmail } : {}),
+      ...(params.notes || {}),
     };
+
+    if (!this.razorpay) {
+      if (!this.keyId || !this.keySecret) {
+        throw new UnauthorizedException('Razorpay credentials are not configured on the server.');
+      }
+      throw new InternalServerErrorException('Razorpay client is not initialized.');
+    }
+
+    try {
+      const order = await this.razorpay.orders.create({
+        amount: amountInPaise,
+        currency,
+        receipt,
+        notes,
+      });
+
+      return {
+        orderId: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        keyId: this.keyId,
+      };
+    } catch (err: any) {
+      console.error('❌ Razorpay API orders.create failed:', err);
+      const statusCode = err?.statusCode || err?.status;
+      if (statusCode === 401) {
+        throw new UnauthorizedException(err?.error?.description || 'Razorpay authentication failed. Check API keys.');
+      }
+      throw new InternalServerErrorException(err?.error?.description || 'Razorpay order creation failed.');
+    }
   }
 
   verifySignature(params: {
     orderId: string;
     paymentId: string;
-    signature?: string;
+    signature: string;
   }): boolean {
-    if (!params.signature) {
-      // In test mode without signature, accept valid orderId and paymentId
-      return params.orderId.length > 5 && params.paymentId.length > 5;
+    if (!params.orderId || !params.paymentId || !params.signature) {
+      return false;
+    }
+
+    if (!this.keySecret) {
+      console.error('❌ RazorpayService: Cannot verify signature, RAZORPAY_KEY_SECRET is not configured.');
+      return false;
     }
 
     try {
@@ -81,8 +109,9 @@ export class RazorpayService {
         .digest('hex');
 
       return generatedSignature === params.signature;
-    } catch {
-      return true; // Fallback for test mode
+    } catch (err) {
+      console.error('❌ Error calculating HMAC signature:', err);
+      return false;
     }
   }
 }

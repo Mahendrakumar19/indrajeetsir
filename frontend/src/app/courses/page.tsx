@@ -30,6 +30,7 @@ interface RazorpayResponse {
 
 interface RazorpayInstance {
   open: () => void;
+  on: (event: string, handler: (response: any) => void) => void;
 }
 
 declare global {
@@ -294,10 +295,10 @@ export default function CoursesPage() {
       }
 
       const options: Record<string, unknown> = {
-        key: orderData.keyId,
+        key: orderData.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TyZrEHukyULBku',
         amount: orderData.amount,
         currency: orderData.currency || 'INR',
-        name: 'Indrajeet Sir UPSC Mentorship',
+        name: 'Indrajeet Sir',
         description: `Enrollment: ${selectedCourse.title}`,
         image: 'https://indrajeetsir.com/logo.png',
         order_id: orderData.orderId,
@@ -312,9 +313,24 @@ export default function CoursesPage() {
         theme: {
           color: '#0f172a',
         },
+        modal: {
+          ondismiss: () => {
+            setPaymentLoading(false);
+            setPaymentError('Payment window closed. You can retry whenever you are ready.');
+          },
+        },
       };
 
+      if (!window.Razorpay) {
+        throw new Error('Razorpay SDK failed to load. Please check your internet connection and try again.');
+      }
+
       const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', (response: any) => {
+        const errorDesc = response?.error?.description || response?.error?.reason || 'Payment failed. Please try another payment method.';
+        setPaymentError(`Payment failed: ${errorDesc}`);
+        setPaymentLoading(false);
+      });
       rzp.open();
     } catch (err: unknown) {
       setPaymentError(err instanceof Error ? err.message : 'Payment initiation failed.');
