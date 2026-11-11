@@ -295,7 +295,7 @@ export default function CoursesPage() {
       }
 
       const options: Record<string, unknown> = {
-        key: orderData.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TyxCsyd8WwPUC5',
+        key: orderData.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TyxWr8jpaqC5mi',
         amount: orderData.amount,
         currency: orderData.currency || 'INR',
         name: 'Indrajeet Sir',
