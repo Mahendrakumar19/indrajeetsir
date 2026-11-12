@@ -574,38 +574,19 @@ export default function CoursesPage() {
                 </div>
               </div>
 
-              <div className="checkout-grid-2">
-                <div className="checkout-field-group" style={{ marginBottom: 0 }}>
-                  <label className="checkout-field-label">
-                    Phone Number (WhatsApp)
-                  </label>
-                  <div className="checkout-input-wrap">
-                    <i className="fa-solid fa-phone checkout-input-icon" aria-hidden="true" />
-                    <input
-                      type="tel"
-                      placeholder="e.g. 9876543210"
-                      value={studentPhone}
-                      onChange={(e) => setStudentPhone(e.target.value)}
-                      className="checkout-input"
-                    />
-                  </div>
-                </div>
-                <div className="checkout-field-group" style={{ marginBottom: 0 }}>
-                  <label className="checkout-field-label">
-                    Target Attempt Year
-                  </label>
-                  <div className="checkout-input-wrap">
-                    <i className="fa-solid fa-calendar-check checkout-input-icon" aria-hidden="true" />
-                    <select
-                      value={attemptYear}
-                      onChange={(e) => setAttemptYear(e.target.value)}
-                      className="checkout-select"
-                    >
-                      <option value={String(new Date().getFullYear() + 1)}>UPSC CSE {new Date().getFullYear() + 1}</option>
-                      <option value={String(new Date().getFullYear() + 2)}>UPSC CSE {new Date().getFullYear() + 2}</option>
-                      <option value={String(new Date().getFullYear() + 3)}>UPSC CSE {new Date().getFullYear() + 3}</option>
-                    </select>
-                  </div>
+              <div className="checkout-field-group">
+                <label className="checkout-field-label">
+                  Phone Number (WhatsApp)
+                </label>
+                <div className="checkout-input-wrap">
+                  <i className="fa-solid fa-phone checkout-input-icon" aria-hidden="true" />
+                  <input
+                    type="tel"
+                    placeholder="e.g. 9876543210"
+                    value={studentPhone}
+                    onChange={(e) => setStudentPhone(e.target.value)}
+                    className="checkout-input"
+                  />
                 </div>
               </div>
 
