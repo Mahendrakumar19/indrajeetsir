@@ -1412,7 +1412,19 @@ export default function AdminPanel() {
       });
 
       const textResponse = await res.text();
-      let json: any = null;
+      let json: {
+        success?: boolean;
+        message?: string;
+        data?: {
+          id: string;
+          title: string;
+          description: string;
+          tag: string;
+          size: string;
+          fileUrl: string;
+          fileName?: string;
+        };
+      } | null = null;
       try {
         json = JSON.parse(textResponse);
       } catch {
@@ -1423,18 +1435,19 @@ export default function AdminPanel() {
       }
 
       if (json && json.success && json.data) {
+        const newPdf = json.data;
         setPdfList((prev) => {
-          const updated = [json.data, ...prev.filter((p) => p.id !== json.data.id)];
+          const updated = [newPdf, ...prev.filter((p) => p.id !== newPdf.id)];
           try { localStorage.setItem('indrajeet_pdf_list', JSON.stringify(updated)); } catch {}
           return updated;
         });
         setPdfForm({ title: '', description: '', tag: 'Mains Notes', file: null });
-        triggerAlert(`PDF "${json.data.title}" successfully uploaded as /uploads/${json.data.fileName}!`);
+        triggerAlert(`PDF "${newPdf.title}" successfully uploaded as /uploads/${newPdf.fileName}!`);
         try {
           fetch(`${API_URL}/resources`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(json.data),
+            body: JSON.stringify(newPdf),
           }).catch(() => null);
         } catch {}
       } else {
