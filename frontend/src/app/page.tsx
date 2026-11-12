@@ -116,7 +116,7 @@ export default function Home() {
                     <span className="hero-highlight-process">
                       process.
                       <svg className="hero-process-svg-stroke" viewBox="0 0 130 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M2.5 8.5C38 3.5 88 3.5 127.5 9" stroke="#c2410c" strokeWidth="3" strokeLinecap="round" />
+                        <path d="M2.5 8.5C38 3.5 88 3.5 127.5 9" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" />
                       </svg>
                     </span>
                   </>
@@ -129,7 +129,7 @@ export default function Home() {
                   <span className="hero-highlight-process">
                     process.
                     <svg className="hero-process-svg-stroke" viewBox="0 0 130 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M2.5 8.5C38 3.5 88 3.5 127.5 9" stroke="#c2410c" strokeWidth="3" strokeLinecap="round" />
+                      <path d="M2.5 8.5C38 3.5 88 3.5 127.5 9" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" />
                     </svg>
                   </span>
                 </>
@@ -142,7 +142,7 @@ export default function Home() {
             </p>
 
             {/* Direct CTAs matching requested visual style */}
-            <div className="indrajeet-hero-actions" style={{ marginBottom: '1.75rem', gap: '1.25rem' }}>
+            <div className="indrajeet-hero-actions">
               <Link href="/courses" className="hero-btn-explore-solid">
                 Explore Batches &amp; Fees
               </Link>
@@ -152,62 +152,21 @@ export default function Home() {
               </button>
             </div>
 
-            {/* 5 Core Process Pillars Strip */}
-            <div className="process-pillars-strip">
-              <div className="process-pillar-item">
-                <i className="fa-solid fa-file-lines" aria-hidden="true" />
-                <span>{siteContent.heroPillar1}</span>
-              </div>
-              <div className="process-pillar-item">
-                <i className="fa-solid fa-chart-line" aria-hidden="true" />
-                <span>{siteContent.heroPillar2}</span>
-              </div>
-              <div className="process-pillar-item">
-                <i className="fa-solid fa-award" aria-hidden="true" />
-                <span>{siteContent.heroPillar3}</span>
-              </div>
-              <div className="process-pillar-item">
-                <i className="fa-solid fa-pen-nib" aria-hidden="true" />
-                <span>{siteContent.heroPillar4}</span>
-              </div>
-              <div className="process-pillar-item">
-                <i className="fa-solid fa-user-graduate" aria-hidden="true" />
-                <span>{siteContent.heroPillar5}</span>
-              </div>
-            </div>
-
             {/* Mentorship Philosophy Quote Card */}
-            <div className="hero-dhoni-quote-wrap">
-              <span className="quote-bg-watermark" aria-hidden="true">&ldquo;</span>
-
-              <div className="quote-header-badge">
-                <span className="quote-sparkle-dot" />
-                <span className="quote-header-title">THE CORE PHILOSOPHY</span>
-                <span className="quote-badge-divider">•</span>
-                <span className="quote-header-sub">Mindset Behind The 5 Pillars</span>
+            <div className="hero-philosophy-card">
+              <div className="hero-philosophy-header">
+                <div className="hero-philosophy-tag">
+                  <span className="hero-philosophy-dot" />
+                  <span>THE CORE PHILOSOPHY</span>
+                </div>
+                <span className="hero-philosophy-quote-mark">&ldquo;&rdquo;</span>
               </div>
-
-              <p className="hero-dhoni-quote-text">
-                <span className="quote-mark-char">&ldquo;</span>
-                {siteContent.dhoniQuote}
-                <span className="quote-mark-char">&rdquo;</span>
+              <p className="hero-philosophy-text">
+                &ldquo;{siteContent.dhoniQuote}&rdquo;
               </p>
-
-              <div className="hero-dhoni-quote-footer">
-                <div className="quote-author-profile">
-                  <div className="quote-avatar-chip">
-                    <span className="quote-avatar-num">#7</span>
-                  </div>
-                  <div className="quote-author-meta">
-                    <span className="quote-author-name">{siteContent.dhoniAuthor || 'MS Dhoni'}</span>
-                    <span className="quote-author-subtitle">World Cup Winning Captain</span>
-                  </div>
-                </div>
-
-                <div className="quote-compass-pill">
-                  <i className="fa-solid fa-compass" aria-hidden="true" />
-                  <span>{siteContent.dhoniTag || 'Our Mentorship Philosophy'}</span>
-                </div>
+              <div className="hero-philosophy-author">
+                <span>&mdash;</span>
+                <span>{siteContent.dhoniAuthor || 'MS Dhoni'}</span>
               </div>
             </div>
           </div>
@@ -237,6 +196,55 @@ export default function Home() {
               <div className="mentor-caption-plate">
                 <span className="mentor-card-name">Indrajeet Sir</span>
                 <span className="mentor-card-sub">UPSC CSE Mentor • VisionIAS Faculty</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── My Five Core Pillars (Stepped Architecture Layout) ── */}
+        <div className="five-pillars-stepped-section">
+          <div className="stepped-pillars-header">
+            <h2 className="stepped-pillars-title">My Five Core Pillars</h2>
+          </div>
+
+          <div className="stepped-pillars-grid">
+            {/* Step 1 */}
+            <div className="stepped-pillar-column">
+              <div className="stepped-pillar-card pillar-card-light step-1">
+                <span className="stepped-pillar-num">01</span>
+                <span className="stepped-pillar-label">{siteContent.heroPillar1 || '600+ Topic Short Notes'}</span>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="stepped-pillar-column">
+              <div className="stepped-pillar-card pillar-card-light step-2">
+                <span className="stepped-pillar-num">02</span>
+                <span className="stepped-pillar-label">{siteContent.heroPillar2 || 'In-Depth PYQ Analysis'}</span>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="stepped-pillar-column">
+              <div className="stepped-pillar-card pillar-card-light step-3">
+                <span className="stepped-pillar-num">03</span>
+                <span className="stepped-pillar-label">{siteContent.heroPillar3 || "Toppers' Copy Analysis"}</span>
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div className="stepped-pillar-column">
+              <div className="stepped-pillar-card pillar-card-light step-4">
+                <span className="stepped-pillar-num">04</span>
+                <span className="stepped-pillar-label">{siteContent.heroPillar4 || 'Answer Writing Skills'}</span>
+              </div>
+            </div>
+
+            {/* Step 5 (Peak Active Pillar) */}
+            <div className="stepped-pillar-column">
+              <div className="stepped-pillar-card pillar-card-active step-5">
+                <span className="stepped-pillar-num">05</span>
+                <span className="stepped-pillar-label">{siteContent.heroPillar5 || 'One-to-One Personal Mentorship'}</span>
               </div>
             </div>
           </div>

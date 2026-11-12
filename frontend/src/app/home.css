@@ -3762,17 +3762,44 @@ html.dark .app-feature-body p,
   text-align: left;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   HERO SECTION: NEW ARCHITECTURAL LAYOUT & STYLING
+   ═══════════════════════════════════════════════════════════════ */
+
+.indrajeet-hero-section {
+  max-width: 1320px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 5rem 1.5rem 3.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.indrajeet-hero-container {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 3.5rem;
+  align-items: center;
+}
+
+.indrajeet-hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
 .indrajeet-hero-title {
-  font-size: 3.35rem;
+  font-size: 3.25rem;
   font-weight: 850;
   line-height: 1.15;
   color: #0f172a;
   letter-spacing: -0.03em;
-  margin-bottom: 1.35rem;
+  margin-bottom: 1.25rem;
 }
 
 .hero-highlight-process {
-  color: #c2410c;
+  color: #2563eb;
   position: relative;
   display: inline-block;
   white-space: nowrap;
@@ -3789,12 +3816,20 @@ html.dark .app-feature-body p,
 }
 
 .hero-structured-desc {
-  font-size: 1.15rem;
+  font-size: 1.12rem;
   font-weight: 450;
   color: #334155;
-  line-height: 1.7;
+  line-height: 1.68;
   max-width: 620px;
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
+}
+
+.indrajeet-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
 }
 
 .hero-btn-explore-solid {
@@ -3806,7 +3841,7 @@ html.dark .app-feature-body p,
   color: #ffffff !important;
   font-size: 0.98rem;
   font-weight: 600;
-  padding: 0.8rem 1.6rem;
+  padding: 0.8rem 1.65rem;
   border-radius: 9px;
   border: 1px solid #0f172a;
   text-decoration: none;
@@ -3828,7 +3863,7 @@ html.dark .app-feature-body p,
   gap: 0.4rem;
   background: transparent;
   border: none;
-  color: #c2410c !important;
+  color: #2563eb !important;
   font-size: 1.02rem;
   font-weight: 600;
   padding: 0.8rem 1rem;
@@ -3838,7 +3873,7 @@ html.dark .app-feature-body p,
 }
 
 .hero-btn-callback-link:hover {
-  color: #9a3412 !important;
+  color: #1d4ed8 !important;
   transform: translateX(3px);
 }
 
@@ -3851,6 +3886,176 @@ html.dark .app-feature-body p,
   transform: translateX(4px);
 }
 
+/* ── Hero Philosophy Card (MS Dhoni) ── */
+.hero-philosophy-card {
+  width: 100%;
+  max-width: 580px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.35rem 1.6rem 1.25rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-philosophy-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
+}
+
+.hero-philosophy-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.hero-philosophy-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #2563eb;
+}
+
+.hero-philosophy-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #2563eb;
+  display: inline-block;
+}
+
+.hero-philosophy-quote-mark {
+  color: #cbd5e1;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.hero-philosophy-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.hero-philosophy-author {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* ── Stepped Staircase Pillars Section ── */
+.five-pillars-stepped-section {
+  width: 100%;
+  max-width: 1320px;
+  margin: 3.5rem auto 1rem;
+  padding: 0 1.5rem;
+}
+
+.stepped-pillars-header {
+  margin-bottom: 1.5rem;
+}
+
+.stepped-pillars-title {
+  font-size: 1.65rem;
+  font-weight: 850;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.stepped-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.25rem;
+  align-items: end;
+  width: 100%;
+  padding-top: 1.5rem;
+}
+
+.stepped-pillar-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.stepped-pillar-card {
+  border-radius: 14px 14px 0 0;
+  padding: 1.5rem 1.25rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  transition: all 0.25s ease;
+  position: relative;
+  box-shadow: 0 4px 14px -3px rgba(0, 0, 0, 0.05);
+}
+
+.stepped-pillar-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.1);
+}
+
+/* Steps heights in staircase order */
+.step-1 { min-height: 180px; }
+.step-2 { min-height: 220px; }
+.step-3 { min-height: 260px; }
+.step-4 { min-height: 300px; }
+.step-5 { min-height: 350px; }
+
+/* Light Theme Stepped Colors matching site theme */
+.pillar-card-light {
+  background-color: #f1f5f9;
+  border-top: 4px solid #0f172a;
+  color: #0f172a;
+}
+
+.pillar-card-active {
+  background-color: #0f172a;
+  border-top: 4px solid #2563eb;
+  color: #ffffff;
+}
+
+.stepped-pillar-num {
+  font-size: 2.2rem;
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.25rem;
+}
+
+.pillar-card-light .stepped-pillar-num {
+  color: #94a3b8;
+}
+
+.pillar-card-active .stepped-pillar-num {
+  color: #ffffff;
+}
+
+.stepped-pillar-label {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.pillar-card-light .stepped-pillar-label {
+  color: #1e293b;
+}
+
+.pillar-card-active .stepped-pillar-label {
+  color: #ffffff;
+}
+
+/* Dark mode overrides for hero */
 html.dark .indrajeet-hero-title,
 .dark .indrajeet-hero-title {
   color: #ffffff !important;
@@ -3858,12 +4063,12 @@ html.dark .indrajeet-hero-title,
 
 html.dark .hero-highlight-process,
 .dark .hero-highlight-process {
-  color: #fb923c !important;
+  color: #60a5fa !important;
 }
 
 html.dark .hero-structured-desc,
 .dark .hero-structured-desc {
-  color: #cbd5e1 !important;
+  color: #94a3b8 !important;
 }
 
 html.dark .hero-btn-explore-solid,
@@ -3881,12 +4086,82 @@ html.dark .hero-btn-explore-solid:hover,
 
 html.dark .hero-btn-callback-link,
 .dark .hero-btn-callback-link {
-  color: #fb923c !important;
+  color: #60a5fa !important;
 }
 
 html.dark .hero-btn-callback-link:hover,
 .dark .hero-btn-callback-link:hover {
-  color: #fdba74 !important;
+  color: #93c5fd !important;
+}
+
+html.dark .hero-philosophy-card,
+.dark .hero-philosophy-card {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark .hero-philosophy-text,
+.dark .hero-philosophy-text {
+  color: #f8fafc !important;
+}
+
+html.dark .hero-philosophy-quote-mark,
+.dark .hero-philosophy-quote-mark {
+  color: #334155 !important;
+}
+
+html.dark .stepped-pillars-title,
+.dark .stepped-pillars-title {
+  color: #ffffff !important;
+}
+
+html.dark .pillar-card-light,
+.dark .pillar-card-light {
+  background-color: #1e293b !important;
+  border-top-color: #3b82f6 !important;
+  color: #f8fafc !important;
+}
+
+html.dark .pillar-card-light .stepped-pillar-num,
+.dark .pillar-card-light .stepped-pillar-num {
+  color: #64748b !important;
+}
+
+html.dark .pillar-card-light .stepped-pillar-label,
+.dark .pillar-card-light .stepped-pillar-label {
+  color: #f1f5f9 !important;
+}
+
+html.dark .pillar-card-active,
+.dark .pillar-card-active {
+  background-color: #2563eb !important;
+  border-top-color: #ffffff !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .indrajeet-hero-container {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .stepped-pillars-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+  .step-1, .step-2, .step-3, .step-4, .step-5 {
+    min-height: 160px;
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .indrajeet-hero-title {
+    font-size: 2.25rem !important;
+  }
+  .stepped-pillars-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .indrajeet-hero-subtitle {
