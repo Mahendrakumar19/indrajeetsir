@@ -13,7 +13,8 @@ export default function Home() {
     // 1. Hero Section & Process Pillars
     heroBadge: 'VisionIAS Faculty',
     heroImage: '/indrajeet-sir-hero.jpg',
-    heroHeading: 'Every exam has a process, and keeping that in mind, we have designed a structured methodology built on 5 core pillars:',
+    heroHeading: 'Every successful attempt begins with the right process.',
+    heroSubheading: 'Keeping this in mind, Indrajeet Sir follows a structured, result-oriented approach built around five core pillars to make your preparation focused, strategic and effective.',
     heroPillar1: '600+ Topic Short Notes',
     heroPillar2: 'In-Depth PYQ Analysis',
     heroPillar3: "Toppers' Copy Analysis",
@@ -54,8 +55,9 @@ export default function Home() {
         const savedContent = localStorage.getItem('indrajeet_site_content');
         if (savedContent) {
           const parsed = JSON.parse(savedContent);
-          if (parsed.heroHeading && parsed.heroHeading.includes('Sabhi exam ka ek process')) {
+          if (parsed.heroHeading && (parsed.heroHeading.includes('Sabhi exam ka ek process') || parsed.heroHeading.includes('Every exam has a process') || !parsed.heroHeading.includes('Every successful attempt'))) {
             delete parsed.heroHeading;
+            delete parsed.heroSubheading;
             delete parsed.heroPillar1;
             delete parsed.heroPillar2;
             delete parsed.heroPillar3;
@@ -106,8 +108,49 @@ export default function Home() {
           {/* Left Column: Text Content & 5 Pillars */}
           <div className="indrajeet-hero-content">
             <h1 className="indrajeet-hero-title">
-              {siteContent.heroHeading}
+              {siteContent.heroHeading ? (
+                siteContent.heroHeading.includes('right process') ? (
+                  <>
+                    {siteContent.heroHeading.split('right process')[0]}
+                    right{' '}
+                    <span className="hero-highlight-process">
+                      process.
+                      <svg className="hero-process-svg-stroke" viewBox="0 0 130 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.5 8.5C38 3.5 88 3.5 127.5 9" stroke="#c2410c" strokeWidth="3" strokeLinecap="round" />
+                      </svg>
+                    </span>
+                  </>
+                ) : (
+                  siteContent.heroHeading
+                )
+              ) : (
+                <>
+                  Every successful attempt begins with the right{' '}
+                  <span className="hero-highlight-process">
+                    process.
+                    <svg className="hero-process-svg-stroke" viewBox="0 0 130 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2.5 8.5C38 3.5 88 3.5 127.5 9" stroke="#c2410c" strokeWidth="3" strokeLinecap="round" />
+                    </svg>
+                  </span>
+                </>
+              )}
             </h1>
+
+            {/* Subtitle / Paragraph */}
+            <p className="hero-structured-desc">
+              {siteContent.heroSubheading || 'Keeping this in mind, Indrajeet Sir follows a structured, result-oriented approach built around five core pillars to make your preparation focused, strategic and effective.'}
+            </p>
+
+            {/* Direct CTAs matching requested visual style */}
+            <div className="indrajeet-hero-actions" style={{ marginBottom: '1.75rem', gap: '1.25rem' }}>
+              <Link href="/courses" className="hero-btn-explore-solid">
+                Explore Batches &amp; Fees
+              </Link>
+              <button className="hero-btn-callback-link" onClick={() => setShowBookModal(true)}>
+                <span>Request a callback</span>
+                <span className="arrow-icon" aria-hidden="true">&rarr;</span>
+              </button>
+            </div>
 
             {/* 5 Core Process Pillars Strip */}
             <div className="process-pillars-strip">
@@ -131,18 +174,6 @@ export default function Home() {
                 <i className="fa-solid fa-user-graduate" aria-hidden="true" />
                 <span>{siteContent.heroPillar5}</span>
               </div>
-            </div>
-
-            {/* Direct CTAs */}
-            <div className="indrajeet-hero-actions">
-              <Link href="/courses" className="btn-primary lg">
-                <i className="fa-solid fa-graduation-cap" style={{ marginRight: '0.55rem' }} aria-hidden="true" />
-                <span>Explore Batches &amp; Fees</span>
-              </Link>
-              <button className="btn-outline lg" onClick={() => setShowBookModal(true)}>
-                <i className="fa-solid fa-phone" style={{ marginRight: '0.55rem' }} aria-hidden="true" />
-                <span>Request Direct Callback</span>
-              </button>
             </div>
 
             {/* Mentorship Philosophy Quote Card */}

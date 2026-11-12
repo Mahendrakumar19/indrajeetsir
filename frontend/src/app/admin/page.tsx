@@ -433,7 +433,8 @@ const DEFAULT_FAQS: FaqItem[] = [
 const DEFAULT_SITE_CONTENT = {
   heroBadge: 'VisionIAS Faculty',
   heroImage: '/indrajeet-sir-hero.jpg',
-  heroHeading: 'Every exam has a process, and keeping that in mind, we have designed a structured methodology built on 5 core pillars:',
+  heroHeading: 'Every successful attempt begins with the right process.',
+  heroSubheading: 'Keeping this in mind, Indrajeet Sir follows a structured, result-oriented approach built around five core pillars to make your preparation focused, strategic and effective.',
   heroPillar1: '600+ Topic Short Notes',
   heroPillar2: 'In-Depth PYQ Analysis',
   heroPillar3: "Toppers' Copy Analysis",
@@ -713,8 +714,9 @@ export default function AdminPanel() {
             updated = true;
           }
           // Always enforce authentic Process Pillars & Headline if old or missing
-          if (!parsed.heroHeading || parsed.heroHeading.includes('Sabhi exam ka ek process') || !parsed.heroHeading.includes('Every exam has a process')) {
+          if (!parsed.heroHeading || parsed.heroHeading.includes('Sabhi exam ka ek process') || parsed.heroHeading.includes('Every exam has a process') || !parsed.heroHeading.includes('Every successful attempt')) {
             parsed.heroHeading = DEFAULT_SITE_CONTENT.heroHeading;
+            parsed.heroSubheading = DEFAULT_SITE_CONTENT.heroSubheading;
             parsed.heroPillar1 = DEFAULT_SITE_CONTENT.heroPillar1;
             parsed.heroPillar2 = DEFAULT_SITE_CONTENT.heroPillar2;
             parsed.heroPillar3 = DEFAULT_SITE_CONTENT.heroPillar3;
@@ -2986,6 +2988,16 @@ export default function AdminPanel() {
                     rows={2}
                     value={siteContent.heroHeading}
                     onChange={(e) => setSiteContent({ ...siteContent, heroHeading: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group" style={{ marginTop: '0.75rem' }}>
+                  <label>Hero Subtitle / Description</label>
+                  <textarea
+                    rows={2}
+                    value={siteContent.heroSubheading || ''}
+                    placeholder="Keeping this in mind, Indrajeet Sir follows a structured, result-oriented approach..."
+                    onChange={(e) => setSiteContent({ ...siteContent, heroSubheading: e.target.value })}
                   />
                 </div>
 
