@@ -756,9 +756,22 @@ export default function AdminPanel() {
 
       const savedPdfs = localStorage.getItem('indrajeet_pdf_list');
       if (savedPdfs) {
-        const parsed = JSON.parse(savedPdfs);
-        if (Array.isArray(parsed) && parsed.length > 0) setPdfList(parsed);
+        try {
+          const parsed = JSON.parse(savedPdfs);
+          if (Array.isArray(parsed) && parsed.length > 0) setPdfList(parsed);
+        } catch {}
       }
+
+      // Fetch live resources from API
+      fetch(`${API_URL}/resources`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (Array.isArray(data) && data.length > 0) {
+            setPdfList(data);
+            try { localStorage.setItem('indrajeet_pdf_list', JSON.stringify(data)); } catch {}
+          }
+        })
+        .catch(() => {});
 
       const savedFaqs = localStorage.getItem('indrajeet_faqs');
       if (savedFaqs) {
@@ -1378,6 +1391,13 @@ export default function AdminPanel() {
       return;
     }
 
+    // Client-side file size check: Warn if > 45MB
+    const fileSizeMB = pdfForm.file.size / (1024 * 1024);
+    if (fileSizeMB > 45) {
+      alert(`The selected PDF is ${fileSizeMB.toFixed(1)} MB. Maximum allowed upload size is 45 MB.`);
+      return;
+    }
+
     setPdfUploading(true);
     try {
       const data = new FormData();
@@ -1391,9 +1411,23 @@ export default function AdminPanel() {
         body: data,
       });
 
-      const json = await res.json();
-      if (json.success && json.data) {
-        setPdfList((prev) => [json.data, ...prev]);
+      const textResponse = await res.text();
+      let json: any = null;
+      try {
+        json = JSON.parse(textResponse);
+      } catch {
+        if (res.status === 413 || textResponse.includes('413') || textResponse.includes('Request Entity Too Large')) {
+          throw new Error('File size too large (413). Please increase client_max_body_size in Nginx or choose a file under 10MB.');
+        }
+        throw new Error(`Server returned HTML error (${res.status} ${res.statusText}).`);
+      }
+
+      if (json && json.success && json.data) {
+        setPdfList((prev) => {
+          const updated = [json.data, ...prev.filter((p) => p.id !== json.data.id)];
+          try { localStorage.setItem('indrajeet_pdf_list', JSON.stringify(updated)); } catch {}
+          return updated;
+        });
         setPdfForm({ title: '', description: '', tag: 'Mains Notes', file: null });
         triggerAlert(`PDF "${json.data.title}" successfully uploaded as /uploads/${json.data.fileName}!`);
         try {
@@ -1404,7 +1438,7 @@ export default function AdminPanel() {
           }).catch(() => null);
         } catch {}
       } else {
-        alert(json.message || 'PDF upload failed.');
+        alert(json?.message || 'PDF upload failed.');
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Check network connection';
@@ -1416,7 +1450,11 @@ export default function AdminPanel() {
 
   const handleDeletePdf = (id: string, title: string) => {
     if (confirm(`Remove PDF resource "${title}" from public downloads?`)) {
-      setPdfList((prev) => prev.filter((p) => p.id !== id));
+      setPdfList((prev) => {
+        const updated = prev.filter((p) => p.id !== id);
+        try { localStorage.setItem('indrajeet_pdf_list', JSON.stringify(updated)); } catch {}
+        return updated;
+      });
       triggerAlert(`PDF "${title}" removed.`);
       try {
         fetch(`${API_URL}/resources/${id}`, { method: 'DELETE' }).catch(() => null);
@@ -2873,9 +2911,66 @@ export default function AdminPanel() {
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1rem' }}>
+            {/* Quick Navigation Anchor Bar for Website Sections */}
+            <div
+              className="admin-quick-nav-bar"
+              style={{
+                display: 'flex',
+                gap: '0.5rem',
+                flexWrap: 'wrap',
+                padding: '0.85rem 1rem',
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '12px',
+                marginTop: '0.75rem',
+                marginBottom: '1rem',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              }}
+            >
+              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748b', alignSelf: 'center', marginRight: '0.25rem' }}>
+                Quick Jump:
+              </span>
+              {[
+                { label: '1. Hero & Pillars', id: 'website-section-hero' },
+                { label: '2. About Indrajeet Sir', id: 'website-section-about-mentor' },
+                { label: '3. Mentorship Pillars', id: 'website-section-pillars' },
+                { label: '4. Batches & Courses', id: 'website-section-courses' },
+                { label: '5. Aspirants', id: 'website-section-aspirants' },
+                { label: '6. PDF Section Texts', id: 'website-section-pdf-texts' },
+                { label: '7. Mobile App', id: 'website-section-app' },
+                { label: '8. FAQs', id: 'website-section-faqs' },
+                { label: '9. Contact', id: 'website-section-contact' },
+                { label: '10. Callback Leads', id: 'website-section-leads' },
+                { label: '⚡ 11. PDF Uploads', id: 'website-section-pdfs' },
+                { label: '12. Legal Pages', id: 'website-section-legal' },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById(item.id);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                  style={{
+                    padding: '0.35rem 0.65rem',
+                    borderRadius: '7px',
+                    border: item.id === 'website-section-pdfs' ? '1px solid #3b82f6' : '1px solid #e2e8f0',
+                    background: item.id === 'website-section-pdfs' ? '#eff6ff' : '#f8fafc',
+                    color: item.id === 'website-section-pdfs' ? '#2563eb' : '#334155',
+                    fontSize: '0.76rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '0.5rem' }}>
               {/* Card 1: Hero Section Headline, 5 Process Pillars & Dhoni Quote */}
-              <div className="admin-card">
+              <div id="website-section-hero" className="admin-card">
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   1. Hero Section Headline & 5 Core Process Pillars
                 </h3>
@@ -3083,7 +3178,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 2: Section 1 - About Indrajeet Sir (5 Credential Highlights) */}
-              <div className="admin-card">
+              <div id="website-section-about-mentor" className="admin-card">
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   2. About Indrajeet Sir (5 Credential Highlight Cards)
                 </h3>
@@ -3193,7 +3288,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 3: Section 2 - About The Mentorship (4 Core Pillars) */}
-              <div className="admin-card">
+              <div id="website-section-pillars" className="admin-card">
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   3. About The Mentorship (4 Core Pillar Cards)
                 </h3>
@@ -3285,7 +3380,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 4: Mentorship Batches & Courses (All 5 Programs Live in CMS) */}
-              <div className="admin-card">
+              <div id="website-section-courses" className="admin-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.75rem' }}>
                   <div>
                     <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.25rem', color: '#0f172a' }}>
@@ -3547,7 +3642,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 5: Mentored Aspirants Section */}
-              <div className="admin-card">
+              <div id="website-section-aspirants" className="admin-card">
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   5. Mentored Aspirants (3 Showcase Cards)
                 </h3>
@@ -3603,7 +3698,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 6: Important PDFs Section */}
-              <div className="admin-card">
+              <div id="website-section-pdf-texts" className="admin-card">
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   6. Important PDFs & Resource Material Section
                 </h3>
@@ -3629,7 +3724,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 7: Mobile Application Showcase */}
-              <div className="admin-card">
+              <div id="website-section-app" className="admin-card">
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   7. Mobile Application Showcase
                 </h3>
@@ -3663,7 +3758,7 @@ export default function AdminPanel() {
               </div>
 
                             {/* Card 8: Frequently Asked Questions (FAQs) Manager */}
-              <div className="admin-card">
+              <div id="website-section-faqs" className="admin-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div>
                     <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
@@ -3766,7 +3861,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 9: Contact Desk & Telegram Channels */}
-              <div className="admin-card">
+              <div id="website-section-contact" className="admin-card">
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   7. Contact Desk & Official Channels
                 </h3>
@@ -3847,7 +3942,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 10: Callback Leads & Aspirant Inquiries */}
-              <div className="admin-card">
+              <div id="website-section-leads" className="admin-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
                   <div>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
@@ -3949,11 +4044,11 @@ export default function AdminPanel() {
               </div>
               
 
-              {/* Card 6: PDF Study Material & Documents Manager */}
-              <div className="admin-card">
+              {/* Card 11: PDF Study Material & Documents Manager */}
+              <div id="website-section-pdfs" className="admin-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                   <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
-                    6. PDF Resources & Direct Upload Manager
+                    11. PDF Resources & Direct Upload Manager
                   </h3>
                   <span className="status-pill active">{pdfList.length} Active PDFs</span>
                 </div>
@@ -3966,62 +4061,73 @@ export default function AdminPanel() {
                   onSubmit={handleUploadPdf}
                   className="admin-pdf-upload-form"
                   style={{
-                    padding: '1.2rem',
+                    padding: '1.25rem',
                     borderRadius: '12px',
                     marginBottom: '1.5rem',
                   }}
                 >
-                  <div className="admin-pdf-form-title" style={{ fontWeight: 700, fontSize: '0.92rem', marginBottom: '0.75rem' }}>
+                  <div className="admin-pdf-form-title" style={{ fontWeight: 800, fontSize: '0.98rem', marginBottom: '0.4rem', color: '#1e293b' }}>
                     Upload New PDF Document
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.9rem', marginBottom: '0.9rem' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '1rem', lineHeight: '1.4' }}>
+                    💡 Tip: Files up to 45 MB supported. Please avoid special symbols in titles for clean download URLs.
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label>Document Title *</label>
+                      <label style={{ fontWeight: 700, fontSize: '0.84rem' }}>Document Title *</label>
                       <input
                         type="text"
-                        placeholder="e.g. GS Paper 2 Governance Notes"
+                        placeholder="e.g. Hero Article Worksheet by Indrajeet Sir"
                         value={pdfForm.title}
                         onChange={(e) => setPdfForm({ ...pdfForm, title: e.target.value })}
                         required
+                        style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '7px' }}
                       />
                     </div>
                     <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label>Tag / Category</label>
+                      <label style={{ fontWeight: 700, fontSize: '0.84rem' }}>Tag / Category</label>
                       <select
                         value={pdfForm.tag}
                         onChange={(e) => setPdfForm({ ...pdfForm, tag: e.target.value })}
-                        style={{ width: '100%', padding: '0.55rem', borderRadius: '6px' }}
+                        style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '7px' }}
                       >
                         <option value="Official Brochure">Official Brochure</option>
                         <option value="Mains Notes">Mains Notes</option>
                         <option value="Sample Copy">Sample Copy</option>
                         <option value="PCS Special">PCS Special</option>
                         <option value="Strategy Guide">Strategy Guide</option>
+                        <option value="Worksheet">Worksheet</option>
                       </select>
                     </div>
                     <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label>Select PDF File (.pdf only) *</label>
+                      <label style={{ fontWeight: 700, fontSize: '0.84rem' }}>Select PDF File (.pdf only) *</label>
                       <input
                         type="file"
                         accept=".pdf,application/pdf"
                         onChange={(e) => setPdfForm({ ...pdfForm, file: e.target.files ? e.target.files[0] : null })}
                         required
                         className="admin-file-input"
-                        style={{ padding: '0.4rem' }}
+                        style={{ width: '100%', padding: '0.45rem', borderRadius: '7px' }}
                       />
                     </div>
                   </div>
-                  <div className="form-group" style={{ marginBottom: '1rem' }}>
-                    <label>Description (Aspirant summary)</label>
+                  <div className="form-group" style={{ marginBottom: '1.1rem' }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.84rem' }}>Description (Aspirant summary)</label>
                     <input
                       type="text"
                       placeholder="Brief description shown on the website card"
                       value={pdfForm.description}
                       onChange={(e) => setPdfForm({ ...pdfForm, description: e.target.value })}
+                      style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '7px' }}
                     />
                   </div>
-                  <button type="submit" className="btn-primary-admin" disabled={pdfUploading}>
-                    {pdfUploading ? 'Uploading & Generating Slug...' : 'Upload PDF & Publish'}
+                  <button
+                    type="submit"
+                    className="btn-primary-admin"
+                    disabled={pdfUploading}
+                    style={{ padding: '0.65rem 1.4rem', fontWeight: 700, borderRadius: '8px' }}
+                  >
+                    {pdfUploading ? 'Uploading & Generating Slug...' : 'Upload PDF & Publish Live'}
                   </button>
                 </form>
 
@@ -4095,10 +4201,10 @@ export default function AdminPanel() {
                 </div>
               </div>
 
-              {/* Card 7: Legal Pages Live Editor (Terms, Privacy, Disclaimers) */}
-              <div className="admin-card">
+              {/* Card 12: Legal Pages Live Editor (Terms, Privacy, Disclaimers) */}
+              <div id="website-section-legal" className="admin-card">
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem' }}>
-                  7. Other Website Pages Editor (Terms, Privacy & Disclaimers)
+                  12. Other Website Pages Editor (Terms, Privacy & Disclaimers)
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
                   Edit policies, refund clauses, aspirant confidentiality commitments, and official legal disclaimers.

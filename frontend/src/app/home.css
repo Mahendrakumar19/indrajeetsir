@@ -3964,6 +3964,12 @@ html.dark .app-feature-body p,
 
 .stepped-pillars-header {
   margin-bottom: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1.15rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .stepped-pillars-title {
@@ -3971,6 +3977,7 @@ html.dark .app-feature-body p,
   font-weight: 850;
   color: #0f172a;
   letter-spacing: -0.02em;
+  margin: 0;
 }
 
 .stepped-pillars-grid {
@@ -4109,6 +4116,12 @@ html.dark .hero-philosophy-text,
 html.dark .hero-philosophy-quote-mark,
 .dark .hero-philosophy-quote-mark {
   color: #334155 !important;
+}
+
+html.dark .stepped-pillars-header,
+.dark .stepped-pillars-header {
+  border-top-color: #334155 !important;
+  border-bottom-color: #334155 !important;
 }
 
 html.dark .stepped-pillars-title,
