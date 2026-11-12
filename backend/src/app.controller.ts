@@ -994,27 +994,34 @@ export class AppController {
     receipt?: string;
   }) {
     const emailClean = (body.studentEmail || '').trim().toLowerCase();
-    let coursePrice = 4999;
+    let coursePrice = 0;
     let courseTitle = 'UPSC Mentorship Course';
 
-    if (typeof body.amount === 'number' && body.amount > 0) {
-      // If amount provided in paise or rupees
-      if (body.amount >= 100) {
-        // Assume amount in paise if >= 100
-        coursePrice = body.amount / 100;
-      } else {
-        coursePrice = body.amount;
-      }
-    }
-
+    // 1. Check fallback static courses first or Prisma DB
     if (body.courseId) {
+      const fallback = fallbackCourses.find((c) => c.id === body.courseId);
+      if (fallback) {
+        coursePrice = fallback.price;
+        courseTitle = fallback.title;
+      }
+
       try {
         const course = await this.prisma.course.findUnique({ where: { id: body.courseId } });
-        if (course) {
-          coursePrice = course.price > 0 ? course.price : coursePrice;
+        if (course && course.price > 0) {
+          coursePrice = course.price;
           courseTitle = course.title;
         }
       } catch {}
+    }
+
+    // 2. If client passed explicit valid amount, give it precedence if course price wasn't found or as override
+    if (typeof body.amount === 'number' && body.amount > 0) {
+      coursePrice = body.amount;
+    }
+
+    // 3. Fallback to default only if still non-positive
+    if (!coursePrice || coursePrice <= 0) {
+      coursePrice = 4999;
     }
 
     const orderData = await this.razorpay.createOrder({
@@ -1093,6 +1100,17 @@ export class AppController {
     const emailClean = (body.studentEmail || '').trim().toLowerCase();
     const tempPassword = `UPSC@${Math.floor(1000 + Math.random() * 9000)}`;
 
+    // Resolve course amount if needed
+    let verifiedAmount = 4999;
+    if (body.courseId) {
+      const fallback = fallbackCourses.find((c) => c.id === body.courseId);
+      if (fallback) verifiedAmount = fallback.price;
+      try {
+        const cDb = await this.prisma.course.findUnique({ where: { id: body.courseId } });
+        if (cDb && cDb.price > 0) verifiedAmount = cDb.price;
+      } catch {}
+    }
+
     try {
       // 1. Mark payment as SUCCESS
       await this.prisma.payment.upsert({
@@ -1107,7 +1125,7 @@ export class AppController {
           paymentId,
           signature,
           status: 'SUCCESS',
-          amount: 4999,
+          amount: verifiedAmount,
           userEmail: emailClean || 'student@indrajeetsir.com',
           userName: body.studentName || 'Student',
           userPhone: body.studentPhone || '',

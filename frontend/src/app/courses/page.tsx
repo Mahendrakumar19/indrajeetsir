@@ -302,6 +302,7 @@ export default function CoursesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           courseId: selectedCourse.id,
+          amount: selectedCourse.price,
           studentEmail: studentEmail.trim().toLowerCase(),
           studentName: studentName.trim(),
           studentPhone: studentPhone.trim(),
