@@ -143,6 +143,18 @@ function IconUpload({ size = 16 }: { size?: number }) {
   );
 }
 
+function IconFileText({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <polyline points="10 9 9 9 8 9" />
+    </svg>
+  );
+}
+
 function IconMessageSquare({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -507,7 +519,8 @@ export default function AdminPanel() {
   const [authError, setAuthError] = useState('');
 
   // Primary navigation tabs
-  const [tab, setTab] = useState<'users' | 'content' | 'payments' | 'notifications' | 'courses' | 'classes' | 'website' | 'messages'>('users');
+  const [tab, setTab] = useState<'users' | 'content' | 'payments' | 'notifications' | 'courses' | 'classes' | 'website' | 'messages' | 'resources'>('users');
+  const [websiteSubTab, setWebsiteSubTab] = useState<'all' | 'hero' | 'about' | 'courses' | 'faqs' | 'contact' | 'leads' | 'legal'>('all');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -758,7 +771,7 @@ export default function AdminPanel() {
       if (savedPdfs) {
         try {
           const parsed = JSON.parse(savedPdfs);
-          if (Array.isArray(parsed) && parsed.length > 0) setPdfList(parsed);
+          if (Array.isArray(parsed)) setPdfList(parsed);
         } catch {}
       }
 
@@ -766,7 +779,7 @@ export default function AdminPanel() {
       fetch(`${API_URL}/resources`)
         .then((r) => r.json())
         .then((data) => {
-          if (Array.isArray(data) && data.length > 0) {
+          if (Array.isArray(data)) {
             setPdfList(data);
             try { localStorage.setItem('indrajeet_pdf_list', JSON.stringify(data)); } catch {}
           }
@@ -1461,7 +1474,7 @@ export default function AdminPanel() {
     }
   };
 
-  const handleDeletePdf = (id: string, title: string) => {
+  const handleDeletePdf = async (id: string, title: string) => {
     if (confirm(`Remove PDF resource "${title}" from public downloads?`)) {
       setPdfList((prev) => {
         const updated = prev.filter((p) => p.id !== id);
@@ -1470,8 +1483,11 @@ export default function AdminPanel() {
       });
       triggerAlert(`PDF "${title}" removed.`);
       try {
-        fetch(`${API_URL}/resources/${id}`, { method: 'DELETE' }).catch(() => null);
-      } catch {}
+        await fetch(`/api/resources/${id}`, { method: 'DELETE' });
+        await fetch(`${API_URL}/resources/${id}`, { method: 'DELETE' });
+      } catch (err) {
+        console.warn('DELETE error:', err);
+      }
     }
   };
 
@@ -1614,7 +1630,8 @@ export default function AdminPanel() {
               {tab === 'notifications' && 'Notifications'}
               {tab === 'courses' && 'Courses'}
               {tab === 'classes' && 'Live Classes'}
-              {tab === 'website' && 'Live Editor'}
+              {tab === 'resources' && 'PDF Resources'}
+              {tab === 'website' && 'Website Editor'}
             </span>
           </div>
         </div>
@@ -1791,6 +1808,20 @@ export default function AdminPanel() {
               <span className="anav-label">Live Classes</span>
             </div>
             <span className="anav-count">{classes.length}</span>
+          </button>
+
+          <button
+            className={`anav ${tab === 'resources' ? 'active' : ''}`}
+            onClick={() => { setTab('resources'); setMobileNavOpen(false); }}
+            title="PDF Resources & Materials"
+          >
+            <div className="anav-inner">
+              <IconFileText size={18} />
+              <span className="anav-label">PDF Resources</span>
+            </div>
+            <span className="anav-count" style={{ background: '#eff6ff', color: '#2563eb' }}>
+              {pdfList.length}
+            </span>
           </button>
 
           <button
@@ -2904,6 +2935,221 @@ export default function AdminPanel() {
           </section>
         )}
 
+        {/* ── 8. PDF RESOURCES MANAGER TAB ────────────────────────────────────────── */}
+        {tab === 'resources' && (
+          <section className="admin-section">
+            <div className="section-head">
+              <div>
+                <h2>PDF Study Material &amp; Resources Manager</h2>
+                <p>Upload, publish, view, and remove PDF study materials, worksheets, brochures, and notes for aspirants.</p>
+              </div>
+              <button
+                type="button"
+                className="btn-primary-admin"
+                onClick={() => {
+                  fetch(`${API_URL}/resources`)
+                    .then((r) => r.json())
+                    .then((data) => {
+                      if (Array.isArray(data)) {
+                        setPdfList(data);
+                        try { localStorage.setItem('indrajeet_pdf_list', JSON.stringify(data)); } catch {}
+                        triggerAlert('PDF list refreshed from server.');
+                      }
+                    })
+                    .catch(() => triggerAlert('Could not fetch server resources.'));
+                }}
+              >
+                Refresh List
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1rem' }}>
+              <div className="admin-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
+                    Upload New Study Material PDF
+                  </h3>
+                  <span className="status-pill active">{pdfList.length} Active PDFs</span>
+                </div>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
+                  Upload new PDFs. Files are saved in <code>/public/uploads/&lt;filename&gt;.pdf</code> and are immediately accessible to aspirants.
+                </p>
+
+                {/* Upload Form */}
+                <form
+                  onSubmit={handleUploadPdf}
+                  className="admin-pdf-upload-form"
+                  style={{
+                    padding: '1.25rem',
+                    borderRadius: '12px',
+                    marginBottom: '1.5rem',
+                  }}
+                >
+                  <div className="admin-pdf-form-title" style={{ fontWeight: 800, fontSize: '0.98rem', marginBottom: '0.4rem', color: '#1e293b' }}>
+                    New PDF Document Details
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '1rem', lineHeight: '1.4' }}>
+                    💡 Tip: Files up to 45 MB supported. Enter title and pick your .pdf file.
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontWeight: 700, fontSize: '0.84rem' }}>Document Title *</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Hero Article Worksheet by Indrajeet Sir"
+                        value={pdfForm.title}
+                        onChange={(e) => setPdfForm({ ...pdfForm, title: e.target.value })}
+                        required
+                        style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '7px' }}
+                      />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontWeight: 700, fontSize: '0.84rem' }}>Tag / Category</label>
+                      <select
+                        value={pdfForm.tag}
+                        onChange={(e) => setPdfForm({ ...pdfForm, tag: e.target.value })}
+                        style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '7px' }}
+                      >
+                        <option value="Official Brochure">Official Brochure</option>
+                        <option value="Mains Notes">Mains Notes</option>
+                        <option value="Sample Copy">Sample Copy</option>
+                        <option value="PCS Special">PCS Special</option>
+                        <option value="Strategy Guide">Strategy Guide</option>
+                        <option value="Worksheet">Worksheet</option>
+                      </select>
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontWeight: 700, fontSize: '0.84rem' }}>Select PDF File (.pdf only) *</label>
+                      <input
+                        type="file"
+                        accept=".pdf,application/pdf"
+                        onChange={(e) => setPdfForm({ ...pdfForm, file: e.target.files ? e.target.files[0] : null })}
+                        required
+                        className="admin-file-input"
+                        style={{ width: '100%', padding: '0.45rem', borderRadius: '7px' }}
+                      />
+                    </div>
+                  </div>
+                  <div className="form-group" style={{ marginBottom: '1.1rem' }}>
+                    <label style={{ fontWeight: 700, fontSize: '0.84rem' }}>Description (Aspirant summary)</label>
+                    <input
+                      type="text"
+                      placeholder="Brief description shown on the website card"
+                      value={pdfForm.description}
+                      onChange={(e) => setPdfForm({ ...pdfForm, description: e.target.value })}
+                      style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '7px' }}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="btn-primary-admin"
+                    disabled={pdfUploading}
+                    style={{ padding: '0.65rem 1.4rem', fontWeight: 700, borderRadius: '8px' }}
+                  >
+                    {pdfUploading ? 'Uploading & Generating Slug...' : 'Upload PDF & Publish Live'}
+                  </button>
+                </form>
+
+                {/* Current Active PDFs List */}
+                <div className="admin-pdf-library-title" style={{ fontWeight: 700, fontSize: '0.98rem', marginBottom: '0.75rem' }}>
+                  Live PDF Library ({pdfList.length})
+                </div>
+                {pdfList.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '2.5rem', background: '#f8fafc', borderRadius: '10px', color: '#64748b' }}>
+                    No PDF resources published yet. Use the form above to upload your first study material!
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {pdfList.map((item) => (
+                      <div
+                        key={item.id}
+                        className="admin-pdf-item"
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '0.85rem 1.1rem',
+                          borderRadius: '10px',
+                          gap: '1rem',
+                          flexWrap: 'wrap',
+                        }}
+                      >
+                        <div style={{ flex: 1, minWidth: '220px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span className="admin-pdf-title" style={{ fontWeight: 750, fontSize: '0.92rem' }}>{item.title}</span>
+                            <span className="status-pill active" style={{ fontSize: '0.7rem' }}>{item.tag}</span>
+                          </div>
+                          <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.2rem' }}>
+                            File: <span style={{ fontFamily: 'monospace', color: '#2563eb' }}>{item.fileUrl}</span> • Size: {item.size}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <a
+                            href={item.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              padding: '0.4rem 0.75rem',
+                              borderRadius: '6px',
+                              background: '#eff6ff',
+                              color: '#2563eb',
+                              fontSize: '0.8rem',
+                              fontWeight: 700,
+                              textDecoration: 'none',
+                            }}
+                          >
+                            Open in New Tab ↗
+                          </a>
+                          <a
+                            href={`${item.fileUrl}${item.fileUrl.includes('?') ? '&' : '?'}download=1`}
+                            download
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              padding: '0.4rem 0.75rem',
+                              borderRadius: '6px',
+                              background: '#f0fdf4',
+                              color: '#16a34a',
+                              border: '1px solid #bbf7d0',
+                              fontSize: '0.8rem',
+                              fontWeight: 700,
+                              textDecoration: 'none',
+                            }}
+                          >
+                            Download ⤓
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => handleDeletePdf(item.id, item.title)}
+                            style={{
+                              padding: '0.4rem 0.75rem',
+                              borderRadius: '6px',
+                              background: '#fef2f2',
+                              color: '#dc2626',
+                              border: '1px solid #fecaca',
+                              fontSize: '0.8rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* ── 7. WEBSITE LIVE EDITOR TAB ────────────────────────────────────────── */}
         {tab === 'website' && (
           <section className="admin-section">
@@ -2924,14 +3170,14 @@ export default function AdminPanel() {
               </button>
             </div>
 
-            {/* Quick Navigation Anchor Bar for Website Sections */}
+            {/* Category Filter Pills for Website Sections */}
             <div
               className="admin-quick-nav-bar"
               style={{
                 display: 'flex',
                 gap: '0.5rem',
                 flexWrap: 'wrap',
-                padding: '0.85rem 1rem',
+                padding: '0.75rem 1rem',
                 background: '#ffffff',
                 border: '1px solid #e2e8f0',
                 borderRadius: '12px',
@@ -2940,50 +3186,60 @@ export default function AdminPanel() {
                 boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
               }}
             >
-              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748b', alignSelf: 'center', marginRight: '0.25rem' }}>
-                Quick Jump:
+              <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#475569', alignSelf: 'center', marginRight: '0.35rem' }}>
+                Filter Section:
               </span>
               {[
-                { label: '1. Hero & Pillars', id: 'website-section-hero' },
-                { label: '2. About Indrajeet Sir', id: 'website-section-about-mentor' },
-                { label: '3. Mentorship Pillars', id: 'website-section-pillars' },
-                { label: '4. Batches & Courses', id: 'website-section-courses' },
-                { label: '5. Aspirants', id: 'website-section-aspirants' },
-                { label: '6. PDF Section Texts', id: 'website-section-pdf-texts' },
-                { label: '7. Mobile App', id: 'website-section-app' },
-                { label: '8. FAQs', id: 'website-section-faqs' },
-                { label: '9. Contact', id: 'website-section-contact' },
-                { label: '10. Callback Leads', id: 'website-section-leads' },
-                { label: '⚡ 11. PDF Uploads', id: 'website-section-pdfs' },
-                { label: '12. Legal Pages', id: 'website-section-legal' },
-              ].map((item) => (
+                { label: 'Show All Sections', key: 'all' },
+                { label: 'Hero Banner & Pillars', key: 'hero' },
+                { label: 'About Mentor & Vision', key: 'about' },
+                { label: 'Batches & Fees', key: 'courses' },
+                { label: 'FAQs Manager', key: 'faqs' },
+                { label: 'Contact & Social Desk', key: 'contact' },
+                { label: 'Callback Inquiries', key: 'leads' },
+                { label: 'Terms & Legal Pages', key: 'legal' },
+              ].map((sub) => (
                 <button
-                  key={item.id}
+                  key={sub.key}
                   type="button"
-                  onClick={() => {
-                    const el = document.getElementById(item.id);
-                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }}
+                  onClick={() => setWebsiteSubTab(sub.key as typeof websiteSubTab)}
                   style={{
-                    padding: '0.35rem 0.65rem',
-                    borderRadius: '7px',
-                    border: item.id === 'website-section-pdfs' ? '1px solid #3b82f6' : '1px solid #e2e8f0',
-                    background: item.id === 'website-section-pdfs' ? '#eff6ff' : '#f8fafc',
-                    color: item.id === 'website-section-pdfs' ? '#2563eb' : '#334155',
-                    fontSize: '0.76rem',
+                    padding: '0.4rem 0.8rem',
+                    borderRadius: '8px',
+                    border: websiteSubTab === sub.key ? '1px solid #2563eb' : '1px solid #e2e8f0',
+                    background: websiteSubTab === sub.key ? '#2563eb' : '#f8fafc',
+                    color: websiteSubTab === sub.key ? '#ffffff' : '#334155',
+                    fontSize: '0.8rem',
                     fontWeight: 700,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
                   }}
                 >
-                  {item.label}
+                  {sub.label}
                 </button>
               ))}
+              <button
+                type="button"
+                onClick={() => setTab('resources')}
+                style={{
+                  padding: '0.4rem 0.85rem',
+                  borderRadius: '8px',
+                  border: '1px solid #3b82f6',
+                  background: '#eff6ff',
+                  color: '#2563eb',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  marginLeft: 'auto',
+                }}
+              >
+                Go to PDF Uploads Tab ↗
+              </button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '0.5rem' }}>
               {/* Card 1: Hero Section Headline, 5 Process Pillars & Dhoni Quote */}
-              <div id="website-section-hero" className="admin-card">
+              <div id="website-section-hero" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'hero' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   1. Hero Section Headline & 5 Core Process Pillars
                 </h3>
@@ -3191,7 +3447,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 2: Section 1 - About Indrajeet Sir (5 Credential Highlights) */}
-              <div id="website-section-about-mentor" className="admin-card">
+              <div id="website-section-about-mentor" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'about' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   2. About Indrajeet Sir (5 Credential Highlight Cards)
                 </h3>
@@ -3301,7 +3557,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 3: Section 2 - About The Mentorship (4 Core Pillars) */}
-              <div id="website-section-pillars" className="admin-card">
+              <div id="website-section-pillars" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'about' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   3. About The Mentorship (4 Core Pillar Cards)
                 </h3>
@@ -3393,7 +3649,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 4: Mentorship Batches & Courses (All 5 Programs Live in CMS) */}
-              <div id="website-section-courses" className="admin-card">
+              <div id="website-section-courses" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'courses' ? 'block' : 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.75rem' }}>
                   <div>
                     <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.25rem', color: '#0f172a' }}>
@@ -3655,7 +3911,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 5: Mentored Aspirants Section */}
-              <div id="website-section-aspirants" className="admin-card">
+              <div id="website-section-aspirants" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'about' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   5. Mentored Aspirants (3 Showcase Cards)
                 </h3>
@@ -3711,7 +3967,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 6: Important PDFs Section */}
-              <div id="website-section-pdf-texts" className="admin-card">
+              <div id="website-section-pdf-texts" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'about' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   6. Important PDFs & Resource Material Section
                 </h3>
@@ -3737,7 +3993,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 7: Mobile Application Showcase */}
-              <div id="website-section-app" className="admin-card">
+              <div id="website-section-app" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'about' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   7. Mobile Application Showcase
                 </h3>
@@ -3770,8 +4026,8 @@ export default function AdminPanel() {
                 </div>
               </div>
 
-                            {/* Card 8: Frequently Asked Questions (FAQs) Manager */}
-              <div id="website-section-faqs" className="admin-card">
+              {/* Card 8: Frequently Asked Questions (FAQs) Manager */}
+              <div id="website-section-faqs" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'faqs' ? 'block' : 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div>
                     <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
@@ -3874,7 +4130,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 9: Contact Desk & Telegram Channels */}
-              <div id="website-section-contact" className="admin-card">
+              <div id="website-section-contact" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'contact' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   7. Contact Desk & Official Channels
                 </h3>
@@ -3955,7 +4211,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 10: Callback Leads & Aspirant Inquiries */}
-              <div id="website-section-leads" className="admin-card">
+              <div id="website-section-leads" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'leads' ? 'block' : 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
                   <div>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
@@ -4057,167 +4313,10 @@ export default function AdminPanel() {
               </div>
               
 
-              {/* Card 11: PDF Study Material & Documents Manager */}
-              <div id="website-section-pdfs" className="admin-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
-                    11. PDF Resources & Direct Upload Manager
-                  </h3>
-                  <span className="status-pill active">{pdfList.length} Active PDFs</span>
-                </div>
-                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
-                  Upload new PDFs with auto-slug naming. PDFs are stored in <code>/public/uploads/&lt;slug&gt;.pdf</code> and open in a new tab for students.
-                </p>
-
-                {/* Upload New PDF Form */}
-                <form
-                  onSubmit={handleUploadPdf}
-                  className="admin-pdf-upload-form"
-                  style={{
-                    padding: '1.25rem',
-                    borderRadius: '12px',
-                    marginBottom: '1.5rem',
-                  }}
-                >
-                  <div className="admin-pdf-form-title" style={{ fontWeight: 800, fontSize: '0.98rem', marginBottom: '0.4rem', color: '#1e293b' }}>
-                    Upload New PDF Document
-                  </div>
-                  <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '1rem', lineHeight: '1.4' }}>
-                    💡 Tip: Files up to 45 MB supported. Please avoid special symbols in titles for clean download URLs.
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ fontWeight: 700, fontSize: '0.84rem' }}>Document Title *</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Hero Article Worksheet by Indrajeet Sir"
-                        value={pdfForm.title}
-                        onChange={(e) => setPdfForm({ ...pdfForm, title: e.target.value })}
-                        required
-                        style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '7px' }}
-                      />
-                    </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ fontWeight: 700, fontSize: '0.84rem' }}>Tag / Category</label>
-                      <select
-                        value={pdfForm.tag}
-                        onChange={(e) => setPdfForm({ ...pdfForm, tag: e.target.value })}
-                        style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '7px' }}
-                      >
-                        <option value="Official Brochure">Official Brochure</option>
-                        <option value="Mains Notes">Mains Notes</option>
-                        <option value="Sample Copy">Sample Copy</option>
-                        <option value="PCS Special">PCS Special</option>
-                        <option value="Strategy Guide">Strategy Guide</option>
-                        <option value="Worksheet">Worksheet</option>
-                      </select>
-                    </div>
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label style={{ fontWeight: 700, fontSize: '0.84rem' }}>Select PDF File (.pdf only) *</label>
-                      <input
-                        type="file"
-                        accept=".pdf,application/pdf"
-                        onChange={(e) => setPdfForm({ ...pdfForm, file: e.target.files ? e.target.files[0] : null })}
-                        required
-                        className="admin-file-input"
-                        style={{ width: '100%', padding: '0.45rem', borderRadius: '7px' }}
-                      />
-                    </div>
-                  </div>
-                  <div className="form-group" style={{ marginBottom: '1.1rem' }}>
-                    <label style={{ fontWeight: 700, fontSize: '0.84rem' }}>Description (Aspirant summary)</label>
-                    <input
-                      type="text"
-                      placeholder="Brief description shown on the website card"
-                      value={pdfForm.description}
-                      onChange={(e) => setPdfForm({ ...pdfForm, description: e.target.value })}
-                      style={{ width: '100%', padding: '0.6rem 0.75rem', borderRadius: '7px' }}
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="btn-primary-admin"
-                    disabled={pdfUploading}
-                    style={{ padding: '0.65rem 1.4rem', fontWeight: 700, borderRadius: '8px' }}
-                  >
-                    {pdfUploading ? 'Uploading & Generating Slug...' : 'Upload PDF & Publish Live'}
-                  </button>
-                </form>
-
-                {/* Current Active PDFs List */}
-                <div className="admin-pdf-library-title" style={{ fontWeight: 700, fontSize: '0.92rem', marginBottom: '0.75rem' }}>
-                  Live PDF Library ({pdfList.length})
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {pdfList.map((item) => (
-                    <div
-                      key={item.id}
-                      className="admin-pdf-item"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '0.85rem 1.1rem',
-                        borderRadius: '10px',
-                        gap: '1rem',
-                        flexWrap: 'wrap',
-                      }}
-                    >
-                      <div style={{ flex: 1, minWidth: '220px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span className="admin-pdf-title" style={{ fontWeight: 750, fontSize: '0.92rem' }}>{item.title}</span>
-                          <span className="status-pill active" style={{ fontSize: '0.7rem' }}>{item.tag}</span>
-                        </div>
-                        <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.2rem' }}>
-                          File: <span style={{ fontFamily: 'monospace', color: '#2563eb' }}>{item.fileUrl}</span> • Size: {item.size}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <a
-                          href={item.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.35rem',
-                            padding: '0.4rem 0.75rem',
-                            borderRadius: '6px',
-                            background: '#eff6ff',
-                            color: '#2563eb',
-                            fontSize: '0.8rem',
-                            fontWeight: 700,
-                            textDecoration: 'none',
-                          }}
-                        >
-                          Open in New Tab ↗
-                        </a>
-                        <button
-                          type="button"
-                          onClick={() => handleDeletePdf(item.id, item.title)}
-                          style={{
-                            padding: '0.4rem 0.75rem',
-                            borderRadius: '6px',
-                            background: '#fef2f2',
-                            color: '#dc2626',
-                            border: '1px solid #fecaca',
-                            fontSize: '0.8rem',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Card 12: Legal Pages Live Editor (Terms, Privacy, Disclaimers) */}
-              <div id="website-section-legal" className="admin-card">
+              {/* Card 11: Legal Pages Live Editor (Terms, Privacy, Disclaimers) */}
+              <div id="website-section-legal" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'legal' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem' }}>
-                  12. Other Website Pages Editor (Terms, Privacy & Disclaimers)
+                  11. Other Website Pages Editor (Terms, Privacy & Disclaimers)
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
                   Edit policies, refund clauses, aspirant confidentiality commitments, and official legal disclaimers.

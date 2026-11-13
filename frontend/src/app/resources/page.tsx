@@ -23,32 +23,7 @@ export default function ResourcesPage() {
     whatsappUrl: 'https://wa.me/919709992093',
   });
 
-  const [pdfList, setPdfList] = useState<PdfResource[]>([
-    {
-      id: 'pdf-1',
-      title: 'UPSC 2027 Master Micro-Syllabus & 600+ Topic Blueprint',
-      description: 'Topic-wise breakdown of GS Paper 1, 2, 3 and 4 with direct PYQ trend tags and core keywords.',
-      tag: 'Micro-Syllabus',
-      size: '2.4 MB',
-      fileUrl: '/Course_Brochure_Indrajeet_Sir.pdf',
-    },
-    {
-      id: 'pdf-2',
-      title: 'Indrajeet Sir Model Evaluated Mains Answer Copy (GS 2 & Ethics)',
-      description: 'Real evaluated copies with Intro-Body-Conclusion framework, 2nd ARC citations, and case law value addition.',
-      tag: 'Model Copies',
-      size: '3.8 MB',
-      fileUrl: '/Course_Brochure_Indrajeet_Sir.pdf',
-    },
-    {
-      id: 'pdf-3',
-      title: 'Prelims PYQ Reverse Engineering Framework & Theme Mapping',
-      description: 'Strategic guide on how past 10-year UPSC questions predict upcoming themes and option-elimination tactics.',
-      tag: 'PYQ Strategy',
-      size: '1.9 MB',
-      fileUrl: '/Course_Brochure_Indrajeet_Sir.pdf',
-    },
-  ]);
+  const [pdfList, setPdfList] = useState<PdfResource[]>([]);
 
   useEffect(() => {
     const loadContent = () => {
@@ -60,7 +35,7 @@ export default function ResourcesPage() {
         const savedPdfs = localStorage.getItem('indrajeet_pdf_list');
         if (savedPdfs) {
           const parsed = JSON.parse(savedPdfs);
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          if (Array.isArray(parsed)) {
             setPdfList(parsed);
           }
         }
@@ -73,8 +48,9 @@ export default function ResourcesPage() {
     fetch(`${API_URL}/resources`)
       .then((r) => r.json())
       .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setPdfList(data);
+          try { localStorage.setItem('indrajeet_pdf_list', JSON.stringify(data)); } catch {}
         }
       })
       .catch(() => {});
@@ -124,7 +100,7 @@ export default function ResourcesPage() {
                       <span>View</span>
                     </a>
                     <a
-                      href={item.fileUrl}
+                      href={`${item.fileUrl}${item.fileUrl.includes('?') ? '&' : '?'}download=1`}
                       download
                       target="_blank"
                       rel="noopener noreferrer"
