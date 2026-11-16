@@ -1133,6 +1133,27 @@ export default function AdminPanel() {
     triggerAlert(`User "${name}" has been unblocked.`);
   };
 
+  const handleResetPassword = async (id: string, name: string) => {
+    const newPass = window.prompt(`Enter new password for ${name}:`, '123456');
+    if (!newPass) return;
+
+    try {
+      const res = await fetch(`${API_URL}/students/${id}/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPass.trim() }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        triggerAlert(`Password for "${name}" has been set to: ${newPass}`);
+      } else {
+        alert(data.message || 'Failed to update password.');
+      }
+    } catch (err: any) {
+      alert('Error updating password: ' + (err?.message || 'Network error'));
+    }
+  };
+
   const handleDeleteUser = async (id: string, name: string) => {
     if (!window.confirm(`Are you sure you want to permanently delete user "${name}"?`)) return;
     setUsers((prev) => prev.filter((u) => u.id !== id));
@@ -2038,6 +2059,14 @@ export default function AdminPanel() {
                                 Unblock
                               </button>
                             )}
+                            <button
+                              className="action-btn-sm"
+                              style={{ background: '#f8fafc', color: '#0284c7', border: '1px solid #bae6fd' }}
+                              onClick={() => handleResetPassword(u.id, u.name)}
+                              title="Reset or set user password"
+                            >
+                              Password
+                            </button>
                             <button
                               className="action-btn-sm delete"
                               onClick={() => handleDeleteUser(u.id, u.name)}

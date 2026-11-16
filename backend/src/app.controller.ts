@@ -741,6 +741,41 @@ export class AppController {
     return { success: true };
   }
 
+  @Post('students/:id/reset-password')
+  async resetStudentPassword(
+    @Param('id') id: string,
+    @Body() body: { password?: string }
+  ) {
+    const newPassword = body.password || '123456';
+    const hashedPassword = await this.auth.hashPassword(newPassword);
+
+    try {
+      const user = await this.prisma.user.update({
+        where: { id },
+        data: { password: hashedPassword },
+      });
+      return { success: true, message: `Password updated successfully for ${user.name || user.email}`, newPassword };
+    } catch (err: any) {
+      // Also check if found by email or in fallback
+      const userByEmail = await this.prisma.user.findFirst({
+        where: {
+          OR: [
+            { email: { contains: id } },
+            { name: { contains: id } },
+          ],
+        },
+      });
+      if (userByEmail) {
+        await this.prisma.user.update({
+          where: { id: userByEmail.id },
+          data: { password: hashedPassword },
+        });
+        return { success: true, message: `Password updated successfully for ${userByEmail.name || userByEmail.email}`, newPassword };
+      }
+      return { success: false, message: 'Student not found in database: ' + (err?.message || '') };
+    }
+  }
+
   // ── Courses Management ────────────────────────────────────────────────────
   @Get('courses')
   async getCourses() {
