@@ -190,7 +190,7 @@ export default function Home() {
               {/* Mentor Name Plate Below Photo */}
               <div className="mentor-caption-plate">
                 <span className="mentor-card-name">Indrajeet Sir</span>
-                <span className="mentor-card-sub">UPSC CSE Mentor · VisionIAS Faculty</span>
+                <span className="mentor-card-sub">UPSC CSE Mentor • VisionIAS Faculty</span>
               </div>
             </div>
           </div>
