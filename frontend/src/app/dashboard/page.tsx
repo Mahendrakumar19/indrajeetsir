@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -162,15 +162,6 @@ function IconArrowRight({ size = 16 }: { size?: number }) {
   );
 }
 
-function IconShieldCheck({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
-  );
-}
-
 function IconCheck({ size = 14 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -288,9 +279,24 @@ function getInitials(name: string): string {
 
 export default function StudentDashboard() {
   const router = useRouter();
-  const [student, setStudent] = useState<StudentUser | null>(null);
+  const [student, setStudent] = useState<StudentUser | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return getStudentSession();
+  });
   const [classes, setClasses] = useState<LiveClassItem[]>([]);
-  const [messages, setMessages] = useState<MessageItem[]>([]);
+  const [messages, setMessages] = useState<MessageItem[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const cached = localStorage.getItem('indrajeet_student_chat_history');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch {}
+    return [];
+  });
   const [msgText, setMsgText] = useState('');
   const [selectedFileName, setSelectedFileName] = useState('');
   const [editingMsgId, setEditingMsgId] = useState<string | null>(null);
@@ -301,13 +307,16 @@ export default function StudentDashboard() {
 
   // Edit Profile Form State
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [profileForm, setProfileForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    attempt: '2027',
-    optionalSubject: '',
-    bio: '',
+  const [profileForm, setProfileForm] = useState(() => {
+    const s = typeof window !== 'undefined' ? getStudentSession() : null;
+    return {
+      name: s?.name || '',
+      email: s?.email || '',
+      phone: s?.phone || '',
+      attempt: s?.attempt || '2027',
+      optionalSubject: s?.optionalSubject || '',
+      bio: s?.bio || '',
+    };
   });
   const [profileSaveSuccess, setProfileSaveSuccess] = useState(false);
 
@@ -315,8 +324,36 @@ export default function StudentDashboard() {
   const [alert10mEnabled, setAlert10mEnabled] = useState(true);
   const [pushAlertsEnabled, setPushAlertsEnabled] = useState(true);
 
+  // Active clock timestamp to avoid impure Date.now() during render
+  const [currentTimestamp, setCurrentTimestamp] = useState<number>(0);
+
   // Throttled activity tracker for 7-day inactivity sliding session
-  const lastTouchRef = useRef<number>(Date.now());
+  const lastTouchRef = useRef<number>(0);
+
+  const fetchClasses = useCallback(() => {
+    setLoading(true);
+    fetch(`${API_URL}/live-classes`)
+      .then((r) => r.json())
+      .then((d) => {
+        setClasses(Array.isArray(d) ? d : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const fetchMessages = useCallback(() => {
+    fetch(`${API_URL}/messages`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d)) {
+          setMessages(d);
+          try {
+            localStorage.setItem('indrajeet_student_chat_history', JSON.stringify(d));
+          } catch {}
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     // Process session parameters passed from Mobile App redirection
@@ -324,7 +361,7 @@ export default function StudentDashboard() {
       const params = new URLSearchParams(window.location.search);
       const urlEmail = params.get('email');
       if (urlEmail) {
-        setStudentSession({
+        const redirected = {
           id: params.get('id') || `st-${Date.now()}`,
           name: params.get('name') || 'Aspirant',
           email: urlEmail,
@@ -332,6 +369,16 @@ export default function StudentDashboard() {
           attempt: params.get('attempt') || params.get('attemptYear') || String(new Date().getFullYear() + 1),
           optionalSubject: params.get('optional') || params.get('optionalSubject') || '',
           bio: params.get('bio') || 'UPSC CSE Aspirant • Mentored by Indrajeet Sir',
+        };
+        setStudentSession(redirected);
+        setStudent(redirected);
+        setProfileForm({
+          name: redirected.name || '',
+          email: redirected.email || '',
+          phone: redirected.phone || '',
+          attempt: redirected.attempt || '2027',
+          optionalSubject: redirected.optionalSubject || '',
+          bio: redirected.bio || '',
         });
         window.dispatchEvent(new Event('storage'));
       }
@@ -343,15 +390,13 @@ export default function StudentDashboard() {
       router.push('/login');
       return;
     }
-    setStudent(session);
-    setProfileForm({
-      name: session.name || '',
-      email: session.email || '',
-      phone: session.phone || '',
-      attempt: session.attempt || '2027',
-      optionalSubject: session.optionalSubject || '',
-      bio: session.bio || '',
-    });
+
+    // Safely initialize lastTouchRef and currentTimestamp in effect
+    lastTouchRef.current = Date.now();
+    setCurrentTimestamp(Date.now());
+    const timer = setInterval(() => {
+      setCurrentTimestamp(Date.now());
+    }, 15000);
 
     // 2. Attach user interaction listeners to maintain active session
     const handleUserActivity = () => {
@@ -368,54 +413,18 @@ export default function StudentDashboard() {
     window.addEventListener('scroll', handleUserActivity);
     window.addEventListener('touchstart', handleUserActivity);
 
+    fetchClasses();
+    fetchMessages();
+
     return () => {
+      clearInterval(timer);
       window.removeEventListener('mousemove', handleUserActivity);
       window.removeEventListener('keydown', handleUserActivity);
       window.removeEventListener('click', handleUserActivity);
       window.removeEventListener('scroll', handleUserActivity);
       window.removeEventListener('touchstart', handleUserActivity);
     };
-  }, [router]);
-
-  useEffect(() => {
-    try {
-      const cached = localStorage.getItem('indrajeet_student_chat_history');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setMessages(parsed);
-        }
-      }
-    } catch {}
-
-    fetchClasses();
-    fetchMessages();
-  }, []);
-
-  const fetchClasses = () => {
-    setLoading(true);
-    fetch(`${API_URL}/live-classes`)
-      .then(r => r.json())
-      .then(d => {
-        setClasses(Array.isArray(d) ? d : []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  };
-
-  const fetchMessages = () => {
-    fetch(`${API_URL}/messages`)
-      .then(r => r.json())
-      .then(d => {
-        if (Array.isArray(d)) {
-          setMessages(d);
-          try {
-            localStorage.setItem('indrajeet_student_chat_history', JSON.stringify(d));
-          } catch {}
-        }
-      })
-      .catch(() => {});
-  };
+  }, [router, fetchClasses, fetchMessages]);
 
   const handleLogout = () => {
     clearStudentSession();
@@ -1082,7 +1091,9 @@ export default function StudentDashboard() {
                 )}
                 {messages.map((m, index) => {
                   const isMe = m.sender === 'student';
-                  const elapsedSec = Math.floor((Date.now() - (m.createdAtMs || Date.now())) / 1000);
+                  const elapsedSec = currentTimestamp && m.createdAtMs
+                    ? Math.floor((currentTimestamp - m.createdAtMs) / 1000)
+                    : 999;
                   const canEdit = isMe && elapsedSec <= 120;
                   const dateLabel = formatChatDate(m);
                   const prevDateLabel = index > 0 ? formatChatDate(messages[index - 1]) : null;
