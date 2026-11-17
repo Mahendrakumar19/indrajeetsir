@@ -2550,6 +2550,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Map<String, dynamic>> _courses = [];
   List<Map<String, dynamic>> _resources = [];
   bool _isLoading = true;
@@ -3243,58 +3244,942 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildHeroBanner(BuildContext context, bool isDark) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isDark
+              ? [const Color(0xFF0F2B1F), const Color(0xFF133E2B), const Color(0xFF1E293B)]
+              : [const Color(0xFF0B3829), const Color(0xFF124E38), const Color(0xFF1B634A)],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0B3829).withValues(alpha: isDark ? 0.4 : 0.22),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -30,
+              top: -30,
+              child: Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.05),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 12, 16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    flex: 12,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFC04826),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            '1:1 PERSONAL MENTORSHIP',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.6,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Indrajeet Sir',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.4,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        const Text(
+                          'UPSC CSE Mentor • VisionIAS Faculty',
+                          style: TextStyle(
+                            color: Color(0xFFA4CBB9),
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          '“The process is more important than the results.”',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 11,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        GestureDetector(
+                          onTap: () => _showAllCoursesModal(context),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Explore Batches',
+                                  style: TextStyle(
+                                    color: Color(0xFF0B3829),
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                SizedBox(width: 4),
+                                Icon(
+                                  CupertinoIcons.arrow_up_right,
+                                  size: 12,
+                                  color: Color(0xFF0B3829),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 9,
+                    child: Container(
+                      height: 145,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.25),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Image.asset(
+                          'assets/images/indrajeet-sir-hero.jpg',
+                          fit: BoxFit.cover,
+                          alignment: Alignment.topCenter,
+                          errorBuilder: (_, __, ___) => Image.asset(
+                            'assets/images/indrajeet_sir.jpg',
+                            fit: BoxFit.cover,
+                            alignment: Alignment.topCenter,
+                            errorBuilder: (_, __, ___) => Image.asset(
+                              'assets/images/logo.png',
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required Widget icon,
+    required Color backgroundColor,
+    required Color badgeColor,
+    required VoidCallback onTap,
+    bool isDark = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 88,
+        decoration: BoxDecoration(
+          color: isDark ? backgroundColor.withValues(alpha: 0.25) : backgroundColor,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : badgeColor.withValues(alpha: 0.2),
+            width: 1.2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: Stack(
+            children: [
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: badgeColor,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(14),
+                      topRight: Radius.circular(18),
+                    ),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      CupertinoIcons.arrow_up_right,
+                      size: 13,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 10, 32, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.08)
+                            : Colors.white.withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Center(child: icon),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickActionGrid(BuildContext context, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'QUICK ACCESS DESK',
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.6,
+                color: CupertinoColors.systemGrey,
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _showAllCoursesModal(context),
+              child: const Row(
+                children: [
+                  Text(
+                    'All Programs',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0B3829),
+                    ),
+                  ),
+                  SizedBox(width: 2),
+                  Icon(CupertinoIcons.arrow_right, size: 11, color: Color(0xFF0B3829)),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionCard(
+                context: context,
+                title: 'Courses',
+                subtitle: 'Batches & Fees',
+                icon: const Icon(CupertinoIcons.lightbulb_fill, color: Color(0xFFE11D48), size: 17),
+                backgroundColor: const Color(0xFFFFECEB),
+                badgeColor: const Color(0xFFE11D48),
+                onTap: () => _showAllCoursesModal(context),
+                isDark: isDark,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildActionCard(
+                context: context,
+                title: 'Live Sessions',
+                subtitle: 'Class Schedule',
+                icon: const Icon(CupertinoIcons.videocam_fill, color: Color(0xFFD97706), size: 17),
+                backgroundColor: const Color(0xFFFEF9C3),
+                badgeColor: const Color(0xFFD97706),
+                onTap: () => widget.onNavigateTab(1),
+                isDark: isDark,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionCard(
+                context: context,
+                title: 'PDF Resources',
+                subtitle: '600+ Topic Notes',
+                icon: const Icon(CupertinoIcons.doc_text_fill, color: Color(0xFF059669), size: 17),
+                backgroundColor: const Color(0xFFDCFCE7),
+                badgeColor: const Color(0xFF059669),
+                onTap: () => _showAllResourcesModal(context),
+                isDark: isDark,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildActionCard(
+                context: context,
+                title: 'Daily Evaluation',
+                subtitle: 'Answer Writing',
+                icon: const Icon(CupertinoIcons.pencil_outline, color: Color(0xFFDC2626), size: 17),
+                backgroundColor: const Color(0xFFFEE2E2),
+                badgeColor: const Color(0xFFDC2626),
+                onTap: () => widget.onNavigateTab(2),
+                isDark: isDark,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionCard(
+                context: context,
+                title: '1:1 Mentor Chat',
+                subtitle: 'Direct with Sir',
+                icon: const Icon(CupertinoIcons.chat_bubble_2_fill, color: Color(0xFF0284C7), size: 17),
+                backgroundColor: const Color(0xFFE0F2FE),
+                badgeColor: const Color(0xFF0284C7),
+                onTap: () => widget.onNavigateTab(2),
+                isDark: isDark,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildActionCard(
+                context: context,
+                title: 'PYQ Analysis',
+                subtitle: '12-Year Trends',
+                icon: const Icon(CupertinoIcons.chart_bar_alt_fill, color: Color(0xFF7C3AED), size: 17),
+                backgroundColor: const Color(0xFFF3E8FF),
+                badgeColor: const Color(0xFF7C3AED),
+                onTap: () => _showAllResourcesModal(context),
+                isDark: isDark,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _showAllCoursesModal(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: CupertinoColors.systemGrey4,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Mentorship Courses & Batches',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      'Select a course to view details & proceed to enrollment',
+                      style: TextStyle(fontSize: 11.5, color: CupertinoColors.systemGrey),
+                    ),
+                  ],
+                ),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  child: const Icon(CupertinoIcons.xmark_circle_fill, color: CupertinoColors.systemGrey),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemCount: _courses.length,
+                itemBuilder: (_, i) => _buildCourseCard(context, _courses[i], isDark),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAllResourcesModal(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: CupertinoColors.systemGrey4,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'PDF Resources & Short Notes',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      '600+ Topic micro-notes & PYQ reverse engineering',
+                      style: TextStyle(fontSize: 11.5, color: CupertinoColors.systemGrey),
+                    ),
+                  ],
+                ),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  child: const Icon(CupertinoIcons.xmark_circle_fill, color: CupertinoColors.systemGrey),
+                  onPressed: () => Navigator.pop(ctx),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemCount: _resources.length,
+                itemBuilder: (_, i) => _buildResourceCard(context, _resources[i], isDark),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppDrawer(BuildContext context, bool isDark) {
+    return Drawer(
+      backgroundColor: isDark ? const Color(0xFF131B26) : const Color(0xFFFBF8F4),
+      child: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: const Color(0xFF0B3829), width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.08),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => CircleAvatar(
+                          backgroundColor: const Color(0xFF0B3829),
+                          child: Text(
+                            widget.profile.avatarDisplayEmoji,
+                            style: const TextStyle(fontSize: 24),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Welcome',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: CupertinoColors.systemGrey,
+                          ),
+                        ),
+                        Text(
+                          widget.profile.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0B3829).withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'UPSC CSE ${widget.profile.attemptYear}',
+                            style: const TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF0B3829),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    onPressed: widget.onThemeToggle,
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: isDark ? Colors.white12 : Colors.black12,
+                        ),
+                      ),
+                      child: Icon(
+                        isDark ? CupertinoIcons.sun_max_fill : CupertinoIcons.moon_fill,
+                        size: 16,
+                        color: isDark ? const Color(0xFFFFCC00) : const Color(0xFF0B3829),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Divider(height: 1, color: isDark ? Colors.white12 : Colors.black12),
+            Expanded(
+              child: ListView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                children: [
+                  _buildDrawerItem(
+                    icon: CupertinoIcons.home,
+                    label: 'Home',
+                    isSelected: true,
+                    onTap: () => Navigator.pop(context),
+                    isDark: isDark,
+                  ),
+                  _buildDrawerItem(
+                    icon: CupertinoIcons.videocam_fill,
+                    label: 'Live Classes',
+                    onTap: () {
+                      Navigator.pop(context);
+                      widget.onNavigateTab(1);
+                    },
+                    isDark: isDark,
+                  ),
+                  _buildDrawerItem(
+                    icon: CupertinoIcons.book_fill,
+                    label: 'Mentorship Batches',
+                    onTap: () {
+                      Navigator.pop(context);
+                      _showAllCoursesModal(context);
+                    },
+                    isDark: isDark,
+                  ),
+                  _buildDrawerItem(
+                    icon: CupertinoIcons.doc_text_fill,
+                    label: 'PDF Resources & Notes',
+                    onTap: () {
+                      Navigator.pop(context);
+                      _showAllResourcesModal(context);
+                    },
+                    isDark: isDark,
+                  ),
+                  _buildDrawerItem(
+                    icon: CupertinoIcons.chat_bubble_2_fill,
+                    label: '1:1 Mentor Chat',
+                    onTap: () {
+                      Navigator.pop(context);
+                      widget.onNavigateTab(2);
+                    },
+                    isDark: isDark,
+                  ),
+                  _buildDrawerItem(
+                    icon: CupertinoIcons.person_crop_circle,
+                    label: 'My Profile & Settings',
+                    onTap: () {
+                      Navigator.pop(context);
+                      widget.onNavigateTab(3);
+                    },
+                    isDark: isDark,
+                  ),
+                  _buildDrawerItem(
+                    icon: FontAwesomeIcons.whatsapp,
+                    label: 'WhatsApp Helpdesk',
+                    iconColor: const Color(0xFF25D366),
+                    onTap: () {
+                      Navigator.pop(context);
+                      WebRedirectService.openUrl('https://wa.me/919709992093?text=Hello%20Indrajeet%20Sir%2C%20I%20have%20a%20query%20regarding%20mentorship.');
+                    },
+                    isDark: isDark,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: Column(
+                children: [
+                  const Text(
+                    'Connect with Indrajeet Sir',
+                    style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: CupertinoColors.systemGrey),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildSocialIconButton(
+                        icon: FontAwesomeIcons.youtube,
+                        color: const Color(0xFFFF0000),
+                        onTap: () => WebRedirectService.openUrl('https://www.youtube.com/@IndrajeetSirUPSC'),
+                        isDark: isDark,
+                      ),
+                      const SizedBox(width: 12),
+                      _buildSocialIconButton(
+                        icon: FontAwesomeIcons.telegram,
+                        color: const Color(0xFF229ED9),
+                        onTap: () => WebRedirectService.openUrl('https://t.me/indrajeetsirupsc'),
+                        isDark: isDark,
+                      ),
+                      const SizedBox(width: 12),
+                      _buildSocialIconButton(
+                        icon: FontAwesomeIcons.globe,
+                        color: const Color(0xFF0B3829),
+                        onTap: () => WebRedirectService.openUrl('https://indrajeetsir.com'),
+                        isDark: isDark,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    bool isSelected = false,
+    Color? iconColor,
+    required bool isDark,
+  }) {
+    final activeBg = const Color(0xFF0B3829);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        tileColor: isSelected ? activeBg : Colors.transparent,
+        leading: Icon(
+          icon,
+          size: 18,
+          color: isSelected
+              ? Colors.white
+              : (iconColor ?? (isDark ? Colors.white70 : const Color(0xFF334155))),
+        ),
+        title: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13.5,
+            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+            color: isSelected ? Colors.white : (isDark ? Colors.white : const Color(0xFF0F172A)),
+          ),
+        ),
+        onTap: onTap,
+        dense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+      ),
+    );
+  }
+
+  Widget _buildSocialIconButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E293B) : Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: isDark ? Colors.white12 : Colors.black12),
+        ),
+        child: Center(
+          child: FaIcon(icon, size: 16, color: color),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: _buildAppDrawer(context, isDark),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _loadHomeData,
-          color: IosTheme.primaryBlue,
+          color: const Color(0xFF0B3829),
           child: CustomScrollView(
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             slivers: [
-              // iOS Large Title Header
+              // Top Navigation Bar (Hamburger Menu, Brand Title, Quick Actions)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'UPSC CSE ${widget.profile.attemptYear.toUpperCase()}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.8,
-                                color: IosTheme.primaryBlue,
+                      Row(
+                        children: [
+                          CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+                            child: Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+                                ),
+                              ),
+                              child: Icon(
+                                CupertinoIcons.bars,
+                                size: 20,
+                                color: isDark ? Colors.white : const Color(0xFF0F172A),
                               ),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Welcome, ${widget.profile.name.split(' ')[0]}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.6,
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    'Indrajeet Sir',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w900,
+                                      color: isDark ? Colors.white : const Color(0xFF0B3829),
+                                      letterSpacing: -0.4,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF0B3829).withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: const Text(
+                                      'UPSC',
+                                      style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w900,
+                                        color: Color(0xFF0B3829),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
+                              Text(
+                                'Welcome, ${widget.profile.name.split(' ')[0]}',
+                                style: const TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: CupertinoColors.systemGrey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            onPressed: () => _showAllCoursesModal(context),
+                            child: Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+                                ),
+                              ),
+                              child: const Icon(
+                                CupertinoIcons.bag_fill,
+                                size: 17,
+                                color: Color(0xFF0B3829),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                           CupertinoButton(
                             padding: EdgeInsets.zero,
                             minimumSize: Size.zero,
@@ -3304,38 +4189,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 38,
                               decoration: BoxDecoration(
                                 color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
-                                shape: BoxShape.circle,
+                                borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
-                                  color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.06),
+                                  color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
                               ),
                               child: Icon(
                                 isDark ? CupertinoIcons.sun_max_fill : CupertinoIcons.moon_fill,
-                                size: 18,
-                                color: isDark ? const Color(0xFFFFCC00) : IosTheme.systemIndigo,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          GestureDetector(
-                            onTap: () => widget.onNavigateTab(3),
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(color: IosTheme.primaryBlue, width: 2),
-                              ),
-                              child: CircleAvatar(
-                                radius: 19,
-                                backgroundColor: IosTheme.primaryBlue.withValues(alpha: 0.12),
-                                child: Text(widget.profile.avatarDisplayEmoji, style: const TextStyle(fontSize: 19)),
+                                size: 17,
+                                color: isDark ? const Color(0xFFFFCC00) : const Color(0xFF0B3829),
                               ),
                             ),
                           ),
@@ -3348,9 +4210,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Content List
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 140),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 140),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
+                    // 1. Featured Mentor Hero Banner (Indrajeet Sir's Photo & 1:1 Tagline)
+                    _buildHeroBanner(context, isDark),
+
+                    // 2. The 2-Column Action Grid (Courses, Live Sessions, Resources, Answer Writing, etc.)
+                    _buildQuickActionGrid(context, isDark),
+                    const SizedBox(height: 20),
                     // Enrolled Course Status Banner
                     IosGlassCard(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

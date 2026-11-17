@@ -179,6 +179,25 @@ function IconCheck({ size = 14 }: { size?: number }) {
   );
 }
 
+function IconAward({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="8" r="6" />
+      <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+    </svg>
+  );
+}
+
+function IconFileCheck({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+      <polyline points="14 2 14 8 20 8" />
+      <path d="m9 15 2 2 4-4" />
+    </svg>
+  );
+}
+
 interface LiveClassItem {
   id: string;
   title: string;
@@ -655,6 +674,118 @@ export default function StudentDashboard() {
             ══════════════════════════════════════════════════════ */}
         {tab === 'overview' && (
           <div className="tab-pane">
+            {/* 1. Featured Mentor Hero Banner (Indrajeet Sir's Photo & 1:1 Tagline) */}
+            <div className="dash-hero-banner">
+              <div className="dash-hero-content">
+                <span className="dash-hero-badge">1:1 PERSONAL MENTORSHIP</span>
+                <h2 className="dash-hero-name">Indrajeet Sir</h2>
+                <p className="dash-hero-sub">UPSC CSE Mentor • VisionIAS Faculty</p>
+                <p className="dash-hero-quote">
+                  &ldquo;The process is more important than the results. If you take care of the process, results will follow.&rdquo;
+                </p>
+                <div className="dash-hero-actions">
+                  <Link href="/courses" className="dash-hero-btn">
+                    <span>Explore Batches &amp; Fees</span>
+                    <span className="arrow">&rarr;</span>
+                  </Link>
+                  <button onClick={() => setTab('classes')} className="dash-hero-btn-secondary">
+                    <span>Live Classroom Schedule</span>
+                  </button>
+                </div>
+              </div>
+              <div className="dash-hero-visual">
+                <Image
+                  src="/indrajeet-sir-hero.jpg"
+                  alt="Indrajeet Sir - UPSC CSE Mentorship"
+                  width={340}
+                  height={380}
+                  priority
+                  className="dash-hero-img"
+                />
+              </div>
+            </div>
+
+            {/* 2. 2-Column Action Grid Buttons (Courses, Live Sessions, Resources, etc.) */}
+            <div className="dash-action-grid-section">
+              <div className="dash-section-header">
+                <span className="dash-section-label">QUICK ACCESS DESK</span>
+                <Link href="/courses" className="dash-section-link">All Programs &rarr;</Link>
+              </div>
+              <div className="dash-action-grid">
+                {/* Courses */}
+                <Link href="/courses" className="dash-action-card card-peach">
+                  <div className="dash-card-badge badge-rose">&#8599;</div>
+                  <div className="dash-card-icon-wrap icon-rose">
+                    <IconBookOpen size={20} />
+                  </div>
+                  <div className="dash-card-info">
+                    <div className="dash-card-title">Courses</div>
+                    <div className="dash-card-sub">Batches &amp; Dynamic Fees</div>
+                  </div>
+                </Link>
+
+                {/* Live Sessions */}
+                <button onClick={() => setTab('classes')} className="dash-action-card card-yellow">
+                  <div className="dash-card-badge badge-amber">&#8599;</div>
+                  <div className="dash-card-icon-wrap icon-amber">
+                    <IconVideo size={20} />
+                  </div>
+                  <div className="dash-card-info">
+                    <div className="dash-card-title">Live Sessions</div>
+                    <div className="dash-card-sub">Classroom Schedule</div>
+                  </div>
+                </button>
+
+                {/* PDF Resources */}
+                <Link href="/resources" className="dash-action-card card-green">
+                  <div className="dash-card-badge badge-emerald">&#8599;</div>
+                  <div className="dash-card-icon-wrap icon-emerald">
+                    <IconFileText size={20} />
+                  </div>
+                  <div className="dash-card-info">
+                    <div className="dash-card-title">PDF Resources</div>
+                    <div className="dash-card-sub">600+ Topic Notes &amp; PYQs</div>
+                  </div>
+                </Link>
+
+                {/* Daily Evaluation / Answer Writing */}
+                <button onClick={() => setTab('chat')} className="dash-action-card card-red">
+                  <div className="dash-card-badge badge-red">&#8599;</div>
+                  <div className="dash-card-icon-wrap icon-red">
+                    <IconFileCheck size={20} />
+                  </div>
+                  <div className="dash-card-info">
+                    <div className="dash-card-title">Daily Evaluation</div>
+                    <div className="dash-card-sub">Mains Copy Review</div>
+                  </div>
+                </button>
+
+                {/* 1:1 Mentor Chat */}
+                <button onClick={() => setTab('chat')} className="dash-action-card card-blue">
+                  <div className="dash-card-badge badge-sky">&#8599;</div>
+                  <div className="dash-card-icon-wrap icon-sky">
+                    <IconMessageSquare size={20} />
+                  </div>
+                  <div className="dash-card-info">
+                    <div className="dash-card-title">1:1 Mentor Chat</div>
+                    <div className="dash-card-sub">Direct with Indrajeet Sir</div>
+                  </div>
+                </button>
+
+                {/* PYQ Breakdown */}
+                <Link href="/resources" className="dash-action-card card-purple">
+                  <div className="dash-card-badge badge-purple">&#8599;</div>
+                  <div className="dash-card-icon-wrap icon-purple">
+                    <IconAward size={20} />
+                  </div>
+                  <div className="dash-card-info">
+                    <div className="dash-card-title">PYQ Analysis</div>
+                    <div className="dash-card-sub">Last 12 Years Trend</div>
+                  </div>
+                </Link>
+              </div>
+            </div>
+
             {/* Enrolled Course Status Banner */}
             <div className="course-banner-card">
               <div className="course-banner-icon">

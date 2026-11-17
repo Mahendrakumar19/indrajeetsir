@@ -1899,4 +1899,278 @@ html.dark .mobile-dock-item.active {
   background: #111827 !important;
 }
 
+/* ══════════════════════════════════════════════════════════
+   Home Reference Design: Hero Banner & 2-Column Action Grid
+   ══════════════════════════════════════════════════════════ */
+.dash-hero-banner {
+  background: linear-gradient(135deg, #0b3829 0%, #124e38 50%, #1b634a 100%);
+  border-radius: 20px;
+  padding: 1.75rem 2rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1.75rem;
+  box-shadow: 0 12px 32px -8px rgba(11, 56, 41, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.dash-hero-content {
+  flex: 1;
+  max-width: 620px;
+  z-index: 2;
+}
+
+.dash-hero-badge {
+  display: inline-block;
+  background: #c04826;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  margin-bottom: 0.65rem;
+}
+
+.dash-hero-name {
+  font-size: 1.85rem;
+  font-weight: 850;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.2rem;
+  color: #ffffff;
+}
+
+.dash-hero-sub {
+  font-size: 0.95rem;
+  color: #a4cbb9;
+  font-weight: 600;
+  margin-bottom: 0.65rem;
+}
+
+.dash-hero-quote {
+  font-size: 0.95rem;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.dash-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.dash-hero-btn {
+  background: #ffffff;
+  color: #0b3829 !important;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dash-hero-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.dash-hero-btn-secondary {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff !important;
+  font-weight: 600;
+  font-size: 0.88rem;
+  padding: 0.65rem 1.15rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dash-hero-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.dash-hero-visual {
+  width: 170px;
+  height: 190px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+.dash-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+/* ── 2-Column Action Grid Section ── */
+.dash-action-grid-section {
+  margin-bottom: 1.75rem;
+}
+
+.dash-action-grid-section .dash-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.dash-action-grid-section .dash-section-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.dash-action-grid-section .dash-section-link {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0b3829;
+  text-decoration: none;
+}
+
+.dash-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .dash-action-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.dash-action-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1.05rem 1.15rem;
+  border-radius: 16px;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  overflow: hidden;
+  text-align: left;
+  background: #ffffff;
+}
+
+.dash-action-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.dash-card-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  border-bottom-left-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.dash-card-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dash-card-title {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.dash-card-sub {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 500;
+  margin-top: 0.1rem;
+}
+
+/* Palette Variations Matching Reference */
+.card-peach { background: #fff1ee; border-color: #fecdd3; }
+.badge-rose { background: #e11d48; }
+.icon-rose { background: #ffffff; color: #e11d48; box-shadow: 0 2px 6px rgba(225, 29, 72, 0.12); }
+
+.card-yellow { background: #fefce8; border-color: #fef08a; }
+.badge-amber { background: #d97706; }
+.icon-amber { background: #ffffff; color: #d97706; box-shadow: 0 2px 6px rgba(217, 119, 6, 0.12); }
+
+.card-green { background: #f0fdf4; border-color: #bbf7d0; }
+.badge-emerald { background: #059669; }
+.icon-emerald { background: #ffffff; color: #059669; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.12); }
+
+.card-red { background: #fef2f2; border-color: #fecaca; }
+.badge-red { background: #dc2626; }
+.icon-red { background: #ffffff; color: #dc2626; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.12); }
+
+.card-blue { background: #f0f9ff; border-color: #bae6fd; }
+.badge-sky { background: #0284c7; }
+.icon-sky { background: #ffffff; color: #0284c7; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.12); }
+
+.card-purple { background: #faf5ff; border-color: #e9d5ff; }
+.badge-purple { background: #7c3aed; }
+.icon-purple { background: #ffffff; color: #7c3aed; box-shadow: 0 2px 6px rgba(124, 58, 237, 0.12); }
+
+@media (max-width: 640px) {
+  .dash-hero-banner {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    padding: 1.35rem 1.25rem;
+  }
+  .dash-hero-visual {
+    width: 100%;
+    height: 180px;
+  }
+  .dash-action-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+  }
+  .dash-action-card {
+    padding: 0.85rem 0.75rem;
+    gap: 0.6rem;
+  }
+}
+
+html.dark .card-peach { background: #261616 !important; border-color: #4c1d24 !important; }
+html.dark .card-yellow { background: #262312 !important; border-color: #453c12 !important; }
+html.dark .card-green { background: #112217 !important; border-color: #14532d !important; }
+html.dark .card-red { background: #281215 !important; border-color: #4c1d24 !important; }
+html.dark .card-blue { background: #10202e !important; border-color: #0c4a6e !important; }
+html.dark .card-purple { background: #1e152d !important; border-color: #3b1d54 !important; }
+html.dark .dash-card-title { color: #f8fafc !important; }
+html.dark .dash-card-sub { color: #94a3b8 !important; }
+html.dark .dash-section-link { color: #34d399 !important; }
+
 
