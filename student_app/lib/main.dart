@@ -2553,7 +2553,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Map<String, dynamic>> _courses = [];
   List<Map<String, dynamic>> _resources = [];
-  bool _isLoading = true;
 
   final List<Map<String, dynamic>> _defaultCoursesFallback = [
     {
@@ -2704,13 +2703,10 @@ class _HomeScreenState extends State<HomeScreen> {
           if (liveResources.isNotEmpty) {
             _resources = liveResources;
           }
-          _isLoading = false;
         });
       }
     } catch (_) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      // Ignored
     }
   }
 
@@ -2749,7 +2745,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final String validity = course['validity'] ?? 'Full Batch Access';
     final String title = course['title'] ?? 'UPSC Mentorship Program';
     final String description = course['description'] ?? 'Comprehensive personal guidance with Indrajeet Sir.';
-    final List<dynamic> features = course['features'] is List ? course['features'] : [];
     final String? thumb = course['thumbnail'];
 
     return IosGlassCard(
@@ -4008,7 +4003,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildDrawerItem({
-    required IconData icon,
+    required dynamic icon,
     required String label,
     required VoidCallback onTap,
     bool isSelected = false,
@@ -4016,18 +4011,18 @@ class _HomeScreenState extends State<HomeScreen> {
     required bool isDark,
   }) {
     final activeBg = const Color(0xFF0B3829);
+    final iconColorFinal = isSelected
+        ? Colors.white
+        : (iconColor ?? (isDark ? Colors.white70 : const Color(0xFF334155)));
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         tileColor: isSelected ? activeBg : Colors.transparent,
-        leading: Icon(
-          icon,
-          size: 18,
-          color: isSelected
-              ? Colors.white
-              : (iconColor ?? (isDark ? Colors.white70 : const Color(0xFF334155))),
-        ),
+        leading: icon is FaIconData
+            ? FaIcon(icon, size: 18, color: iconColorFinal)
+            : Icon(icon as IconData, size: 18, color: iconColorFinal),
         title: Text(
           label,
           style: TextStyle(
@@ -4044,7 +4039,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSocialIconButton({
-    required IconData icon,
+    required FaIconData icon,
     required Color color,
     required VoidCallback onTap,
     required bool isDark,
@@ -4654,118 +4649,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildMetricTile(
-    BuildContext context, {
-    required String title,
-    required String value,
-    required String subtitle,
-    required FaIconData icon,
-    required Color color,
-  }) {
-    return IosGlassCard(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              FaIcon(icon, size: 18, color: color),
-              const Spacer(),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, letterSpacing: -0.4),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: CupertinoColors.systemGrey, letterSpacing: 0.4),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            subtitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 11, color: CupertinoColors.systemGrey),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildScheduleRow(
-    BuildContext context, {
-    required String time,
-    required String title,
-    required String type,
-    required bool isAssigned,
-    required VoidCallback onTap,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return CupertinoButton(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      onPressed: onTap,
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            decoration: BoxDecoration(
-              color: isAssigned
-                  ? IosTheme.systemOrange.withValues(alpha: 0.15)
-                  : IosTheme.primaryBlue.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              time,
-              style: TextStyle(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w800,
-                color: isAssigned ? IosTheme.systemOrange : IosTheme.primaryBlue,
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: isDark ? Colors.white : Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  type,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.3,
-                    color: isAssigned ? IosTheme.systemOrange : CupertinoColors.systemGrey,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          const Icon(CupertinoIcons.chevron_right, size: 14, color: CupertinoColors.systemGrey3),
-        ],
-      ),
-    );
-  }
 
   Widget _buildGuidelineItem(
     BuildContext context, {
