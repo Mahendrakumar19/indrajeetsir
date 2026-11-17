@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '@/components/Header';
@@ -215,8 +215,13 @@ export default function CoursesPage() {
     return () => window.removeEventListener('storage', loadContent);
   }, []);
 
-  // Restore session keys & process deep-link enrollment parameters from Mobile App
+  const hasPrefilledRef = useRef(false);
+
+  // Restore session keys & process deep-link enrollment parameters from Mobile App (ONLY once on mount)
   useEffect(() => {
+    if (hasPrefilledRef.current) return;
+    hasPrefilledRef.current = true;
+
     // 1. Check existing student session in localStorage
     const existing = getStudentSession();
     if (existing) {
@@ -234,14 +239,12 @@ export default function CoursesPage() {
       const urlPhone = params.get('phone');
       const urlAttempt = params.get('attempt') || params.get('attemptYear');
       const urlOptional = params.get('optional') || params.get('optionalSubject');
-      const urlCourseId = params.get('courseId');
-      const urlCourseTitle = params.get('courseTitle');
 
       if (urlEmail) {
-        setStudentEmail(urlEmail);
-        if (urlName) setStudentName(urlName);
-        if (urlPhone) setStudentPhone(urlPhone);
-        if (urlAttempt) setAttemptYear(urlAttempt);
+        setStudentEmail((prev) => prev || urlEmail);
+        if (urlName) setStudentName((prev) => prev || urlName);
+        if (urlPhone) setStudentPhone((prev) => prev || urlPhone);
+        if (urlAttempt) setAttemptYear((prev) => prev || urlAttempt);
 
         // Keep session keys synced and preserved across mobile & website
         setStudentSession({
@@ -252,24 +255,30 @@ export default function CoursesPage() {
           attempt: urlAttempt || existing?.attempt || String(new Date().getFullYear() + 1),
           optionalSubject: urlOptional || existing?.optionalSubject || '',
         });
-        window.dispatchEvent(new Event('storage'));
-      }
-
-      // Automatically open checkout modal if a course was selected in mobile app
-      if (urlCourseId || urlCourseTitle) {
-        const targetId = urlCourseId?.toLowerCase();
-        const targetTitle = urlCourseTitle?.toLowerCase();
-        const matched = courses.find((c) => {
-          if (targetId && c.id.toLowerCase() === targetId) return true;
-          if (targetTitle && c.title.toLowerCase().includes(targetTitle)) return true;
-          return false;
-        });
-        if (matched) {
-          setSelectedCourse(matched);
-        }
       }
     }
-  }, [courses]);
+  }, []);
+
+  // Automatically open checkout modal if a course was selected in mobile app (runs when courses load)
+  useEffect(() => {
+    if (typeof window === 'undefined' || courses.length === 0) return;
+    const params = new URLSearchParams(window.location.search);
+    const urlCourseId = params.get('courseId');
+    const urlCourseTitle = params.get('courseTitle');
+
+    if ((urlCourseId || urlCourseTitle) && !selectedCourse) {
+      const targetId = urlCourseId?.toLowerCase();
+      const targetTitle = urlCourseTitle?.toLowerCase();
+      const matched = courses.find((c) => {
+        if (targetId && c.id.toLowerCase() === targetId) return true;
+        if (targetTitle && c.title.toLowerCase().includes(targetTitle)) return true;
+        return false;
+      });
+      if (matched) {
+        setSelectedCourse(matched);
+      }
+    }
+  }, [courses, selectedCourse]);
 
   const handleStartEnrollment = (course: Course) => {
     setSelectedCourse(course);
@@ -314,6 +323,16 @@ export default function CoursesPage() {
         throw new Error(orderData.message || 'Unable to create payment order. Please contact support.');
       }
 
+      const cleanDigits = studentPhone.replace(/\D/g, '');
+      const formattedContact = cleanDigits.length === 10
+        ? `+91${cleanDigits}`
+        : cleanDigits.length > 10
+          ? `+${cleanDigits}`
+          : studentPhone.trim();
+
+      const trimmedName = studentName.trim();
+      const trimmedEmail = studentEmail.trim().toLowerCase();
+
       const options: Record<string, unknown> = {
         key: orderData.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TyxWr8jpaqC5mi',
         amount: orderData.amount,
@@ -326,12 +345,17 @@ export default function CoursesPage() {
           await verifyPayment(response, orderData.orderId);
         },
         prefill: {
-          name: studentName,
-          email: studentEmail,
-          contact: studentPhone,
+          name: trimmedName,
+          email: trimmedEmail,
+          contact: formattedContact,
+        },
+        readonly: {
+          name: Boolean(trimmedName),
+          email: Boolean(trimmedEmail),
+          contact: Boolean(formattedContact),
         },
         theme: {
-          color: '#0f172a',
+          color: '#0b3829',
         },
         modal: {
           ondismiss: () => {
@@ -346,7 +370,7 @@ export default function CoursesPage() {
       }
 
       const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', (response: any) => {
+      rzp.on('payment.failed', (response: { error?: { description?: string; reason?: string } }) => {
         const errorDesc = response?.error?.description || response?.error?.reason || 'Payment failed. Please try another payment method.';
         setPaymentError(`Payment failed: ${errorDesc}`);
         setPaymentLoading(false);

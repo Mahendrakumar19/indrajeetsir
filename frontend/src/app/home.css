@@ -3799,7 +3799,7 @@ html.dark .app-feature-body p,
 }
 
 .hero-highlight-process {
-  color: #2563eb;
+  color: #b44322;
   position: relative;
   display: inline-block;
   white-space: nowrap;
@@ -3837,23 +3837,23 @@ html.dark .app-feature-body p,
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: #0f172a;
+  background-color: #0b3829;
   color: #ffffff !important;
   font-size: 0.98rem;
-  font-weight: 600;
-  padding: 0.8rem 1.65rem;
-  border-radius: 9px;
-  border: 1px solid #0f172a;
+  font-weight: 700;
+  padding: 0.85rem 1.85rem;
+  border-radius: 9999px;
+  border: 1px solid #0b3829;
   text-decoration: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 4px 14px rgba(11, 56, 41, 0.2);
   cursor: pointer;
 }
 
 .hero-btn-explore-solid:hover {
-  background-color: #1e293b;
+  background-color: #07251b;
   transform: translateY(-1.5px);
-  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.18);
+  box-shadow: 0 6px 20px rgba(11, 56, 41, 0.28);
   color: #ffffff !important;
 }
 
@@ -3863,9 +3863,9 @@ html.dark .app-feature-body p,
   gap: 0.4rem;
   background: transparent;
   border: none;
-  color: #2563eb !important;
+  color: #b44322 !important;
   font-size: 1.02rem;
-  font-weight: 600;
+  font-weight: 700;
   padding: 0.8rem 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -3873,7 +3873,7 @@ html.dark .app-feature-body p,
 }
 
 .hero-btn-callback-link:hover {
-  color: #1d4ed8 !important;
+  color: #923216 !important;
   transform: translateX(3px);
 }
 
@@ -3890,19 +3890,19 @@ html.dark .app-feature-body p,
 .hero-philosophy-card {
   width: 100%;
   max-width: 580px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 1.35rem 1.6rem 1.25rem;
+  background: #f7f1ea;
+  border: 1px solid #ebd9c8;
+  border-radius: 20px;
+  padding: 1.4rem 1.75rem 1.35rem;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 18px rgba(180, 67, 34, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .hero-philosophy-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px rgba(180, 67, 34, 0.08);
 }
 
 .hero-philosophy-header {
@@ -3920,35 +3920,36 @@ html.dark .app-feature-body p,
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #2563eb;
+  color: #b44322;
 }
 
 .hero-philosophy-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: #2563eb;
+  background-color: #b44322;
   display: inline-block;
 }
 
 .hero-philosophy-quote-mark {
-  color: #cbd5e1;
-  font-size: 1.6rem;
-  line-height: 1;
+  color: #d6c3af;
+  font-size: 2.2rem;
+  line-height: 0.8;
+  font-family: Georgia, serif;
 }
 
 .hero-philosophy-text {
   font-size: 1.05rem;
-  font-weight: 700;
-  color: #0f172a;
-  line-height: 1.5;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.55;
   margin-bottom: 0.75rem;
 }
 
 .hero-philosophy-author {
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  color: #64748b;
+  color: #475569;
   display: flex;
   align-items: center;
   gap: 0.35rem;
@@ -3963,21 +3964,28 @@ html.dark .app-feature-body p,
 }
 
 .stepped-pillars-header {
-  margin-bottom: 1.5rem;
-  border-top: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 1.15rem 0;
+  margin-bottom: 2rem;
+  padding: 0.75rem 0;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.stepped-pillars-header::after {
+  content: '';
+  flex: 1;
+  height: 1.5px;
+  background-color: #e2d9cd;
 }
 
 .stepped-pillars-title {
   font-size: 1.65rem;
   font-weight: 850;
-  color: #0f172a;
+  color: #0b3829;
   letter-spacing: -0.02em;
   margin: 0;
+  white-space: nowrap;
 }
 
 .stepped-pillars-grid {
@@ -3997,7 +4005,7 @@ html.dark .app-feature-body p,
 }
 
 .stepped-pillar-card {
-  border-radius: 14px 14px 0 0;
+  border-radius: 8px 8px 0 0;
   padding: 1.5rem 1.25rem 1.75rem;
   display: flex;
   flex-direction: column;
@@ -4019,21 +4027,21 @@ html.dark .app-feature-body p,
 .step-4 { min-height: 300px; }
 .step-5 { min-height: 350px; }
 
-/* Light Theme Stepped Colors matching site theme */
+/* Warm Beige and Forest Green Stepped Colors matching Image 2 */
 .pillar-card-light {
-  background-color: #f1f5f9;
-  border-top: 4px solid #0f172a;
-  color: #0f172a;
+  background-color: #f2ebe1;
+  border-top: 4px solid #0b3829;
+  color: #1e293b;
 }
 
 .pillar-card-active {
-  background-color: #0f172a;
-  border-top: 4px solid #2563eb;
+  background-color: #0b3829;
+  border-top: 5px solid #c04826;
   color: #ffffff;
 }
 
 .stepped-pillar-num {
-  font-size: 2.2rem;
+  font-size: 2.3rem;
   font-weight: 850;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -4041,11 +4049,11 @@ html.dark .app-feature-body p,
 }
 
 .pillar-card-light .stepped-pillar-num {
-  color: #94a3b8;
+  color: #b39a7b;
 }
 
 .pillar-card-active .stepped-pillar-num {
-  color: #ffffff;
+  color: #b39a7b;
 }
 
 .stepped-pillar-label {
@@ -4070,7 +4078,7 @@ html.dark .indrajeet-hero-title,
 
 html.dark .hero-highlight-process,
 .dark .hero-highlight-process {
-  color: #60a5fa !important;
+  color: #fb923c !important;
 }
 
 html.dark .hero-structured-desc,
@@ -4080,25 +4088,25 @@ html.dark .hero-structured-desc,
 
 html.dark .hero-btn-explore-solid,
 .dark .hero-btn-explore-solid {
-  background-color: #f8fafc;
+  background-color: #10b981;
   color: #0f172a !important;
-  border-color: #f8fafc;
+  border-color: #10b981;
 }
 
 html.dark .hero-btn-explore-solid:hover,
 .dark .hero-btn-explore-solid:hover {
-  background-color: #e2e8f0;
+  background-color: #34d399;
   color: #0f172a !important;
 }
 
 html.dark .hero-btn-callback-link,
 .dark .hero-btn-callback-link {
-  color: #60a5fa !important;
+  color: #fb923c !important;
 }
 
 html.dark .hero-btn-callback-link:hover,
 .dark .hero-btn-callback-link:hover {
-  color: #93c5fd !important;
+  color: #fdba74 !important;
 }
 
 html.dark .hero-philosophy-card,
@@ -4350,26 +4358,25 @@ html.dark .pillar-card-active,
   position: relative;
   width: 100%;
   max-width: 480px;
-  border-radius: 24px;
-  padding: 10px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(241, 245, 249, 0.88));
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(191, 219, 254, 0.9);
-  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.06), 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  border-radius: 28px;
+  padding: 12px 12px 18px;
+  background: #0b3829 !important;
+  border: none !important;
+  box-shadow: 0 25px 60px -15px rgba(11, 56, 41, 0.28);
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
 }
 
 .mentor-visual-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 40px 90px -15px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 35px 80px -15px rgba(11, 56, 41, 0.38);
 }
 
 .mentor-visual-frame {
   position: relative;
-  border-radius: 18px;
+  border-radius: 20px;
   overflow: hidden;
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-  aspect-ratio: 1 / 1.25;
+  background: #0b3829;
+  aspect-ratio: 1 / 1.18;
   width: 100%;
 }
 
@@ -4386,14 +4393,14 @@ html.dark .pillar-card-active,
 }
 
 .mentor-caption-plate {
-  margin-top: 0.65rem;
-  padding: 0.35rem 0.5rem 0.2rem;
+  margin-top: 0.85rem;
+  padding: 0.2rem 0.6rem 0.2rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  text-align: center;
-  gap: 0.2rem;
+  text-align: left;
+  gap: 0.25rem;
 }
 
 .mentor-floating-card {
@@ -4745,12 +4752,6 @@ html:not(.dark) #contact {
 }
 
 /* Light Mode: Cards crisp white with neat subtle borders */
-html:not(.dark) .mentor-visual-card {
-  background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08) !important;
-}
-
 html:not(.dark) .mentor-floating-card {
   background: #ffffff !important;
   border: 1px solid #e2e8f0 !important;

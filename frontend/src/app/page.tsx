@@ -116,7 +116,7 @@ export default function Home() {
                     <span className="hero-highlight-process">
                       process.
                       <svg className="hero-process-svg-stroke" viewBox="0 0 130 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M2.5 8.5C38 3.5 88 3.5 127.5 9" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" />
+                        <path d="M2.5 8.5C38 3.5 88 3.5 127.5 9" stroke="#b44322" strokeWidth="3" strokeLinecap="round" />
                       </svg>
                     </span>
                   </>
@@ -129,7 +129,7 @@ export default function Home() {
                   <span className="hero-highlight-process">
                     process.
                     <svg className="hero-process-svg-stroke" viewBox="0 0 130 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M2.5 8.5C38 3.5 88 3.5 127.5 9" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" />
+                      <path d="M2.5 8.5C38 3.5 88 3.5 127.5 9" stroke="#b44322" strokeWidth="3" strokeLinecap="round" />
                     </svg>
                   </span>
                 </>
@@ -185,17 +185,12 @@ export default function Home() {
                   quality={95}
                   className="mentor-visual-img"
                 />
-                {/* Floating Seal & Badge */}
-                <div className="mentor-floating-tag top-right">
-                  <i className="fa-solid fa-shield-halved" aria-hidden="true" />
-                  <span>{siteContent.heroBadge || 'VisionIAS Faculty'}</span>
-                </div>
               </div>
 
               {/* Mentor Name Plate Below Photo */}
               <div className="mentor-caption-plate">
                 <span className="mentor-card-name">Indrajeet Sir</span>
-                <span className="mentor-card-sub">UPSC CSE Mentor • VisionIAS Faculty</span>
+                <span className="mentor-card-sub">UPSC CSE Mentor · VisionIAS Faculty</span>
               </div>
             </div>
           </div>
