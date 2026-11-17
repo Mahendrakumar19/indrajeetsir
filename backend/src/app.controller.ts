@@ -14,6 +14,31 @@ const DATA_DIR = path.join(process.cwd(), 'data');
 const MESSAGES_FILE = path.join(DATA_DIR, 'messages.json');
 const RESOURCES_FILE = path.join(DATA_DIR, 'resources.json');
 const FAQS_FILE = path.join(DATA_DIR, 'faqs.json');
+const SETTINGS_FILE = path.join(DATA_DIR, 'site_settings.json');
+
+function loadPersistedSettings(): Record<string, any> {
+  try {
+    if (fs.existsSync(SETTINGS_FILE)) {
+      const content = fs.readFileSync(SETTINGS_FILE, 'utf-8');
+      const parsed = JSON.parse(content);
+      if (parsed && typeof parsed === 'object') return parsed;
+    }
+  } catch (err) {
+    console.warn('⚠️ Could not load persisted site settings from disk:', err);
+  }
+  return {};
+}
+
+function savePersistedSettings(settings: Record<string, any>): void {
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('⚠️ Could not save site settings to disk:', err);
+  }
+}
+
+let fallbackSettings = loadPersistedSettings();
 
 const INITIAL_FAQS = [
   { id: 'faq-1', q: 'What is the duration of the mentorship program?', a: '365+1 days (1 full year of continuous guidance).' },
@@ -914,30 +939,51 @@ export class AppController {
 
   async updateCourse(id: string, body: { title?: string; description?: string; price?: number; features?: string[]; validity?: string; tag?: string; thumbnail?: string }) {
     try {
-      const updated = await this.prisma.course.update({
-        where: { id },
-        data: {
-          title: body.title ?? undefined,
-          description: body.description ?? undefined,
-          price: body.price !== undefined ? Number(body.price) : undefined,
-          thumbnail: body.thumbnail ?? undefined,
-        },
-      });
-      return { success: true, course: updated };
-    } catch {
-      const c = fallbackCourses.find(course => course.id === id);
-      if (c) {
-        if (body.title !== undefined) c.title = body.title;
-        if (body.description !== undefined) c.description = body.description;
-        if (body.price !== undefined) c.price = Number(body.price);
-        if (body.features !== undefined) c.features = body.features;
-        if (body.validity !== undefined) c.validity = body.validity;
-        if (body.tag !== undefined) c.tag = body.tag;
-        if (body.thumbnail !== undefined) c.thumbnail = body.thumbnail;
-        return { success: true, course: c };
+      let existing = await this.prisma.course.findUnique({ where: { id } });
+      if (!existing && body.title) {
+        existing = await this.prisma.course.findFirst({ where: { title: body.title } });
       }
-      return { success: false, message: 'Course not found' };
+
+      if (existing) {
+        const updated = await this.prisma.course.update({
+          where: { id: existing.id },
+          data: {
+            title: body.title ?? undefined,
+            description: body.description ?? undefined,
+            price: body.price !== undefined ? Number(body.price) : undefined,
+            thumbnail: body.thumbnail ?? undefined,
+          },
+        });
+        return { success: true, course: updated };
+      }
+    } catch {
+      // Continue to fallback
     }
+
+    const c = fallbackCourses.find(course => course.id === id || (body.title && course.title === body.title));
+    if (c) {
+      if (body.title !== undefined) c.title = body.title;
+      if (body.description !== undefined) c.description = body.description;
+      if (body.price !== undefined) c.price = Number(body.price);
+      if (body.features !== undefined) c.features = body.features;
+      if (body.validity !== undefined) c.validity = body.validity;
+      if (body.tag !== undefined) c.tag = body.tag;
+      if (body.thumbnail !== undefined) c.thumbnail = body.thumbnail;
+      return { success: true, course: c };
+    }
+    return { success: false, message: 'Course not found' };
+  }
+
+  @Get('site-settings')
+  getSiteSettings() {
+    return fallbackSettings;
+  }
+
+  @Post('site-settings')
+  updateSiteSettings(@Body() body: Record<string, any>) {
+    fallbackSettings = { ...fallbackSettings, ...body };
+    savePersistedSettings(fallbackSettings);
+    return { success: true, settings: fallbackSettings };
   }
 
   @Delete('courses/:id')

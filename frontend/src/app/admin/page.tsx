@@ -953,8 +953,12 @@ export default function AdminPanel() {
               setCourses((prev) => {
                 return clean.map((item: CourseItem) => {
                   const existing = prev.find((p) => p.id === item.id) || DEFAULT_COURSES.find((p) => p.id === item.id);
+                  const thumb = item.thumbnail && (item.thumbnail.startsWith('/uploads/') || item.thumbnail.startsWith('http'))
+                    ? item.thumbnail
+                    : (existing?.thumbnail || item.thumbnail || `/courses/course-1.svg`);
                   return {
                     ...item,
+                    thumbnail: thumb,
                     features: Array.isArray(item.features) && item.features.length > 0 ? item.features : existing?.features || [],
                     validity: item.validity || existing?.validity || '1 Year',
                     tag: item.tag || existing?.tag || 'Mentorship Batch',
@@ -965,6 +969,17 @@ export default function AdminPanel() {
               setCourses(DEFAULT_COURSES);
               localStorage.setItem('indrajeet_courses', JSON.stringify(DEFAULT_COURSES));
             }
+          }
+        })
+        .catch(() => {});
+
+      // Fetch Real-Time Site Settings from Backend (Permanent storage)
+      fetch(`${API_URL}/site-settings`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (d && typeof d === 'object' && Object.keys(d).length > 0) {
+            setSiteContent((prev) => ({ ...prev, ...d }));
+            try { localStorage.setItem('indrajeet_site_content', JSON.stringify(d)); } catch {}
           }
         })
         .catch(() => {});
@@ -2801,12 +2816,21 @@ export default function AdminPanel() {
                                       const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
                                       const json = await res.json();
                                       if (json.success && json.url) {
+                                        const newThumbnail = json.url;
                                         const updatedCourses = courses.map((item) =>
-                                          item.id === c.id ? { ...item, thumbnail: json.url } : item
+                                          item.id === c.id ? { ...item, thumbnail: newThumbnail } : item
                                         );
                                         setCourses(updatedCourses);
-                                        localStorage.setItem('indrajeet_courses', JSON.stringify(updatedCourses));
-                                        triggerAlert(`Poster image updated for "${c.title}"!`);
+                                        try { localStorage.setItem('indrajeet_courses', JSON.stringify(updatedCourses)); } catch {}
+
+                                        // Persist to backend database immediately!
+                                        fetch(`${API_URL}/courses/${c.id}`, {
+                                          method: 'POST',
+                                          headers: { 'Content-Type': 'application/json' },
+                                          body: JSON.stringify({ ...c, thumbnail: newThumbnail }),
+                                        }).catch(() => null);
+
+                                        triggerAlert(`Poster image updated & saved for "${c.title}"!`);
                                         return;
                                       }
                                     } catch {}
@@ -2818,8 +2842,15 @@ export default function AdminPanel() {
                                           item.id === c.id ? { ...item, thumbnail: dataUrl } : item
                                         );
                                         setCourses(updatedCourses);
-                                        localStorage.setItem('indrajeet_courses', JSON.stringify(updatedCourses));
-                                        triggerAlert(`Poster image updated for "${c.title}"!`);
+                                        try { localStorage.setItem('indrajeet_courses', JSON.stringify(updatedCourses)); } catch {}
+
+                                        fetch(`${API_URL}/courses/${c.id}`, {
+                                          method: 'POST',
+                                          headers: { 'Content-Type': 'application/json' },
+                                          body: JSON.stringify({ ...c, thumbnail: dataUrl }),
+                                        }).catch(() => null);
+
+                                        triggerAlert(`Poster image updated & saved for "${c.title}"!`);
                                       }
                                     };
                                     reader.readAsDataURL(file);
@@ -3878,12 +3909,18 @@ export default function AdminPanel() {
                                   const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
                                   const json = await res.json();
                                   if (json.success && json.url) {
+                                    const newThumbnail = json.url;
                                     setCourses((prev) => {
-                                      const next = prev.map((c) => (c.id === course.id ? { ...c, thumbnail: json.url } : c));
+                                      const next = prev.map((c) => (c.id === course.id ? { ...c, thumbnail: newThumbnail } : c));
                                       try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
                                       return next;
                                     });
-                                    triggerAlert('Course image uploaded successfully.');
+                                    fetch(`${API_URL}/courses/${course.id}`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ ...course, thumbnail: newThumbnail }),
+                                    }).catch(() => null);
+                                    triggerAlert('Course image uploaded & saved.');
                                     return;
                                   }
                                 } catch {}
@@ -4257,8 +4294,13 @@ export default function AdminPanel() {
                     type="button"
                     className="btn-primary-admin"
                     onClick={() => {
-                      localStorage.setItem('indrajeet_site_content', JSON.stringify(siteContent));
-                      triggerAlert('All website changes published live successfully!');
+                      try { localStorage.setItem('indrajeet_site_content', JSON.stringify(siteContent)); } catch {}
+                      fetch(`${API_URL}/site-settings`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(siteContent),
+                      }).catch(() => null);
+                      triggerAlert('All website changes published & saved permanently!');
                     }}
                   >
                     Save & Publish Live
@@ -4463,9 +4505,14 @@ export default function AdminPanel() {
                   className="btn-primary-admin"
                   style={{ minWidth: '220px' }}
                   onClick={() => {
-                    localStorage.setItem('indrajeet_site_content', JSON.stringify(siteContent));
-                    localStorage.setItem('indrajeet_courses', JSON.stringify(courses));
-                    localStorage.setItem('indrajeet_faqs', JSON.stringify(faqs));
+                    try { localStorage.setItem('indrajeet_site_content', JSON.stringify(siteContent)); } catch {}
+                    try { localStorage.setItem('indrajeet_courses', JSON.stringify(courses)); } catch {}
+                    try { localStorage.setItem('indrajeet_faqs', JSON.stringify(faqs)); } catch {}
+                    fetch(`${API_URL}/site-settings`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(siteContent),
+                    }).catch(() => null);
                     fetch(`${API_URL}/faqs`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
@@ -4478,7 +4525,7 @@ export default function AdminPanel() {
                         body: JSON.stringify(c),
                       }).catch(() => null);
                     });
-                    triggerAlert('Website content & all 5 courses successfully saved and published live!');
+                    triggerAlert('Website content & all courses successfully saved and published live!');
                   }}
                 >
                   Save & Publish Live

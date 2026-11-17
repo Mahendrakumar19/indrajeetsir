@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import LeadBanner from '@/components/LeadBanner';
+import { API_URL } from '@/lib/api';
 import './home.css';
 
 export default function Home() {
@@ -70,6 +71,17 @@ export default function Home() {
     };
 
     loadContent();
+
+    // Fetch permanent site settings from backend server
+    fetch(`${API_URL}/site-settings`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+          setSiteContent((prev) => ({ ...prev, ...data }));
+        }
+      })
+      .catch(() => {});
+
     window.addEventListener('storage', loadContent);
     return () => window.removeEventListener('storage', loadContent);
   }, []);
