@@ -1149,8 +1149,9 @@ export default function AdminPanel() {
       } else {
         alert(data.message || 'Failed to update password.');
       }
-    } catch (err: any) {
-      alert('Error updating password: ' + (err?.message || 'Network error'));
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : 'Network error';
+      alert('Error updating password: ' + errMsg);
     }
   };
 
