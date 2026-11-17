@@ -3,14 +3,22 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { getStudentSession, getAdminSession, StudentUser } from '@/lib/api';
 
 export default function Header() {
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [student, setStudent] = useState<StudentUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  const isRouteActive = (href: string) => {
+    if (!pathname) return false;
+    if (href === '/') return pathname === '/';
+    return pathname.startsWith(href);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -62,12 +70,30 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <nav className="nav-links">
-          <Link href="/">Home</Link>
-          <Link href="/about">About</Link>
-          <Link href="/courses">Courses</Link>
-          <Link href="/results">Results</Link>
-          <Link href="/resources">Resources</Link>
-          <Link href="/faqs">FAQs</Link>
+          <Link href="/" className={`nav-link-item ${isRouteActive('/') ? 'active' : ''}`}>
+            <span>Home</span>
+            {isRouteActive('/') && <span className="nav-link-indicator" aria-hidden="true" />}
+          </Link>
+          <Link href="/about" className={`nav-link-item ${isRouteActive('/about') ? 'active' : ''}`}>
+            <span>About</span>
+            {isRouteActive('/about') && <span className="nav-link-indicator" aria-hidden="true" />}
+          </Link>
+          <Link href="/courses" className={`nav-link-item ${isRouteActive('/courses') ? 'active' : ''}`}>
+            <span>Courses</span>
+            {isRouteActive('/courses') && <span className="nav-link-indicator" aria-hidden="true" />}
+          </Link>
+          <Link href="/results" className={`nav-link-item ${isRouteActive('/results') ? 'active' : ''}`}>
+            <span>Results</span>
+            {isRouteActive('/results') && <span className="nav-link-indicator" aria-hidden="true" />}
+          </Link>
+          <Link href="/resources" className={`nav-link-item ${isRouteActive('/resources') ? 'active' : ''}`}>
+            <span>Resources</span>
+            {isRouteActive('/resources') && <span className="nav-link-indicator" aria-hidden="true" />}
+          </Link>
+          <Link href="/faqs" className={`nav-link-item ${isRouteActive('/faqs') ? 'active' : ''}`}>
+            <span>FAQs</span>
+            {isRouteActive('/faqs') && <span className="nav-link-indicator" aria-hidden="true" />}
+          </Link>
         </nav>
 
         {/* Navigation Actions */}
@@ -129,29 +155,35 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="mobile-nav-drawer">
           <nav className="mobile-nav-links">
-            <Link href="/" onClick={closeMenu}>
-              <i className="fa-solid fa-house" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
-              Home
+            <Link href="/" onClick={closeMenu} className={`mobile-nav-link ${isRouteActive('/') ? 'active' : ''}`}>
+              <i className="fa-solid fa-house" style={{ width: '20px', marginRight: '0.6rem', color: isRouteActive('/') ? '#c04826' : '#0b3829' }} aria-hidden="true" />
+              <span>Home</span>
+              {isRouteActive('/') && <span className="mobile-active-badge">Active</span>}
             </Link>
-            <Link href="/about" onClick={closeMenu}>
-              <i className="fa-solid fa-compass" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
-              About Mentorship
+            <Link href="/about" onClick={closeMenu} className={`mobile-nav-link ${isRouteActive('/about') ? 'active' : ''}`}>
+              <i className="fa-solid fa-compass" style={{ width: '20px', marginRight: '0.6rem', color: isRouteActive('/about') ? '#c04826' : '#0b3829' }} aria-hidden="true" />
+              <span>About Mentorship</span>
+              {isRouteActive('/about') && <span className="mobile-active-badge">Active</span>}
             </Link>
-            <Link href="/courses" onClick={closeMenu}>
-              <i className="fa-solid fa-book-open" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
-              Courses &amp; Fees
+            <Link href="/courses" onClick={closeMenu} className={`mobile-nav-link ${isRouteActive('/courses') ? 'active' : ''}`}>
+              <i className="fa-solid fa-book-open" style={{ width: '20px', marginRight: '0.6rem', color: isRouteActive('/courses') ? '#c04826' : '#0b3829' }} aria-hidden="true" />
+              <span>Courses &amp; Fees</span>
+              {isRouteActive('/courses') && <span className="mobile-active-badge">Active</span>}
             </Link>
-            <Link href="/results" onClick={closeMenu}>
-              <i className="fa-solid fa-trophy" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
-              Our Results
+            <Link href="/results" onClick={closeMenu} className={`mobile-nav-link ${isRouteActive('/results') ? 'active' : ''}`}>
+              <i className="fa-solid fa-trophy" style={{ width: '20px', marginRight: '0.6rem', color: isRouteActive('/results') ? '#c04826' : '#0b3829' }} aria-hidden="true" />
+              <span>Our Results</span>
+              {isRouteActive('/results') && <span className="mobile-active-badge">Active</span>}
             </Link>
-            <Link href="/resources" onClick={closeMenu}>
-              <i className="fa-solid fa-file-pdf" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
-              Free Resources
+            <Link href="/resources" onClick={closeMenu} className={`mobile-nav-link ${isRouteActive('/resources') ? 'active' : ''}`}>
+              <i className="fa-solid fa-file-pdf" style={{ width: '20px', marginRight: '0.6rem', color: isRouteActive('/resources') ? '#c04826' : '#0b3829' }} aria-hidden="true" />
+              <span>Free Resources</span>
+              {isRouteActive('/resources') && <span className="mobile-active-badge">Active</span>}
             </Link>
-            <Link href="/faqs" onClick={closeMenu}>
-              <i className="fa-solid fa-circle-question" style={{ width: '20px', marginRight: '0.5rem', color: '#2563eb' }} aria-hidden="true" />
-              FAQs
+            <Link href="/faqs" onClick={closeMenu} className={`mobile-nav-link ${isRouteActive('/faqs') ? 'active' : ''}`}>
+              <i className="fa-solid fa-circle-question" style={{ width: '20px', marginRight: '0.6rem', color: isRouteActive('/faqs') ? '#c04826' : '#0b3829' }} aria-hidden="true" />
+              <span>FAQs</span>
+              {isRouteActive('/faqs') && <span className="mobile-active-badge">Active</span>}
             </Link>
           </nav>
           <div className="mobile-nav-divider" />

@@ -1647,6 +1647,7 @@ export default function AdminPanel() {
             <div className="admin-mobile-brand-title">Indrajeet Sir Admin</div>
             <span className="admin-mobile-tab-pill">
               {tab === 'users' && 'Users'}
+              {tab === 'messages' && 'Mentorship Chat'}
               {tab === 'content' && 'Content'}
               {tab === 'payments' && 'Payments'}
               {tab === 'notifications' && 'Notifications'}
@@ -1890,6 +1891,31 @@ export default function AdminPanel() {
             </button>
           </div>
         )}
+
+        {/* Workspace Active Tab Indicator / Breadcrumb Bar */}
+        <div className="admin-breadcrumb-bar">
+          <div className="admin-breadcrumb-left">
+            <span className="admin-breadcrumb-root">Admin Workspace</span>
+            <span className="admin-breadcrumb-sep">/</span>
+            <span className="admin-breadcrumb-current">
+              {tab === 'users' && 'User Management'}
+              {tab === 'messages' && 'Mentorship 1:1 Chat'}
+              {tab === 'content' && 'Content Control'}
+              {tab === 'payments' && 'Payments & Transactions'}
+              {tab === 'notifications' && 'System Notifications'}
+              {tab === 'courses' && 'Courses Catalog'}
+              {tab === 'classes' && 'Live Classes Schedule'}
+              {tab === 'resources' && 'PDF Resources & Materials'}
+              {tab === 'website' && 'Website Live Editor'}
+            </span>
+          </div>
+          <div className="admin-breadcrumb-right">
+            <span className="admin-active-module-pill">
+              <span className="live-dot" />
+              Active Tab
+            </span>
+          </div>
+        </div>
 
         {/* ══════════════════════════════════════════════════════════════════════
             MODULE 1: USER MANAGEMENT
