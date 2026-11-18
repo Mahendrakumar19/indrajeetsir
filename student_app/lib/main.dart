@@ -3410,6 +3410,189 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildQuickActionItem({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required Widget icon,
+    required Color backgroundColor,
+    required Color accentColor,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
+        decoration: BoxDecoration(
+          color: isDark ? backgroundColor.withValues(alpha: 0.22) : backgroundColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.08)
+                : accentColor.withValues(alpha: 0.2),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.9),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(child: icon),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              CupertinoIcons.chevron_forward,
+              size: 12,
+              color: accentColor.withValues(alpha: 0.6),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickActionGrid(BuildContext context, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'QUICK ACCESS DESK',
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.6,
+                color: CupertinoColors.systemGrey,
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _showAllCoursesModal(context),
+              child: const Row(
+                children: [
+                  Text(
+                    'All Programs',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0B3829),
+                    ),
+                  ),
+                  SizedBox(width: 2),
+                  Icon(CupertinoIcons.arrow_right, size: 11, color: Color(0xFF0B3829)),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _buildQuickActionItem(
+                context: context,
+                title: 'Live Sessions',
+                subtitle: 'Class Schedule',
+                icon: const Icon(CupertinoIcons.videocam_fill, color: Color(0xFFD97706), size: 17),
+                backgroundColor: const Color(0xFFFEF9C3),
+                accentColor: const Color(0xFFD97706),
+                onTap: () => widget.onNavigateTab(1),
+                isDark: isDark,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildQuickActionItem(
+                context: context,
+                title: 'Courses',
+                subtitle: 'Batches & Fees',
+                icon: const Icon(CupertinoIcons.lightbulb_fill, color: Color(0xFFE11D48), size: 17),
+                backgroundColor: const Color(0xFFFFECEB),
+                accentColor: const Color(0xFFE11D48),
+                onTap: () => _showAllCoursesModal(context),
+                isDark: isDark,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _buildQuickActionItem(
+                context: context,
+                title: 'PDF Resources',
+                subtitle: '600+ Topic Notes',
+                icon: const Icon(CupertinoIcons.doc_text_fill, color: Color(0xFF059669), size: 17),
+                backgroundColor: const Color(0xFFDCFCE7),
+                accentColor: const Color(0xFF059669),
+                onTap: () => _showAllResourcesModal(context),
+                isDark: isDark,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _buildQuickActionItem(
+                context: context,
+                title: '1:1 Mentor Chat',
+                subtitle: 'Direct with Sir',
+                icon: const Icon(CupertinoIcons.chat_bubble_2_fill, color: Color(0xFF0284C7), size: 17),
+                backgroundColor: const Color(0xFFE0F2FE),
+                accentColor: const Color(0xFF0284C7),
+                onTap: () => widget.onNavigateTab(2),
+                isDark: isDark,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   void _showAllCoursesModal(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
@@ -3836,78 +4019,91 @@ class _HomeScreenState extends State<HomeScreen> {
               // Top Navigation Bar (Hamburger Menu, Brand Title, Quick Actions)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          CupertinoButton(
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size.zero,
-                            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-                            child: Container(
-                              width: 38,
-                              height: 38,
-                              decoration: BoxDecoration(
-                                color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            CupertinoButton(
+                              padding: EdgeInsets.zero,
+                              minimumSize: Size.zero,
+                              onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+                              child: Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.06),
+                                  ),
+                                ),
+                                child: Icon(
+                                  CupertinoIcons.bars,
+                                  size: 20,
+                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
                                 ),
                               ),
-                              child: Icon(
-                                CupertinoIcons.bars,
-                                size: 20,
-                                color: isDark ? Colors.white : const Color(0xFF0F172A),
-                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(
-                                    'Indrajeet Sir',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w900,
-                                      color: isDark ? Colors.white : const Color(0xFF0B3829),
-                                      letterSpacing: -0.4,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF0B3829).withValues(alpha: 0.12),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: const Text(
-                                      'UPSC',
-                                      style: TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w900,
-                                        color: Color(0xFF0B3829),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          'Indrajeet Sir',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w900,
+                                            color: isDark ? Colors.white : const Color(0xFF0B3829),
+                                            letterSpacing: -0.4,
+                                          ),
+                                        ),
                                       ),
+                                      const SizedBox(width: 6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF0B3829).withValues(alpha: 0.12),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: const Text(
+                                          'UPSC',
+                                          style: TextStyle(
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.w900,
+                                            color: Color(0xFF0B3829),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    'Welcome, ${widget.profile.name.split(' ')[0]}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: CupertinoColors.systemGrey,
                                     ),
                                   ),
                                 ],
                               ),
-                              Text(
-                                'Welcome, ${widget.profile.name.split(' ')[0]}',
-                                style: const TextStyle(
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: CupertinoColors.systemGrey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -3970,10 +4166,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     _buildHeroBanner(context, isDark),
                     const SizedBox(height: 16),
 
+                    // 2. 4-Shortcut Quick Access Desk (Non-duplicate & Zero overflow)
+                    _buildQuickActionGrid(context, isDark),
+                    const SizedBox(height: 16),
+
                     // Enrolled Course Status Banner
                     IosGlassCard(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
                             width: 44,
@@ -4001,7 +4202,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
+                                Wrap(
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 6,
+                                  runSpacing: 4,
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -4019,7 +4223,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 6),
                                     const Text(
                                       '• 10m Alerts Active',
                                       style: TextStyle(
@@ -4030,12 +4233,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 5),
                                 Text(
                                   widget.profile.enrolledCourse,
-                                  maxLines: 1,
+                                  maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13.5,
+                                    height: 1.25,
+                                  ),
                                 ),
                               ],
                             ),
