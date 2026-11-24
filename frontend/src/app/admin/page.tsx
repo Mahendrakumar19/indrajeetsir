@@ -718,22 +718,10 @@ export default function AdminPanel() {
           const clean = Array.isArray(parsed)
             ? parsed.filter((c: CourseItem) => !DUMMY_COURSE_TITLES.has(c.title) && c.price !== 4999 && c.price !== 2999)
             : [];
-          if (clean.length >= 5) {
-            const enriched = clean.map((c: CourseItem, i: number) => ({
-              ...c,
-              thumbnail: c.thumbnail || DEFAULT_COURSES[i]?.thumbnail || `/courses/course-${(i % 5) + 1}.svg`,
-            }));
-            setCourses(enriched);
-          } else {
-            setCourses(DEFAULT_COURSES);
-            localStorage.setItem('indrajeet_courses', JSON.stringify(DEFAULT_COURSES));
+          if (clean.length > 0) {
+            setCourses(clean);
           }
-        } catch {
-          setCourses(DEFAULT_COURSES);
-        }
-      } else {
-        setCourses(DEFAULT_COURSES);
-        localStorage.setItem('indrajeet_courses', JSON.stringify(DEFAULT_COURSES));
+        } catch {}
       }
 
       // 2. Site Content Sync & Sanitization from localStorage
@@ -973,26 +961,10 @@ export default function AdminPanel() {
         .then((d) => {
           if (Array.isArray(d)) {
             const clean = d.filter((item: CourseItem) => !DUMMY_COURSE_TITLES.has(item.title) && item.price !== 4999 && item.price !== 2999);
-            if (clean.length >= 5) {
-              setCourses((prev) => {
-                return clean.map((item: CourseItem) => {
-                  const existing = prev.find((p) => p.id === item.id) || DEFAULT_COURSES.find((p) => p.id === item.id);
-                  const thumb = item.thumbnail && (item.thumbnail.startsWith('/uploads/') || item.thumbnail.startsWith('http'))
-                    ? item.thumbnail
-                    : (existing?.thumbnail || item.thumbnail || `/courses/course-1.svg`);
-                  return {
-                    ...item,
-                    thumbnail: thumb,
-                    features: Array.isArray(item.features) && item.features.length > 0 ? item.features : existing?.features || [],
-                    validity: item.validity || existing?.validity || '1 Year',
-                    tag: item.tag || existing?.tag || 'Mentorship Batch',
-                  };
-                });
-              });
-            } else {
-              setCourses(DEFAULT_COURSES);
-              localStorage.setItem('indrajeet_courses', JSON.stringify(DEFAULT_COURSES));
-            }
+            setCourses(clean);
+            try {
+              localStorage.setItem('indrajeet_courses', JSON.stringify(clean));
+            } catch {}
           }
         })
         .catch(() => {});
@@ -2689,24 +2661,6 @@ export default function AdminPanel() {
                 <h1>Courses & Programs Catalog</h1>
                 <p>Manage mentorship programs, fee structures, and curriculum modules.</p>
               </div>
-              <button
-                type="button"
-                className="btn-primary-admin"
-                onClick={() => {
-                  setCourses(DEFAULT_COURSES);
-                  localStorage.setItem('indrajeet_courses', JSON.stringify(DEFAULT_COURSES));
-                  DEFAULT_COURSES.forEach((c) => {
-                    fetch(`${API_URL}/courses/${c.id}`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(c),
-                    }).catch(() => null);
-                  });
-                  triggerAlert('All 5 official mentorship courses successfully synchronized!');
-                }}
-              >
-                ↻ Load / Sync All 5 Batches
-              </button>
             </div>
 
             <div className="stacked-vertical-layout">

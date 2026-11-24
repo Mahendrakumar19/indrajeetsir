@@ -193,7 +193,7 @@ export default function CoursesPage() {
         const savedCourses = localStorage.getItem('indrajeet_courses');
         if (savedCourses) {
           const parsed = JSON.parse(savedCourses);
-          if (Array.isArray(parsed) && parsed.length >= 5) {
+          if (Array.isArray(parsed) && parsed.length > 0) {
             setCourses(sortCoursesInOrder(enrichWithThumbnails(parsed)));
           }
         }
@@ -206,7 +206,7 @@ export default function CoursesPage() {
     fetch(`${API_URL}/courses`)
       .then((r) => r.json())
       .then((data) => {
-        if (Array.isArray(data) && data.length >= 5) {
+        if (Array.isArray(data) && data.length > 0) {
           setCourses(sortCoursesInOrder(enrichWithThumbnails(data)));
         }
       })

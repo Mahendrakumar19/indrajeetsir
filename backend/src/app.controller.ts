@@ -15,6 +15,7 @@ const MESSAGES_FILE = path.join(DATA_DIR, 'messages.json');
 const RESOURCES_FILE = path.join(DATA_DIR, 'resources.json');
 const FAQS_FILE = path.join(DATA_DIR, 'faqs.json');
 const SETTINGS_FILE = path.join(DATA_DIR, 'site_settings.json');
+const COURSES_FILE = path.join(DATA_DIR, 'courses.json');
 
 function loadPersistedSettings(): Record<string, any> {
   try {
@@ -35,6 +36,28 @@ function savePersistedSettings(settings: Record<string, any>): void {
     fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2), 'utf-8');
   } catch (err) {
     console.warn('⚠️ Could not save site settings to disk:', err);
+  }
+}
+
+function loadPersistedCourses(): any[] {
+  try {
+    if (fs.existsSync(COURSES_FILE)) {
+      const content = fs.readFileSync(COURSES_FILE, 'utf-8');
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (err) {
+    console.warn('⚠️ Could not load persisted courses from disk:', err);
+  }
+  return [];
+}
+
+function savePersistedCourses(courses: any[]): void {
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(COURSES_FILE, JSON.stringify(courses, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('⚠️ Could not save courses to disk:', err);
   }
 }
 
@@ -173,101 +196,7 @@ let fallbackStudents: any[] = [];
 
 let fallbackLiveClasses: any[] = [];
 
-let fallbackCourses: any[] = [
-  {
-    id: 'c-1',
-    title: '1 Year Full Mentorship for UPSC 2027 (After Foundation Course)',
-    description: 'Complete 3-Stage Prelims, Mains, and Interview guidance with 1-on-1 personal mentorship by Indrajeet Sir.',
-    price: 24000,
-    instructor: 'Indrajeet Sir',
-    published: true,
-    thumbnail: 'https://indrajeetsir.com/courses/course-1.svg',
-    features: [
-      'Prelims: High-yield Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions',
-      'Mains: Short Note Making, Deep PYQ Trend Analysis, Toppers Copy Analysis, 16 Evaluated Tests',
-      'Weekly Strategy Sessions & 1-on-1 Personal Mentorship by Indrajeet Sir',
-      'Interview: Complete Personality Development, Book Reading Habits & Newspaper Analysis',
-      'Validity: 1 Year • Complete 3-Stage Support (Pre + Mains + Interview)',
-    ],
-    validity: '1 Year',
-    tag: 'Complete Mentorship (Post-FC)',
-  },
-  {
-    id: 'c-2',
-    title: 'UPSC Mains 2027 Comprehensive Mentorship',
-    description: 'Targeted Mains score maximization with personal copy evaluation and structure improvement by Indrajeet Sir.',
-    price: 18000,
-    instructor: 'Indrajeet Sir',
-    published: true,
-    thumbnail: 'https://indrajeetsir.com/courses/course-2.svg',
-    features: [
-      'High-Yield Mains Short Note Making Framework',
-      'Deep PYQ Trend Analysis & Theme Mapping',
-      'Toppers Copy In-Depth Structure & Presentation Analysis',
-      '16 Evaluated Tests with Line-by-Line Feedback from Sir',
-      'Weekly Diagnostic Sessions & 1-on-1 Mentorship by Indrajeet Sir',
-      'Validity: 4 - 5 Months',
-    ],
-    validity: '4–5 Months',
-    tag: 'Mains Score Booster',
-  },
-  {
-    id: 'c-3',
-    title: 'UPSC Prelims 2027 Targeted Program',
-    description: 'Build rigorous elimination skills, concise revision notes, and solve 5,000+ targeted practice questions.',
-    price: 15000,
-    instructor: 'Indrajeet Sir',
-    published: true,
-    thumbnail: 'https://indrajeetsir.com/courses/course-3.svg',
-    features: [
-      'Micro Notes Making & Core Conceptual Clarity across Standard Books',
-      'PYQ+ Strategy (Pattern Recognition & Options Elimination Tactics)',
-      '20 Comprehensive Mock Tests with Micro Diagnostics',
-      'Total 5,000+ Curated Practice Questions with Detailed Explanations',
-      'Weekly Target Tracking & Negative Marking Reduction Roadmap',
-      'Validity: 5 - 6 Months',
-    ],
-    validity: '5–6 Months',
-    tag: 'Prelims Special',
-  },
-  {
-    id: 'c-4',
-    title: '1 Year Full Mentorship for UPSC 2027 / 2028 (Parallel with Foundation Course)',
-    description: 'Align and strengthen your preparation alongside your ongoing foundation course (Note: We do not provide foundation lectures).',
-    price: 28000,
-    instructor: 'Indrajeet Sir',
-    published: true,
-    thumbnail: 'https://indrajeetsir.com/courses/course-4.svg',
-    features: [
-      'Complete 3-Stage Support: Prelims + Mains + Interview Mentorship',
-      'Prelims: Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions',
-      'Mains: Short Note Making, PYQ Trend Analysis, Toppers Copy Analysis, 16 Tests',
-      'Weekly Diagnostic Sessions & 1-on-1 Personal Mentorship by Indrajeet Sir',
-      'Interview: Personality Development, Book Reading Habit & Daily Newspaper Analysis',
-      'Validity: 18 Months (Extended Mentorship Support)',
-    ],
-    validity: '18 Months',
-    tag: 'Foundation Parallel Batch',
-  },
-  {
-    id: 'c-5',
-    title: 'UPSC Mains Short Notes Making Mentorship',
-    description: 'Master the methodology of condensing vast GS 1–4 syllabus into high-yield micro notes for lightning revision.',
-    price: 9000,
-    instructor: 'Indrajeet Sir',
-    published: true,
-    thumbnail: 'https://indrajeetsir.com/courses/course-5.svg',
-    features: [
-      'Step-by-step Framework for 600+ UPSC Mains Core Topics',
-      'Condensing Standard Books, NCERTs & Current Affairs into Revision Snippets',
-      'Data Points, Committee Reports, Diagrams & Case Laws Integration',
-      'Model Short Notes Samples & Templates',
-      'Validity: 2 Months',
-    ],
-    validity: '2 Months',
-    tag: 'Short Notes Framework',
-  },
-];
+let fallbackCourses: any[] = loadPersistedCourses();
 
 let fallbackResources: any[] = loadPersistedResources();
 let fallbackMessages: any[] = loadPersistedMessages();
@@ -787,107 +716,53 @@ export class AppController {
   @Get('courses')
   async getCourses() {
     try {
-      const courses = await this.prisma.course.findMany({
+      const dbCourses = await this.prisma.course.findMany({
         include: {
           _count: {
             select: { liveClasses: true, enrollments: true },
           },
         },
-        orderBy: { createdAt: 'desc' },
+      }).catch(() => []);
+
+      return fallbackCourses.map((fc) => {
+        const db = dbCourses.find((c: any) => c.id === fc.id || (fc.title && c.title === fc.title));
+        return {
+          ...fc,
+          id: fc.id,
+          liveClassesCount: db?._count?.liveClasses || 0,
+          enrollmentsCount: db?._count?.enrollments || 0,
+        };
       });
-
-      // 1. Detect & purge old legacy dummy courses from database
-      const hasLegacy = courses.some((c: any) =>
-        c.title.includes('GS Paper 3') ||
-        c.title.includes('Ethics Special') ||
-        c.price === 4999 ||
-        c.price === 2999
-      );
-
-      if (hasLegacy) {
-        try {
-          await this.prisma.course.deleteMany({
-            where: {
-              OR: [
-                { title: { contains: 'GS Paper 3' } },
-                { title: { contains: 'Ethics Special' } },
-                { price: 4999 },
-                { price: 2999 },
-              ],
-            },
-          });
-        } catch {}
-      }
-
-      const validCourses = courses.filter((c: any) =>
-        !c.title.includes('GS Paper 3') &&
-        !c.title.includes('Ethics Special') &&
-        c.price !== 4999 &&
-        c.price !== 2999
-      );
-
-      if (validCourses.length >= 5) {
-        const sortedCourses = validCourses.sort((a: any, b: any) => {
-          const getOrder = (c: any) => {
-            const t = (c.title || '').toLowerCase();
-            if (t.includes('after') && t.includes('foundation')) return 1;
-            if (t.includes('mains') && t.includes('comprehensive')) return 2;
-            if (t.includes('prelims') && t.includes('targeted')) return 3;
-            if (t.includes('parallel') && t.includes('foundation')) return 4;
-            if (t.includes('short notes')) return 5;
-            return 99;
-          };
-          return getOrder(a) - getOrder(b);
-        });
-
-        return sortedCourses.map((c: any) => {
-          const fallback = fallbackCourses.find((fc) => fc.id === c.id || fc.title === c.title);
-          return {
-            id: c.id,
-            title: c.title,
-            description: c.description || fallback?.description,
-            price: c.price || fallback?.price || 0,
-            instructor: c.instructor || 'Indrajeet Sir',
-            published: c.published,
-            features: fallback?.features || [],
-            validity: fallback?.validity || '1 Year',
-            tag: fallback?.tag || 'Mentorship Batch',
-            thumbnail: c.thumbnail || fallback?.thumbnail,
-            liveClassesCount: c._count?.liveClasses || 0,
-            enrollmentsCount: c._count?.enrollments || 0,
-          };
-        });
-      }
-
-      // 2. Ensure all 5 authentic courses exist in DB
-      let org = await this.prisma.organization.findFirst();
-      if (!org) {
-        org = await this.prisma.organization.create({
-          data: { name: 'Indrajeet Sir UPSC Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
-        });
-      }
-
-      for (const fc of fallbackCourses) {
-        const existing = await this.prisma.course.findFirst({ where: { title: fc.title } });
-        if (!existing) {
-          await this.prisma.course.create({
-            data: {
-              title: fc.title,
-              description: fc.description,
-              price: fc.price,
-              instructor: fc.instructor || 'Indrajeet Sir',
-              published: true,
-              organizationId: org.id,
-            },
-          }).catch(() => null);
-        }
-      }
-    } catch {}
-    return fallbackCourses;
+    } catch {
+      return fallbackCourses;
+    }
   }
 
   @Post('courses')
-  async createCourse(@Body() body: { title: string; description?: string; price?: number; instructor?: string; features?: string[]; validity?: string; tag?: string; thumbnail?: string }) {
+  async createCourse(@Body() body: {
+    title: string;
+    description?: string;
+    price?: number;
+    instructor?: string;
+    features?: string[];
+    validity?: string;
+    tag?: string;
+    thumbnail?: string;
+  }) {
+    const courseId = `c-${Date.now()}`;
+    const newCourse = {
+      id: courseId,
+      title: body.title,
+      description: body.description || '',
+      price: Number(body.price) || 0,
+      instructor: body.instructor || 'Indrajeet Sir',
+      published: true,
+      features: Array.isArray(body.features) ? body.features : [],
+      validity: body.validity || '1 Year',
+      tag: body.tag || 'Mentorship Batch',
+      thumbnail: body.thumbnail || '/courses/course-1.svg',
+    };
+
     try {
       let org = await this.prisma.organization.findFirst();
       if (!org) {
@@ -895,8 +770,9 @@ export class AppController {
           data: { name: 'Indrajeet Sir UPSC Mentorship', contactEmail: 'indrajeet.visionias@gmail.com' },
         });
       }
-      const course = await this.prisma.course.create({
+      const dbCourse = await this.prisma.course.create({
         data: {
+          id: courseId,
           title: body.title,
           description: body.description,
           price: Number(body.price) || 0,
@@ -906,28 +782,91 @@ export class AppController {
           organizationId: org.id,
         },
       });
-      return { success: true, course };
-    } catch {
-      const c = { id: `c-${Date.now()}`, ...body, published: true };
-      fallbackCourses.unshift(c);
-      return { success: true, course: c };
+      newCourse.id = dbCourse.id;
+    } catch (err) {
+      console.warn('⚠️ Could not create course in DB, using persistent disk fallback:', (err as Error).message);
     }
+
+    fallbackCourses.unshift(newCourse);
+    savePersistedCourses(fallbackCourses);
+    return { success: true, course: newCourse };
   }
 
   @Post('courses/:id')
-  async updateCoursePost(@Param('id') id: string, @Body() body: { title?: string; description?: string; price?: number; features?: string[]; validity?: string; tag?: string; thumbnail?: string }) {
+  async updateCoursePost(
+    @Param('id') id: string,
+    @Body() body: {
+      title?: string;
+      description?: string;
+      price?: number;
+      features?: string[];
+      validity?: string;
+      tag?: string;
+      thumbnail?: string;
+    },
+  ) {
     return this.updateCourse(id, body);
   }
 
-  async updateCourse(id: string, body: { title?: string; description?: string; price?: number; features?: string[]; validity?: string; tag?: string; thumbnail?: string }) {
+  async updateCourse(
+    id: string,
+    body: {
+      title?: string;
+      description?: string;
+      price?: number;
+      features?: string[];
+      validity?: string;
+      tag?: string;
+      thumbnail?: string;
+    },
+  ) {
+    let courseIndex = fallbackCourses.findIndex((c) => c.id === id);
+    if (courseIndex === -1 && body.title) {
+      courseIndex = fallbackCourses.findIndex((c) => c.title === body.title);
+    }
+
+    let updatedCourse: any;
+    if (courseIndex !== -1) {
+      const c = fallbackCourses[courseIndex];
+      if (body.title !== undefined) c.title = body.title;
+      if (body.description !== undefined) c.description = body.description;
+      if (body.price !== undefined) c.price = Number(body.price);
+      if (body.features !== undefined) c.features = body.features;
+      if (body.validity !== undefined) c.validity = body.validity;
+      if (body.tag !== undefined) c.tag = body.tag;
+      if (body.thumbnail !== undefined) c.thumbnail = body.thumbnail;
+      updatedCourse = c;
+    } else {
+      updatedCourse = {
+        id,
+        title: body.title || 'Untitled Course',
+        description: body.description || '',
+        price: Number(body.price) || 0,
+        features: body.features || [],
+        validity: body.validity || '1 Year',
+        tag: body.tag || 'Mentorship Batch',
+        thumbnail: body.thumbnail || '/courses/course-1.svg',
+        instructor: 'Indrajeet Sir',
+        published: true,
+      };
+      fallbackCourses.push(updatedCourse);
+    }
+
+    savePersistedCourses(fallbackCourses);
+
+    // Also update in Prisma DB
     try {
-      let existing = await this.prisma.course.findUnique({ where: { id } });
-      if (!existing && body.title) {
-        existing = await this.prisma.course.findFirst({ where: { title: body.title } });
-      }
+      const existing = await this.prisma.course.findFirst({
+        where: {
+          OR: [
+            { id },
+            ...(updatedCourse.title ? [{ title: updatedCourse.title }] : []),
+          ],
+        },
+      });
 
       if (existing) {
-        const updated = await this.prisma.course.update({
+        await this.prisma.course.update({
           where: { id: existing.id },
           data: {
             title: body.title ?? undefined,
@@ -936,24 +875,12 @@ export class AppController {
             thumbnail: body.thumbnail ?? undefined,
           },
         });
-        return { success: true, course: updated };
       }
-    } catch {
-      // Continue to fallback
+    } catch (err) {
+      console.warn('⚠️ Could not update course in DB:', (err as Error).message);
     }
 
-    const c = fallbackCourses.find(course => course.id === id || (body.title && course.title === body.title));
-    if (c) {
-      if (body.title !== undefined) c.title = body.title;
-      if (body.description !== undefined) c.description = body.description;
-      if (body.price !== undefined) c.price = Number(body.price);
-      if (body.features !== undefined) c.features = body.features;
-      if (body.validity !== undefined) c.validity = body.validity;
-      if (body.tag !== undefined) c.tag = body.tag;
-      if (body.thumbnail !== undefined) c.thumbnail = body.thumbnail;
-      return { success: true, course: c };
-    }
-    return { success: false, message: 'Course not found' };
+    return { success: true, course: updatedCourse };
   }
 
   @Get('site-settings')
@@ -971,9 +898,30 @@ export class AppController {
   @Delete('courses/:id')
   async deleteCourse(@Param('id') id: string) {
     try {
-      await this.prisma.course.delete({ where: { id } });
-    } catch {}
-    fallbackCourses = fallbackCourses.filter(c => c.id !== id);
+      const targetCourse = fallbackCourses.find((c) => c.id === id);
+      const dbCourse = await this.prisma.course.findFirst({
+        where: {
+          OR: [
+            { id },
+            ...(targetCourse?.title ? [{ title: targetCourse.title }] : []),
+          ],
+        },
+      });
+
+      if (dbCourse) {
+        await this.prisma.courseContent.deleteMany({ where: { section: { courseId: dbCourse.id } } }).catch(() => {});
+        await this.prisma.courseSection.deleteMany({ where: { courseId: dbCourse.id } }).catch(() => {});
+        await this.prisma.enrollment.deleteMany({ where: { courseId: dbCourse.id } }).catch(() => {});
+        await this.prisma.liveClass.deleteMany({ where: { courseId: dbCourse.id } }).catch(() => {});
+        await this.prisma.mainsAssignment.deleteMany({ where: { courseId: dbCourse.id } }).catch(() => {});
+        await this.prisma.course.delete({ where: { id: dbCourse.id } }).catch(() => {});
+      }
+    } catch (err) {
+      console.warn('⚠️ Could not delete course from database:', (err as Error).message);
+    }
+
+    fallbackCourses = fallbackCourses.filter((c) => c.id !== id);
+    savePersistedCourses(fallbackCourses);
     return { success: true };
   }
 

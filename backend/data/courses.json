@@ -1,0 +1,95 @@
+[
+  {
+    "id": "c-1",
+    "title": "1 Year Full Mentorship for UPSC 2027 (After Foundation Course)",
+    "description": "Complete 3-Stage Prelims, Mains, and Interview guidance with 1-on-1 personal mentorship by Indrajeet Sir.",
+    "price": 24000,
+    "instructor": "Indrajeet Sir",
+    "published": true,
+    "thumbnail": "https://indrajeetsir.com/courses/course-1.svg",
+    "features": [
+      "Prelims: High-yield Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions",
+      "Mains: Short Note Making, Deep PYQ Trend Analysis, Toppers Copy Analysis, 16 Evaluated Tests",
+      "Weekly Strategy Sessions & 1-on-1 Personal Mentorship by Indrajeet Sir",
+      "Interview: Complete Personality Development, Book Reading Habits & Newspaper Analysis",
+      "Validity: 1 Year • Complete 3-Stage Support (Pre + Mains + Interview)"
+    ],
+    "validity": "1 Year",
+    "tag": "Complete Mentorship (Post-FC)"
+  },
+  {
+    "id": "c-2",
+    "title": "UPSC Mains 2027 Comprehensive Mentorship",
+    "description": "Targeted Mains score maximization with personal copy evaluation and structure improvement by Indrajeet Sir.",
+    "price": 18000,
+    "instructor": "Indrajeet Sir",
+    "published": true,
+    "thumbnail": "https://indrajeetsir.com/courses/course-2.svg",
+    "features": [
+      "High-Yield Mains Short Note Making Framework",
+      "Deep PYQ Trend Analysis & Theme Mapping",
+      "Toppers Copy In-Depth Structure & Presentation Analysis",
+      "16 Evaluated Tests with Line-by-Line Feedback from Sir",
+      "Weekly Diagnostic Sessions & 1-on-1 Mentorship by Indrajeet Sir",
+      "Validity: 4 - 5 Months"
+    ],
+    "validity": "4–5 Months",
+    "tag": "Mains Score Booster"
+  },
+  {
+    "id": "c-3",
+    "title": "UPSC Prelims 2027 Targeted Program",
+    "description": "Build rigorous elimination skills, concise revision notes, and solve 5,000+ targeted practice questions.",
+    "price": 15000,
+    "instructor": "Indrajeet Sir",
+    "published": true,
+    "thumbnail": "https://indrajeetsir.com/courses/course-3.svg",
+    "features": [
+      "Micro Notes Making & Core Conceptual Clarity across Standard Books",
+      "PYQ+ Strategy (Pattern Recognition & Options Elimination Tactics)",
+      "20 Comprehensive Mock Tests with Micro Diagnostics",
+      "Total 5,000+ Curated Practice Questions with Detailed Explanations",
+      "Weekly Target Tracking & Negative Marking Reduction Roadmap",
+      "Validity: 5 - 6 Months"
+    ],
+    "validity": "5–6 Months",
+    "tag": "Prelims Special"
+  },
+  {
+    "id": "c-4",
+    "title": "1 Year Full Mentorship for UPSC 2027 / 2028 (Parallel with Foundation Course)",
+    "description": "Align and strengthen your preparation alongside your ongoing foundation course (Note: We do not provide foundation lectures).",
+    "price": 28000,
+    "instructor": "Indrajeet Sir",
+    "published": true,
+    "thumbnail": "https://indrajeetsir.com/courses/course-4.svg",
+    "features": [
+      "Complete 3-Stage Support: Prelims + Mains + Interview Mentorship",
+      "Prelims: Notes Making, PYQ+, 20 Mock Tests, Total 5,000+ Practice Questions",
+      "Mains: Short Note Making, PYQ Trend Analysis, Toppers Copy Analysis, 16 Tests",
+      "Weekly Diagnostic Sessions & 1-on-1 Personal Mentorship by Indrajeet Sir",
+      "Interview: Personality Development, Book Reading Habit & Daily Newspaper Analysis",
+      "Validity: 18 Months (Extended Mentorship Support)"
+    ],
+    "validity": "18 Months",
+    "tag": "Foundation Parallel Batch"
+  },
+  {
+    "id": "c-5",
+    "title": "UPSC Mains Short Notes Making Mentorship",
+    "description": "Master the methodology of condensing vast GS 1–4 syllabus into high-yield micro notes for lightning revision.",
+    "price": 9000,
+    "instructor": "Indrajeet Sir",
+    "published": true,
+    "thumbnail": "https://indrajeetsir.com/courses/course-5.svg",
+    "features": [
+      "Step-by-step Framework for 600+ UPSC Mains Core Topics",
+      "Condensing Standard Books, NCERTs & Current Affairs into Revision Snippets",
+      "Data Points, Committee Reports, Diagrams & Case Laws Integration",
+      "Model Short Notes Samples & Templates",
+      "Validity: 2 Months"
+    ],
+    "validity": "2 Months",
+    "tag": "Short Notes Framework"
+  }
+]
