@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Body, Param, Headers, BadRequestException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, Query, Headers, BadRequestException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { PrismaService } from './prisma.service.js';
 import { AuthService } from './auth.service.js';
@@ -146,33 +146,15 @@ function loadPersistedMessages(): any[] {
     if (fs.existsSync(MESSAGES_FILE)) {
       const content = fs.readFileSync(MESSAGES_FILE, 'utf-8');
       const parsed = JSON.parse(content);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) {
+        return parsed.filter((m: any) => !m.id?.startsWith('m-seed-') && m.id !== 'm-welcome-1');
+      }
     }
   } catch (err) {
     console.warn('⚠️ Could not load persisted messages from disk:', err);
   }
 
-  const now = Date.now();
-  const d = new Date(now);
-  const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-  const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-
-  const initial = [
-    {
-      id: 'm-welcome-1',
-      studentName: 'Indrajeet Sir',
-      text: 'Welcome to your 1:1 UPSC Mentorship portal! Feel free to ask your syllabus strategy doubts or attach answer sheets here anytime.',
-      sender: 'admin',
-      date: dateStr,
-      time: timeStr,
-      timestamp: `${dateStr}, ${timeStr}`,
-      createdAtMs: now - 3600000,
-      createdAtIso: new Date(now - 3600000).toISOString(),
-      isEdited: false,
-    },
-  ];
-  savePersistedMessages(initial);
-  return initial;
+  return [];
 }
 
 function savePersistedMessages(messages: any[]) {
@@ -1561,15 +1543,64 @@ export class AppController {
     return { success: true, notification: notif };
   }
 
-  // ── Messages / Chat (File Sharing & 2-Minute Edit Cooldown) ────────────
+  // ── Messages / Chat (File Sharing, 1:1 Isolation & 2-Minute Edit Cooldown) ────────────
   @Get('messages')
-  getMessages() {
-    return fallbackMessages;
+  getMessages(
+    @Query('studentEmail') studentEmail?: string,
+    @Query('studentName') studentName?: string,
+  ) {
+    const cleanList = fallbackMessages.filter(
+      (m) => !m.id?.startsWith('m-seed-') && m.id !== 'm-welcome-1',
+    );
+
+    const emailNorm = (studentEmail || '').trim().toLowerCase();
+    const nameNorm = (studentName || '').trim().toLowerCase();
+
+    // If query contains student identity, provide strict 1:1 chat isolation
+    if (emailNorm || nameNorm) {
+      return cleanList.filter((m) => {
+        // Broadcasts to all students (e.g. from Admin to 'All Enrolled Students')
+        if (
+          m.targetEmail === 'ALL' ||
+          m.studentName === 'All Enrolled Students' ||
+          m.targetStudent === 'All Enrolled Students'
+        ) {
+          return true;
+        }
+
+        const msgStudentEmail = (m.studentEmail || '').toLowerCase();
+        const msgTargetEmail = (m.targetEmail || '').toLowerCase();
+        const msgStudentName = (m.studentName || '').toLowerCase();
+        const msgTargetStudent = (m.targetStudent || '').toLowerCase();
+
+        // 1. Match by email
+        if (emailNorm) {
+          if (msgStudentEmail === emailNorm || msgTargetEmail === emailNorm) {
+            return true;
+          }
+        }
+
+        // 2. Match by studentName
+        if (nameNorm) {
+          if (msgStudentName === nameNorm || msgTargetStudent === nameNorm) {
+            return true;
+          }
+        }
+
+        return false;
+      });
+    }
+
+    // Admin / Master overview (all active isolated threads)
+    return cleanList;
   }
 
   @Post('messages')
   sendMessage(@Body() body: {
     studentName: string;
+    studentEmail?: string;
+    targetEmail?: string;
+    targetStudent?: string;
     text: string;
     sender: 'student' | 'admin';
     fileUrl?: string;
@@ -1589,9 +1620,15 @@ export class AppController {
       hour12: true,
     }); // e.g. "11:45 AM"
 
+    const studentEmailClean = (body.studentEmail || '').trim().toLowerCase();
+    const targetEmailClean = (body.targetEmail || '').trim().toLowerCase();
+
     const msg = {
       id: `m-${now}`,
-      studentName: body.studentName,
+      studentName: body.studentName || (body.sender === 'admin' ? 'Indrajeet Sir' : 'Student'),
+      studentEmail: studentEmailClean,
+      targetEmail: targetEmailClean,
+      targetStudent: body.targetStudent || body.studentName || '',
       text: body.text || '',
       sender: body.sender || 'student',
       fileUrl: body.fileUrl || null,

@@ -265,6 +265,9 @@ function isClassVisibleToStudent(
 interface MessageItem {
   id: string;
   studentName: string;
+  studentEmail?: string;
+  targetEmail?: string;
+  targetStudent?: string;
   text: string;
   sender: 'student' | 'admin';
   timestamp?: string;
@@ -354,7 +357,7 @@ export default function StudentDashboard() {
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
+          return parsed.filter((m: any) => !m.id?.startsWith('m-seed-') && m.id !== 'm-welcome-1');
         }
       }
     } catch {}
@@ -405,18 +408,21 @@ export default function StudentDashboard() {
   }, []);
 
   const fetchMessages = useCallback(() => {
-    fetch(`${API_URL}/messages`)
+    const s = student || getStudentSession();
+    const query = s?.email ? `?studentEmail=${encodeURIComponent(s.email)}&studentName=${encodeURIComponent(s.name || '')}` : '';
+    fetch(`${API_URL}/messages${query}`)
       .then((r) => r.json())
       .then((d) => {
         if (Array.isArray(d)) {
-          setMessages(d);
+          const clean = d.filter((m: any) => !m.id?.startsWith('m-seed-') && m.id !== 'm-welcome-1');
+          setMessages(clean);
           try {
-            localStorage.setItem('indrajeet_student_chat_history', JSON.stringify(d));
+            localStorage.setItem('indrajeet_student_chat_history', JSON.stringify(clean));
           } catch {}
         }
       })
       .catch(() => {});
-  }, []);
+  }, [student]);
 
   useEffect(() => {
     // Process session parameters passed from Mobile App redirection
@@ -508,9 +514,11 @@ export default function StudentDashboard() {
     const d = new Date(now);
     const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
     const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-    const displayName = formatDisplayName(student?.name, student?.email);
+    const s = student || getStudentSession();
+    const displayName = formatDisplayName(s?.name, s?.email);
     const payload = {
       studentName: displayName,
+      studentEmail: s?.email || '',
       text: msgText,
       sender: 'student' as const,
       fileName: selectedFileName || undefined,
@@ -539,6 +547,7 @@ export default function StudentDashboard() {
       const fallbackMsg: MessageItem = {
         id: `m-${now}`,
         studentName: displayName,
+        studentEmail: s?.email || '',
         text: msgText,
         sender: 'student',
         date: dateStr,

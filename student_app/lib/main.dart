@@ -185,29 +185,50 @@ class ApiService {
     return [];
   }
 
-  static Future<List<Map<String, dynamic>>> fetchMessages() async {
+  static Future<List<Map<String, dynamic>>> fetchMessages({
+    String? studentEmail,
+    String? studentName,
+  }) async {
     try {
-      final res = await http.get(
-        Uri.parse('$baseUrl/messages'),
-      ).timeout(const Duration(seconds: 7));
+      final queryParams = <String, String>{};
+      if (studentEmail != null && studentEmail.trim().isNotEmpty) {
+        queryParams['studentEmail'] = studentEmail.trim();
+      }
+      if (studentName != null && studentName.trim().isNotEmpty) {
+        queryParams['studentName'] = studentName.trim();
+      }
+      final uri = Uri.parse('$baseUrl/messages').replace(
+        queryParameters: queryParams.isNotEmpty ? queryParams : null,
+      );
+      final res = await http.get(uri).timeout(const Duration(seconds: 7));
 
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (data is List) {
-          return data.map((item) {
-            final m = Map<String, dynamic>.from(item);
-            return {
-              'id': (m['id'] ?? 'm-${DateTime.now().millisecondsSinceEpoch}').toString(),
-              'sender': (m['studentName'] ?? m['sender'] ?? 'Indrajeet Sir').toString(),
-              'text': (m['text'] ?? '').toString(),
-              'time': (m['timestamp'] ?? 'Recently').toString(),
-              'createdAtMs': m['createdAtMs'] is num ? (m['createdAtMs'] as num).toInt() : DateTime.now().millisecondsSinceEpoch,
-              'fileName': m['fileName']?.toString(),
-              'fileType': m['fileType']?.toString(),
-              'fileUrl': m['fileUrl']?.toString(),
-              'isEdited': m['isEdited'] == true,
-            };
-          }).toList();
+          return data
+              .where((item) {
+                final id = item['id']?.toString() ?? '';
+                return !id.startsWith('m-seed-') && id != 'm-welcome-1';
+              })
+              .map((item) {
+                final m = Map<String, dynamic>.from(item);
+                final senderType = (m['sender'] ?? 'student').toString();
+                final isStudentSender = senderType == 'student';
+                return {
+                  'id': (m['id'] ?? 'm-${DateTime.now().millisecondsSinceEpoch}').toString(),
+                  'sender': isStudentSender ? (m['studentName'] ?? 'Student') : 'Indrajeet Sir',
+                  'senderType': senderType,
+                  'studentEmail': (m['studentEmail'] ?? '').toString(),
+                  'targetEmail': (m['targetEmail'] ?? '').toString(),
+                  'text': (m['text'] ?? '').toString(),
+                  'time': (m['time'] ?? m['timestamp'] ?? 'Recently').toString(),
+                  'createdAtMs': m['createdAtMs'] is num ? (m['createdAtMs'] as num).toInt() : DateTime.now().millisecondsSinceEpoch,
+                  'fileName': m['fileName']?.toString(),
+                  'fileType': m['fileType']?.toString(),
+                  'fileUrl': m['fileUrl']?.toString(),
+                  'isEdited': m['isEdited'] == true,
+                };
+              }).toList();
         }
       }
     } catch (_) {}
@@ -216,6 +237,7 @@ class ApiService {
 
   static Future<Map<String, dynamic>?> sendMessage({
     required String studentName,
+    String? studentEmail,
     required String text,
     String? fileName,
     String? fileType,
@@ -227,8 +249,9 @@ class ApiService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'studentName': studentName,
-          'text': text,
+          'studentEmail': studentEmail,
           'sender': 'student',
+          'text': text,
           'fileName': fileName,
           'fileType': fileType,
           'fileUrl': fileUrl,
@@ -5198,34 +5221,7 @@ class _ChatScreenState extends State<ChatScreen> {
   String? _selectedFileName;
   String? _selectedFileType;
 
-  final List<Map<String, dynamic>> _messages = [
-    {
-      'id': 'm-seed-1',
-      'sender': 'Indrajeet Sir',
-      'text': 'Welcome to your 1:1 Mentorship channel! Did you review the Mains Case Study outline for Ethics Paper 4?',
-      'time': '10:00 AM',
-      'createdAtMs': DateTime.now().subtract(const Duration(minutes: 30)).millisecondsSinceEpoch,
-      'isEdited': false,
-    },
-    {
-      'id': 'm-seed-2',
-      'sender': 'Student Aspirant',
-      'text': 'Yes sir, submitted my response sheet on the portal. Ready for your review.',
-      'time': '10:05 AM',
-      'createdAtMs': DateTime.now().subtract(const Duration(minutes: 25)).millisecondsSinceEpoch,
-      'fileName': 'Ethics_CaseStudy_Ans.pdf',
-      'fileType': 'PDF Document (2.4 MB)',
-      'isEdited': false,
-    },
-    {
-      'id': 'm-seed-3',
-      'sender': 'Indrajeet Sir',
-      'text': 'Excellent. We will evaluate your answer during tonight\'s live strategy review call at 7:00 PM.',
-      'time': '10:12 AM',
-      'createdAtMs': DateTime.now().subtract(const Duration(minutes: 18)).millisecondsSinceEpoch,
-      'isEdited': false,
-    },
-  ];
+  final List<Map<String, dynamic>> _messages = [];
 
   @override
   void initState() {
@@ -5234,13 +5230,14 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _fetchRemote() async {
-    final remote = await ApiService.fetchMessages();
-    if (remote.isNotEmpty && mounted) {
+    final remote = await ApiService.fetchMessages(
+      studentEmail: widget.profile.email,
+      studentName: widget.profile.name,
+    );
+    if (mounted) {
       setState(() {
-        for (final r in remote) {
-          final exists = _messages.any((m) => m['id'] == r['id']);
-          if (!exists) _messages.add(r);
-        }
+        _messages.clear();
+        _messages.addAll(remote);
       });
       _scrollToBottom();
     }
@@ -5287,8 +5284,10 @@ class _ChatScreenState extends State<ChatScreen> {
     final newMsg = {
       'id': 'm-${now.millisecondsSinceEpoch}',
       'sender': widget.profile.name,
+      'senderType': 'student',
+      'studentEmail': widget.profile.email,
       'text': text,
-      'time': '${now.hour > 12 ? now.hour - 12 : now.hour}:${now.minute.toString().padLeft(2, '0')} ${now.hour >= 12 ? 'PM' : 'AM'}',
+      'time': '${now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour)}:${now.minute.toString().padLeft(2, '0')} ${now.hour >= 12 ? 'PM' : 'AM'}',
       'createdAtMs': now.millisecondsSinceEpoch,
       'fileName': _selectedFileName,
       'fileType': _selectedFileType,
@@ -5306,6 +5305,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     await ApiService.sendMessage(
       studentName: widget.profile.name,
+      studentEmail: widget.profile.email,
       text: text,
       fileName: newMsg['fileName'] as String?,
       fileType: newMsg['fileType'] as String?,
@@ -5486,17 +5486,63 @@ class _ChatScreenState extends State<ChatScreen> {
 
             // Messages List
             Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final msg = _messages[index];
-                  final isMe = msg['sender'] == widget.profile.name || msg['sender'] == 'student' || msg['sender'] == 'Student Aspirant';
-                  final createdAtMs = (msg['createdAtMs'] ?? 0) as int;
-                  final elapsedSec = ((DateTime.now().millisecondsSinceEpoch - createdAtMs) / 1000).floor();
-                  final canEdit = isMe && elapsedSec <= 120;
+              child: _messages.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF1F5F9),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                CupertinoIcons.chat_bubble_2_fill,
+                                size: 36,
+                                color: IosTheme.primaryBlue,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              '1:1 Personal Mentorship',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: isDark ? CupertinoColors.white : const Color(0xFF0F172A),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Your 1:1 chat with Indrajeet Sir is strictly private & isolated.\nSend your strategy doubts or upload your answer copies here.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 13,
+                                height: 1.4,
+                                color: isDark
+                                    ? CupertinoColors.secondaryLabel.darkColor
+                                    : CupertinoColors.secondaryLabel.color,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      controller: _scrollController,
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        final msg = _messages[index];
+                        final isMe = msg['senderType'] == 'student' ||
+                            msg['sender'] == widget.profile.name ||
+                            (msg['studentEmail'] != null && msg['studentEmail'] == widget.profile.email);
+                        final createdAtMs = (msg['createdAtMs'] ?? 0) as int;
+                        final elapsedSec = ((DateTime.now().millisecondsSinceEpoch - createdAtMs) / 1000).floor();
+                        final canEdit = isMe && elapsedSec <= 120;
 
                   return Align(
                     alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,

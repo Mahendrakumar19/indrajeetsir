@@ -633,6 +633,9 @@ export default function AdminPanel() {
   const [adminMessages, setAdminMessages] = useState<Array<{
     id: string;
     studentName: string;
+    studentEmail?: string;
+    targetEmail?: string;
+    targetStudent?: string;
     text: string;
     sender: 'student' | 'admin';
     date?: string;
@@ -692,6 +695,19 @@ export default function AdminPanel() {
           const cleanNotifs = parsed.filter((n: NotificationItem) => !DUMMY_IDS.has(n.id));
           setNotifications(cleanNotifs);
         }
+      }
+
+      // Purge legacy dummy chat messages from localStorage
+      const savedChat = localStorage.getItem('admin_chat_messages');
+      if (savedChat) {
+        try {
+          const parsed = JSON.parse(savedChat);
+          if (Array.isArray(parsed)) {
+            const clean = parsed.filter((m: any) => !m.id?.startsWith('m-seed-') && m.id !== 'm-welcome-1');
+            setAdminMessages(clean);
+            localStorage.setItem('admin_chat_messages', JSON.stringify(clean));
+          }
+        } catch {}
       }
 
       // 1. Courses Sync from localStorage & purge legacy dummy courses
@@ -1002,16 +1018,20 @@ export default function AdminPanel() {
         .then((r) => r.json())
         .then((d) => {
           if (Array.isArray(d)) {
-            setAdminMessages(d);
+            const clean = d.filter((m: any) => !m.id?.startsWith('m-seed-') && m.id !== 'm-welcome-1');
+            setAdminMessages(clean);
             try {
-              localStorage.setItem('admin_chat_messages', JSON.stringify(d));
+              localStorage.setItem('admin_chat_messages', JSON.stringify(clean));
             } catch {}
           }
         })
         .catch(() => {
           try {
             const cached = localStorage.getItem('admin_chat_messages');
-            if (cached) setAdminMessages(JSON.parse(cached));
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              setAdminMessages(Array.isArray(parsed) ? parsed.filter((m: any) => !m.id?.startsWith('m-seed-') && m.id !== 'm-welcome-1') : []);
+            }
           } catch {}
         });
     }
@@ -1028,16 +1048,20 @@ export default function AdminPanel() {
       .then((r) => r.json())
       .then((d) => {
         if (Array.isArray(d)) {
-          setAdminMessages(d);
+          const clean = d.filter((m: any) => !m.id?.startsWith('m-seed-') && m.id !== 'm-welcome-1');
+          setAdminMessages(clean);
           try {
-            localStorage.setItem('admin_chat_messages', JSON.stringify(d));
+            localStorage.setItem('admin_chat_messages', JSON.stringify(clean));
           } catch {}
         }
       })
       .catch(() => {
         try {
           const cached = localStorage.getItem('admin_chat_messages');
-          if (cached) setAdminMessages(JSON.parse(cached));
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            setAdminMessages(Array.isArray(parsed) ? parsed.filter((m: any) => !m.id?.startsWith('m-seed-') && m.id !== 'm-welcome-1') : []);
+          }
         } catch {}
       });
   };
@@ -1048,6 +1072,9 @@ export default function AdminPanel() {
     setAdminSendingMsg(true);
 
     const targetStudent = adminTargetStudent || (selectedChatStudent !== 'ALL' ? selectedChatStudent : 'All Enrolled Students');
+    const matchedUser = users.find(u => u.name === targetStudent || u.email === targetStudent);
+    const targetEmail = targetStudent === 'All Enrolled Students' ? 'ALL' : (matchedUser?.email || '');
+
     const now = Date.now();
     const d = new Date(now);
     const dateStr = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -1055,6 +1082,9 @@ export default function AdminPanel() {
 
     const payload = {
       studentName: targetStudent,
+      targetStudent: targetStudent,
+      studentEmail: targetEmail,
+      targetEmail: targetEmail,
       text: adminReplyText.trim(),
       sender: 'admin' as const,
     };
@@ -1081,6 +1111,9 @@ export default function AdminPanel() {
       const fallbackMsg = {
         id: `m-${now}`,
         studentName: targetStudent,
+        targetStudent: targetStudent,
+        studentEmail: targetEmail,
+        targetEmail: targetEmail,
         text: adminReplyText.trim(),
         sender: 'admin' as const,
         date: dateStr,
@@ -4865,75 +4898,110 @@ export default function AdminPanel() {
                 >
                   All Conversations ({adminMessages.length})
                 </button>
-                {Array.from(new Set(adminMessages.filter(m => m.studentName && m.sender === 'student').map(m => m.studentName))).map(name => (
-                  <button
-                    key={name}
-                    className={`chat-filter-chip ${selectedChatStudent === name ? 'active' : ''}`}
-                    onClick={() => {
-                      setSelectedChatStudent(name);
-                      setAdminTargetStudent(name);
-                    }}
-                  >
-                    {name} ({adminMessages.filter(m => m.studentName === name).length})
-                  </button>
-                ))}
+                {Array.from(
+                  new Set(
+                    adminMessages
+                      .map((m) =>
+                        m.sender === 'student'
+                          ? m.studentName
+                          : m.targetStudent && m.targetStudent !== 'All Enrolled Students'
+                          ? m.targetStudent
+                          : null,
+                      )
+                      .filter(Boolean) as string[],
+                  ),
+                ).map((name) => {
+                  const threadCount = adminMessages.filter(
+                    (m) =>
+                      m.studentName === name ||
+                      m.targetStudent === name ||
+                      (m.studentEmail && users.find((u) => u.name === name)?.email === m.studentEmail) ||
+                      (m.targetEmail && users.find((u) => u.name === name)?.email === m.targetEmail),
+                  ).length;
+                  return (
+                    <button
+                      key={name}
+                      className={`chat-filter-chip ${selectedChatStudent === name ? 'active' : ''}`}
+                      onClick={() => {
+                        setSelectedChatStudent(name);
+                        setAdminTargetStudent(name);
+                      }}
+                    >
+                      {name} ({threadCount})
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Messages Feed */}
               <div className="admin-chat-feed">
-                {adminMessages.filter(m => selectedChatStudent === 'ALL' || m.studentName === selectedChatStudent).length === 0 ? (
-                  <div className="admin-chat-empty">
-                    <IconMessageSquare size={36} />
-                    <h4>No messages in this channel yet</h4>
-                    <p>When students submit doubts from the app or web portal, they will appear here.</p>
-                  </div>
-                ) : (
-                  adminMessages
-                    .filter(m => selectedChatStudent === 'ALL' || m.studentName === selectedChatStudent)
-                    .map((msg, index, filteredList) => {
-                      const isAdmin = msg.sender === 'admin';
-                      const dateLabel = msg.date || (msg.timestamp && msg.timestamp.includes(',') ? msg.timestamp.split(',')[0].trim() : 'Recent');
-                      const prevMsg = index > 0 ? filteredList[index - 1] : undefined;
-                      const prevDateLabel = prevMsg ? (prevMsg.date || (prevMsg.timestamp && prevMsg.timestamp.includes(',') ? prevMsg.timestamp.split(',')[0].trim() : 'Recent')) : null;
-                      const showDateDivider = index === 0 || dateLabel !== prevDateLabel;
-                      const timeLabel = msg.time || (msg.timestamp && msg.timestamp.includes(',') ? msg.timestamp.split(',')[1].trim() : msg.timestamp || '');
+                {(() => {
+                  const filtered = adminMessages.filter((m) => {
+                    if (selectedChatStudent === 'ALL') return true;
+                    if (m.studentName === selectedChatStudent || m.targetStudent === selectedChatStudent) return true;
+                    const matchedUser = users.find((u) => u.name === selectedChatStudent);
+                    if (matchedUser && matchedUser.email) {
+                      if (m.studentEmail === matchedUser.email || m.targetEmail === matchedUser.email) return true;
+                    }
+                    return false;
+                  });
 
-                      return (
-                        <div key={msg.id} className="admin-chat-msg-row">
-                          {showDateDivider && (
-                            <div className="admin-chat-date-divider">
-                              <span>{dateLabel}</span>
+                  if (filtered.length === 0) {
+                    return (
+                      <div className="admin-chat-empty">
+                        <IconMessageSquare size={36} />
+                        <h4>No messages in this channel yet</h4>
+                        <p>When students submit doubts from the app or web portal, their isolated thread will appear here.</p>
+                      </div>
+                    );
+                  }
+
+                  return filtered.map((msg, index, filteredList) => {
+                    const isAdmin = msg.sender === 'admin';
+                    const dateLabel = msg.date || (msg.timestamp && msg.timestamp.includes(',') ? msg.timestamp.split(',')[0].trim() : 'Recent');
+                    const prevMsg = index > 0 ? filteredList[index - 1] : undefined;
+                    const prevDateLabel = prevMsg ? (prevMsg.date || (prevMsg.timestamp && prevMsg.timestamp.includes(',') ? prevMsg.timestamp.split(',')[0].trim() : 'Recent')) : null;
+                    const showDateDivider = index === 0 || dateLabel !== prevDateLabel;
+                    const timeLabel = msg.time || (msg.timestamp && msg.timestamp.includes(',') ? msg.timestamp.split(',')[1].trim() : msg.timestamp || '');
+
+                    return (
+                      <div key={msg.id} className="admin-chat-msg-row">
+                        {showDateDivider && (
+                          <div className="admin-chat-date-divider">
+                            <span>{dateLabel}</span>
+                          </div>
+                        )}
+                        <div className={`admin-chat-bubble ${isAdmin ? 'admin-sender' : 'student-sender'}`}>
+                          <div className="admin-bubble-header">
+                            <span className="bubble-author">
+                              {isAdmin
+                                ? `Indrajeet Sir (to: ${msg.targetStudent || msg.studentName || 'Student'})`
+                                : (msg.studentName || 'Student')}
+                            </span>
+                            <span className="bubble-badge">
+                              {isAdmin ? 'Faculty Reply' : 'Student Doubt'}
+                            </span>
+                          </div>
+
+                          {msg.fileName && (
+                            <div className="admin-bubble-file">
+                              <IconPaperclip size={14} />
+                              <span>{msg.fileName}</span>
+                              {msg.fileType && <small style={{ marginLeft: '4px', opacity: 0.8 }}>({msg.fileType})</small>}
                             </div>
                           )}
-                          <div className={`admin-chat-bubble ${isAdmin ? 'admin-sender' : 'student-sender'}`}>
-                            <div className="admin-bubble-header">
-                              <span className="bubble-author">
-                                {isAdmin ? 'Indrajeet Sir (Mentor)' : (msg.studentName || 'Student')}
-                              </span>
-                              <span className="bubble-badge">
-                                {isAdmin ? 'Faculty Reply' : 'Student Doubt'}
-                              </span>
-                            </div>
 
-                            {msg.fileName && (
-                              <div className="admin-bubble-file">
-                                <IconPaperclip size={14} />
-                                <span>{msg.fileName}</span>
-                                {msg.fileType && <small style={{ marginLeft: '4px', opacity: 0.8 }}>({msg.fileType})</small>}
-                              </div>
-                            )}
+                          <div className="admin-bubble-text">{msg.text}</div>
 
-                            <div className="admin-bubble-text">{msg.text}</div>
-
-                            <div className="admin-bubble-footer">
-                              {msg.isEdited && <span className="edited-indicator">(edited)</span>}
-                              <span>{timeLabel || msg.timestamp}</span>
-                            </div>
+                          <div className="admin-bubble-footer">
+                            {msg.isEdited && <span className="edited-indicator">(edited)</span>}
+                            <span>{timeLabel || msg.timestamp}</span>
                           </div>
                         </div>
-                      );
-                    })
-                )}
+                      </div>
+                    );
+                  });
+                })()}
               </div>
 
               {/* Reply / Send Message Composer */}
@@ -4946,7 +5014,8 @@ export default function AdminPanel() {
                   >
                     <option value="All Enrolled Students">All Enrolled Students (Batch Announcement)</option>
                     {Array.from(new Set([
-                      ...adminMessages.filter(m => m.studentName && m.sender === 'student').map(m => m.studentName),
+                      ...adminMessages.map(m => m.studentName).filter(n => n && n !== 'Indrajeet Sir' && n !== 'All Enrolled Students'),
+                      ...adminMessages.map(m => m.targetStudent).filter(n => n && n !== 'Indrajeet Sir' && n !== 'All Enrolled Students'),
                       ...users.map(u => u.name).filter(Boolean)
                     ])).map(n => (
                       <option key={n} value={n}>{n}</option>
