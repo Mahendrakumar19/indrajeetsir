@@ -1385,17 +1385,26 @@ export class AppController {
         include: { course: true },
         orderBy: { date: 'asc' },
       });
-      return classes.map((c: any) => ({
-        id: c.id,
-        title: c.title,
-        date: c.date.toISOString().slice(0, 10),
-        time: c.startTime,
-        meetLink: c.meetingUrl,
-        courseId: c.courseId,
-        courseTitle: c.course?.title || 'Mentorship Program',
-        assignedStudent: c.description || 'All Students',
-        status: c.status,
-      }));
+      return classes.map((c: any) => {
+        const desc = c.description || 'All Enrolled Students';
+        const isIntro = desc.toLowerCase().includes('introduction') || desc.toLowerCase().includes('orientation');
+        const isCourse = desc.toLowerCase().startsWith('course:');
+        const isIndividual = desc.toLowerCase().startsWith('1:1') || desc.toLowerCase().startsWith('student:');
+        const targetType = isIntro ? 'INTRODUCTION' : isCourse ? 'COURSE' : isIndividual ? 'INDIVIDUAL' : 'ALL_ENROLLED';
+
+        return {
+          id: c.id,
+          title: c.title,
+          date: c.date.toISOString().slice(0, 10),
+          time: c.startTime,
+          meetLink: c.meetingUrl,
+          courseId: c.courseId,
+          courseTitle: c.course?.title || (isCourse ? desc.replace(/^course:\s*/i, '') : 'Mentorship Program'),
+          assignedStudent: desc,
+          targetType,
+          status: c.status,
+        };
+      });
     } catch {
       return fallbackLiveClasses;
     }
@@ -1408,7 +1417,10 @@ export class AppController {
     time: string;
     meetLink: string;
     courseId?: string;
+    courseTitle?: string;
     assignedStudent?: string;
+    targetType?: string;
+    targetCourse?: string;
   }) {
     try {
       let org = await this.prisma.organization.findFirst();
@@ -1420,14 +1432,24 @@ export class AppController {
 
       let courseId = body.courseId;
       if (!courseId) {
-        let course = await this.prisma.course.findFirst();
-        if (!course) {
-          course = await this.prisma.course.create({
-            data: { title: 'UPSC Mentorship Course', organizationId: org.id },
+        if (body.targetCourse) {
+          const matchedCourse = await this.prisma.course.findFirst({
+            where: { title: { contains: body.targetCourse } },
           });
+          if (matchedCourse) courseId = matchedCourse.id;
         }
-        courseId = course.id;
+        if (!courseId) {
+          let course = await this.prisma.course.findFirst();
+          if (!course) {
+            course = await this.prisma.course.create({
+              data: { title: body.courseTitle || 'UPSC Mentorship Course', organizationId: org.id },
+            });
+          }
+          courseId = course.id;
+        }
       }
+
+      const assignedDesc = body.assignedStudent || (body.targetCourse ? `Course: ${body.targetCourse}` : 'All Enrolled Students');
 
       const lc = await this.prisma.liveClass.create({
         data: {
@@ -1436,7 +1458,7 @@ export class AppController {
           startTime: body.time || '19:00',
           duration: 60,
           meetingUrl: body.meetLink,
-          description: body.assignedStudent || 'All Students',
+          description: assignedDesc,
           status: 'UPCOMING',
           courseId: courseId,
           organizationId: org.id,
@@ -1451,8 +1473,9 @@ export class AppController {
         time: body.time,
         meetLink: lc.meetingUrl,
         courseId: lc.courseId,
-        courseTitle: lc.course?.title || 'Mentorship Program',
+        courseTitle: lc.course?.title || body.courseTitle || 'Mentorship Program',
         assignedStudent: lc.description,
+        targetType: body.targetType || (assignedDesc.toLowerCase().includes('introduction') ? 'INTRODUCTION' : assignedDesc.toLowerCase().startsWith('course:') ? 'COURSE' : 'ALL_ENROLLED'),
         status: lc.status,
       };
 
@@ -1466,7 +1489,7 @@ export class AppController {
         meetLink: lc.meetingUrl,
         date: body.date,
         time: body.time,
-        target: body.assignedStudent || 'All Students',
+        target: assignedDesc,
         timestamp: new Date().toISOString(),
       };
       fallbackNotifications.unshift(reminderNotif);
@@ -1474,6 +1497,7 @@ export class AppController {
       return { success: true, liveClass: resClass, notification: reminderNotif };
     } catch (err: any) {
       console.error('Add live class error:', err);
+      const assignedDesc = body.assignedStudent || (body.targetCourse ? `Course: ${body.targetCourse}` : 'All Enrolled Students');
       // Fallback in-memory
       const fallbackClass = {
         id: `cls_${Date.now()}`,
@@ -1481,7 +1505,10 @@ export class AppController {
         date: body.date,
         time: body.time,
         meetLink: body.meetLink || 'https://live.indrajeetsir.com/session/upsc-2026',
-        assignedStudent: body.assignedStudent || 'All Students',
+        courseId: body.courseId,
+        courseTitle: body.courseTitle || (body.targetCourse || 'All Courses'),
+        assignedStudent: assignedDesc,
+        targetType: body.targetType || (assignedDesc.toLowerCase().includes('introduction') ? 'INTRODUCTION' : assignedDesc.toLowerCase().startsWith('course:') ? 'COURSE' : 'ALL_ENROLLED'),
       };
       fallbackLiveClasses.unshift(fallbackClass);
 
@@ -1494,7 +1521,7 @@ export class AppController {
         meetLink: fallbackClass.meetLink,
         date: body.date,
         time: body.time,
-        target: body.assignedStudent || 'All Students',
+        target: assignedDesc,
         timestamp: new Date().toISOString(),
       };
       fallbackNotifications.unshift(reminderNotif);

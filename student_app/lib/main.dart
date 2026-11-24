@@ -361,6 +361,56 @@ class StudentProfile {
   );
 }
 
+/// ── Course Batch & Audience Isolation Filter ─────────────────────────────
+bool isClassVisibleToStudent(Map<String, dynamic> cls, StudentProfile profile) {
+  final target = (cls['assignedStudent'] ?? '').toString().trim().toLowerCase();
+  final cTitle = (cls['courseTitle'] ?? cls['targetCourse'] ?? '').toString().trim().toLowerCase();
+  final targetType = (cls['targetType'] ?? '').toString().toUpperCase();
+  final studentCourse = profile.enrolledCourse.trim().toLowerCase();
+  final studentName = profile.name.trim().toLowerCase();
+
+  // 1. Introduction / Orientation -> Open to all students & trial aspirants
+  if (targetType == 'INTRODUCTION' ||
+      target.contains('introduction') ||
+      target.contains('orientation') ||
+      target.contains('open to all') ||
+      target.contains('demo')) {
+    return true;
+  }
+
+  // 2. All Enrolled Students -> Open to all enrolled students
+  if (targetType == 'ALL_ENROLLED' ||
+      target == 'all students' ||
+      target == 'all enrolled students' ||
+      target == 'all enrolled' ||
+      target.isEmpty) {
+    return true;
+  }
+
+  // 3. 1:1 Individual Mentee Session -> Strictly for matching student
+  if (targetType == 'INDIVIDUAL' || target.startsWith('1:1') || target.startsWith('student:')) {
+    if (studentName.isEmpty) return false;
+    final cleanTarget = target.replaceAll(RegExp(r'^(1:1:?|student:?)\s*'), '').trim();
+    return studentName.contains(cleanTarget) || cleanTarget.contains(studentName);
+  }
+
+  // 4. Course Specific Batch -> Strictly ISOLATED to enrolled students of this course!
+  if (targetType == 'COURSE' || target.startsWith('course:')) {
+    final targetCourse = target.replaceAll(RegExp(r'^course:\s*'), '').trim();
+    if (studentCourse.isEmpty) return false;
+    return studentCourse.contains(targetCourse) ||
+        targetCourse.contains(studentCourse) ||
+        (cTitle.isNotEmpty && (studentCourse.contains(cTitle) || cTitle.contains(studentCourse)));
+  }
+
+  // Fallback direct name match for 1:1
+  if (studentName.isNotEmpty && target.contains(studentName)) {
+    return true;
+  }
+
+  return false;
+}
+
 class SessionManager {
   static const String _sessionKey = 'indrajeet_student_session';
 
@@ -1615,11 +1665,7 @@ class _MainNavigationState extends State<MainNavigation> {
     final now = DateTime.now();
 
     for (final cls in classes) {
-      final assigned = (cls['assignedStudent'] ?? 'All Students').toString();
-      final isAllotted = assigned == 'All Students' ||
-          assigned.toLowerCase().contains(widget.profile.name.toLowerCase());
-
-      if (!isAllotted) continue;
+      if (!isClassVisibleToStudent(cls, widget.profile)) continue;
 
       DateTime? classTime;
       try {
@@ -4832,8 +4878,10 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
               Expanded(
                 child: _isLoading
                     ? const Center(child: CupertinoActivityIndicator())
-                    : _classes.isEmpty
-                        ? Center(
+                    : () {
+                        final myClasses = _classes.where((cls) => isClassVisibleToStudent(cls, widget.profile)).toList();
+                        if (myClasses.isEmpty) {
+                          return Center(
                             child: Padding(
                               padding: const EdgeInsets.all(32),
                               child: Column(
@@ -4854,7 +4902,7 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
-                                    'Live classes and personal strategy sessions will appear here as soon as scheduled by Indrajeet Sir.',
+                                    'Live classes and personal strategy sessions for your batch will appear here as soon as scheduled by Indrajeet Sir.',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 13,
@@ -4864,87 +4912,110 @@ class _LiveSessionsScreenState extends State<LiveSessionsScreen> {
                                 ],
                               ),
                             ),
-                          )
-                        : ListView.builder(
-                            physics: const BouncingScrollPhysics(),
-                            padding: const EdgeInsets.fromLTRB(20, 8, 20, 140),
-                            itemCount: _classes.length,
-                            itemBuilder: (context, index) {
-                              final cls = _classes[index];
-                              final isAllottedToStudent = (cls['assignedStudent'] ?? '').toString().toLowerCase().contains(widget.profile.name.toLowerCase()) ||
-                                  (widget.profile.name.isNotEmpty && cls['assignedStudent'] == widget.profile.name);
+                          );
+                        }
 
-                              return IosGlassCard(
-                                margin: const EdgeInsets.only(bottom: 14),
-                                padding: const EdgeInsets.all(18),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
+                        return ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(20, 8, 20, 140),
+                          itemCount: myClasses.length,
+                          itemBuilder: (context, index) {
+                            final cls = myClasses[index];
+                            final target = (cls['assignedStudent'] ?? '').toString();
+                            final isIntro = target.toLowerCase().contains('introduction') || target.toLowerCase().contains('orientation');
+                            final isCourseBatch = target.toLowerCase().startsWith('course:');
+                            final isPersonal = !isIntro && !isCourseBatch && !target.toLowerCase().contains('all') && target.isNotEmpty;
+
+                            String badgeText = 'BATCH MASTERCLASS';
+                            Color badgeColor = IosTheme.primaryBlue;
+
+                            if (isIntro) {
+                              badgeText = '🌟 INTRODUCTION (OPEN TO ALL)';
+                              badgeColor = const Color(0xFF7C3AED);
+                            } else if (isCourseBatch) {
+                              final cName = target.replaceAll(RegExp(r'^course:\s*', caseSensitive: false), '').trim();
+                              badgeText = '🔒 BATCH: $cName';
+                              badgeColor = const Color(0xFF059669);
+                            } else if (isPersonal) {
+                              badgeText = '👤 1:1 STRATEGY CALL';
+                              badgeColor = IosTheme.systemOrange;
+                            }
+
+                            final meetUrl = (cls['meetLink'] ?? cls['meetingUrl'] ?? 'https://live.indrajeetsir.com/session/upsc-2026').toString();
+
+                            return IosGlassCard(
+                              margin: const EdgeInsets.only(bottom: 14),
+                              padding: const EdgeInsets.all(18),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Flexible(
+                                        child: Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                           decoration: BoxDecoration(
-                                            color: isAllottedToStudent
-                                                ? IosTheme.systemOrange.withValues(alpha: 0.15)
-                                                : IosTheme.primaryBlue.withValues(alpha: 0.15),
+                                            color: badgeColor.withValues(alpha: 0.15),
                                             borderRadius: BorderRadius.circular(8),
                                           ),
                                           child: Text(
-                                            isAllottedToStudent ? 'PERSONAL MENTEE' : 'BATCH MASTERCLASS',
+                                            badgeText,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
                                               fontSize: 10,
                                               fontWeight: FontWeight.w800,
-                                              color: isAllottedToStudent ? IosTheme.systemOrange : IosTheme.primaryBlue,
+                                              color: badgeColor,
                                             ),
                                           ),
                                         ),
-                                        Text(
-                                          '${cls['date']} • ${cls['time']}',
-                                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: CupertinoColors.systemGrey),
-                                        ),
-                                      ],
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '${cls['date']} • ${cls['time']}',
+                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: CupertinoColors.systemGrey),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    cls['title'] ?? 'Session',
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Mentor: ${cls['instructor'] ?? 'Indrajeet Sir'}',
+                                    style: TextStyle(
+                                      fontSize: 12.5,
+                                      color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
                                     ),
-                                    const SizedBox(height: 10),
-                                    Text(
-                                      cls['title'] ?? 'Session',
-                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Mentor: ${cls['instructor'] ?? 'Indrajeet Sir'}',
-                                      style: TextStyle(
-                                        fontSize: 12.5,
-                                        color: isDark ? CupertinoColors.secondaryLabel.darkColor : CupertinoColors.secondaryLabel.color,
+                                  ),
+                                  const SizedBox(height: 14),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: CupertinoButton.filled(
+                                      padding: const EdgeInsets.symmetric(vertical: 10),
+                                      borderRadius: BorderRadius.circular(12),
+                                      onPressed: () {
+                                        WebRedirectService.openUrl(meetUrl);
+                                      },
+                                      child: const Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(CupertinoIcons.videocam_fill, size: 16, color: Colors.white),
+                                          SizedBox(width: 6),
+                                          Text('Join Live Session', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                                        ],
                                       ),
                                     ),
-                                    const SizedBox(height: 14),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: CupertinoButton.filled(
-                                        padding: const EdgeInsets.symmetric(vertical: 10),
-                                        borderRadius: BorderRadius.circular(12),
-                                        onPressed: () {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('Launching classroom video stream...')),
-                                          );
-                                        },
-                                        child: const Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(CupertinoIcons.videocam_fill, size: 16, color: Colors.white),
-                                            SizedBox(width: 6),
-                                            Text('Join Live Session', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      }(),
               )
 
             // ─── TAB 1: PROGRAMS & ADMISSIONS (WEBSITE PURCHASES ONLY) ─────────

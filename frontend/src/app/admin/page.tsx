@@ -242,6 +242,9 @@ interface LiveClassItem {
   time: string;
   meetLink: string;
   assignedStudent?: string;
+  courseId?: string;
+  courseTitle?: string;
+  targetType?: string;
 }
 
 // ── Dummy ID Filter for legacy storage cleanup ──────────────────────────────
@@ -618,7 +621,12 @@ export default function AdminPanel() {
     time: '',
     meetLink: '',
     assignedStudent: 'All Enrolled Students',
+    targetType: 'ALL_ENROLLED',
+    courseId: '',
+    courseTitle: '',
   });
+  const [targetCategory, setTargetCategory] = useState<string>('ALL_ENROLLED');
+  const [specificStudentName, setSpecificStudentName] = useState<string>('');
   const [classSaving, setClassSaving] = useState(false);
  
   // 7. Student Mentorship Chat & Doubts Desk State
@@ -1391,13 +1399,39 @@ export default function AdminPanel() {
     e.preventDefault();
     if (!classForm.title || !classForm.date || !classForm.time) return;
     setClassSaving(true);
+
+    let assignedStudent = classForm.assignedStudent;
+    let targetType = classForm.targetType || 'ALL_ENROLLED';
+    let courseTitle = classForm.courseTitle || 'All Mentorship Batches';
+
+    if (targetCategory === 'INTRODUCTION') {
+      assignedStudent = 'Introduction Class (Open to ALL Students & Aspirants)';
+      targetType = 'INTRODUCTION';
+      courseTitle = 'All Aspirants';
+    } else if (targetCategory === 'ALL_ENROLLED') {
+      assignedStudent = 'All Enrolled Students';
+      targetType = 'ALL_ENROLLED';
+      courseTitle = 'All Mentorship Batches';
+    } else if (targetCategory.startsWith('COURSE:')) {
+      courseTitle = targetCategory.replace('COURSE:', '').trim();
+      assignedStudent = `Course: ${courseTitle}`;
+      targetType = 'COURSE';
+    } else if (targetCategory === 'INDIVIDUAL') {
+      const sName = specificStudentName.trim() || 'Student';
+      assignedStudent = `1:1: ${sName}`;
+      targetType = 'INDIVIDUAL';
+      courseTitle = '1:1 Personal Session';
+    }
+
     const newClass: LiveClassItem = {
       id: `cls_${Date.now()}`,
       title: classForm.title,
       date: classForm.date,
       time: classForm.time,
       meetLink: classForm.meetLink || 'https://live.indrajeetsir.com/session/upsc-2026',
-      assignedStudent: classForm.assignedStudent,
+      assignedStudent,
+      targetType,
+      courseTitle,
     };
     fetch(`${API_URL}/live-classes`, {
       method: 'POST',
@@ -1413,7 +1447,7 @@ export default function AdminPanel() {
         const notif: NotificationItem = {
           id: `NOTIF-${Date.now().toString().slice(-4)}`,
           title: `🔴 Class Reminder: ${newClass.title}`,
-          body: `Live session on ${newClass.date} at ${newClass.time}. Push notification dispatched to mobile app.`,
+          body: `Live session on ${newClass.date} at ${newClass.time}. (${newClass.assignedStudent})`,
           audience: newClass.assignedStudent || 'All App Users',
           time: 'Just now',
           sentCount: Math.max(users.length, 1),
@@ -1426,10 +1460,26 @@ export default function AdminPanel() {
           time: '',
           meetLink: '',
           assignedStudent: 'All Enrolled Students',
+          targetType: 'ALL_ENROLLED',
+          courseId: '',
+          courseTitle: '',
         });
+        setTargetCategory('ALL_ENROLLED');
+        setSpecificStudentName('');
         setClassSaving(false);
-        triggerAlert(`Live session scheduled & push reminder dispatched to students' mobile app!`);
+        triggerAlert(`Live session scheduled & push reminder dispatched to students!`);
       });
+  };
+
+  const handleDeleteClass = async (id: string) => {
+    if (!confirm('Are you sure you want to cancel and remove this scheduled session?')) return;
+    try {
+      await fetch(`${API_URL}/live-classes/${id}`, { method: 'DELETE' });
+      setClasses((prev) => prev.filter((c) => c.id !== id));
+      triggerAlert('Scheduled class removed successfully.');
+    } catch {
+      triggerAlert('Failed to delete live class.');
+    }
   };
 
   // ── 7. PDF STUDY MATERIAL ACTIONS ──────────────────────────────────────────
@@ -2966,54 +3016,276 @@ export default function AdminPanel() {
                     />
                   </div>
                   <div className="form-group">
-                    <label>Target Students / Batch</label>
-                    <input
-                      type="text"
-                      placeholder="All Enrolled Students or specific name"
-                      value={classForm.assignedStudent}
-                      onChange={(e) => setClassForm({ ...classForm, assignedStudent: e.target.value })}
-                    />
+                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                      <span style={{ fontWeight: 700 }}>Target Students / Course Batch</span>
+                      <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 500 }}>
+                        Select course for strict batch isolation
+                      </span>
+                    </label>
+                    <select
+                      className="form-control"
+                      value={targetCategory}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setTargetCategory(val);
+                        if (val === 'ALL_ENROLLED') {
+                          setClassForm({ ...classForm, assignedStudent: 'All Enrolled Students', targetType: 'ALL_ENROLLED', courseTitle: 'All Mentorship Batches' });
+                        } else if (val === 'INTRODUCTION') {
+                          setClassForm({ ...classForm, assignedStudent: 'Introduction Class (Open to ALL Students & Aspirants)', targetType: 'INTRODUCTION', courseTitle: 'All Aspirants' });
+                        } else if (val === 'INDIVIDUAL') {
+                          setClassForm({ ...classForm, assignedStudent: specificStudentName ? `1:1: ${specificStudentName}` : '1:1: Student', targetType: 'INDIVIDUAL', courseTitle: '1:1 Personal Session' });
+                        } else if (val.startsWith('COURSE:')) {
+                          const courseTitle = val.replace('COURSE:', '').trim();
+                          setClassForm({ ...classForm, assignedStudent: `Course: ${courseTitle}`, targetType: 'COURSE', courseTitle });
+                        }
+                      }}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem 0.9rem',
+                        borderRadius: '10px',
+                        border: '1.5px solid #cbd5e1',
+                        fontSize: '0.92rem',
+                        fontWeight: 600,
+                        backgroundColor: '#fff',
+                        cursor: 'pointer',
+                        color: '#0f172a',
+                      }}
+                    >
+                      <optgroup label="🌟 Open Access Classes (All Students)">
+                        <option value="INTRODUCTION">
+                          🌟 Introduction / Orientation Class (Open to ALL Students & Aspirants)
+                        </option>
+                        <option value="ALL_ENROLLED">
+                          👥 All Enrolled Students (All Active Mentorship Batches)
+                        </option>
+                      </optgroup>
+
+                      <optgroup label="🔒 Specific Course Batches (Strictly Isolated)">
+                        {courses.map((c) => (
+                          <option key={c.id || c.title} value={`COURSE:${c.title}`}>
+                            🎓 {c.title}
+                          </option>
+                        ))}
+                      </optgroup>
+
+                      <optgroup label="👤 1:1 Personal Mentorship Session">
+                        <option value="INDIVIDUAL">
+                          👤 Specific Student (1-on-1 Strategy Call)
+                        </option>
+                      </optgroup>
+                    </select>
+
+                    {/* Explanatory Isolation Pill */}
+                    <div style={{
+                      marginTop: '0.6rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      fontSize: '0.82rem',
+                      padding: '0.55rem 0.85rem',
+                      borderRadius: '8px',
+                      backgroundColor: targetCategory === 'INTRODUCTION' ? '#f5f3ff' : targetCategory.startsWith('COURSE:') ? '#ecfdf5' : targetCategory === 'INDIVIDUAL' ? '#fffbeb' : '#eff6ff',
+                      color: targetCategory === 'INTRODUCTION' ? '#6b21a8' : targetCategory.startsWith('COURSE:') ? '#065f46' : targetCategory === 'INDIVIDUAL' ? '#92400e' : '#1e40af',
+                      border: `1px solid ${targetCategory === 'INTRODUCTION' ? '#ddd6fe' : targetCategory.startsWith('COURSE:') ? '#a7f3d0' : targetCategory === 'INDIVIDUAL' ? '#fde68a' : '#bfdbfe'}`,
+                      fontWeight: 600,
+                    }}>
+                      <span>
+                        {targetCategory === 'INTRODUCTION' && '🌟 Open Orientation: Every student (enrolled in any course or new trial aspirant) will see and receive access to this class.'}
+                        {targetCategory === 'ALL_ENROLLED' && '👥 Batch Masterclass: Visible to any student enrolled across all batches.'}
+                        {targetCategory.startsWith('COURSE:') && `🔒 Strict Batch Isolation: Only students enrolled in "${targetCategory.replace('COURSE:', '')}" will see this session. Students enrolled in other courses CANNOT see it.`}
+                        {targetCategory === 'INDIVIDUAL' && '🎯 Private 1:1 Session: Visible ONLY to the specific allotted student.'}
+                      </span>
+                    </div>
+
+                    {/* If 1:1 Individual is selected, show student picker */}
+                    {targetCategory === 'INDIVIDUAL' && (
+                      <div style={{ marginTop: '0.75rem', padding: '0.75rem', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                        <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '0.35rem' }}>
+                          Select or Type Student Name for 1:1 Session:
+                        </label>
+                        <div style={{ display: 'grid', gridTemplateColumns: users.length > 0 ? '1fr 1fr' : '1fr', gap: '0.5rem' }}>
+                          {users.length > 0 && (
+                            <select
+                              value={specificStudentName}
+                              onChange={(e) => {
+                                const s = e.target.value;
+                                setSpecificStudentName(s);
+                                setClassForm({ ...classForm, assignedStudent: `1:1: ${s}`, targetType: 'INDIVIDUAL' });
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '0.65rem 0.8rem',
+                                borderRadius: '8px',
+                                border: '1.2px solid #cbd5e1',
+                                fontSize: '0.88rem',
+                                fontWeight: 500,
+                                backgroundColor: '#fff',
+                              }}
+                            >
+                              <option value="">-- Choose Registered Student --</option>
+                              {users.map((u) => (
+                                <option key={u.id} value={u.name}>
+                                  {u.name} ({u.email || u.role})
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                          <input
+                            type="text"
+                            placeholder="Or type student name manually"
+                            value={specificStudentName}
+                            onChange={(e) => {
+                              const s = e.target.value;
+                              setSpecificStudentName(s);
+                              setClassForm({ ...classForm, assignedStudent: `1:1: ${s}`, targetType: 'INDIVIDUAL' });
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '0.65rem 0.8rem',
+                              borderRadius: '8px',
+                              border: '1.2px solid #cbd5e1',
+                              fontSize: '0.88rem',
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <button type="submit" className="btn-primary-admin" disabled={classSaving}>
+                  <button type="submit" className="btn-primary-admin" disabled={classSaving} style={{ marginTop: '0.5rem' }}>
                     {classSaving ? 'Scheduling...' : 'Schedule Session'}
                   </button>
                 </form>
               </div>
 
               <div className="table-card">
-                <div style={{ padding: '1.25rem 1.4rem', borderBottom: '1px solid #e2e8f0' }}>
+                <div style={{ padding: '1.25rem 1.4rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <h3 style={{ fontSize: '1.05rem', fontWeight: 800 }}>Scheduled Sessions ({classes.length})</h3>
+                  <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Isolated by Batch / Audience</span>
                 </div>
                 <table className="admin-table">
                   <thead>
                     <tr>
                       <th>Session</th>
                       <th>Date & Time</th>
-                      <th>Target</th>
+                      <th>Target & Isolation</th>
+                      <th style={{ textAlign: 'right' }}>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {classes.length === 0 ? (
                       <tr>
-                        <td colSpan={3} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                        <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
                           No live sessions scheduled.
                         </td>
                       </tr>
                     ) : (
-                      classes.map((cls) => (
-                        <tr key={cls.id}>
-                          <td>
-                            <div style={{ fontWeight: 800 }}>{cls.title}</div>
-                            <div style={{ fontSize: '0.78rem', color: '#2563eb' }}>{cls.meetLink}</div>
-                          </td>
-                          <td style={{ fontSize: '0.84rem' }}>
-                            {cls.date} at {cls.time}
-                          </td>
-                          <td>
-                            <span className="status-pill active">{cls.assignedStudent}</span>
-                          </td>
-                        </tr>
-                      ))
+                      classes.map((cls) => {
+                        const targetStr = cls.assignedStudent || 'All Enrolled Students';
+                        const isIntro = targetStr.toLowerCase().includes('introduction') || targetStr.toLowerCase().includes('orientation');
+                        const isCourse = targetStr.toLowerCase().startsWith('course:');
+                        const isPersonal = targetStr.toLowerCase().startsWith('1:1') || (!isIntro && !isCourse && !targetStr.toLowerCase().includes('all'));
+
+                        return (
+                          <tr key={cls.id}>
+                            <td>
+                              <div style={{ fontWeight: 800 }}>{cls.title}</div>
+                              <a
+                                href={cls.meetLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ fontSize: '0.78rem', color: '#2563eb', textDecoration: 'underline' }}
+                              >
+                                {cls.meetLink}
+                              </a>
+                            </td>
+                            <td style={{ fontSize: '0.84rem' }}>
+                              <div style={{ fontWeight: 700 }}>{cls.date}</div>
+                              <div style={{ color: '#64748b', fontSize: '0.8rem' }}>{cls.time}</div>
+                            </td>
+                            <td>
+                              {isIntro ? (
+                                <span style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  padding: '4px 10px',
+                                  borderRadius: '20px',
+                                  fontSize: '0.76rem',
+                                  fontWeight: 800,
+                                  backgroundColor: '#f5f3ff',
+                                  color: '#7c3aed',
+                                  border: '1px solid #ddd6fe',
+                                }}>
+                                  🌟 Introduction Class (All)
+                                </span>
+                              ) : isCourse ? (
+                                <span style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  padding: '4px 10px',
+                                  borderRadius: '20px',
+                                  fontSize: '0.76rem',
+                                  fontWeight: 800,
+                                  backgroundColor: '#ecfdf5',
+                                  color: '#059669',
+                                  border: '1px solid #a7f3d0',
+                                }}>
+                                  🔒 {targetStr}
+                                </span>
+                              ) : isPersonal ? (
+                                <span style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  padding: '4px 10px',
+                                  borderRadius: '20px',
+                                  fontSize: '0.76rem',
+                                  fontWeight: 800,
+                                  backgroundColor: '#fffbeb',
+                                  color: '#d97706',
+                                  border: '1px solid #fde68a',
+                                }}>
+                                  👤 {targetStr}
+                                </span>
+                              ) : (
+                                <span style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  padding: '4px 10px',
+                                  borderRadius: '20px',
+                                  fontSize: '0.76rem',
+                                  fontWeight: 800,
+                                  backgroundColor: '#eff6ff',
+                                  color: '#2563eb',
+                                  border: '1px solid #bfdbfe',
+                                }}>
+                                  👥 All Enrolled Students
+                                </span>
+                              )}
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <button
+                                onClick={() => handleDeleteClass(cls.id)}
+                                title="Delete Live Session"
+                                style={{
+                                  padding: '0.35rem 0.65rem',
+                                  backgroundColor: '#fee2e2',
+                                  color: '#dc2626',
+                                  border: '1px solid #fecaca',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '0.78rem',
+                                  fontWeight: 700,
+                                }}
+                              >
+                                Cancel / Delete
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>

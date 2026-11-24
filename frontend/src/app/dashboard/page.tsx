@@ -196,7 +196,70 @@ interface LiveClassItem {
   time: string;
   meetLink: string;
   assignedStudent?: string;
+  courseTitle?: string;
+  targetType?: string;
   status?: string;
+}
+
+function isClassVisibleToStudent(
+  cls: LiveClassItem,
+  studentName?: string,
+  enrolledCourse?: string
+): boolean {
+  const target = (cls.assignedStudent || '').trim().toLowerCase();
+  const cTitle = (cls.courseTitle || '').trim().toLowerCase();
+  const sCourse = (enrolledCourse || '').trim().toLowerCase();
+  const sName = (studentName || '').trim().toLowerCase();
+
+  // 1. Introduction / Orientation class -> Open to ALL students & aspirants
+  if (
+    cls.targetType === 'INTRODUCTION' ||
+    target.includes('introduction') ||
+    target.includes('orientation') ||
+    target.includes('open to all') ||
+    target.includes('demo')
+  ) {
+    return true;
+  }
+
+  // 2. All Enrolled Students -> Open to all students enrolled across any course
+  if (
+    cls.targetType === 'ALL_ENROLLED' ||
+    target === 'all students' ||
+    target === 'all enrolled students' ||
+    target === 'all enrolled'
+  ) {
+    return true;
+  }
+
+  // 3. 1:1 Personal Session -> ONLY for the specific named student
+  if (
+    cls.targetType === 'INDIVIDUAL' ||
+    target.startsWith('1:1') ||
+    target.startsWith('student:')
+  ) {
+    if (!sName) return false;
+    const cleanTargetName = target.replace(/^(1:1:?|student:?)\s*/i, '').trim();
+    return sName.includes(cleanTargetName) || cleanTargetName.includes(sName);
+  }
+
+  // 4. Specific Course Batch -> Strictly ISOLATED to students of this course!
+  if (cls.targetType === 'COURSE' || target.startsWith('course:')) {
+    const targetCourse = target.replace(/^course:\s*/i, '').trim();
+    if (!sCourse) return false; // Not enrolled in any course
+    return Boolean(
+      sCourse.includes(targetCourse) ||
+      targetCourse.includes(sCourse) ||
+      (cTitle && (sCourse.includes(cTitle) || cTitle.includes(sCourse)))
+    );
+  }
+
+  // Fallback direct name match for 1:1
+  if (sName && target.includes(sName)) {
+    return true;
+  }
+
+  return false;
 }
 
 interface MessageItem {
@@ -560,19 +623,16 @@ export default function StudentDashboard() {
   const initials = getInitials(displayName);
 
   const filteredClasses = (Array.isArray(classes) ? classes : []).filter(cls => {
-    const isMine =
-      !cls.assignedStudent ||
-      cls.assignedStudent === 'All Students' ||
-      cls.assignedStudent === 'All Enrolled Students' ||
-      (rawStudentName && cls.assignedStudent.toLowerCase().includes(rawStudentName));
-
+    const isMine = isClassVisibleToStudent(cls, rawStudentName, student?.enrolledCourse);
     if (!isMine) return false;
 
+    const target = (cls.assignedStudent || '').toLowerCase();
+    const isPersonal = target.startsWith('1:1') || (!target.includes('all') && !target.startsWith('course:') && !target.includes('introduction'));
     if (classFilter === 'personal') {
-      return cls.assignedStudent && !cls.assignedStudent.toLowerCase().includes('all');
+      return isPersonal;
     }
     if (classFilter === 'batch') {
-      return !cls.assignedStudent || cls.assignedStudent.toLowerCase().includes('all');
+      return !isPersonal;
     }
     return true;
   });
@@ -835,9 +895,13 @@ export default function StudentDashboard() {
                         <div>
                           <div className="schedule-title">{cls.title}</div>
                           <div className="schedule-meta-tag">
-                            {cls.assignedStudent && !cls.assignedStudent.toLowerCase().includes('all')
-                              ? '1:1 PERSONAL SESSION'
-                              : 'BATCH MASTERCLASS'}
+                            {cls.assignedStudent?.toLowerCase().includes('introduction')
+                              ? '🌟 INTRODUCTION CLASS (OPEN TO ALL)'
+                              : cls.assignedStudent?.toLowerCase().startsWith('course:')
+                              ? `🔒 BATCH: ${cls.assignedStudent.replace(/^course:\s*/i, '').toUpperCase()}`
+                              : cls.assignedStudent && !cls.assignedStudent.toLowerCase().includes('all')
+                              ? '👤 1:1 PERSONAL SESSION'
+                              : '👥 BATCH MASTERCLASS'}
                           </div>
                         </div>
                       </div>
@@ -952,7 +1016,15 @@ export default function StudentDashboard() {
                         <span>•</span>
                         <span>{cls.time}</span>
                         <span>•</span>
-                        <span>{cls.assignedStudent && !cls.assignedStudent.toLowerCase().includes('all') ? '1:1 Personal Session' : 'Batch Session'}</span>
+                        <span>
+                          {cls.assignedStudent?.toLowerCase().includes('introduction')
+                            ? '🌟 Introduction Class (Open to All)'
+                            : cls.assignedStudent?.toLowerCase().startsWith('course:')
+                            ? `🔒 Batch: ${cls.assignedStudent.replace(/^course:\s*/i, '')}`
+                            : cls.assignedStudent && !cls.assignedStudent.toLowerCase().includes('all')
+                            ? '👤 1:1 Personal Session'
+                            : '👥 Batch Masterclass'}
+                        </span>
                       </div>
                     </div>
                     <a
