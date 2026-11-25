@@ -1436,7 +1436,7 @@ export default function AdminPanel() {
       ...editCourseModal,
       price: Number(editCourseModal.price) || 0,
       features: editCourseFeatures.split('\n').map((s) => s.trim()).filter(Boolean),
-      thumbnail: editCourseModal.thumbnail || undefined,
+      thumbnail: editCourseModal.thumbnail ?? '',
     };
 
     let savedCourse = updated;
@@ -4954,7 +4954,8 @@ export default function AdminPanel() {
                       className="admin-file-input"
                       style={{ padding: '0.3rem', width: '100%', fontSize: '0.8rem' }}
                       onChange={async (e) => {
-                        const file = e.target.files?.[0];
+                        const inputEl = e.currentTarget;
+                        const file = inputEl.files?.[0];
                         if (!file) return;
                         try {
                           const url = await uploadCourseImage(file);
@@ -4962,6 +4963,8 @@ export default function AdminPanel() {
                           triggerAlert('Image uploaded! Click Save Changes to persist.');
                         } catch {
                           triggerAlert('Failed to upload image.');
+                        } finally {
+                          inputEl.value = '';
                         }
                       }}
                     />

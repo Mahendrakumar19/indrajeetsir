@@ -1166,14 +1166,17 @@ html.dark .admin-active-module-pill {
   align-items: center;
   justify-content: center;
   padding: 1.25rem;
+  overflow-y: auto;
 }
 
 .modal-content {
   background: #ffffff;
   border-radius: 24px;
-  padding: 2.25rem;
+  padding: 2rem;
   width: 100%;
-  max-width: 500px;
+  max-width: 580px;
+  max-height: 90vh;
+  overflow-y: auto;
   position: relative;
   box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.2);
 }

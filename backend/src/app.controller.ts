@@ -874,7 +874,7 @@ export class AppController {
             title: body.title ?? undefined,
             description: body.description ?? undefined,
             price: body.price !== undefined ? Number(body.price) : undefined,
-            thumbnail: body.thumbnail ?? undefined,
+            thumbnail: body.thumbnail !== undefined ? body.thumbnail : undefined,
           },
         });
       }
