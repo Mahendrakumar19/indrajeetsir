@@ -68,12 +68,16 @@ export function clearStudentSession(): void {
   localStorage.removeItem('indrajeet_student_session');
 }
 
-// ── Admin Auth Storage (7-Day Rolling Inactivity Window) ────────────────────
+// ── Admin Auth Storage (7-Day Rolling Inactivity Window + Token Check) ────────
 export function getAdminSession(): boolean {
   if (typeof window === 'undefined') return false;
   try {
     const isAuthed = localStorage.getItem('indrajeet_admin_authenticated') === 'true';
-    if (!isAuthed) return false;
+    const token = localStorage.getItem('indrajeet_admin_token');
+    if (!isAuthed || !token) {
+      if (isAuthed && !token) clearAdminSession();
+      return false;
+    }
 
     const lastActiveStr = localStorage.getItem('indrajeet_admin_last_active');
     const now = Date.now();
@@ -94,10 +98,11 @@ export function getAdminSession(): boolean {
   }
 }
 
-export function setAdminSession(authStatus: boolean): void {
+export function setAdminSession(authStatus: boolean, token?: string): void {
   if (typeof window === 'undefined') return;
-  if (authStatus) {
+  if (authStatus && token) {
     localStorage.setItem('indrajeet_admin_authenticated', 'true');
+    localStorage.setItem('indrajeet_admin_token', token);
     localStorage.setItem('indrajeet_admin_last_active', Date.now().toString());
   } else {
     clearAdminSession();
@@ -107,5 +112,6 @@ export function setAdminSession(authStatus: boolean): void {
 export function clearAdminSession(): void {
   if (typeof window === 'undefined') return;
   localStorage.removeItem('indrajeet_admin_authenticated');
+  localStorage.removeItem('indrajeet_admin_token');
   localStorage.removeItem('indrajeet_admin_last_active');
 }

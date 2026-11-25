@@ -1109,8 +1109,8 @@ export default function AdminPanel() {
     }
   };
 
-  // Email & Password Authentication Handler
-  const handleAuth = (e: React.FormEvent) => {
+  // Email & Password Authentication Handler (Verified via Backend)
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthLoading(true);
     setAuthError('');
@@ -1118,25 +1118,31 @@ export default function AdminPanel() {
     const emailClean = adminEmail.trim().toLowerCase();
     const passClean = adminPassword.trim();
 
-    // Verify admin credentials
-    const isStandardAdmin = emailClean === 'admin@indrajeetsir.com' && (passClean === 'admin123' || passClean === 'admin@123');
-    const isValidFormat = emailClean.includes('@') && emailClean.includes('.');
-    const isAuthorized = isStandardAdmin || (isValidFormat && (passClean === 'admin123' || passClean === 'admin@123' || passClean.length >= 6));
+    if (!emailClean || !passClean) {
+      setAuthError('Please enter administrator email and password.');
+      setAuthLoading(false);
+      return;
+    }
 
-    setTimeout(() => {
-      if (isAuthorized) {
+    try {
+      const res = await fetch(`${API_URL}/auth/admin-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailClean, password: passClean }),
+      });
+      const data = await res.json();
+      if (res.ok && data?.success && data?.role === 'ADMIN' && data?.token) {
         setAuth(true);
-        setAdminSession(true);
+        setAdminSession(true, data.token);
         setAuthError('');
       } else {
-        if (!isValidFormat) {
-          setAuthError('Please enter a valid administrator email address.');
-        } else {
-          setAuthError('Invalid credentials. Check your administrator email and password.');
-        }
+        setAuthError(data?.message || 'Unauthorized: Invalid administrator credentials.');
       }
+    } catch {
+      setAuthError('Unable to reach authentication server. Please try again.');
+    } finally {
       setAuthLoading(false);
-    }, 300);
+    }
   };
 
   const handleLogout = () => {

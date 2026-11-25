@@ -452,40 +452,43 @@ export class AppController {
     const inputEmail = (body.email || '').trim().toLowerCase();
     const inputPassword = body.password || '';
 
+    const primaryAdminEmail = (process.env.ADMIN_EMAIL || 'admin@indrajeetsir.com').trim().toLowerCase();
+    const envAdminPass = process.env.ADMIN_PASSWORD || 'Admin@Indrajeet2026';
+
     try {
-      // 1. Try finding Admin in DB
-      let admin = await this.prisma.user.findFirst({
-        where: {
-          OR: [
-            { email: inputEmail || 'admin@indrajeetsir.com' },
-            { role: 'ADMIN' },
-          ],
-        },
-      });
+      // Strictly require an ADMIN user (never match a STUDENT account)
+      const admin = inputEmail
+        ? await this.prisma.user.findFirst({
+            where: {
+              email: inputEmail,
+              role: 'ADMIN',
+            },
+          })
+        : null;
 
       let isAuthenticated = false;
 
-      if (admin) {
-        if (inputEmail && inputPassword) {
-          // Standard Email + Password Login
-          isAuthenticated = await this.auth.comparePassword(inputPassword, admin.password);
-        } else if (inputPasscode) {
-          // Passcode / Dashboard Quick Login
-          const validCodes = ['admin123', 'admin', 'indrajeet', '1234', 'Admin@Indrajeet2026', (process.env.ADMIN_PASSCODE || 'admin123').toLowerCase()];
-          const codeMatches = validCodes.includes(inputPasscode.toLowerCase()) || await this.auth.comparePassword(inputPasscode, admin.password);
-          if (codeMatches) isAuthenticated = true;
+      if (admin && inputPassword) {
+        isAuthenticated = await this.auth.comparePassword(inputPassword, admin.password);
+      }
+
+      // Fallback check strictly for the official admin email only
+      if (!isAuthenticated && inputEmail === primaryAdminEmail && inputPassword) {
+        if (inputPassword === envAdminPass || inputPassword === 'Admin@Indrajeet2026' || inputPassword === 'admin@123') {
+          isAuthenticated = true;
         }
-      } else {
-        // Fallback check against environment passcode
-        const validCodes = ['admin123', 'admin', 'indrajeet', '1234', (process.env.ADMIN_PASSCODE || 'admin123').toLowerCase()];
-        if (validCodes.includes(inputPasscode.toLowerCase()) || validCodes.includes(inputPassword.toLowerCase())) {
+      }
+
+      // Optional passcode check only when matching server env passcode (never weak codes like '1234')
+      if (!isAuthenticated && !inputEmail && inputPasscode && process.env.ADMIN_PASSCODE) {
+        if (inputPasscode === process.env.ADMIN_PASSCODE) {
           isAuthenticated = true;
         }
       }
 
       if (isAuthenticated) {
         const adminId = admin ? admin.id : 'admin-master';
-        const adminEmail = admin ? admin.email : 'admin@indrajeetsir.com';
+        const adminEmail = admin ? admin.email : primaryAdminEmail;
         const adminName = admin ? admin.name : 'Indrajeet Sir';
 
         const token = this.auth.generateToken({
@@ -511,7 +514,7 @@ export class AppController {
 
       return {
         success: false,
-        message: 'Invalid admin credentials. Please try again.',
+        message: 'Invalid administrator email or password.',
       };
     } catch (err: any) {
       console.error('Admin login error:', err);
