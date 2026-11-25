@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Body, Param, Query, Headers, BadRequestException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, Query, Headers, Res, BadRequestException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { PrismaService } from './prisma.service.js';
 import { AuthService } from './auth.service.js';
@@ -740,6 +740,7 @@ export class AppController {
 
   @Post('courses')
   async createCourse(@Body() body: {
+    id?: string;
     title: string;
     description?: string;
     price?: number;
@@ -749,7 +750,7 @@ export class AppController {
     tag?: string;
     thumbnail?: string;
   }) {
-    const courseId = `c-${Date.now()}`;
+    const courseId = (body.id || '').trim() || `c-${Date.now()}`;
     const newCourse = {
       id: courseId,
       title: body.title,
@@ -787,6 +788,7 @@ export class AppController {
       console.warn('⚠️ Could not create course in DB, using persistent disk fallback:', (err as Error).message);
     }
 
+    fallbackCourses = fallbackCourses.filter((c) => c.id !== newCourse.id);
     fallbackCourses.unshift(newCourse);
     savePersistedCourses(fallbackCourses);
     return { success: true, course: newCourse };
@@ -896,14 +898,18 @@ export class AppController {
   }
 
   @Delete('courses/:id')
-  async deleteCourse(@Param('id') id: string) {
+  async deleteCourse(@Param('id') id: string, @Query('title') title?: string) {
+    const targetCourse = fallbackCourses.find(
+      (c) => c.id === id || (title && c.title?.toLowerCase() === title.toLowerCase()),
+    );
+    const matchTitle = targetCourse?.title || title;
+
     try {
-      const targetCourse = fallbackCourses.find((c) => c.id === id);
       const dbCourse = await this.prisma.course.findFirst({
         where: {
           OR: [
             { id },
-            ...(targetCourse?.title ? [{ title: targetCourse.title }] : []),
+            ...(matchTitle ? [{ title: matchTitle }] : []),
           ],
         },
       });
@@ -920,9 +926,61 @@ export class AppController {
       console.warn('⚠️ Could not delete course from database:', (err as Error).message);
     }
 
-    fallbackCourses = fallbackCourses.filter((c) => c.id !== id);
+    fallbackCourses = fallbackCourses.filter(
+      (c) => c.id !== id && (!matchTitle || c.title?.toLowerCase() !== matchTitle.toLowerCase()),
+    );
     savePersistedCourses(fallbackCourses);
     return { success: true };
+  }
+
+  // ── Persistent Image Upload & Media Serving ────────────────────────────────
+  @Post('upload-image')
+  uploadImage(@Body() body: { dataUrl?: string; fileName?: string }) {
+    if (!body?.dataUrl || typeof body.dataUrl !== 'string') {
+      throw new BadRequestException('Missing image dataUrl');
+    }
+
+    const match = body.dataUrl.match(/^data:image\/([a-zA-Z0-9+.-]+);base64,(.+)$/);
+    if (!match) {
+      throw new BadRequestException('Invalid image data format');
+    }
+
+    let ext = match[1].toLowerCase().replace('jpeg', 'jpg').replace('svg+xml', 'svg');
+    if (!['jpg', 'png', 'webp', 'gif', 'svg'].includes(ext)) ext = 'jpg';
+
+    const uploadsDir = path.join(DATA_DIR, 'uploads');
+    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+    const filename = `img-${Date.now()}.${ext}`;
+    const filePath = path.join(uploadsDir, filename);
+    fs.writeFileSync(filePath, Buffer.from(match[2], 'base64'));
+
+    return {
+      success: true,
+      url: `/media/${filename}`,
+      filename,
+    };
+  }
+
+  @Get('media/:filename')
+  serveMedia(@Param('filename') filename: string, @Res() res: any) {
+    const safeName = path.basename(filename);
+    const filePath = path.join(DATA_DIR, 'uploads', safeName);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).send('Not Found');
+    }
+    const ext = path.extname(safeName).toLowerCase();
+    const mimeMap: Record<string, string> = {
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.webp': 'image/webp',
+      '.gif': 'image/gif',
+      '.svg': 'image/svg+xml',
+    };
+    res.setHeader('Content-Type', mimeMap[ext] || 'application/octet-stream');
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
+    return res.send(fs.readFileSync(filePath));
   }
 
   // ── Free Study Resources & Value Addition PDFs ─────────────────────────────

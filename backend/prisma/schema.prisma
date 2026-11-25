@@ -57,7 +57,7 @@ model Course {
   title          String
   description    String?      @db.Text
   price          Float        @default(0)
-  thumbnail      String?
+  thumbnail      String?      @db.LongText
   instructor     String?      @default("Indrajeet Sir")
   published      Boolean      @default(true)
   organizationId String

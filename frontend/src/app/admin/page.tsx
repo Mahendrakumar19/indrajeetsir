@@ -523,7 +523,7 @@ export default function AdminPanel() {
 
   // Primary navigation tabs
   const [tab, setTab] = useState<'users' | 'content' | 'payments' | 'notifications' | 'courses' | 'classes' | 'website' | 'messages' | 'resources'>('users');
-  const [websiteSubTab, setWebsiteSubTab] = useState<'all' | 'hero' | 'about' | 'courses' | 'faqs' | 'contact' | 'leads' | 'legal'>('all');
+  const [websiteSubTab, setWebsiteSubTab] = useState<'hero' | 'about' | 'faqs' | 'contact' | 'legal'>('hero');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -1317,9 +1317,76 @@ export default function AdminPanel() {
     }, 350);
   };
 
+  const saveWebsiteCms = async () => {
+    try { localStorage.setItem('indrajeet_site_content', JSON.stringify(siteContent)); } catch {}
+    try { localStorage.setItem('indrajeet_faqs', JSON.stringify(faqs)); } catch {}
+    try { localStorage.setItem('indrajeet_terms_content', JSON.stringify(termsContent)); } catch {}
+    try { localStorage.setItem('indrajeet_privacy_content', JSON.stringify(privacyContent)); } catch {}
+    try { localStorage.setItem('indrajeet_disclaimer_content', JSON.stringify(disclaimerContent)); } catch {}
+
+    await Promise.all([
+      fetch(`${API_URL}/site-settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(siteContent),
+      }).catch(() => null),
+      fetch(`${API_URL}/faqs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(faqs),
+      }).catch(() => null),
+    ]);
+    triggerAlert('Website content saved & published live!');
+  };
+
   // ── 5. LMS COURSE ACTIONS ──────────────────────────────────────────────────
 
-  const handleCreateCourse = (e: React.FormEvent) => {
+  const uploadCourseImage = async (file: File): Promise<string> => {
+    const readDataUrl = (): Promise<string> =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          if (result) resolve(result);
+          else reject(new Error('Empty file'));
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+      });
+
+    const dataUrl = await readDataUrl();
+
+    // 1. Try persistent backend upload first (works across web + mobile app)
+    try {
+      const res = await fetch(`${API_URL}/upload-image`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dataUrl, fileName: file.name }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.url) {
+          return json.url.startsWith('http') ? json.url : `${API_URL}${json.url}`;
+        }
+      }
+    } catch {}
+
+    // 2. Fallback to Next.js local upload route
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.url) return json.url;
+      }
+    } catch {}
+
+    // 3. Final fallback: direct dataUrl (supported by 50mb backend body limit)
+    return dataUrl;
+  };
+
+  const handleCreateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!courseForm.title) return;
     setCourseSaving(true);
@@ -1335,23 +1402,30 @@ export default function AdminPanel() {
       instructor: 'Indrajeet Sir',
       published: true,
     };
-    fetch(`${API_URL}/courses`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newCourse),
-    })
-      .then((r) => r.json())
-      .catch(() => null)
-      .finally(() => {
-        setCourses((prev) => {
-          const next = [newCourse, ...prev];
-          try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
-          return next;
-        });
-        setCourseForm({ title: '', description: '', price: '4500', tag: '', validity: '', features: '', thumbnail: '' });
-        setCourseSaving(false);
-        triggerAlert(`Course "${newCourse.title}" published successfully.`);
+
+    let savedCourse = newCourse;
+    try {
+      const res = await fetch(`${API_URL}/courses`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newCourse),
       });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.success && data?.course) {
+          savedCourse = data.course;
+        }
+      }
+    } catch {}
+
+    setCourses((prev) => {
+      const next = [savedCourse, ...prev.filter((c) => c.id !== savedCourse.id)];
+      try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
+      return next;
+    });
+    setCourseForm({ title: '', description: '', price: '4500', tag: '', validity: '', features: '', thumbnail: '' });
+    setCourseSaving(false);
+    triggerAlert(`Course "${savedCourse.title}" published successfully.`);
   };
 
   const handleUpdateCourse = async (e: React.FormEvent) => {
@@ -1364,23 +1438,36 @@ export default function AdminPanel() {
       features: editCourseFeatures.split('\n').map((s) => s.trim()).filter(Boolean),
       thumbnail: editCourseModal.thumbnail || undefined,
     };
+
+    let savedCourse = updated;
+    let backendOk = false;
     try {
-      await fetch(`${API_URL}/courses/${updated.id}`, {
+      const res = await fetch(`${API_URL}/courses/${encodeURIComponent(updated.id)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updated),
       });
-    } catch {
-      // offline fallback
-    }
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.success) {
+          backendOk = true;
+          if (data.course) savedCourse = data.course;
+        }
+      }
+    } catch {}
+
     setCourses((prev) => {
-      const next = prev.map((c) => (c.id === updated.id ? updated : c));
+      const next = prev.map((c) => (c.id === updated.id ? savedCourse : c));
       try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
       return next;
     });
     setEditCourseSaving(false);
     setEditCourseModal(null);
-    triggerAlert(`Course "${updated.title}" updated successfully.`);
+    triggerAlert(
+      backendOk
+        ? `Course "${savedCourse.title}" updated & saved permanently!`
+        : `Course "${savedCourse.title}" updated locally (backend unreachable).`,
+    );
   };
 
   const handleDeleteCourse = async (id: string, title: string) => {
@@ -1390,12 +1477,23 @@ export default function AdminPanel() {
       try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
       return next;
     });
-    triggerAlert(`Course "${title}" removed.`);
+
+    let backendOk = false;
     try {
-      await fetch(`${API_URL}/courses/${id}`, { method: 'DELETE' });
-    } catch {
-      // offline fallback
-    }
+      const res = await fetch(`${API_URL}/courses/${encodeURIComponent(id)}?title=${encodeURIComponent(title)}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.success) backendOk = true;
+      }
+    } catch {}
+
+    triggerAlert(
+      backendOk
+        ? `Course "${title}" deleted permanently.`
+        : `Course "${title}" removed locally (backend sync failed).`,
+    );
   };
 
   // ── 6. LMS LIVE CLASS ACTIONS ──────────────────────────────────────────────
@@ -2735,21 +2833,12 @@ export default function AdminPanel() {
                             const file = e.target.files?.[0];
                             if (!file) return;
                             try {
-                              const formData = new FormData();
-                              formData.append('file', file);
-                              const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
-                              const json = await res.json();
-                              if (json.success && json.url) {
-                                setCourseForm((prev) => ({ ...prev, thumbnail: json.url }));
-                                return;
-                              }
-                            } catch {}
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              const dataUrl = event.target?.result as string;
-                              if (dataUrl) setCourseForm((prev) => ({ ...prev, thumbnail: dataUrl }));
-                            };
-                            reader.readAsDataURL(file);
+                              const url = await uploadCourseImage(file);
+                              setCourseForm((prev) => ({ ...prev, thumbnail: url }));
+                              triggerAlert('Course poster image uploaded!');
+                            } catch {
+                              triggerAlert('Failed to upload image. Please try a smaller file.');
+                            }
                           }}
                         />
                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -2848,49 +2937,26 @@ export default function AdminPanel() {
                                     const file = e.target.files?.[0];
                                     if (!file) return;
                                     try {
-                                      const formData = new FormData();
-                                      formData.append('file', file);
-                                      const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
-                                      const json = await res.json();
-                                      if (json.success && json.url) {
-                                        const newThumbnail = json.url;
-                                        const updatedCourses = courses.map((item) =>
-                                          item.id === c.id ? { ...item, thumbnail: newThumbnail } : item
-                                        );
-                                        setCourses(updatedCourses);
-                                        try { localStorage.setItem('indrajeet_courses', JSON.stringify(updatedCourses)); } catch {}
+                                      const newThumbnail = await uploadCourseImage(file);
+                                      const updatedCourses = courses.map((item) =>
+                                        item.id === c.id ? { ...item, thumbnail: newThumbnail } : item
+                                      );
+                                      setCourses(updatedCourses);
+                                      try { localStorage.setItem('indrajeet_courses', JSON.stringify(updatedCourses)); } catch {}
 
-                                        // Persist to backend database immediately!
-                                        fetch(`${API_URL}/courses/${c.id}`, {
-                                          method: 'POST',
-                                          headers: { 'Content-Type': 'application/json' },
-                                          body: JSON.stringify({ ...c, thumbnail: newThumbnail }),
-                                        }).catch(() => null);
-
+                                      const res = await fetch(`${API_URL}/courses/${encodeURIComponent(c.id)}`, {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ ...c, thumbnail: newThumbnail }),
+                                      });
+                                      if (res.ok) {
                                         triggerAlert(`Poster image updated & saved for "${c.title}"!`);
-                                        return;
+                                      } else {
+                                        triggerAlert(`Poster saved locally (backend returned ${res.status}).`);
                                       }
-                                    } catch {}
-                                    const reader = new FileReader();
-                                    reader.onload = (event) => {
-                                      const dataUrl = event.target?.result as string;
-                                      if (dataUrl) {
-                                        const updatedCourses = courses.map((item) =>
-                                          item.id === c.id ? { ...item, thumbnail: dataUrl } : item
-                                        );
-                                        setCourses(updatedCourses);
-                                        try { localStorage.setItem('indrajeet_courses', JSON.stringify(updatedCourses)); } catch {}
-
-                                        fetch(`${API_URL}/courses/${c.id}`, {
-                                          method: 'POST',
-                                          headers: { 'Content-Type': 'application/json' },
-                                          body: JSON.stringify({ ...c, thumbnail: dataUrl }),
-                                        }).catch(() => null);
-
-                                        triggerAlert(`Poster image updated & saved for "${c.title}"!`);
-                                      }
-                                    };
-                                    reader.readAsDataURL(file);
+                                    } catch {
+                                      triggerAlert('Failed to upload poster image.');
+                                    }
                                   }}
                                 />
                               </label>
@@ -3501,61 +3567,52 @@ export default function AdminPanel() {
           <section className="admin-section">
             <div className="section-head">
               <div>
-                <h2>Website Live Content Editor</h2>
-                <p>Edit headings, stats, copy, quotes and contact details across the public website in real time.</p>
+                <h2>Website CMS</h2>
+                <p>Edit homepage, about section, FAQs, contact details, and legal pages in one clean workspace.</p>
               </div>
               <button
                 type="button"
                 className="btn-primary-admin"
-                onClick={() => {
-                  localStorage.setItem('indrajeet_site_content', JSON.stringify(siteContent));
-                  triggerAlert('Website content successfully saved and published live!');
-                }}
+                onClick={saveWebsiteCms}
               >
-                Save & Publish Live
+                Save &amp; Publish Live
               </button>
             </div>
 
-            {/* Category Filter Pills for Website Sections */}
+            {/* Clean 5-Tab Navigation for Website CMS */}
             <div
               className="admin-quick-nav-bar"
               style={{
                 display: 'flex',
                 gap: '0.5rem',
                 flexWrap: 'wrap',
-                padding: '0.75rem 1rem',
+                padding: '0.65rem 0.85rem',
                 background: '#ffffff',
                 border: '1px solid #e2e8f0',
                 borderRadius: '12px',
                 marginTop: '0.75rem',
-                marginBottom: '1rem',
+                marginBottom: '1.25rem',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
               }}
             >
-              <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#475569', alignSelf: 'center', marginRight: '0.35rem' }}>
-                Filter Section:
-              </span>
               {[
-                { label: 'Show All Sections', key: 'all' },
-                { label: 'Hero Banner & Pillars', key: 'hero' },
-                { label: 'About Mentor & Vision', key: 'about' },
-                { label: 'Batches & Fees', key: 'courses' },
-                { label: 'FAQs Manager', key: 'faqs' },
-                { label: 'Contact & Social Desk', key: 'contact' },
-                { label: 'Callback Inquiries', key: 'leads' },
-                { label: 'Terms & Legal Pages', key: 'legal' },
+                { label: '1. Home & Hero', key: 'hero' },
+                { label: '2. About & Results', key: 'about' },
+                { label: '3. FAQs', key: 'faqs' },
+                { label: '4. Contact & Inquiries', key: 'contact' },
+                { label: '5. Legal Pages', key: 'legal' },
               ].map((sub) => (
                 <button
                   key={sub.key}
                   type="button"
                   onClick={() => setWebsiteSubTab(sub.key as typeof websiteSubTab)}
                   style={{
-                    padding: '0.4rem 0.8rem',
+                    padding: '0.45rem 0.9rem',
                     borderRadius: '8px',
                     border: websiteSubTab === sub.key ? '1px solid #2563eb' : '1px solid #e2e8f0',
                     background: websiteSubTab === sub.key ? '#2563eb' : '#f8fafc',
                     color: websiteSubTab === sub.key ? '#ffffff' : '#334155',
-                    fontSize: '0.8rem',
+                    fontSize: '0.82rem',
                     fontWeight: 700,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
@@ -3564,28 +3621,11 @@ export default function AdminPanel() {
                   {sub.label}
                 </button>
               ))}
-              <button
-                type="button"
-                onClick={() => setTab('resources')}
-                style={{
-                  padding: '0.4rem 0.85rem',
-                  borderRadius: '8px',
-                  border: '1px solid #3b82f6',
-                  background: '#eff6ff',
-                  color: '#2563eb',
-                  fontSize: '0.8rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  marginLeft: 'auto',
-                }}
-              >
-                Go to PDF Uploads Tab ↗
-              </button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '0.5rem' }}>
               {/* Card 1: Hero Section Headline, 5 Process Pillars & Dhoni Quote */}
-              <div id="website-section-hero" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'hero' ? 'block' : 'none' }}>
+              <div id="website-section-hero" className="admin-card" style={{ display: websiteSubTab === 'hero' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   1. Hero Section Headline & 5 Core Process Pillars
                 </h3>
@@ -3627,31 +3667,13 @@ export default function AdminPanel() {
                           onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (!file) return;
-
                             try {
-                              const formData = new FormData();
-                              formData.append('file', file);
-                              const res = await fetch('/api/upload-image', {
-                                method: 'POST',
-                                body: formData,
-                              });
-                              const json = await res.json();
-                              if (json.success && json.url) {
-                                setSiteContent((prev) => ({ ...prev, heroImage: json.url }));
-                                triggerAlert('New photo uploaded successfully! Click "Save & Publish Live" to confirm.');
-                                return;
-                              }
-                            } catch {}
-
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              const dataUrl = event.target?.result as string;
-                              if (dataUrl) {
-                                setSiteContent((prev) => ({ ...prev, heroImage: dataUrl }));
-                                triggerAlert('Photo loaded! Click "Save & Publish Live" to confirm.');
-                              }
-                            };
-                            reader.readAsDataURL(file);
+                              const url = await uploadCourseImage(file);
+                              setSiteContent((prev) => ({ ...prev, heroImage: url }));
+                              triggerAlert('New photo uploaded! Click "Save & Publish Live" to confirm.');
+                            } catch {
+                              triggerAlert('Failed to upload hero photo.');
+                            }
                           }}
                         />
                       </div>
@@ -3793,7 +3815,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 2: Section 1 - About Indrajeet Sir (5 Credential Highlights) */}
-              <div id="website-section-about-mentor" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'about' ? 'block' : 'none' }}>
+              <div id="website-section-about-mentor" className="admin-card" style={{ display: websiteSubTab === 'about' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   2. About Indrajeet Sir (5 Credential Highlight Cards)
                 </h3>
@@ -3903,7 +3925,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 3: Section 2 - About The Mentorship (4 Core Pillars) */}
-              <div id="website-section-pillars" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'about' ? 'block' : 'none' }}>
+              <div id="website-section-pillars" className="admin-card" style={{ display: websiteSubTab === 'about' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   3. About The Mentorship (4 Core Pillar Cards)
                 </h3>
@@ -3994,276 +4016,8 @@ export default function AdminPanel() {
                 </div>
               </div>
 
-              {/* Card 4: Mentorship Batches & Courses (All 5 Programs Live in CMS) */}
-              <div id="website-section-courses" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'courses' ? 'block' : 'none' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                  <div>
-                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.25rem', color: '#0f172a' }}>
-                      4. Mentorship Batches & Courses (All 5 Programs)
-                    </h3>
-                    <p style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                      Edit course titles, pricing, validity durations, and line-by-line bullet features directly here.
-                    </p>
-                  </div>
-                  <span className="status-pill verified">5 Courses Active</span>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1.5rem', background: '#f8fafc', padding: '1rem', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-                  <div className="form-group" style={{ margin: 0 }}>
-                    <label style={{ fontWeight: 700, fontSize: '0.85rem' }}>Section Heading</label>
-                    <input
-                      type="text"
-                      value={siteContent.coursesHeading}
-                      onChange={(e) => setSiteContent({ ...siteContent, coursesHeading: e.target.value })}
-                    />
-                  </div>
-                  <div className="form-group" style={{ margin: 0 }}>
-                    <label style={{ fontWeight: 700, fontSize: '0.85rem' }}>Section Subheading</label>
-                    {/* <input
-                      type="text"
-                      value={siteContent.coursesSubheading}
-                      onChange={(e) => setSiteContent({ ...siteContent, coursesSubheading: e.target.value })}
-                    /> */}
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  {courses.map((course, idx) => (
-                    <div
-                      key={course.id}
-                      style={{
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '12px',
-                        padding: '1.25rem',
-                        background: '#ffffff',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.6rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-                          <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>
-                            Course {idx + 1}: {course.title}
-                          </span>
-                          {course.tag && (
-                            <span className="status-pill verified" style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem' }}>
-                              {course.tag}
-                            </span>
-                          )}
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                          <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>
-                            ₹{course.price.toLocaleString('en-IN')}
-                          </span>
-                          <span className="status-pill pending" style={{ fontSize: '0.72rem' }}>
-                            ⏱ {course.validity || '1 Year'}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                        <div className="form-group" style={{ margin: 0 }}>
-                          <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Course Title</label>
-                          <input
-                            type="text"
-                            value={course.title}
-                            onChange={(e) => {
-                              const newTitle = e.target.value;
-                              setCourses((prev) => {
-                                const next = prev.map((c) => (c.id === course.id ? { ...c, title: newTitle } : c));
-                                try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
-                                return next;
-                              });
-                            }}
-                          />
-                        </div>
-
-                        <div className="form-group" style={{ margin: 0 }}>
-                          <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Fee (INR)</label>
-                          <input
-                            type="number"
-                            value={course.price}
-                            onChange={(e) => {
-                              const newPrice = Number(e.target.value) || 0;
-                              setCourses((prev) => {
-                                const next = prev.map((c) => (c.id === course.id ? { ...c, price: newPrice } : c));
-                                try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
-                                return next;
-                              });
-                            }}
-                          />
-                        </div>
-
-                        <div className="form-group" style={{ margin: 0 }}>
-                          <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Validity</label>
-                          <input
-                            type="text"
-                            value={course.validity || ''}
-                            placeholder="e.g. 2 Months"
-                            onChange={(e) => {
-                              const newValidity = e.target.value;
-                              setCourses((prev) => {
-                                const next = prev.map((c) => (c.id === course.id ? { ...c, validity: newValidity } : c));
-                                try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
-                                return next;
-                              });
-                            }}
-                          />
-                        </div>
-
-                        <div className="form-group" style={{ margin: 0 }}>
-                          <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Batch Tag / Badge</label>
-                          <input
-                            type="text"
-                            value={course.tag || ''}
-                            placeholder="e.g. Notes Making Framework"
-                            onChange={(e) => {
-                              const newTag = e.target.value;
-                              setCourses((prev) => {
-                                const next = prev.map((c) => (c.id === course.id ? { ...c, tag: newTag } : c));
-                                try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
-                                return next;
-                              });
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>Brief Description</label>
-                        <input
-                          type="text"
-                          value={course.description || ''}
-                          onChange={(e) => {
-                            const newDesc = e.target.value;
-                            setCourses((prev) => {
-                              const next = prev.map((c) => (c.id === course.id ? { ...c, description: newDesc } : c));
-                              try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
-                              return next;
-                            });
-                          }}
-                        />
-                      </div>
-
-                      {/* Course Cover Image Box */}
-                      <div className="form-group" style={{ marginBottom: '0.75rem', background: '#f8fafc', padding: '0.85rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                        <label style={{ fontSize: '0.8rem', fontWeight: 700, display: 'block', marginBottom: '0.35rem' }}>Course Cover Image / Thumbnail</label>
-                        <div style={{ display: 'flex', gap: '0.85rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                          {course.thumbnail && (
-                            <div style={{ width: '70px', height: '52px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #cbd5e1', position: 'relative' }}>
-                              <Image src={course.thumbnail} alt={course.title} fill unoptimized style={{ objectFit: 'cover' }} />
-                            </div>
-                          )}
-                          <div style={{ flex: 1, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="admin-file-input"
-                              style={{ padding: '0.3rem', width: '100%', fontSize: '0.8rem' }}
-                              onChange={async (e) => {
-                                const file = e.target.files?.[0];
-                                if (!file) return;
-                                try {
-                                  const formData = new FormData();
-                                  formData.append('file', file);
-                                  const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
-                                  const json = await res.json();
-                                  if (json.success && json.url) {
-                                    const newThumbnail = json.url;
-                                    setCourses((prev) => {
-                                      const next = prev.map((c) => (c.id === course.id ? { ...c, thumbnail: newThumbnail } : c));
-                                      try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
-                                      return next;
-                                    });
-                                    fetch(`${API_URL}/courses/${course.id}`, {
-                                      method: 'POST',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ ...course, thumbnail: newThumbnail }),
-                                    }).catch(() => null);
-                                    triggerAlert('Course image uploaded & saved.');
-                                    return;
-                                  }
-                                } catch {}
-                                const reader = new FileReader();
-                                reader.onload = (event) => {
-                                  const dataUrl = event.target?.result as string;
-                                  if (dataUrl) {
-                                    setCourses((prev) => {
-                                      const next = prev.map((c) => (c.id === course.id ? { ...c, thumbnail: dataUrl } : c));
-                                      try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
-                                      return next;
-                                    });
-                                    triggerAlert('Course image set.');
-                                  }
-                                };
-                                reader.readAsDataURL(file);
-                              }}
-                            />
-                            <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                              <input
-                                type="text"
-                                placeholder="Or enter image URL"
-                                value={course.thumbnail || ''}
-                                onChange={(e) => {
-                                  const val = e.target.value;
-                                  setCourses((prev) => {
-                                    const next = prev.map((c) => (c.id === course.id ? { ...c, thumbnail: val } : c));
-                                    try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
-                                    return next;
-                                  });
-                                }}
-                                style={{ fontSize: '0.8rem', padding: '0.35rem 0.5rem', flex: 1 }}
-                              />
-                              {course.thumbnail && (
-                                <button
-                                  type="button"
-                                  className="btn-outline-admin"
-                                  style={{ padding: '0.3rem 0.5rem', fontSize: '0.72rem', color: '#dc2626' }}
-                                  onClick={() => {
-                                    setCourses((prev) => {
-                                      const next = prev.map((c) => (c.id === course.id ? { ...c, thumbnail: '' } : c));
-                                      try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
-                                      return next;
-                                    });
-                                  }}
-                                >
-                                  Remove
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="form-group" style={{ margin: 0 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
-                          <label style={{ fontSize: '0.8rem', fontWeight: 700 }}>
-                            Curriculum Features & Key Highlights (One bullet per line)
-                          </label>
-                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                            {Array.isArray(course.features) ? course.features.length : 0} bullets listed
-                          </span>
-                        </div>
-                        <textarea
-                          rows={4}
-                          value={Array.isArray(course.features) ? course.features.join('\n') : ''}
-                          placeholder="Enter each feature on a new line..."
-                          onChange={(e) => {
-                            const lines = e.target.value.split('\n');
-                            setCourses((prev) => {
-                              const next = prev.map((c) => (c.id === course.id ? { ...c, features: lines } : c));
-                              try { localStorage.setItem('indrajeet_courses', JSON.stringify(next)); } catch {}
-                              return next;
-                            });
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               {/* Card 5: Mentored Aspirants Section */}
-              <div id="website-section-aspirants" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'about' ? 'block' : 'none' }}>
+              <div id="website-section-aspirants" className="admin-card" style={{ display: websiteSubTab === 'about' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   5. Mentored Aspirants (3 Showcase Cards)
                 </h3>
@@ -4319,7 +4073,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 6: Important PDFs Section */}
-              <div id="website-section-pdf-texts" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'about' ? 'block' : 'none' }}>
+              <div id="website-section-pdf-texts" className="admin-card" style={{ display: websiteSubTab === 'about' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   6. Important PDFs & Resource Material Section
                 </h3>
@@ -4345,7 +4099,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 7: Mobile Application Showcase */}
-              <div id="website-section-app" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'about' ? 'block' : 'none' }}>
+              <div id="website-section-app" className="admin-card" style={{ display: websiteSubTab === 'about' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   7. Mobile Application Showcase
                 </h3>
@@ -4379,7 +4133,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 8: Frequently Asked Questions (FAQs) Manager */}
-              <div id="website-section-faqs" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'faqs' ? 'block' : 'none' }}>
+              <div id="website-section-faqs" className="admin-card" style={{ display: websiteSubTab === 'faqs' ? 'block' : 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div>
                     <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
@@ -4482,7 +4236,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 9: Contact Desk & Telegram Channels */}
-              <div id="website-section-contact" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'contact' ? 'block' : 'none' }}>
+              <div id="website-section-contact" className="admin-card" style={{ display: websiteSubTab === 'contact' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem', color: '#0f172a' }}>
                   7. Contact Desk & Official Channels
                 </h3>
@@ -4568,7 +4322,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Card 10: Callback Leads & Aspirant Inquiries */}
-              <div id="website-section-leads" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'leads' ? 'block' : 'none' }}>
+              <div id="website-section-leads" className="admin-card" style={{ display: websiteSubTab === 'contact' ? 'block' : 'none' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
                   <div>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
@@ -4671,7 +4425,7 @@ export default function AdminPanel() {
               
 
               {/* Card 11: Legal Pages Live Editor (Terms, Privacy, Disclaimers) */}
-              <div id="website-section-legal" className="admin-card" style={{ display: websiteSubTab === 'all' || websiteSubTab === 'legal' ? 'block' : 'none' }}>
+              <div id="website-section-legal" className="admin-card" style={{ display: websiteSubTab === 'legal' ? 'block' : 'none' }}>
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '0.5rem' }}>
                   11. Other Website Pages Editor (Terms, Privacy & Disclaimers)
                 </h3>
@@ -4763,31 +4517,9 @@ export default function AdminPanel() {
                   type="button"
                   className="btn-primary-admin"
                   style={{ minWidth: '220px' }}
-                  onClick={() => {
-                    try { localStorage.setItem('indrajeet_site_content', JSON.stringify(siteContent)); } catch {}
-                    try { localStorage.setItem('indrajeet_courses', JSON.stringify(courses)); } catch {}
-                    try { localStorage.setItem('indrajeet_faqs', JSON.stringify(faqs)); } catch {}
-                    fetch(`${API_URL}/site-settings`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(siteContent),
-                    }).catch(() => null);
-                    fetch(`${API_URL}/faqs`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(faqs),
-                    }).catch(() => null);
-                    courses.forEach((c) => {
-                      fetch(`${API_URL}/courses/${c.id}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(c),
-                      }).catch(() => null);
-                    });
-                    triggerAlert('Website content & all courses successfully saved and published live!');
-                  }}
+                  onClick={saveWebsiteCms}
                 >
-                  Save & Publish Live
+                  Save &amp; Publish Live
                 </button>
               </div>
             </section>
@@ -5225,23 +4957,12 @@ export default function AdminPanel() {
                         const file = e.target.files?.[0];
                         if (!file) return;
                         try {
-                          const formData = new FormData();
-                          formData.append('file', file);
-                          const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
-                          const json = await res.json();
-                          if (json.success && json.url) {
-                            setEditCourseModal((prev) => (prev ? { ...prev, thumbnail: json.url } : null));
-                            return;
-                          }
-                        } catch {}
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                          const dataUrl = event.target?.result as string;
-                          if (dataUrl) {
-                            setEditCourseModal((prev) => (prev ? { ...prev, thumbnail: dataUrl } : null));
-                          }
-                        };
-                        reader.readAsDataURL(file);
+                          const url = await uploadCourseImage(file);
+                          setEditCourseModal((prev) => (prev ? { ...prev, thumbnail: url } : null));
+                          triggerAlert('Image uploaded! Click Save Changes to persist.');
+                        } catch {
+                          triggerAlert('Failed to upload image.');
+                        }
                       }}
                     />
                     <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
