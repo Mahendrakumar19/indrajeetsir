@@ -170,25 +170,6 @@ function IconCheck({ size = 14 }: { size?: number }) {
   );
 }
 
-function IconAward({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="8" r="6" />
-      <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
-    </svg>
-  );
-}
-
-function IconFileCheck({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-      <polyline points="14 2 14 8 20 8" />
-      <path d="m9 15 2 2 4-4" />
-    </svg>
-  );
-}
-
 interface LiveClassItem {
   id: string;
   title: string;
@@ -357,7 +338,7 @@ export default function StudentDashboard() {
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.filter((m: any) => !m.id?.startsWith('m-seed-') && m.id !== 'm-welcome-1');
+          return parsed.filter((m: MessageItem) => !m.id?.startsWith('m-seed-') && m.id !== 'm-welcome-1');
         }
       }
     } catch {}
@@ -414,7 +395,7 @@ export default function StudentDashboard() {
       .then((r) => r.json())
       .then((d) => {
         if (Array.isArray(d)) {
-          const clean = d.filter((m: any) => !m.id?.startsWith('m-seed-') && m.id !== 'm-welcome-1');
+          const clean = d.filter((m: MessageItem) => !m.id?.startsWith('m-seed-') && m.id !== 'm-welcome-1');
           setMessages(clean);
           try {
             localStorage.setItem('indrajeet_student_chat_history', JSON.stringify(clean));
@@ -440,14 +421,16 @@ export default function StudentDashboard() {
           bio: params.get('bio') || 'UPSC CSE Aspirant • Mentored by Indrajeet Sir',
         };
         setStudentSession(redirected);
-        setStudent(redirected);
-        setProfileForm({
-          name: redirected.name || '',
-          email: redirected.email || '',
-          phone: redirected.phone || '',
-          attempt: redirected.attempt || '2027',
-          optionalSubject: redirected.optionalSubject || '',
-          bio: redirected.bio || '',
+        requestAnimationFrame(() => {
+          setStudent(redirected);
+          setProfileForm({
+            name: redirected.name || '',
+            email: redirected.email || '',
+            phone: redirected.phone || '',
+            attempt: redirected.attempt || '2027',
+            optionalSubject: redirected.optionalSubject || '',
+            bio: redirected.bio || '',
+          });
         });
         window.dispatchEvent(new Event('storage'));
       }
@@ -462,7 +445,7 @@ export default function StudentDashboard() {
 
     // Safely initialize lastTouchRef and currentTimestamp in effect
     lastTouchRef.current = Date.now();
-    setCurrentTimestamp(Date.now());
+    requestAnimationFrame(() => setCurrentTimestamp(Date.now()));
     const timer = setInterval(() => {
       setCurrentTimestamp(Date.now());
     }, 15000);
@@ -482,8 +465,10 @@ export default function StudentDashboard() {
     window.addEventListener('scroll', handleUserActivity);
     window.addEventListener('touchstart', handleUserActivity);
 
-    fetchClasses();
-    fetchMessages();
+    requestAnimationFrame(() => {
+      fetchClasses();
+      fetchMessages();
+    });
 
     return () => {
       clearInterval(timer);
