@@ -34,6 +34,25 @@ class ApiService {
     }
   }
 
+  static Future<String?> fetchEnrolledCourseByEmail(String email) async {
+    try {
+      final res = await http.get(Uri.parse('$baseUrl/students')).timeout(const Duration(seconds: 7));
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        if (data is List) {
+          final clean = email.trim().toLowerCase();
+          for (final item in data) {
+            if ((item['email'] ?? '').toString().trim().toLowerCase() == clean) {
+              final c = (item['course'] ?? item['enrolledCourse'] ?? '').toString().trim();
+              if (c.isNotEmpty) return c;
+            }
+          }
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
   static Future<Map<String, dynamic>?> studentRegister({
     required String name,
     required String email,
@@ -2760,10 +2779,14 @@ class _HomeScreenState extends State<HomeScreen> {
       final coursesFuture = ApiService.fetchCourses();
       final resourcesFuture = ApiService.fetchResources();
       final faqsFuture = ApiService.fetchFaqs();
+      final enrolledFuture = widget.profile.email.isNotEmpty
+          ? ApiService.fetchEnrolledCourseByEmail(widget.profile.email)
+          : Future<String?>.value(null);
 
-      final results = await Future.wait([coursesFuture, resourcesFuture, faqsFuture]);
-      final liveCourses = results[0];
-      final liveResources = results[1];
+      final results = await Future.wait([coursesFuture, resourcesFuture, faqsFuture, enrolledFuture]);
+      final liveCourses = results[0] as List<Map<String, dynamic>>;
+      final liveResources = results[1] as List<Map<String, dynamic>>;
+      final liveEnrolled = results[3] as String?;
 
       if (mounted) {
         setState(() {
@@ -2772,6 +2795,9 @@ class _HomeScreenState extends State<HomeScreen> {
           }
           if (liveResources.isNotEmpty) {
             _resources = liveResources;
+          }
+          if (liveEnrolled != null && liveEnrolled.isNotEmpty) {
+            widget.profile.enrolledCourse = liveEnrolled;
           }
         });
       }
@@ -3218,29 +3244,49 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(
               width: double.infinity,
               height: 48,
-              child: CupertinoButton.filled(
-                borderRadius: BorderRadius.circular(14),
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  WebRedirectService.redirectToEnrollment(
-                    context,
-                    profile: widget.profile,
-                    courseId: course['id']?.toString(),
-                    courseTitle: title,
-                  );
-                },
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(CupertinoIcons.arrow_up_right_square_fill, size: 16, color: Colors.white),
-                    SizedBox(width: 8),
-                    Text(
-                      'Proceed to Official Enrollment',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+              child: (widget.profile.enrolledCourse.trim().toLowerCase() == title.trim().toLowerCase() ||
+                      (widget.profile.enrolledCourse.trim().isNotEmpty &&
+                          !widget.profile.enrolledCourse.toLowerCase().contains('awaiting') &&
+                          title.trim().toLowerCase().contains(widget.profile.enrolledCourse.trim().toLowerCase())))
+                  ? CupertinoButton(
+                      color: const Color(0xFF059669),
+                      borderRadius: BorderRadius.circular(14),
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(CupertinoIcons.checkmark_seal_fill, size: 18, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            'Already Enrolled in This Batch',
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    )
+                  : CupertinoButton.filled(
+                      borderRadius: BorderRadius.circular(14),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        WebRedirectService.redirectToEnrollment(
+                          context,
+                          profile: widget.profile,
+                          courseId: course['id']?.toString(),
+                          courseTitle: title,
+                        );
+                      },
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(CupertinoIcons.arrow_up_right_square_fill, size: 16, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            'Proceed to Official Enrollment',
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
-              ),
             ),
           ],
         ),
