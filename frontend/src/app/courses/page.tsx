@@ -360,7 +360,7 @@ export default function CoursesPage() {
         modal: {
           ondismiss: () => {
             setPaymentLoading(false);
-            setPaymentError('Payment window closed. You can retry whenever you are ready.');
+            setPaymentError('Payment cancelled.');
           },
         },
       };

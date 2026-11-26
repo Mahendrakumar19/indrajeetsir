@@ -6481,7 +6481,10 @@ html.dark .modal-box,
 /* ── Checkout Modal Card Specifics ── */
 .checkout-modal-card {
   max-width: 520px !important;
-  padding: 1.85rem !important;
+  width: 100% !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  padding: 1.5rem !important;
 }
 
 .checkout-modal-header {
